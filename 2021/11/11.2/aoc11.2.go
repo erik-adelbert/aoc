@@ -7,86 +7,48 @@ import (
 	"strings"
 )
 
-// idx abstracts an index of a 2D matrix
-type idx struct {
-	x, y int
-}
-
-// idxmap precomputes all 8-neighbor indices in a w*h matrix
-func idxmap(w, h int) [][]idx {
-	idxmap := make([][]idx, w*h)
-	for y := 0; y < 10; y++ { // rc shit
-		for x := 0; x < 10; x++ {
-			idxmap[y*10+x] = mask8(idx{x, y}, w, h)
-		}
-	}
-	return idxmap
-}
-
-// mask8 builds adaptative indices for 8-neighbor matrices
-// it handles well corners and borders
-func mask8(cell idx, w, h int) []idx {
-	mask := make([]idx, 0, 8)
-	for δy := -1; δy < 2; δy++ {
-		for δx := -1; δx < 2; δx++ {
-			if δx != 0 || δy != 0 {
-				i, j := cell.x+δx, cell.y+δy            // all of this is so painful
-				if i < 0 || j < 0 || i >= w || j >= h { // out of bounds
-					continue // reject
-				}
-				mask = append(mask, idx{i, j})
-			}
-		}
-	}
-	return mask
-}
-
 // submarine cave abstraction
 type cave struct {
-	cells  [][]byte // each cell contains a (0..9) value
-	w, h   int
-	neighs [][]idx // neighbors
+	cells []byte // each cell contains a (0..9) value
+	h, w  int
 }
 
-func newCave(w, h int) *cave {
-	cells := make([][]byte, h)
-	for i := 0; i < h; i++ {
-		cells[i] = make([]byte, w)
-	}
-	return &cave{cells, w, h, idxmap(w, h)}
+func newCave(h, w int) *cave {
+	cells := make([]byte, h*w)
+	return &cave{cells, h, w}
 }
 
 func (c *cave) popcount() int {
 	return c.w * c.h
 }
 
-func (c *cave) set(cl idx, b byte) {
-	c.cells[cl.y][cl.x] = b
-}
-
-func (c *cave) inc(cl idx) byte {
-	b := (c.cells[cl.y][cl.x] + 1) % 10
-	c.cells[cl.y][cl.x] = b
+func (ca *cave) inc(r, c int) byte {
+	w := ca.w
+	b := (ca.cells[r*w+c] + 1) % 10
+	ca.cells[r*w+c] = b
 	return b
-}
-
-func (c *cave) neighbors(cl idx) []idx {
-	return c.neighs[cl.y*c.w+cl.x]
 }
 
 func (c *cave) String() string {
 	var sb strings.Builder
 	for j := 0; j < c.h; j++ {
-		for _, b := range c.cells[j][:c.w] {
-			sb.WriteByte(b + '0')
+		for i := 0; i < c.w; i++ {
+			sb.WriteByte(c.cells[j*c.w+i] + '0')
 		}
 		sb.WriteByte('\n')
 	}
 	return sb.String()
 }
 
+type coo [2]int
+
+const (
+	R = iota
+	C
+)
+
 // A blast is entirely made of flashing cells.
-type blast map[idx]bool
+type blast map[coo]bool
 
 // safe determines if a cave has steady (non flashing) cells (safe) or not (unsafe).
 // It computes the global blast of one step taken from  a given cave state. It also
@@ -96,9 +58,8 @@ func safe(c *cave) bool {
 	cur := make(blast)
 	for j := 0; j < c.h; j++ {
 		for i := 0; i < c.w; i++ {
-			cl := idx{i, j}     // cave cell
-			if c.inc(cl) == 0 { // flashing when 0
-				cur[cl] = true
+			if c.inc(j, i) == 0 { // flashing when 0
+				cur[coo{j, i}] = true
 			}
 		}
 	}
@@ -114,10 +75,17 @@ func (c *cave) cascade(glob, cur blast) (blast, bool) {
 	for {
 		nxt := make(blast)
 		for flash := range cur {
-			for _, ne := range c.neighbors(flash) {
-				if !glob[ne] && !cur[ne] && !nxt[ne] { // new one!
-					if c.inc(ne) == 0 { // flashing
-						nxt[ne] = true // neighbor chain reacts
+			δj := []int{-1, -1, -1, +0, +0, +1, +1, +1}
+			δi := []int{-1, +0, +1, -1, +1, -1, +0, +1}
+
+			for k := 0; k < len(δj); k++ {
+				j, i := flash[R]+δj[k], flash[C]+δi[k]
+				if j < 0 || j >= c.h || i < 0 || i >= c.w {
+					continue
+				}
+				if !glob[coo{j, i}] && !cur[coo{j, i}] && !nxt[coo{j, i}] { // new one!
+					if c.inc(j, i) == 0 { // flashing
+						nxt[coo{j, i}] = true // neighbor chain reacts
 					}
 				}
 			}
@@ -142,8 +110,8 @@ func main() {
 	cave := newCave(10, 10)
 	j, input := 0, bufio.NewScanner(os.Stdin)
 	for input.Scan() {
-		for i, b := range input.Bytes() {
-			cave.set(idx{i, j}, ctob(b))
+		for i, c := range input.Bytes() {
+			cave.cells[j*10+i] = ctob(c)
 		}
 		j++
 	}
