@@ -1,0 +1,59 @@
+type vec3 [3]int
+
+type mat3 [3][3]int
+
+func identity() mat3 {
+	return mat3{
+		{1, 0, 0},
+		{0, 1, 0},
+		{0, 0, 1},
+	}
+}
+
+func translation(x, y int) mat3 {
+	return mat3{
+		{1, 0, x},
+		{0, 1, y},
+		{0, 0, 1},
+	}
+}
+
+func symetry(x, y int) mat3 {
+	switch {
+	case x != 0:
+		return mat3{
+			{-1, 0, 2 * x},
+			{0, 1, 0},
+			{0, 0, 1},
+		}
+	default: // y != 0
+		return mat3{
+			{1, 0, 0},
+			{0, -1, 2 * y},
+			{0, 0, 1},
+		}
+	}
+}
+
+func (a mat3) matmul(b mat3) mat3 {
+	var m mat3
+	for i := 0; i < 3; i++ {
+		for j := 0; j < 3; j++ {
+			for k := 0; k < 3; k++ {
+				m[j][i] += a[k][i] * b[j][k]
+			}
+		}
+	}
+	return m
+}
+
+func (m mat3) vecmul(v vec3) vec3 {
+	r := vec3{}
+	for y := 0; y < 3; y++ {
+		for x := 0; x < 3; x++ {
+			r[y] += v[x] * m[y][x]
+		}
+	}
+	return r
+}
+

@@ -1,0 +1,253 @@
+                                x = 0                       y = 0                   z = 0               w = 0
+inp w       w <- input                                                                                  w = A
+mul x 0     x <- 0              
+add x z     x <- z              
+mod x 26    x <- z % 26         
+div z 1     nop
+add x 12    x <- x + 12         x = (z % 26) + 12
+eql x w     x <- (x == A)       
+eql x 0     x <- (x != A)       
+mul y 0     y <- 0                                          
+add y 25    y <- 25                                          
+mul y x     y <- y * x                                      
+add y 1     y <- y + 1                                      y = 1 + 25 * (x != A)
+mul z y     z <- z * y                                                              z = z * y
+mul y 0     y <- 0                                         
+add y w     y <- A                                          
+add y 6     y <- A + 6                                      
+mul y x     y <- y * x                                      y = (A + 6) * (x != A)
+add z y     z <- z + y                                                              z = z + y
+inp w       w <- input                                                                                  w = B                                                                                                                                                                  w = B
+mul x 0     x <- 0              
+add x z     x <- z              
+mod x 26    x <- x % 26         
+div z 1     nop
+add x 10    x <- x + 10         x = (z % 26) + 10
+eql x w     x <- (x == w)       
+eql x 0     x <- x != w         
+mul y 0     y <- 0
+add y 25    y <- 25                                         
+mul y x     y <- y * x                                      
+add y 1     y <- y + 1                                      y = 1 + 25 * (x != B)
+mul z y     z <- z * y                                                              z = z * y
+mul y 0     y <- 0                                           
+add y w     y <- B                                          
+add y 2     y <- y + 2                                      
+mul y x     y <- y * x                                      y = (B + 2) * (x != B)
+add z y     z <- z + y                                                              z = z + y
+inp w       w <- input                                                                                  w = C
+mul x 0     x <- 0              
+add x z     x <- z              
+mod x 26    x <- z % 26         
+div z 1     nop
+add x 10    x <- x + 10         x = (z % 26) + 10
+eql x w     x <- x == C         
+eql x 0     x <- x != C         
+mul y 0     y <- 0
+add y 25    y <- 25                                         
+mul y x     y <- y * x                                      
+add y 1     y <- y + 1                                      y = 1 + 25 * (x != C)
+mul z y     z <- z * y                                                              z = z * y
+mul y 0     y <- 0                                          
+add y w     y <- C                                          
+add y 13    y <- y + 13                                     
+mul y x     y <- y * x                                      y = (C + 13) * (x != C) 
+add z y     z <- z + y                                                              z = z + y
+inp w       w <- input                                                                                  w = D
+mul x 0     x <- 0              
+add x z     x <- z              
+mod x 26    x <- z % 26         
+div z 26    z <- z / 26                                                             z = z / 26
+add x -6    x <- x - 6          x = (z % 26) - 6
+eql x w     x <- (x == D)       
+eql x 0     x <= (x != D)       
+mul y 0     y <- 0                                          
+add y 25    y <- 25                                         
+mul y x     y <- y * x                                      
+add y 1     y <- y + 1                                      y = 1 + 25 * (x != D)
+mul z y     z <- z * y                                                              z = z * y
+mul y 0     y <- 0                                          
+add y w     y <- D                                          
+add y 8     y <- y + 8                                      
+mul y x     y <- y * x                                      y = (D + 8) * (x != D)
+add z y     z <- z + y                                                              z = z + y
+inp w       w <- input                                                                                  w = E
+mul x 0     x <- 0
+add x z     x <- z              
+mod x 26    x <- z % 26         
+div z 1     nop
+add x 11    x <- z % 26 + 11    x = (z % 26) + 11
+eql x w     x <- (x == E)       
+eql x 0     x <- (x != E)       
+mul y 0     y <- 0                                          
+add y 25    y <- 25                                         
+mul y x     y <- y * x                                      
+add y 1     y <- y + 1                                      y = 1 + 25 * (x != E)
+mul z y     z <- z * y                                                              z = z * y
+mul y 0     y <- 0                                          
+add y w     y <- E                                          
+add y 13    y <- y + 13                                     
+mul y x     y <- y * x                                      y = (E + 13) * (x != E)
+add z y     z <- z + y                                                              z = z + y
+inp w       w <- input                                                                                  w = F                                                                                  
+mul x 0     x <- 0              
+add x z     x <- z              
+mod x 26    x <- z % 26         
+div z 26    z <- z / 26                                                             z = z / 26
+add x -12   x <- z % 26 - 12    x = (z % 26) - 12
+eql x w     x <- (x == F)       
+eql x 0     x <- (x != F)       
+mul y 0     y <- 0                                          
+add y 25    y <- y + 25                                     
+mul y x     y <- y * x                                      
+add y 1     y <- y + 1                                      y = 1 + 25 * (x != F)
+mul z y     z <- z * y                                                              z = z * y 
+mul y 0     y <- 0                                          
+add y w     y <- F                                          
+add y 8     y <- F + 8                                               
+mul y x     y <- y * x                                      y = (F + 8) * (x != F)
+add z y     z <- z + yesno                                                          z = z + y
+inp w       w <- input                                                                                  w = G
+mul x 0     x <- 0              
+add x z     x <- z              
+mod x 26    x <- z % 26         
+div z 1     nop
+add x 11    x <- x + 11         x = (z % 26) + 11
+eql x w     x <- (x == G)
+eql x 0     x <- (x != G)      
+mul y 0     y <- 0
+add y 25    y <- 25
+mul y x     y <- y * x
+add y 1     y <- y + 1                                      y = 1 + 25 * (x != G)
+mul z y     z <- z * y                                                              z = z * y
+mul y 0     y <- 0
+add y w     y <- G
+add y 3     y <- G + 3
+mul y x     y <- y * x                                      y = (G + 3) * (x != G)
+add z y     z <- z + y                                                              z = z + y
+inp w                                                                                                   w = H
+mul x 0     x <- 0
+add x z     x <- z
+mod x 26    x <- z % 26         
+div z 1     nop
+add x 12    x <- z % 26 + 12    x = (z % 26) + 12
+eql x w     x <- (x == H)
+eql x 0     x <- (x != H)       
+mul y 0     y <- 0
+add y 25    y <- 25
+mul y x     y <- y * x 
+add y 1     y <- y + 1                                      y = 1 + 25 * (x != H)
+mul z y     z <- z * y                                                              z = z * y                              
+mul y 0     y <- 0
+add y w     y <- H
+add y 11    y <- H + 11
+mul y x     y <- y * x                                      y = (H + 11) * (x != H)
+add z y     z <- z + y                                                              z = z + y
+inp w                                                                                                   w = I
+mul x 0     x <- 0
+add x z     x <- z
+mod x 26    x <- z % 26               
+div z 1     nop
+add x 12    x <- z % 26 + 12    x = (z % 26) + 12
+eql x w     x <- (x == I)
+eql x 0     x <- (x != I)       
+mul y 0     y <- 0
+add y 25    y <- 25
+mul y x     y <- y * x
+add y 1     y <- y + 1                                      y = 1 + 25 * (x != I)
+mul z y     z <- z * y                                                              z = z * y
+mul y 0     y <- 0
+add y w     y <- I
+add y 10    y <- I + 10
+mul y x     y <- y * x                                      y = (I + 10) * (x != I)
+add z y     z <- z + y                                                              z = z + y
+inp w                                                                                                   w = J
+mul x 0
+add x z
+mod x 26
+div z 26                                                                            z = z / 26
+add x -2                        x = (z % 26) - 2
+eql x w
+eql x 0                         
+mul y 0
+add y 25
+mul y x
+add y 1                                                     y = 1 + 25 * (x != J)
+mul z y                                                                             z = z * y
+mul y 0
+add y w
+add y 8                                    
+mul y x                                                     y = (J + 8) * (x != J)
+add z y                                                                             z = z + y
+inp w                                                                                                   w = K                                                                                        
+mul x 0
+add x z
+mod x 26
+div z 26                                                                            z = z / 26
+add x -5                        x = (z % 26) - 5
+eql x w
+eql x 0                         
+mul y 0
+add y 25
+mul y x
+add y 1                                                     y = 1 + 25 * (x != K)
+mul z y                                                                             z = z * y
+mul y 0
+add y w
+add y 14
+mul y x                                                     y = (K + 14) * (x != K)
+add z y                                                                             z = z + y
+inp w                                                                                                   w = L
+mul x 0
+add x z
+mod x 26                        
+div z 26                                                                            z = z / 26
+add x -4                        x = (z % 26) - 4
+eql x w
+eql x 0                         
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y                                                     y = 1 + 25 * (x != L)
+mul y 0                                                                             z = z * y
+add y w
+add y 6
+mul y x                                                     y = (L + 6) * (x != L)
+add z y                                                                             z = z + y
+inp w                                                                                                   w = M
+mul x 0
+add x z
+mod x 26
+div z 26                                                                            z = z / 26
+add x -4                        x = (z % 26) - 4
+eql x w
+eql x 0                         
+mul y 0
+add y 25
+mul y x
+add y 1                                                     y = 1 + 25 * (x != M)
+mul z y                                                                             z = z * y
+mul y 0
+add y w
+add y 8
+mul y x                                                     y = (M + 8) * (x != M)
+add z y                                                                             z = z + y
+inp w                                                                                                   w = N
+mul x 0
+add x z
+mod x 26
+div z 26                                                                            z = z / 26
+add x -12                       x = (z % 26) - 12
+eql x w
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1                                                     y = 1 + 25 * (x != N)
+mul z y                                                                             z = z * y
+mul y 0
+add y w
+add y 2
+mul y x                                                     y = (N + 2) * (x != N)
+add z y                                                                             z = z + y
