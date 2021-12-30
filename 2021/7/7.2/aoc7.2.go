@@ -9,9 +9,9 @@ import (
 	"strings"
 )
 
-type positions []int
+type pos []int
 
-func (p positions) mean() int {
+func (p pos) mean() int {
 	sum := 0
 	for _, x := range p {
 		sum += x
@@ -19,7 +19,7 @@ func (p positions) mean() int {
 	return int(math.Round(float64(sum) / float64(len(p))))
 }
 
-func (p positions) sumdist() int {
+func (p pos) sumdist() int {
 	g := func(x int) int { // gauss sum
 		return (x * (x + 1)) / 2
 	}
@@ -32,7 +32,7 @@ func (p positions) sumdist() int {
 }
 
 func main() {
-	var crabs positions
+	var crabs pos
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {

@@ -9,14 +9,14 @@ import (
 	"strings"
 )
 
-type positions []int
+type pos []int
 
-func (p positions) median() int {
+func (p pos) median() int {
 	sort.Ints(p)
 	return p[len(p)/2]
 }
 
-func (p positions) sumdist() int {
+func (p pos) sumdist() int {
 	m, sum := p.median(), 0
 	for _, x := range p {
 		sum += abs(x - m)
@@ -25,7 +25,7 @@ func (p positions) sumdist() int {
 }
 
 func main() {
-	var crabs positions
+	var crabs pos
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {

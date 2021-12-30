@@ -9,7 +9,7 @@ import (
 
 type seg map[rune]bool // 8 segments display abstraction
 
-func newSeg(s string) seg {
+func Seg(s string) seg {
 	x := make(seg)
 	for _, r := range s {
 		x[r] = true
@@ -81,7 +81,7 @@ func main() {
 		tokens := strings.Fields(strings.TrimSpace(args[0]))
 		sig := make([][]seg, 8)
 		for _, t := range tokens {
-			s := newSeg(t)
+			s := Seg(t)
 			sig[len(s)] = append(sig[len(s)], s)
 		}
 		sigs = append(sigs, sig)
@@ -89,7 +89,7 @@ func main() {
 		tokens = strings.Fields(strings.TrimSpace(args[1]))
 		out := make([]seg, 0, 4)
 		for _, t := range tokens {
-			s := newSeg(t)
+			s := Seg(t)
 			out = append(out, s)
 		}
 		outs = append(outs, out)

@@ -18,10 +18,10 @@ func newCave(h, w int) *cave {
 	return &cave{cells, h, w}
 }
 
-func (ca *cave) inc(r, c int) byte {
-	w := ca.w
-	b := (ca.cells[r*w+c] + 1) % 10
-	ca.cells[r*w+c] = b
+func (c *cave) inc(ji idx) byte {
+	j, i, w := ji[0], ji[1], c.w
+	b := (c.cells[j*w+i] + 1) % 10
+	c.cells[j*w+i] = b
 	return b
 }
 
@@ -36,21 +36,22 @@ func (c *cave) String() string {
 	return sb.String()
 }
 
-type coo [2]int
+type idx [2]int
 
 const (
-	R = iota
-	C
+	R = iota // R(ow)
+	C        // C(ol)
 )
 
-type blast map[coo]bool
+type blast map[idx]bool
 
 func flash(c *cave) int {
 	cur := make(blast)
 	for j := 0; j < c.h; j++ {
 		for i := 0; i < c.w; i++ {
-			if c.inc(j, i) == 0 { // flashing
-				cur[coo{j, i}] = true // record in current blast
+			ji := idx{j, i}
+			if c.inc(ji) == 0 { // flashing
+				cur[ji] = true // record in current blast
 			}
 		}
 	}
@@ -70,9 +71,10 @@ func (c *cave) cascade(glob, cur blast) (blast, int) {
 				if j < 0 || j >= c.h || i < 0 || i >= c.w {
 					continue
 				}
-				if !glob[coo{j, i}] && !cur[coo{j, i}] && !nxt[coo{j, i}] { // new one!
-					if c.inc(j, i) == 0 { // flashing
-						nxt[coo{j, i}] = true // neighbor chain reacts
+				ji := idx{j, i}
+				if !glob[ji] && !cur[ji] && !nxt[ji] { // new one!
+					if c.inc(ji) == 0 { // flashing
+						nxt[ji] = true // neighbor chain reacts
 					}
 				}
 			}

@@ -22,10 +22,10 @@ func (c *cave) popcount() int {
 	return c.w * c.h
 }
 
-func (ca *cave) inc(r, c int) byte {
-	w := ca.w
-	b := (ca.cells[r*w+c] + 1) % 10
-	ca.cells[r*w+c] = b
+func (c *cave) inc(ji idx) byte {
+	j, i, w := ji[0], ji[1], c.w
+	b := (c.cells[j*w+i] + 1) % 10
+	c.cells[j*w+i] = b
 	return b
 }
 
@@ -40,7 +40,7 @@ func (c *cave) String() string {
 	return sb.String()
 }
 
-type coo [2]int
+type idx [2]int
 
 const (
 	R = iota
@@ -48,7 +48,7 @@ const (
 )
 
 // A blast is entirely made of flashing cells.
-type blast map[coo]bool
+type blast map[idx]bool
 
 // safe determines if a cave has steady (non flashing) cells (safe) or not (unsafe).
 // It computes the global blast of one step taken from  a given cave state. It also
@@ -58,8 +58,9 @@ func safe(c *cave) bool {
 	cur := make(blast)
 	for j := 0; j < c.h; j++ {
 		for i := 0; i < c.w; i++ {
-			if c.inc(j, i) == 0 { // flashing when 0
-				cur[coo{j, i}] = true
+			ji := idx{j, i}
+			if c.inc(ji) == 0 { // flashing when 0
+				cur[ji] = true
 			}
 		}
 	}
@@ -83,9 +84,10 @@ func (c *cave) cascade(glob, cur blast) (blast, bool) {
 				if j < 0 || j >= c.h || i < 0 || i >= c.w {
 					continue
 				}
-				if !glob[coo{j, i}] && !cur[coo{j, i}] && !nxt[coo{j, i}] { // new one!
-					if c.inc(j, i) == 0 { // flashing
-						nxt[coo{j, i}] = true // neighbor chain reacts
+				ji := idx{j, i}
+				if !glob[ji] && !cur[ji] && !nxt[ji] { // new one!
+					if c.inc(ji) == 0 { // flashing
+						nxt[ji] = true // neighbor chain reacts
 					}
 				}
 			}

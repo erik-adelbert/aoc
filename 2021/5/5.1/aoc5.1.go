@@ -10,25 +10,11 @@ import (
 
 const Infinity = int(^uint(0) >> 1)
 
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
 type point struct {
 	x, y int
 }
 
-func newPoint(a, b string) point {
+func Point(a, b string) point {
 	x, _ := strconv.Atoi(strings.TrimSpace(a))
 	y, _ := strconv.Atoi(strings.TrimSpace(b))
 
@@ -67,7 +53,7 @@ func main() {
 		line := strings.Replace(input.Text(), "->", ",", 1)
 		args := strings.Split(line, ",")
 
-		a, b := newPoint(args[0], args[1]), newPoint(args[2], args[3])
+		a, b := Point(args[0], args[1]), Point(args[2], args[3])
 		draw(a, b)
 	}
 
@@ -78,4 +64,18 @@ func main() {
 		}
 	}
 	fmt.Println(n)
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }
