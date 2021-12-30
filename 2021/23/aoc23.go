@@ -1,6 +1,7 @@
 package main
 
 import (
+	hp "container/heap"
 	"fmt"
 	"strings"
 )
@@ -24,6 +25,7 @@ func (b board) free(s, t int) bool { // s(rc), t(arget)
 	for i := s; i <= t; i++ { // check if hallway cells between s,t are free
 		switch {
 		case i == start || room(i): // skip starting cell and rooms
+			continue
 		case b[i] != ".": // hallway is not clear
 			return false
 		}
@@ -118,25 +120,44 @@ func (b board) move(s, t int) (board, int) { // s(ource), t(arget) -> board, cos
 	return nxt, dist * costs[p]
 }
 
+type cboard struct {
+	b board
+	c int
+}
+
+type heap []*cboard
+
+func (h heap) Len() int { return len(h) }
+
+func (h heap) Less(i, j int) bool {
+	return h[i].c <= h[j].c
+}
+
+func (h heap) Swap(i, j int) {
+	h[i], h[j] = h[j], h[i]
+}
+
+func (h *heap) Push(x interface{}) {
+	b := x.(cboard)
+	*h = append(*h, &b)
+}
+
+func (h *heap) Pop() interface{} {
+	q, n := *h, len(*h)-1
+	c := q[n] // last
+	q[n], *h = nil, q[:n]
+	return c
+}
+
 func (b board) solve() map[board]int {
-	stack := []board{b}
-	push := func(b board) {
-		stack = append(stack, b)
-	}
-	pop := func() board {
-		b := stack[len(stack)-1]
-		stack, stack[len(stack)-1] = stack[:len(stack)-1], board{}
-		return b
-	}
-	empty := func() bool {
-		return len(stack) == 0
-	}
+	heap := make(heap, 0, 6128)
+	hp.Init(&heap)
 
 	costs := map[board]int{b: 0}
-	push(b)        // from start...
-	for !empty() { // ...play all possible games
-		b := pop()         // pop a (sub)game
-		for i := range b { // for all cells
+	hp.Push(&heap, cboard{b, 0}) // from start...
+	for heap.Len() > 0 {         // ...play all possible games
+		b := hp.Pop(&heap).(*cboard).b // pop a (sub)game
+		for i := range b {             // for all cells
 			if _, ok := b.pawn(i); !ok { // empty cell, nothing to do
 				continue
 			}
@@ -144,8 +165,8 @@ func (b board) solve() map[board]int {
 				sub, ncost := b.move(i, j) // ...play one
 				ncost += costs[b]
 				if costs[sub] == 0 || costs[sub] > ncost {
-					costs[sub] = ncost // if it's a better move so far...
-					push(sub)          // ...send subgame to resolution
+					costs[sub] = ncost                 // if it's a better move so far...
+					hp.Push(&heap, cboard{sub, ncost}) // ...send subgame to resolution
 				}
 			}
 		}
