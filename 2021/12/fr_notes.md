@@ -1,0 +1,1 @@
+Pur problème de [recherche en profondeur d'abord](https://en.wikipedia.org/wiki/Depth-first_search) sur un graphe. Ça pourrait être un problème de bac série `code` (s'il existait). 

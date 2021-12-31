@@ -1,0 +1,1 @@
+Il s’agit d’un classique qui a même un nom: `bracket matching`. Il y en a dans tous nos `IDE` et traditionnellement on peut le résoudre à l’aide d’une [pile](https://www.geeksforgeeks.org/check-for-balanced-parentheses-in-an-expression/).
