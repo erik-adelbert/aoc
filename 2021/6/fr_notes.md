@@ -1,0 +1,3 @@
+C'est en tournant l'exemple à la main que j'ai vu qu'il s'agissait d'une rotation vers la gauche avec une addition sur le jour 6. Je trouve la version `python` délicieuse!
+
+[`popcnt`](https://en.wikipedia.org/wiki/SSE4#POPCNT_and_LZCNT) est une instruction `CPU` qui compte les bits à un dans un entier. C'est H.S. Warren Jr. qui a popularisé ce nom dans [Hacker's Delight](https://en.wikipedia.org/wiki/Hacker%27s_Delight). En vrai, il s'agit du [*poids de Hamming*](https://en.wikipedia.org/wiki/Hamming_weight) et j'utilise le nom `popcount` ou `popcnt` pour tous les problèmes ou il faut dénombrer une population.

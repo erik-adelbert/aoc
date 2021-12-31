@@ -8,34 +8,35 @@ import (
 	"strings"
 )
 
-type coor struct {
-	x, y int
+type coo struct {
+	r, c int
 }
 
 type card struct {
 	row [5]int
 	col [5]int
-	val map[int]coor
+	val map[int]coo
 }
 
 func NewCard() *card {
 	c := new(card)
-	c.val = make(map[int]coor)
+	c.val = make(map[int]coo)
 	return c
 }
 
-func (c *card) add(n, y, x int) {
-	c.row[y] += n
-	c.col[x] += n
-	c.val[n] = coor{x, y}
+func (ca *card) add(n, r, c int) {
+	ca.row[r] += n
+	ca.col[c] += n
+	ca.val[n] = coo{r, c}
 }
 
-func (c *card) biff(n int) bool {
-	if rc, ok := c.val[n]; ok {
-		c.row[rc.y] -= n
-		c.col[rc.x] -= n
+func (ca *card) biff(n int) bool {
+	if rc, ok := ca.val[n]; ok {
+		r, c := rc.r, rc.c
+		ca.row[r] -= n
+		ca.col[c] -= n
 
-		if c.row[rc.y] == 0 || c.col[rc.x] == 0 { // win
+		if ca.row[r] == 0 || ca.col[c] == 0 { // win
 			return true
 		}
 	}

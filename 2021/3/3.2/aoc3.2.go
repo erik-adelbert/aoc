@@ -57,13 +57,18 @@ func main() {
 
 	rates := make(chan int64)
 
+	const (
+		O2  = true
+		CO2 = false
+	)
+
 	go func() {
-		o2, _ := rate(nums, true)
+		o2, _ := rate(nums, O2)
 		rates <- o2
 	}()
 
 	go func() {
-		co2, _ := rate(nums, false)
+		co2, _ := rate(nums, CO2)
 		rates <- co2
 	}()
 
