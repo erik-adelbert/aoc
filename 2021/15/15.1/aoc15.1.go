@@ -5,7 +5,6 @@ import (
 	hp "container/heap"
 	"fmt"
 	"os"
-	"sort"
 	"strings"
 )
 
@@ -47,17 +46,9 @@ func (h *heap) Pop() interface{} {
 	return c
 }
 
-func (h *heap) remove(c cell) {
-	i := sort.Search(len(*h), func(i int) bool { return (&c).smaller((*h)[i]) })
-	if i < len(*h) {
-		*h = append((*h)[:i], (*h)[i+1:]...)
-		hp.Init(h)
-	}
-}
-
 type grid struct {
 	d    [][]int
-	w, h int
+	h, w int
 }
 
 func (g *grid) String() string {
@@ -77,18 +68,18 @@ func newGrid() *grid {
 	return &g
 }
 
-func (g grid) get(x, y int) int {
+func (g grid) get(y, x int) int {
 	return g.d[y][x]
 }
 
-func (g *grid) redim(w, h int) {
-	g.w, g.h = w, h
+func (g *grid) redim(h, w int) {
+	g.h, g.w = h, w
 }
 
 func shortest(g *grid) int {
 	const MaxInt = int(^uint(0) >> 1)
 
-	w, h := g.w, g.h
+	h, w := g.h, g.w
 
 	dist := make([][]int, h)
 	for j := range dist {
@@ -98,11 +89,11 @@ func shortest(g *grid) int {
 		}
 	}
 
-	δx := []int{-1, 0, 1, 0}
 	δy := []int{0, 1, 0, -1}
+	δx := []int{-1, 0, 1, 0}
 
-	valid := func(x, y int) bool {
-		return !(x < 0 || x >= g.w || y < 0 || y >= g.h)
+	valid := func(y, x int) bool {
+		return !(y < 0 || y >= g.h || x < 0 || x >= g.w)
 	}
 
 	heap := make(heap, 0, 16364)
@@ -120,11 +111,9 @@ func shortest(g *grid) int {
 		}
 
 		for i := 0; i < 4; i++ {
-			u := cell{}
-			u.x = v.x + δx[i]
-			u.y = v.y + δy[i]
+			u := cell{y: v.y + δy[i], x: v.x + δx[i]}
 
-			if !valid(u.x, u.y) {
+			if !valid(u.y, u.x) {
 				continue
 			}
 

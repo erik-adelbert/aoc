@@ -10,11 +10,11 @@ import (
 	bs "github.com/bearmini/bitstream-go"
 )
 
-type segment struct {
+type seg struct {
 	ver uint8
 	typ uint8
 	val int
-	sub []segment
+	sub []seg
 }
 
 var nread int
@@ -36,7 +36,7 @@ func lit(r *bs.Reader) int {
 	}
 }
 
-func op(r *bs.Reader) []segment {
+func op(r *bs.Reader) []seg {
 	count, _ := r.ReadBool() // len id
 	nread++
 
@@ -49,7 +49,7 @@ func op(r *bs.Reader) []segment {
 	nread += 15
 	last, nsub := nread+int(n), int(n)
 
-	subs := make([]segment, 0, 16)
+	subs := make([]seg, 0, 16)
 	for {
 		sub := load(r)
 		subs = append(subs, sub...)
@@ -63,8 +63,8 @@ func op(r *bs.Reader) []segment {
 	return subs
 }
 
-func load(r *bs.Reader) []segment {
-	var segs []segment
+func load(r *bs.Reader) []seg {
+	var segs []seg
 
 	ver, _ := r.ReadNBitsAsUint8(3)
 	nread += 3
@@ -74,14 +74,14 @@ func load(r *bs.Reader) []segment {
 	switch typ {
 	case 4:
 		val := lit(r)
-		return append(segs, segment{ver, typ, val, nil})
+		return append(segs, seg{ver, typ, val, nil})
 	default:
 		subs := op(r)
-		return append(segs, segment{ver, typ, 0, subs})
+		return append(segs, seg{ver, typ, 0, subs})
 	}
 }
 
-func sum(datagram []segment) int {
+func sum(datagram []seg) int {
 	n := 0
 	for _, s := range datagram { // segment
 		n += int(s.ver)

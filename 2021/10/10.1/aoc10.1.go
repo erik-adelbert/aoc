@@ -17,10 +17,19 @@ func main() {
 		if len(stack) == 0 {
 			return 0
 		}
+		i := len(stack) - 1
 
-		b := stack[len(stack)-1]
-		stack, stack[len(stack)-1] = stack[:len(stack)-1], 0
-		return b
+		pop := stack[i]
+		stack, stack[i] = stack[:i], 0
+		return pop
+	}
+
+	closing := map[byte]byte{
+		'(': ')', '[': ']', '{': '}', '<': '>',
+	}
+
+	scale := map[byte]int{
+		')': 3, ']': 57, '}': 1197, '>': 25137,
 	}
 
 	n, input := 0, bufio.NewScanner(os.Stdin)
@@ -30,15 +39,9 @@ SCAN:
 		for _, b := range input.Bytes() {
 			switch b {
 			case '(', '[', '{', '<':
-				push(b)
+				push(closing[b])
 			case ')', ']', '}', '>':
-				pair := map[byte]byte{
-					'(': ')', '[': ']', '{': '}', '<': '>',
-				}
-				scale := map[byte]int{
-					')': 3, ']': 57, '}': 1197, '>': 25137,
-				}
-				if a := pop(); a == 0 || pair[a] != b {
+				if a := pop(); a != b {
 					n += scale[b]
 					continue SCAN
 				}

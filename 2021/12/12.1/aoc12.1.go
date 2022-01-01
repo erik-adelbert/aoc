@@ -45,32 +45,34 @@ var npath int
 func (g graph) paths(a, b string) {
 	visits := make(map[*node]int)
 	path := make([]*node, 0, len(g))
-	g.recall(g[a], g[b], visits, path)
-	return
-}
 
-func (g graph) recall(u, t *node, visits map[*node]int, path []*node) {
-	seen := func(n *node) bool {
-		return !n.big() && visits[n] > 0
-	}
+	var repaths func(*node, *node, map[*node]int, []*node)
+	repaths = func(u, t *node, visits map[*node]int, path []*node) {
+		seen := func(n *node) bool {
+			return !n.big() && visits[n] > 0
+		}
 
-	visits[u]++
-	path = append(path, u)
+		visits[u]++
+		path = append(path, u)
 
-	if u == t {
-		npath++
-	} else {
-		for _, v := range u.links {
-			if !seen(v) {
-				g.recall(v, t, visits, path)
+		if u == t {
+			npath++
+		} else {
+			for _, v := range u.links {
+				if !seen(v) {
+					repaths(v, t, visits, path)
+				}
 			}
 		}
+
+		visits[u]--
+		i := len(path) - 1
+		path, path[i] = path[:i], nil
+
+		return
 	}
 
-	visits[u]--
-	path = path[:len(path)-1]
-
-	return
+	repaths(g[a], g[b], visits, path)
 }
 
 func main() {

@@ -10,11 +10,11 @@ import (
 	bs "github.com/bearmini/bitstream-go"
 )
 
-type segment struct {
+type seg struct {
 	ver uint8
 	typ uint8
 	val int
-	sub []segment
+	sub []seg
 }
 
 var nread uint // global bit count
@@ -36,7 +36,7 @@ func lit(r *bs.Reader) int {
 	}
 }
 
-func op(r *bs.Reader) []segment {
+func op(r *bs.Reader) []seg {
 	count, _ := r.ReadBool() // len id
 	nread++
 
@@ -49,7 +49,7 @@ func op(r *bs.Reader) []segment {
 	nread += uint(usize)
 	last, nsub := nread+uint(n), int(n) // only one in use according to count (bool)
 
-	subs := make([]segment, 0, 16)
+	subs := make([]seg, 0, 16)
 	for {
 		sub := load(r) // recurse
 		subs = append(subs, sub...)
@@ -73,8 +73,8 @@ const ( // cmd map
 	EQ
 )
 
-func load(r *bs.Reader) []segment {
-	var segs []segment
+func load(r *bs.Reader) []seg {
+	var segs []seg
 
 	ver, _ := r.ReadNBitsAsUint8(3)
 	nread += 3
@@ -84,10 +84,10 @@ func load(r *bs.Reader) []segment {
 	switch typ {
 	case LIT: // data from segment
 		val := lit(r)
-		return append(segs, segment{ver, typ, val, nil})
+		return append(segs, seg{ver, typ, val, nil})
 	default:
 		subs := op(r)
-		return append(segs, segment{ver, typ, 0, subs})
+		return append(segs, seg{ver, typ, 0, subs})
 	}
 }
 
@@ -96,7 +96,7 @@ const (
 	MinInt = -int(^uint(0)>>1) - 1
 )
 
-func eval(cmd segment) int { // command from segment
+func eval(cmd seg) int { // command from segment
 	acc, args := 0, cmd.sub // args from segments
 	switch cmd.typ {
 	case ADD:

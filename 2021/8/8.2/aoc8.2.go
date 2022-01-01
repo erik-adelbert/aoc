@@ -18,6 +18,10 @@ func Seg(s string) seg {
 }
 
 func (s seg) inter(t seg) int { // common segments
+	if len(s) > len(t) {
+		s, t = t, s
+	}
+
 	n := 0
 	for r := range s {
 		if t[r] {
@@ -38,10 +42,11 @@ func (s seg) String() string {
 var digs = []int{6, 2, 5, 5, 4, 5, 6, 3, 7, 6} //  segment counts for 0..9
 
 func decode(segs []seg, sigs [][]seg) int {
+	sig1 := sigs[digs[1]][0] // segment signal for 1
+	sig4 := sigs[digs[4]][0] // segment signal for 4
+
 	n := 0
 	for _, s := range segs {
-		sig1 := sigs[digs[1]][0] // segment signal for 1
-		sig4 := sigs[digs[4]][0] // segment signal for 4
 		n *= 10
 		switch len(s) { // segments
 		case 5:
@@ -59,10 +64,10 @@ func decode(segs []seg, sigs [][]seg) int {
 				n += 6
 			case s.inter(sig4) == 4:
 				n += 9
-			default: // n += 0
 			}
 		default: // 2, 3, 4, 7 segment values are 1, 7, 4, 8
-			known := []int{0, 0, 1, 7, 4, 0, 0, 8}
+			// known := []int{0, 0, 1, 7, 4, 0, 0, 8}
+			known := map[int]int{2: 1, 3: 7, 4: 4, 7: 8}
 			n += known[len(s)]
 		}
 	}
@@ -89,15 +94,14 @@ func main() {
 		tokens = strings.Fields(strings.TrimSpace(args[1]))
 		out := make([]seg, 0, 4)
 		for _, t := range tokens {
-			s := Seg(t)
-			out = append(out, s)
+			out = append(out, Seg(t))
 		}
 		outs = append(outs, out)
 	}
 
-	n := 0
+	sum := 0
 	for i, segs := range outs {
-		n += decode(segs, sigs[i])
+		sum += decode(segs, sigs[i])
 	}
-	fmt.Println(n)
+	fmt.Println(sum)
 }

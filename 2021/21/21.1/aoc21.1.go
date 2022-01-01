@@ -31,9 +31,9 @@ func main() {
 	p, n, d := p1, 0, 0 // player, roll count, dice value
 	for {
 		for i := 0; i < 3; i++ { // 3 dice rolls
-			n++
-			d = d%100 + 1
+			d = d%100 + 1            // roll dice
 			c[p] = (c[p]+d-1)%10 + 1 // update player location
+			n++
 		}
 		if s[p] += c[p]; s[p] >= 1000 { // update and check score
 			fmt.Println(n * s[other(p)])

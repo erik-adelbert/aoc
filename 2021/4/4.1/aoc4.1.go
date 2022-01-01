@@ -24,7 +24,7 @@ func newCard() *card {
 	return c
 }
 
-func (ca *card) add(n, r, c int) {
+func (ca *card) add(r, c, n int) {
 	ca.row[r] += n
 	ca.col[c] += n
 	ca.val[n] = coo{r, c}
@@ -58,23 +58,23 @@ func main() {
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
-		args := input.Text()
-		data := strings.Fields(args)
-		switch len(data) {
+		line := input.Text()
+		args := strings.Fields(line)
+		switch len(args) {
 		case 0: // sep
 			if row > 0 {
 				deck = append(deck, cur)
 				cur, row = newCard(), 0
 			}
 		case 5: // cardboard row
-			for col, s := range data {
+			for col, s := range args {
 				n, _ := strconv.Atoi(s)
-				cur.add(n, row, col)
+				cur.add(row, col, n)
 			}
 			row++
 		default: // first line
-			data = strings.Split(data[0], ",")
-			for _, s := range data {
+			args = strings.Split(args[0], ",")
+			for _, s := range args {
 				n, _ := strconv.Atoi(s)
 				draw = append(draw, n)
 			}

@@ -20,6 +20,10 @@ func init() {
 }
 
 func merge(a, b histo) histo {
+	if len(a) < len(b) {
+		a, b = b, a
+	}
+
 	for k, v := range b {
 		a[k] += v
 	}

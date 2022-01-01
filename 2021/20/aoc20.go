@@ -13,7 +13,7 @@ const (
 )
 
 type pixel struct {
-	x, y int
+	y, x int
 }
 
 type bitmap struct {
@@ -26,9 +26,9 @@ var par = false // par(ity)
 
 func (b bitmap) inf(p pixel) bool {
 	switch {
-	case p.x < b.bbox[min].x || p.x > b.bbox[max].x:
-		fallthrough
 	case p.y < b.bbox[min].y || p.y > b.bbox[max].y:
+		fallthrough
+	case p.x < b.bbox[min].x || p.x > b.bbox[max].x:
 		return true
 	}
 	return false
@@ -52,28 +52,28 @@ func (b bitmap) enhance() *bitmap {
 	nxt := bitmap{ // double buffer
 		kern: b.kern,
 		bbox: [2]pixel{
-			{b.bbox[min].x - 1, b.bbox[min].y - 1},
-			{b.bbox[max].x + 1, b.bbox[max].y + 1},
+			{b.bbox[min].y - 1, b.bbox[min].x - 1},
+			{b.bbox[max].y + 1, b.bbox[max].x + 1},
 		},
 		data: make(map[pixel]byte, len(b.data)),
 	}
 
 	kern9 := func(p pixel) byte { // apply filter
-		δx := []int{-1, 0, 1, -1, 0, 1, -1, 0, 1}
-		δy := []int{-1, -1, -1, 0, 0, 0, 1, 1, 1}
+		δy := []int{-1, -1, -1, +0, 0, 0, +1, 1, 1}
+		δx := []int{-1, +0, +1, -1, 0, 1, -1, 0, 1}
 
 		n := 0
 		for i := 0; i < len(δx); i++ {
-			x, y := p.x+δx[i], p.y+δy[i]
-			n = (n << 1) | b.get(pixel{x, y})
+			y, x := p.y+δy[i], p.x+δx[i]
+			n = (n << 1) | b.get(pixel{y, x})
 		}
 		return b.kern[n]
 	}
 
 	for y := b.bbox[min].y - 1; y <= b.bbox[max].y+1; y++ {
 		for x := b.bbox[min].x - 1; x <= b.bbox[max].x+1; x++ {
-			if kern9(pixel{x, y}) == 1 {
-				nxt.data[pixel{x, y}] = 1 // it's a map!
+			if kern9(pixel{y, x}) == 1 {
+				nxt.data[pixel{y, x}] = 1 // it's a map!
 			}
 		}
 	}
@@ -87,7 +87,7 @@ func (b bitmap) String() string {
 
 	for y := b.bbox[min].y - 1; y <= b.bbox[max].y+1; y++ {
 		for x := b.bbox[min].x - 1; x <= b.bbox[max].x+1; x++ {
-			if b.get(pixel{x, y}) == 1 {
+			if b.get(pixel{y, x}) == 1 {
 				sb.WriteByte('@')
 			} else {
 				sb.WriteByte('.')
@@ -106,7 +106,7 @@ func newBitmap(ker []byte, raw [][]byte) *bitmap {
 		kern: [512]byte{},
 		bbox: [...]pixel{
 			{0, 0},
-			{len(raw[0]) - 1, len(raw) - 1},
+			{len(raw) - 1, len(raw[0]) - 1},
 		},
 		data: make(map[pixel]byte, 64*64),
 	}
@@ -120,7 +120,7 @@ func newBitmap(ker []byte, raw [][]byte) *bitmap {
 	for y, row := range raw {
 		for x, v := range row {
 			if v == '#' {
-				b.data[pixel{x, y}] = 1
+				b.data[pixel{y, x}] = 1
 			}
 		}
 	}
@@ -145,14 +145,11 @@ func main() {
 	}
 	img := newBitmap(kern, raw)
 
-	count := func(lim int) {
-		tmp := img
-		for i := 0; i < lim; i++ {
-			tmp = tmp.enhance()
+	for i := 0; i < 50; i++ {
+		if i == 2 {
+			fmt.Println(img.count()) // part1
 		}
-		fmt.Println(tmp.count())
+		img = img.enhance()
 	}
-
-	count(2)  // part1
-	count(50) // part2
+	fmt.Println(img.count()) // part2
 }

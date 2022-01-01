@@ -31,12 +31,14 @@ func (c *cave) String() string {
 		for i := 0; i < c.w; i++ {
 			sb.WriteByte(c.cells[j*c.w+i] + '0')
 		}
-		sb.WriteByte('\n')
+		if j != c.h {
+			sb.WriteByte('\n')
+		}
 	}
 	return sb.String()
 }
 
-type idx [2]int
+type idx [2]int // row major index
 
 const (
 	R = iota // R(ow)
@@ -44,6 +46,10 @@ const (
 )
 
 type blast map[idx]bool
+
+func (b blast) popcount() int {
+	return len(b)
+}
 
 func flash(c *cave) int {
 	cur := make(blast)
@@ -55,11 +61,10 @@ func flash(c *cave) int {
 			}
 		}
 	}
-	_, n := c.cascade(make(blast), cur) // discard global blast
-	return n
+	return c.cascade(make(blast), cur)
 }
 
-func (c *cave) cascade(glob, cur blast) (blast, int) {
+func (c *cave) cascade(glob, cur blast) int {
 	for {
 		nxt := make(blast)
 		for flash := range cur {
@@ -84,8 +89,8 @@ func (c *cave) cascade(glob, cur blast) (blast, int) {
 		}
 		cur = nxt
 
-		if len(nxt) == 0 { // no more flashing cell
-			return glob, len(glob)
+		if nxt.popcount() == 0 { // no more flashing cell
+			return glob.popcount()
 		}
 	}
 }

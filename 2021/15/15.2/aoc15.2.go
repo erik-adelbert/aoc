@@ -5,12 +5,11 @@ import (
 	hp "container/heap"
 	"fmt"
 	"os"
-	"sort"
 	"strings"
 )
 
 type cell struct {
-	x, y, v int
+	y, x, v int
 }
 
 func (a *cell) smaller(b *cell) bool {
@@ -41,23 +40,15 @@ func (h *heap) Push(x interface{}) {
 }
 
 func (h *heap) Pop() interface{} {
-	q, n := *h, len(*h)-1
-	c := q[n] // last
-	q[n], *h = nil, q[:n]
-	return c
-}
-
-func (h *heap) remove(c cell) {
-	i := sort.Search(len(*h), func(i int) bool { return (&c).smaller((*h)[i]) })
-	if i < len(*h) {
-		*h = append((*h)[:i], (*h)[i+1:]...)
-		hp.Init(h)
-	}
+	q, i := *h, len(*h)-1
+	pop := q[i]
+	*h, q[i] = q[:i], nil
+	return pop
 }
 
 type grid struct {
 	d    [][]int
-	w, h int
+	h, w int
 }
 
 func (g grid) String() string {
@@ -77,7 +68,7 @@ func newGrid() *grid {
 	return &g
 }
 
-func (g grid) get(x, y int) int {
+func (g grid) get(y, x int) int {
 	next := func(v, inc int) int {
 		if v+inc > 9 {
 			return v + inc - 9
@@ -91,14 +82,14 @@ func (g grid) get(x, y int) int {
 	return next(g.d[y][x], j+i)
 }
 
-func (g *grid) redim(w, h int) {
-	g.w, g.h = w, h
+func (g *grid) redim(h, w int) {
+	g.h, g.w = h, w
 }
 
 func (g grid) safest(factor int) int {
 	const MaxInt = int(^uint(0) >> 1)
 
-	w, h := factor*g.w, factor*g.h
+	h, w := factor*g.h, factor*g.w
 
 	dist := make([][]int, h)
 	for j := range dist {
@@ -108,17 +99,17 @@ func (g grid) safest(factor int) int {
 		}
 	}
 
-	δx := []int{-1, 0, 1, 0}
 	δy := []int{0, 1, 0, -1}
+	δx := []int{-1, 0, 1, 0}
 
-	valid := func(x, y int) bool {
-		return !(x < 0 || x >= w || y < 0 || y >= h)
+	valid := func(y, x int) bool {
+		return !(y < 0 || y >= h || x < 0 || x >= w)
 	}
 
 	heap := make(heap, 0, 16364)
 	hp.Init(&heap)
 
-	hp.Push(&heap, cell{0, 0, 0})
+	hp.Push(&heap, cell{})
 	dist[0][0] = g.get(0, 0)
 
 	for heap.Len() > 0 {
@@ -130,17 +121,15 @@ func (g grid) safest(factor int) int {
 		}
 
 		for i := 0; i < 4; i++ {
-			u := cell{}
-			u.x = v.x + δx[i]
-			u.y = v.y + δy[i]
+			u := cell{y: v.y + δy[i], x: v.x + δx[i]}
 
-			if !valid(u.x, u.y) {
+			if !valid(u.y, u.x) {
 				continue
 			}
 
 			if dist[u.y][u.x] > dist[v.y][v.x]+g.get(u.x, u.y) {
 				dist[u.y][u.x] = dist[v.y][v.x] + g.get(u.x, u.y)
-				hp.Push(&heap, cell{u.x, u.y, dist[u.y][u.x]})
+				hp.Push(&heap, cell{u.y, u.x, dist[u.y][u.x]})
 			}
 		}
 	}

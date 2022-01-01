@@ -14,7 +14,7 @@ func main() {
 	n, input := 0, bufio.NewScanner(os.Stdin)
 	for input.Scan() {
 		cur, _ := strconv.Atoi(input.Text())
-		if cur > old {
+		if cur > old { // increase!
 			n++
 		}
 		old = cur

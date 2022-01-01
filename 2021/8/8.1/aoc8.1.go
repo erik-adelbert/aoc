@@ -15,15 +15,15 @@ func main() {
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
 		args := strings.Split(input.Text(), "|")
-		tokens := strings.Fields(strings.TrimSpace(args[1]))
-		for _, t := range tokens {
+		outs := strings.Fields(strings.TrimSpace(args[1]))
+		for _, t := range outs {
 			counts[len(t)]++
 		}
 	}
 
-	n := 0
-	for _, d := range []int{1, 4, 7, 8} {
-		n += counts[digits[d]]
+	sum := 0
+	for _, n := range []int{1, 4, 7, 8} {
+		sum += counts[digits[n]]
 	}
-	fmt.Println(n)
+	fmt.Println(sum)
 }

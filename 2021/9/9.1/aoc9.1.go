@@ -9,7 +9,7 @@ import (
 
 type grid struct {
 	d    [][]byte
-	w, h int
+	h, w int
 }
 
 func newGrid() *grid {
@@ -21,23 +21,32 @@ func newGrid() *grid {
 	return &grid{d, 128, 128}
 }
 
-func (g *grid) set(v byte, x, y int) {
+func (g *grid) set(v byte, y, x int) {
 	g.d[y+1][x+1] = v
 }
 
-func (g *grid) get(x, y int) byte {
+func (g *grid) get(y, x int) byte {
 	return g.d[y+1][x+1]
 }
 
-func (g *grid) neigh(x, y int) []byte {
-	neigh := []byte{
-		g.d[y][x+1], g.d[y+1][x], g.d[y+2][x+1], g.d[y+1][x+2],
+func (g *grid) filter(y, x int) int {
+	v := g.get(y, x)
+	for _, x := range g.neigh(y, x) {
+		if x > 0 && v >= x {
+			return 0
+		}
 	}
-	return neigh
+	return 1 + int(v-'0')
 }
 
-func (g *grid) redim(w, h int) {
-	g.w, g.h = w, h
+func (g *grid) neigh(y, x int) []byte {
+	return []byte{
+		g.d[y][x+1], g.d[y+1][x], g.d[y+2][x+1], g.d[y+1][x+2],
+	}
+}
+
+func (g *grid) redim(h, w int) {
+	g.h, g.w = h, w
 }
 
 func (g *grid) copy(i int, data []byte) {
@@ -46,11 +55,13 @@ func (g *grid) copy(i int, data []byte) {
 
 func (g *grid) String() string {
 	var sb strings.Builder
-	for i := 1; i <= g.h; i++ {
-		for j := 1; j <= g.w; j++ {
-			sb.WriteByte(g.d[i][j])
+	for j := 1; j <= g.h; j++ {
+		for i := 1; i <= g.w; i++ {
+			sb.WriteByte(g.d[j][i])
 		}
-		sb.WriteByte('\n')
+		if j != g.h {
+			sb.WriteByte('\n')
+		}
 	}
 	return sb.String()
 }
@@ -58,30 +69,19 @@ func (g *grid) String() string {
 func main() {
 	g := newGrid()
 
-	w, h, input := 0, 0, bufio.NewScanner(os.Stdin)
+	h, w, input := 0, 0, bufio.NewScanner(os.Stdin)
 	for input.Scan() {
 		args := input.Bytes()
 		g.copy(h, args)
-		w = len(args)
-		h++
+		h, w = h+1, len(args)
 	}
-	g.redim(w, h)
+	g.redim(h, w)
 
-	n := 0
+	sum := 0
 	for y := 0; y < g.h; y++ {
 		for x := 0; x < g.w; x++ {
-			v := g.get(x, y)
-
-			min := v
-			for _, x := range g.neigh(x, y) {
-				if x > 0 && v >= x {
-					min = 0
-				}
-			}
-			if min == v {
-				n += 1 + int(v-'0')
-			}
+			sum += g.filter(y, x)
 		}
 	}
-	fmt.Println(n)
+	fmt.Println(sum)
 }

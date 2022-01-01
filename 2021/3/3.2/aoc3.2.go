@@ -9,42 +9,42 @@ import (
 
 const width = 12 // bits
 
-func bitpops(nums []string) []int {
-	bpops := make([]int, width)
+func popcounts(nums []string) []int {
+	popcnts := make([]int, width)
 	for _, n := range nums {
 		for i, c := range n {
 			if c == '1' {
-				bpops[i]++
+				popcnts[i]++
 			}
 		}
 	}
-	return bpops
+	return popcnts
 }
 
-func rate(numbers []string, o2 bool) (int64, error) {
-	for i := 0; i < width && len(numbers) > 1; i++ {
-		bpops := bitpops(numbers)
-		matched := make([]string, 0, len(numbers))
-		for _, s := range numbers {
+func rate(nums []string, o2 bool) (int64, error) {
+	for i := 0; i < width && len(nums) > 1; i++ {
+		popcnts := popcounts(nums)
+		matched := make([]string, 0, len(nums))
+		for _, s := range nums {
 			if o2 {
 				switch {
-				case s[i] == '0' && len(numbers) > 2*bpops[i]:
+				case s[i] == '0' && len(nums) > 2*popcnts[i]:
 					matched = append(matched, s)
-				case s[i] == '1' && len(numbers) <= 2*bpops[i]:
+				case s[i] == '1' && len(nums) <= 2*popcnts[i]:
 					matched = append(matched, s)
 				}
 			} else { // co2
 				switch {
-				case s[i] == '0' && len(numbers) <= 2*bpops[i]:
+				case s[i] == '0' && len(nums) <= 2*popcnts[i]:
 					matched = append(matched, s)
-				case s[i] == '1' && len(numbers) > 2*bpops[i]:
+				case s[i] == '1' && len(nums) > 2*popcnts[i]:
 					matched = append(matched, s)
 				}
 			}
 		}
-		numbers = matched
+		nums = matched
 	}
-	return strconv.ParseInt(numbers[0], 2, 32)
+	return strconv.ParseInt(nums[0], 2, 32)
 }
 
 func main() {

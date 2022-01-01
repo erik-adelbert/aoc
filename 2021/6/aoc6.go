@@ -8,42 +8,41 @@ import (
 	"strings"
 )
 
-type fishes [9]uint64
+type popcnt [9]uint64
 
-func next(cur fishes) fishes {
-	var nxt fishes
-	nxt[6] = cur[0]
+func incube(cur popcnt) popcnt {
+	var nxt popcnt = popcnt{6: cur[0]}
 	for i, v := range cur {
 		nxt[(i+8)%9] += v // rotate left
 	}
 	return nxt
 }
 
-func sum(popcnt fishes) uint64 {
-	sum := uint64(0)
-	for _, v := range popcnt {
-		sum += v
+func sum(p popcnt) uint64 {
+	var sum uint64
+	for _, n := range p {
+		sum += n
 	}
 	return sum
 }
 
 func main() {
-	var popcnt fishes
+	var fishes popcnt
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
 		args := strings.Split(input.Text(), ",")
 		for _, arg := range args {
 			i, _ := strconv.Atoi(arg)
-			popcnt[i]++
+			fishes[i]++
 		}
 	}
 
 	for i := 0; i < 256; i++ {
 		if i == 80 {
-			fmt.Println(sum(popcnt)) // part1
+			fmt.Println(sum(fishes)) // part1
 		}
-		popcnt = next(popcnt)
+		fishes = incube(fishes)
 	}
-	fmt.Println(sum(popcnt)) // part2
+	fmt.Println(sum(fishes)) // part2
 }

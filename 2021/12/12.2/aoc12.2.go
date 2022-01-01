@@ -43,41 +43,43 @@ type graph map[string]*node
 
 var paths map[string]bool
 
-func (g graph) all(a, b string) int {
+func (g graph) all(a, b string) {
 	visits := make(map[*node]int)
 	path := make([]*node, 0, len(g))
-	g.recall(g[a], g[b], visits, path)
-	return 0
-}
 
-func (g graph) recall(u, t *node, visits map[*node]int, path []*node) {
-	visited := func(n *node) bool {
-		return !n.big() && visits[n] >= n.limit
-	}
-
-	visits[u]++
-	path = append(path, u)
-
-	if u == t {
-		var sb strings.Builder
-		for _, n := range path {
-			sb.WriteString(n.name)
+	var reall func(*node, *node, map[*node]int, []*node)
+	reall = func(u, t *node, visits map[*node]int, path []*node) {
+		seen := func(n *node) bool {
+			return !n.big() && visits[n] >= n.limit
 		}
-		if !paths[sb.String()] {
-			paths[sb.String()] = true
-		}
-	} else {
-		for _, v := range u.links {
-			if !visited(v) {
-				g.recall(v, t, visits, path)
+
+		visits[u]++
+		path = append(path, u)
+
+		if u == t {
+			var sb strings.Builder
+			for _, n := range path {
+				sb.WriteString(n.name)
+			}
+			if !paths[sb.String()] {
+				paths[sb.String()] = true
+			}
+		} else {
+			for _, v := range u.links {
+				if !seen(v) {
+					reall(v, t, visits, path)
+				}
 			}
 		}
+
+		visits[u]--
+		i := len(path) - 1
+		path, path[i] = path[:i], nil
+
+		return
 	}
 
-	visits[u]--
-	path = path[:len(path)-1]
-
-	return
+	reall(g[a], g[b], visits, path)
 }
 
 func main() {

@@ -12,22 +12,22 @@ const (
 )
 
 func main() {
-	bitpops := make([]int, width)
+	popcounts := make([]int, width)
 
 	n, input := 0, bufio.NewScanner(os.Stdin)
 	for input.Scan() {
 		for i, c := range input.Text() {
 			if c == '1' {
-				bitpops[i]++
+				popcounts[i]++
 			}
 		}
 		n++
 	}
 
 	var ε int
-	for _, bpop := range bitpops {
+	for _, popcnt := range popcounts {
 		ε <<= 1
-		if 2*bpop <= n {
+		if 2*popcnt <= n {
 			ε |= 1
 		}
 	}

@@ -10,7 +10,7 @@ import (
 
 type grid struct {
 	d    [][]int
-	w, h int
+	h, w int
 }
 
 func newGrid() *grid {
@@ -21,21 +21,21 @@ func newGrid() *grid {
 	return &grid{d, 128, 128}
 }
 
-func (g *grid) set(v int, x, y int) {
-	if x < 0 || y < 0 || g.d[y+1][x+1] == '9' {
+func (g *grid) set(y, x, v int) {
+	if y < 0 || x < 0 || g.d[y+1][x+1] == '9' {
 		return
 	}
 	g.d[y+1][x+1] = v
 }
 
-func (g *grid) get(x, y int) int {
+func (g *grid) get(y, x int) int {
 	if x < 0 || y < 0 {
 		return 0
 	}
 	return g.d[y+1][x+1]
 }
 
-func (g *grid) components() map[int]int {
+func (g *grid) comps() map[int]int {
 	label := newGrid() // reuse grid
 	label.redim(g.w, g.h)
 
@@ -51,7 +51,7 @@ func (g *grid) components() map[int]int {
 		return x
 	}
 
-	union := func(x, y int) {
+	union := func(y, x int) {
 		if x > y {
 			labels[y] = x
 		} else {
@@ -62,21 +62,21 @@ func (g *grid) components() map[int]int {
 	id := 256                  // labels (>256)
 	for y := 0; y < g.h; y++ { // Hoshen-Kopelman
 		for x := 0; x < g.w; x++ {
-			if g.get(x, y) == '9' {
+			if g.get(y, x) == '9' {
 				continue
 			}
-			nor, wes := label.get(x, y-1), label.get(x-1, y)
+			nor, wes := label.get(y-1, x), label.get(y, x-1)
 			switch {
 			case nor == 0 && wes == 0:
-				label.set(id, x, y)
+				label.set(y, x, id)
 				id++
 			case nor != 0 && wes == 0:
-				label.set(find(nor), x, y)
+				label.set(y, x, find(nor))
 			case nor == 0 && wes != 0:
-				label.set(find(wes), x, y)
+				label.set(y, x, find(wes))
 			default:
 				union(nor, wes)
-				label.set(find(nor), x, y)
+				label.set(y, x, find(nor))
 			}
 		}
 	}
@@ -84,8 +84,7 @@ func (g *grid) components() map[int]int {
 	comps := make(map[int]int)
 	for y := 0; y < g.h; y++ {
 		for x := 0; x < g.w; x++ {
-			v := label.get(x, y)
-			if v != 0 {
+			if v := label.get(y, x); v != 0 {
 				comps[find(v)]++
 			}
 		}
@@ -93,8 +92,8 @@ func (g *grid) components() map[int]int {
 	return comps
 }
 
-func (g *grid) redim(w, h int) {
-	g.w, g.h = w, h
+func (g *grid) redim(h, w int) {
+	g.h, g.w = h, w
 }
 
 func (g *grid) copy(i int, data []byte) {
@@ -107,15 +106,17 @@ func (g *grid) copy(i int, data []byte) {
 
 func (g *grid) String() string {
 	var sb strings.Builder
-	for i := 1; i <= g.h; i++ {
-		for j := 1; j <= g.w; j++ {
+	for j := 1; j <= g.h; j++ {
+		for i := 1; i <= g.w; i++ {
 			b := byte(' ')
-			if g.d[i][j] != 0 {
-				b = byte('0' + (g.d[i][j]-'0')%10) // works for data & labels
+			if g.d[j][i] != 0 {
+				b = byte('0' + (g.d[j][i]-'0')%10) // works for data & labels
 			}
 			sb.WriteByte(b)
 		}
-		sb.WriteByte('\n')
+		if j != g.h {
+			sb.WriteByte('\n')
+		}
 	}
 	return sb.String()
 }
@@ -123,15 +124,15 @@ func (g *grid) String() string {
 func main() {
 	g := newGrid() // data
 
-	w, h, input := 0, 0, bufio.NewScanner(os.Stdin)
+	h, w, input := 0, 0, bufio.NewScanner(os.Stdin)
 	for input.Scan() {
 		args := input.Bytes()
 		g.copy(h, args) // data ('0'..'9')
-		w, h = len(args), h+1
+		h, w = h+1, len(args)
 	}
-	g.redim(w, h)
+	g.redim(h, w)
 
-	comps := g.components()
+	comps := g.comps()
 	popcnt := make([]int, 0, len(comps))
 	for _, pop := range comps {
 		popcnt = append(popcnt, pop)

@@ -22,7 +22,7 @@ var (
 )
 
 func hit(v speed) bool {
-	p := point{0, 0}
+	var p point
 	for { // shoot
 		p[X] += v[X]
 		p[Y] += v[Y]

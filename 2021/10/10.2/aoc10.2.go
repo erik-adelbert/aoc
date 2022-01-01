@@ -19,13 +19,16 @@ func main() {
 	}
 
 	pop := func() byte {
-		if empty() {
-			return 0
+		if i := len(stack) - 1; i >= 0 {
+			pop := stack[i]
+			stack, stack[i] = stack[:i], 0
+			return pop
 		}
+		return 0
+	}
 
-		b := stack[len(stack)-1]
-		stack, stack[len(stack)-1] = stack[:len(stack)-1], 0
-		return b
+	closing := map[byte]byte{
+		'(': ')', '[': ']', '{': '}', '<': '>',
 	}
 
 	scores := make([]int64, 0, 128)
@@ -36,23 +39,20 @@ SCAN:
 		for _, b := range input.Bytes() {
 			switch b {
 			case '(', '[', '{', '<':
-				push(b)
+				push(closing[b])
 			case ')', ']', '}', '>':
-				pair := map[byte]byte{
-					'(': ')', '[': ']', '{': '}', '<': '>',
-				}
-				if a := pop(); a == 0 || pair[a] != b {
+				if a := pop(); a != b { // discard corrupted
 					continue SCAN
 				}
 			}
 		}
 
 		scale := map[byte]int64{
-			'(': 1, '[': 2, '{': 3, '<': 4,
+			')': 1, ']': 2, '}': 3, '>': 4,
 		}
 
 		var n int64
-		for n = 0; !empty(); {
+		for !empty() {
 			n = 5*n + scale[pop()]
 		}
 		if n > 0 {
@@ -61,5 +61,5 @@ SCAN:
 	}
 
 	sort.Slice(scores, func(i, j int) bool { return scores[i] < scores[j] })
-	fmt.Println(scores[len(scores)/2])
+	fmt.Println(scores[len(scores)/2]) // median
 }

@@ -58,23 +58,23 @@ func main() {
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
-		args := input.Text()
-		data := strings.Fields(args)
-		switch len(data) {
+		line := input.Text()
+		args := strings.Fields(line)
+		switch len(args) {
 		case 0: // sep
 			if row > 0 {
 				deck = append(deck, cur)
 				cur, row = NewCard(), 0
 			}
 		case 5: // cardboard row
-			for col, s := range data {
+			for col, s := range args {
 				n, _ := strconv.Atoi(s)
 				cur.add(n, row, col)
 			}
 			row++
 		default: // first line
-			data = strings.Split(data[0], ",")
-			for _, s := range data {
+			args = strings.Split(args[0], ",")
+			for _, s := range args {
 				n, _ := strconv.Atoi(s)
 				draw = append(draw, n)
 			}
@@ -100,9 +100,11 @@ func main() {
 		if len(stack) == 0 {
 			return 0, nil
 		}
-		top := stack[len(stack)-1]                                // pop
-		stack, stack[len(stack)-1] = stack[:len(stack)-1], item{} // remove
-		return top.n, top.c
+		i := len(stack) - 1
+
+		pop := stack[i]
+		stack, stack[i] = stack[:i], item{} // remove
+		return pop.n, pop.c
 	}
 
 	for _, n := range draw {

@@ -19,7 +19,7 @@ func newCave(h, w int) *cave {
 }
 
 func (c *cave) popcount() int {
-	return c.w * c.h
+	return c.h * c.w
 }
 
 func (c *cave) inc(ji idx) byte {
@@ -35,12 +35,14 @@ func (c *cave) String() string {
 		for i := 0; i < c.w; i++ {
 			sb.WriteByte(c.cells[j*c.w+i] + '0')
 		}
-		sb.WriteByte('\n')
+		if j != c.h {
+			sb.WriteByte('\n')
+		}
 	}
 	return sb.String()
 }
 
-type idx [2]int
+type idx [2]int // row major index
 
 const (
 	R = iota
@@ -49,6 +51,10 @@ const (
 
 // A blast is entirely made of flashing cells.
 type blast map[idx]bool
+
+func (b blast) popcount() int {
+	return len(b)
+}
 
 // safe determines if a cave has steady (non flashing) cells (safe) or not (unsafe).
 // It computes the global blast of one step taken from  a given cave state. It also
@@ -64,14 +70,13 @@ func safe(c *cave) bool {
 			}
 		}
 	}
-	_, safe := c.cascade(make(blast), cur) // discard global blast
-	return safe
+	return c.cascade(make(blast), cur)
 }
 
 // cascade computes and aggregate chain reaction blasts & asserts global safeness
 // it double buffers using two maps because updating a map while iterating it is
 // undefined.
-func (c *cave) cascade(glob, cur blast) (blast, bool) {
+func (c *cave) cascade(glob, cur blast) bool {
 	// chain reaction blast
 	for {
 		nxt := make(blast)
@@ -99,7 +104,7 @@ func (c *cave) cascade(glob, cur blast) (blast, bool) {
 		cur = nxt
 
 		if len(nxt) == 0 { // no more flashing cell
-			return glob, len(glob) != c.popcount() // safe/true when some non flashing
+			return glob.popcount() != c.popcount() // safe/true when some non flashing
 		}
 	}
 }
