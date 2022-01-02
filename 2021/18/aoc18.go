@@ -60,8 +60,6 @@ func (a *pair) eq(b *pair) bool {
 		return true
 	case a.leaf() != b.leaf():
 		return false
-	case a.leaf() && b.leaf():
-		return a.v == b.v
 	default:
 		return a.left.eq(b.left) && a.right.eq(b.right)
 	}
@@ -174,13 +172,13 @@ func reduce(p *pair) *pair {
 
 	cur, nxt, done := newPair(), p, 0
 	for done != both {
-		cur, done = nxt, both // reset
+		cur, done = nxt, both // reset, flag
 		if nxt = explode(cur); !nxt.eq(cur) {
-			done &= ^xflag
+			done &= ^xflag // unflag
 			continue
 		}
 		if nxt = split(cur); !nxt.eq(cur) {
-			done &= ^sflag
+			done &= ^sflag // unflag
 			continue
 		}
 	}

@@ -57,38 +57,83 @@ func main() {
 	}
 
 	// display
-	xmin, xmax := MaxInt, MinInt // bounding box
-	ymin, ymax := MaxInt, MinInt
-	frame := make(map[coo]int)
+	const (
+		Black = ' '
+		White = '\uFFFD' // undefined is very bright
+	)
+
+	b, frame := BBox(), make(map[coo]int)
 	for _, d := range dots {
-		frame[d]++ // could be intensity/color here
-		if d.x < xmin {
-			xmin = d.x
-		}
-		if d.x > xmax {
-			xmax = d.x
-		}
-		if d.y < ymin {
-			ymin = d.y
-		}
-		if d.y > ymax {
-			ymax = d.y
-		}
+		frame[d]++  // could be color
+		b.update(d) // bounding box
 	}
 
-	fb := make([][]byte, (ymax-ymin)+1) // frame buffer
+	fb := make([][]rune, b.h()) // frame buffer
 	for y := range fb {
-		fb[y] = make([]byte, (xmax-xmin)+1)
+		fb[y] = make([]rune, b.w())
 		for x := range fb[y] {
-			fb[y][x] = ' ' // init to black
+			fb[y][x] = Black // init
 		}
 	}
 
 	for d := range frame { // rasterize
-		fb[d.y-ymin][d.x-xmin] = '@' // light up, could use intensity/color here
+		fb[d.y-b.ymin()][d.x-b.xmin()] = White // light up! could use color LUT
 	}
 
 	for _, r := range fb { // scan display
 		fmt.Println(string(r))
 	}
+}
+
+type bbox struct {
+	a, b coo
+}
+
+func BBox() bbox {
+	return bbox{
+		coo{MaxInt, MaxInt},
+		coo{MinInt, MinInt},
+	}
+}
+
+func (b *bbox) update(c coo) {
+	b.a = min(b.a, c)
+	b.b = max(b.b, c)
+	return
+}
+
+func (b bbox) h() int {
+	return b.b.y - b.a.y + 1
+}
+
+func (b bbox) w() int {
+	return b.b.x - b.a.x + 1
+}
+
+func (b bbox) xmin() int {
+	return b.a.x
+}
+
+func (b bbox) ymin() int {
+	return b.a.y
+}
+
+func min(a, b coo) coo {
+	λ := func(a, b int) int {
+		if a < b {
+			return a
+		}
+		return b
+	}
+	return coo{λ(a.x, b.x), λ(a.y, b.y)}
+}
+
+func max(a, b coo) coo {
+	λ := func(a, b int) int {
+		if a > b {
+			return a
+		}
+		return b
+	}
+	return coo{λ(a.x, b.x), λ(a.y, b.y)}
 }

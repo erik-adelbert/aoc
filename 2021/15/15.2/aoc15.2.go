@@ -127,8 +127,8 @@ func (g grid) safest(factor int) int {
 				continue
 			}
 
-			if dist[u.y][u.x] > dist[v.y][v.x]+g.get(u.x, u.y) {
-				dist[u.y][u.x] = dist[v.y][v.x] + g.get(u.x, u.y)
+			if dist[u.y][u.x] > dist[v.y][v.x]+g.get(u.y, u.x) {
+				dist[u.y][u.x] = dist[v.y][v.x] + g.get(u.y, u.x)
 				hp.Push(&heap, cell{u.y, u.x, dist[u.y][u.x]})
 			}
 		}
@@ -153,7 +153,7 @@ func main() {
 
 	// for y := 0; y < cave.h*factor; y++ {
 	// 	for x := 0; x < cave.w*factor; x++ {
-	// 		fmt.Print(cave.get(x, y))
+	// 		fmt.Print(cave.get(y, x))
 	// 	}
 	// 	fmt.Println()
 	// }

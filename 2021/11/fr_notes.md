@@ -1,1 +1,1 @@
-Pur exercice de [récursion](https://en.wikipedia.org/wiki/Recursion#In_computer_science).
+Pur exercice de [programmation dynamique](https://en.wikipedia.org/wiki/Dynamic_programming) et de [*multi-buffering*](https://en.wikipedia.org/wiki/Multiple_buffering).

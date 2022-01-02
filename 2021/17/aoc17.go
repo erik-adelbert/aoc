@@ -44,13 +44,13 @@ func hit(v speed) bool {
 
 func main() {
 	vmin := speed{
-		int(math.Sqrt(float64(2 * min[X]))),
+		int(math.Sqrt(float64(2 * min[X]))), // FPU rules!
 		min[Y],
 	}
 
 	vmax := speed{
 		max[X],
-		int(math.Abs(float64(min[Y] + 1))),
+		int(math.Abs(float64(min[Y] + 1))), // since we use math...
 	}
 
 	fmt.Println((vmax[Y] + 1) * vmax[Y] / 2) // part1

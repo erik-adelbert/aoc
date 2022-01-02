@@ -40,14 +40,14 @@ func op(r *bs.Reader) []seg {
 	count, _ := r.ReadBool() // len id
 	nread++
 
-	usize := uint8(15)
+	usize := uint(15)
 	if count {
 		usize = 11
 	}
 
-	n, _ := r.ReadNBitsAsUint16BE(usize)
-	nread += uint(usize)
-	last, nsub := nread+uint(n), int(n) // only one in use according to count (bool)
+	n, _ := r.ReadNBitsAsUint16BE(uint8(usize))
+	nread += usize
+	end, nsub := nread+uint(n), int(n) // only one in use according to count (bool)
 
 	subs := make([]seg, 0, 16)
 	for {
@@ -55,7 +55,7 @@ func op(r *bs.Reader) []seg {
 		subs = append(subs, sub...)
 		nsub--
 
-		if (!count && last <= nread) || (count && nsub <= 0) {
+		if (!count && end <= nread) || (count && nsub <= 0) {
 			break
 		}
 	}
@@ -148,7 +148,7 @@ func main() {
 		n, _ = n.SetString(input.Text(), 16)
 	}
 	bits := bs.NewReader(bytes.NewReader(n.Bytes()), nil) // go pipeline
-	data := load(bits)[0]                                 // datagram from bit stream (singleton)
+	dgram := load(bits)[0]                                // datagram from bit stream (singleton)
 
-	fmt.Println(eval(data))
+	fmt.Println(eval(dgram))
 }

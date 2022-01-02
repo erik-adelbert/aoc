@@ -1,1 +1,1 @@
-Dans ce problème, j'ai traité l'affichage comme un [*Raster Scan Display*](https://www.geeksforgeeks.org/raster-scan-displays/). J'ai choisi `@` comme valeur du *pixel allumé* parce que dans l'`ASCII` de base c'est le plus lumineux.
+Dans ce problème, j'ai traité l'affichage comme un [*Raster Scan Display*](https://www.geeksforgeeks.org/raster-scan-displays/). J'ai choisi `�` comme valeur du *pixel allumé* parce que dans l'`ASCII` étendu c'est un des plus lumineux.

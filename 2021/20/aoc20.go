@@ -17,31 +17,31 @@ type pixel struct {
 }
 
 type bitmap struct {
-	kern [512]byte      // kernel filter
+	kern *[512]byte     // kernel filter
 	bbox [2]pixel       // bounding box
 	data map[pixel]byte // raw data
 }
 
 var par = false // par(ity)
 
-func (b bitmap) inf(p pixel) bool {
+func (b bitmap) inf(y, x int) bool {
 	switch {
-	case p.y < b.bbox[min].y || p.y > b.bbox[max].y:
+	case y < b.bbox[min].y || y > b.bbox[max].y:
 		fallthrough
-	case p.x < b.bbox[min].x || p.x > b.bbox[max].x:
+	case x < b.bbox[min].x || x > b.bbox[max].x:
 		return true
 	}
 	return false
 }
 
-func (b bitmap) get(p pixel) int {
-	if b.inf(p) { // p is infinite
+func (b bitmap) get(y, x int) int {
+	if b.inf(y, x) { // p is infinite
 		if par {
 			return 1
 		}
 		return 0
 	}
-	return int(b.data[p])
+	return int(b.data[pixel{y, x}])
 }
 
 func (b bitmap) count() int {
@@ -55,24 +55,23 @@ func (b bitmap) enhance() *bitmap {
 			{b.bbox[min].y - 1, b.bbox[min].x - 1},
 			{b.bbox[max].y + 1, b.bbox[max].x + 1},
 		},
-		data: make(map[pixel]byte, len(b.data)),
+		data: make(map[pixel]byte, 1<<15),
 	}
 
-	kern9 := func(p pixel) byte { // apply filter
+	kern9 := func(y, x int) byte { // apply filter
 		δy := []int{-1, -1, -1, +0, 0, 0, +1, 1, 1}
 		δx := []int{-1, +0, +1, -1, 0, 1, -1, 0, 1}
 
 		n := 0
 		for i := 0; i < len(δx); i++ {
-			y, x := p.y+δy[i], p.x+δx[i]
-			n = (n << 1) | b.get(pixel{y, x})
+			n = (n << 1) | b.get(y+δy[i], x+δx[i])
 		}
 		return b.kern[n]
 	}
 
 	for y := b.bbox[min].y - 1; y <= b.bbox[max].y+1; y++ {
 		for x := b.bbox[min].x - 1; x <= b.bbox[max].x+1; x++ {
-			if kern9(pixel{y, x}) == 1 {
+			if kern9(y, x) == 1 {
 				nxt.data[pixel{y, x}] = 1 // it's a map!
 			}
 		}
@@ -87,7 +86,7 @@ func (b bitmap) String() string {
 
 	for y := b.bbox[min].y - 1; y <= b.bbox[max].y+1; y++ {
 		for x := b.bbox[min].x - 1; x <= b.bbox[max].x+1; x++ {
-			if b.get(pixel{y, x}) == 1 {
+			if b.get(y, x) == 1 {
 				sb.WriteByte('@')
 			} else {
 				sb.WriteByte('.')
@@ -103,12 +102,12 @@ func (b bitmap) String() string {
 
 func newBitmap(ker []byte, raw [][]byte) *bitmap {
 	b := bitmap{
-		kern: [512]byte{},
+		kern: &[512]byte{},
 		bbox: [...]pixel{
 			{0, 0},
 			{len(raw) - 1, len(raw[0]) - 1},
 		},
-		data: make(map[pixel]byte, 64*64),
+		data: make(map[pixel]byte, 1<<15),
 	}
 
 	for i, c := range ker {

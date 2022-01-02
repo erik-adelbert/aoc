@@ -40,10 +40,10 @@ func (h *heap) Push(x interface{}) {
 }
 
 func (h *heap) Pop() interface{} {
-	q, n := *h, len(*h)-1
-	c := q[n] // last
-	q[n], *h = nil, q[:n]
-	return c
+	q, i := *h, len(*h)-1
+	pop := q[i]
+	*h, q[i] = q[:i], nil
+	return pop
 }
 
 type grid struct {
@@ -117,9 +117,9 @@ func shortest(g *grid) int {
 				continue
 			}
 
-			if dist[u.y][u.x] > dist[v.y][v.x]+g.get(u.x, u.y) {
-				dist[u.y][u.x] = dist[v.y][v.x] + g.get(u.x, u.y)
-				hp.Push(&heap, cell{u.x, u.y, dist[u.y][u.x]})
+			if dist[u.y][u.x] > dist[v.y][v.x]+g.get(u.y, u.x) {
+				dist[u.y][u.x] = dist[v.y][v.x] + g.get(u.y, u.x)
+				hp.Push(&heap, cell{u.y, u.x, dist[u.y][u.x]})
 			}
 		}
 	}

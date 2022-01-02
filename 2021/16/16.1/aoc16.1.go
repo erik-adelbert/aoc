@@ -17,10 +17,11 @@ type seg struct {
 	sub []seg
 }
 
-var nread int
+var nread uint
 
 func chunk(r *bs.Reader) (uint8, bool) {
 	n, _ := r.ReadNBitsAsUint8(5)
+	nread += 5
 	return n & 0xf, (n & 0x10) > 0
 }
 
@@ -29,7 +30,6 @@ func lit(r *bs.Reader) int {
 	for {
 		n, more := chunk(r)
 		val = (val << 4) | int(n)
-		nread += 5
 		if !more {
 			return val
 		}
@@ -40,14 +40,14 @@ func op(r *bs.Reader) []seg {
 	count, _ := r.ReadBool() // len id
 	nread++
 
-	usize := uint8(15)
+	usize := uint(15)
 	if count {
 		usize = 11
 	}
 
-	n, _ := r.ReadNBitsAsUint16BE(usize)
-	nread += 15
-	last, nsub := nread+int(n), int(n)
+	n, _ := r.ReadNBitsAsUint16BE(uint8(usize))
+	nread += usize
+	end, nsub := nread+uint(n), int(n)
 
 	subs := make([]seg, 0, 16)
 	for {
@@ -55,7 +55,7 @@ func op(r *bs.Reader) []seg {
 		subs = append(subs, sub...)
 		nsub--
 
-		if (!count && last <= nread) || (count && nsub <= 0) {
+		if (!count && end <= nread) || (count && nsub <= 0) {
 			break
 		}
 	}
@@ -81,9 +81,9 @@ func load(r *bs.Reader) []seg {
 	}
 }
 
-func sum(datagram []seg) int {
+func sum(dgram []seg) int {
 	n := 0
-	for _, s := range datagram { // segment
+	for _, s := range dgram { // segment
 		n += int(s.ver)
 		n += sum(s.sub)
 	}

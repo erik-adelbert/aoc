@@ -21,10 +21,6 @@ func newGrid() *grid {
 	return &grid{d, 128, 128}
 }
 
-func (g *grid) set(v byte, y, x int) {
-	g.d[y+1][x+1] = v
-}
-
 func (g *grid) get(y, x int) byte {
 	return g.d[y+1][x+1]
 }

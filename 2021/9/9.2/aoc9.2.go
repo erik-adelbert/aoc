@@ -37,7 +37,7 @@ func (g *grid) get(y, x int) int {
 
 func (g *grid) comps() map[int]int {
 	label := newGrid() // reuse grid
-	label.redim(g.w, g.h)
+	label.redim(g.h, g.w)
 
 	labels := make([]int, 256+g.w*g.h) // labels (>256)
 	for i := range labels {
