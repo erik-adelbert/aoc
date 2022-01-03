@@ -43,8 +43,12 @@ type graph map[string]*node
 
 var paths map[string]bool
 
+func init() {
+	paths = make(map[string]bool, 130513)
+}
+
 func (g graph) all(a, b string) {
-	visits := make(map[*node]int)
+	visits := make(map[*node]int, 31)
 	path := make([]*node, 0, len(g))
 
 	var reall func(*node, *node, map[*node]int, []*node)
@@ -83,8 +87,7 @@ func (g graph) all(a, b string) {
 }
 
 func main() {
-	paths = make(map[string]bool)
-	g := make(graph)
+	g := make(graph, 31)
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {

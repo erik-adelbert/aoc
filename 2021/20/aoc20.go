@@ -100,7 +100,7 @@ func (b bitmap) String() string {
 	return sb.String()
 }
 
-func newBitmap(ker []byte, raw [][]byte) *bitmap {
+func newBitmap(ker string, raw []string) *bitmap {
 	b := bitmap{
 		kern: &[512]byte{},
 		bbox: [...]pixel{
@@ -127,19 +127,18 @@ func newBitmap(ker []byte, raw [][]byte) *bitmap {
 }
 
 func main() {
-	var raw [][]byte
-	kern := make([]byte, 512) // kern(el filter)
+	var raw []string
+	var kern string // kern(el filter)
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
 		switch len(input.Bytes()) {
 		case 0: // continue
 		case 512:
-			copy(kern, input.Bytes())
+			kern = input.Text()
 		default:
-			bytes := make([]byte, len(input.Bytes()))
-			copy(bytes, input.Bytes())
-			raw = append(raw, bytes)
+			line := input.Text()
+			raw = append(raw, line)
 		}
 	}
 	img := newBitmap(kern, raw)

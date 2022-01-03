@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 type tokens []string
@@ -104,6 +105,15 @@ func (p *pair) leaf() bool {
 	return p.v > -1
 }
 
+func (p *pair) clone() *pair {
+	t := *p
+	if !p.null() && !p.leaf() {
+		left, right := p.left.clone(), p.right.clone()
+		t.left, t.right = left, right
+	}
+	return &t
+}
+
 func flatten(p *pair) []*pair {
 	var flat []*pair
 	switch {
@@ -111,7 +121,8 @@ func flatten(p *pair) []*pair {
 	case p.leaf():
 		flat = append(flat, p)
 	default:
-		flat = append(flat, append(flatten(p.left), flatten(p.right)...)...)
+		left, right := flatten(p.left), flatten(p.right)
+		flat = append(flat, append(left, right...)...)
 	}
 	return flat
 }
@@ -191,31 +202,75 @@ func mag(p *pair) int {
 	return 3*mag(p.left) + 2*mag(p.right)
 }
 
+// var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
+
 func main() {
-	lines := make([]string, 0, 128)
+	// flag.Parse()
+	// if *cpuprofile != "" {
+	// 	f, err := os.Create(*cpuprofile)
+	// 	if err != nil {
+	// 		log.Fatal(err)
+	// 	}
+	// 	pprof.StartCPUProfile(f)
+	// 	defer pprof.StopCPUProfile()
+	// }
+
+	args := make([]*pair, 0, 128)
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
 		line := input.Text()
-		lines = append(lines, line)
+		args = append(args, newPair(tokenize(line)))
 	}
 
 	num := newPair()
-	for _, line := range lines {
-		num = reduce(newPair(num, newPair(tokenize(line))))
+	for _, x := range args {
+		num = reduce(newPair(num, x.clone()))
 	}
 	fmt.Println(mag(num)) // part1
 
-	max := 0
-	for i, a := range lines {
-		for j, b := range lines {
-			if i != j {
-				pa, pb := newPair(tokenize(a)), newPair(tokenize(b))
-				if n := mag(reduce(newPair(pa, pb))); n > max {
-					max = n
+	jobs := make(chan [2]*pair)
+	mags := make(chan int)
+
+	go func() { // producer
+		defer close(jobs)
+
+		wp := &sync.WaitGroup{}
+		wp.Add(len(args) / 5)
+		for k := 0; k < len(args); k += len(args) / 5 {
+			sub := args[k : k+len(args)/5]
+			go func() { // sliced sub producer
+				for i, a := range sub {
+					for j, b := range args {
+						if i != j {
+							jobs <- [...]*pair{a.clone(), b.clone()}
+						}
+					}
 				}
+				wp.Done()
+			}()
+		}
+		wp.Wait() // production done
+	}()
+
+	for i := 0; i < 16; i++ { // consumers
+		go func() {
+			for args := range jobs {
+				a, b := args[0], args[1]
+				mags <- mag(reduce(newPair(a, b)))
 			}
+		}()
+	}
+
+	i, max := 0, 0
+	for n := range mags {
+		if n > max {
+			max = n
+		}
+		if i++; i >= len(args)*(len(args)-1) {
+			break
 		}
 	}
+	close(mags)
 	fmt.Println(max) // part2
 }

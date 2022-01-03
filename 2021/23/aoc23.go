@@ -13,33 +13,40 @@ var costs = map[byte]int{
 }
 
 func goal(p byte) int {
-	return 2 + 2*int(p-'A') // 'A': 2, 'B': 4, .. 'D': 8
+	return 2 + 2*int(p-'A') // 'A': 2, 'B': 4, 'C':6 'D': 8
 }
 
 func room(r int) bool {
 	return 1 < r && r < 9 && r&1 == 0 // true for 2, 4, 6, 8
 }
 
+// free checks if hallway cells between s,t are free
 func (b board) free(s, t int) bool { // s(rc), t(arget)
-	start, s, t := s, min(s, t), max(s, t)
-	for i := s; i <= t; i++ { // check if hallway cells between s,t are free
-		switch {
-		case i == start || room(i): // skip starting cell and rooms
-			continue
-		case b[i] != ".": // hallway is not clear
+	l, r := min(s, t), max(s, t)
+	for i := l; i <= r; i++ {
+		if i != s && !room(i) && b[i] != "." {
 			return false
 		}
 	}
 	return true
 }
 
+// granted checks if a room is either empty or populated with only
+// homies
 func (b board) granted(r int, p byte) bool { // r(oom), p(awn)
-	return len(b[r]) == strings.Count(b[r], ".")+strings.Count(b[r], string(p))
+	if r != goal(p) {
+		return false
+	}
+	for _, c := range b[r] {
+		if c != '.' && c != rune(p) {
+			return false
+		}
+	}
+	return true
 }
 
 func (b board) pawn(r int) (byte, bool) { // r(oom)
-	room := b[r]
-	for _, c := range room {
+	for _, c := range b[r] {
 		if c != '.' {
 			return byte(c), true
 		}
@@ -47,32 +54,24 @@ func (b board) pawn(r int) (byte, bool) { // r(oom)
 	return 0, false
 }
 
-func (b board) pop(r int) (string, int) { // r(oom)
-	var cell []rune
-	dist, first := 0, true
-	for _, c := range b[r] {
-		dist++
-		switch {
-		case c == '.':
-			cell = append(cell, c)
-		case first:
-			first = false
-			cell = append(cell, '.')
-		default:
-			cell = append(cell, c)
-			dist--
+func (b board) get(r int) (string, int) { // r(oom)
+	cell := []byte(b[r])
+	for i, c := range b[r] {
+		if c != '.' {
+			cell[i] = '.'
+			return string(cell), i + 1
 		}
 	}
-	return string(cell), dist
+	return string(cell), 0
 }
 
 func (b board) put(r int, p byte) (string, int) { // r(oom), p(awn)
-	bytes := []byte(b[r])
-	if i := strings.Count(b[r], "."); i != 0 { // room has free slots
-		bytes[i-1] = p // take the deeper one
-		return string(bytes), i
+	cell := []byte(b[r])
+	if i := strings.Count(b[r], "."); i != 0 { // room has free cells
+		cell[i-1] = p // take the deeper one
+		return string(cell), i
 	}
-	return string(bytes), 0
+	return b[r], 0
 }
 
 func (b board) moves(r int) []int { // r(oom)
@@ -84,18 +83,18 @@ func (b board) moves(r int) []int { // r(oom)
 
 	if !room(r) { // pawn in the hallway, moving to goal is the only move
 		if b.free(r, goal(p)) && b.granted(goal(p), p) {
-			return []int{goal(p)} // move only if way is free and room is open
+			return []int{goal(p)} // move if way is free and room is open
 		}
 		return nil
 	}
 
-	moves := make([]int, 0)
+	moves := make([]int, 0, 8)
 	for i := 0; i < len(b); i++ {
 		switch {
 		case i == r: // skip starting room
 		case i != goal(p) && room(i): // enter no room except for...
-		case i == goal(p) && !b.granted(i, p): // ...the goal one, if not closed
-		case b.free(r, i):
+		case i == goal(p) && !b.granted(i, p): // ...the goal one, if not closed ...
+		case b.free(r, i): // ... and free way
 			moves = append(moves, i)
 		}
 	}
@@ -108,7 +107,7 @@ func (b board) move(s, t int) (board, int) { // s(ource), t(arget) -> board, cos
 	n, dist := 0, 0
 	nxt[s] = "."
 	if room(s) {
-		nxt[s], n = b.pop(s)
+		nxt[s], n = b.get(s)
 		dist += n
 	}
 	nxt[t] = string(p)
@@ -143,21 +142,21 @@ func (h *heap) Push(x interface{}) {
 }
 
 func (h *heap) Pop() interface{} {
-	q, n := *h, len(*h)-1
-	c := q[n] // last
-	q[n], *h = nil, q[:n]
-	return c
+	q, i := *h, len(*h)-1
+	pop := q[i]
+	*h, q[i] = q[:i], nil
+	return pop
 }
 
 func (b board) solve(goal board) int {
-	heap := make(heap, 0, 256)
+	heap := make(heap, 0, 16411)
 	hp.Init(&heap)
 
-	costs := map[board]int{b: 0}
+	costs := make(map[board]int, 16411)
 	hp.Push(&heap, cboard{b, 0}) // from start...
 	for heap.Len() > 0 {         // ...play all possible games
 		b := hp.Pop(&heap).(*cboard).b // pop a (sub)game
-		if b == goal {
+		if b == goal {                 // it works because heap is sorted by costs
 			return costs[goal]
 		}
 		for i := range b { // for all cells
@@ -168,7 +167,7 @@ func (b board) solve(goal board) int {
 				sub, ncost := b.move(i, j) // ...play one
 				ncost += costs[b]
 				if costs[sub] == 0 || costs[sub] > ncost {
-					costs[sub] = ncost                 // if it's a better move so far...
+					costs[sub] = ncost                 // if it's the best move so far...
 					hp.Push(&heap, cboard{sub, ncost}) // ...send subgame to resolution
 				}
 			}

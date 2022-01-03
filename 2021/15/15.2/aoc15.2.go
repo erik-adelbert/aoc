@@ -99,14 +99,14 @@ func (g grid) safest(factor int) int {
 		}
 	}
 
-	δy := []int{0, 1, 0, -1}
-	δx := []int{-1, 0, 1, 0}
+	δy := []int{+0, 1, 0, -1}
+	δx := []int{-1, 0, 1, +0}
 
 	valid := func(y, x int) bool {
 		return !(y < 0 || y >= h || x < 0 || x >= w)
 	}
 
-	heap := make(heap, 0, 2048)
+	heap := make(heap, 0, 1024)
 	hp.Init(&heap)
 
 	hp.Push(&heap, cell{})

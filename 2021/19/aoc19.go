@@ -36,9 +36,7 @@ func (v vec) manh() int {
 type reading []vec
 
 func Reading(points []vec) reading {
-	r := make([]vec, len(points))
-	copy(r, points)
-	return r
+	return append(points[:0:0], points...)
 }
 
 func (r reading) π2rots() <-chan reading { // rotations iterator
@@ -98,7 +96,7 @@ var (
 func init() {
 	reads = make([]reading, 0, 32)
 	scans = append(make([]vec, 0, 28), vec{0, 0, 0})
-	fixed = make(map[vec]bool)
+	fixed = make(map[vec]bool, 337)
 }
 
 func list(m map[vec]bool) reading {

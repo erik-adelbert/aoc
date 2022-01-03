@@ -17,7 +17,7 @@ type wins [2]uint64
 var cache map[game]wins
 
 func init() {
-	cache = make(map[game]wins, 8192)
+	cache = make(map[game]wins, 17317)
 }
 
 var rolls = [...]uint64{ // all dice rolls

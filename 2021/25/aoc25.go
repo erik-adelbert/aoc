@@ -27,7 +27,8 @@ func clone(b board) board {
 }
 
 func main() {
-	var cur, nxt board
+	cur := make(board, 0, 32768)
+	nxt := make(board, 0, 32768)
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
 		bytes := input.Bytes()
