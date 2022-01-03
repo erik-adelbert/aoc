@@ -12,7 +12,7 @@ type cell struct {
 	y, x, v int
 }
 
-func (a *cell) smaller(b *cell) bool {
+func (a *cell) less(b *cell) bool {
 	if a.v != b.v {
 		return a.v < b.v
 	}
@@ -27,7 +27,7 @@ type heap []*cell
 func (h heap) Len() int { return len(h) }
 
 func (h heap) Less(i, j int) bool {
-	return h[i].smaller(h[j])
+	return h[i].less(h[j])
 }
 
 func (h heap) Swap(i, j int) {
@@ -106,7 +106,7 @@ func (g grid) safest(factor int) int {
 		return !(y < 0 || y >= h || x < 0 || x >= w)
 	}
 
-	heap := make(heap, 0, 16364)
+	heap := make(heap, 0, 2048)
 	hp.Init(&heap)
 
 	hp.Push(&heap, cell{})

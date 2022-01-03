@@ -130,7 +130,7 @@ type heap []*cboard
 func (h heap) Len() int { return len(h) }
 
 func (h heap) Less(i, j int) bool {
-	return h[i].c <= h[j].c
+	return h[i].c < h[j].c
 }
 
 func (h heap) Swap(i, j int) {
@@ -149,15 +149,18 @@ func (h *heap) Pop() interface{} {
 	return c
 }
 
-func (b board) solve() map[board]int {
-	heap := make(heap, 0, 6128)
+func (b board) solve(goal board) int {
+	heap := make(heap, 0, 256)
 	hp.Init(&heap)
 
 	costs := map[board]int{b: 0}
 	hp.Push(&heap, cboard{b, 0}) // from start...
 	for heap.Len() > 0 {         // ...play all possible games
 		b := hp.Pop(&heap).(*cboard).b // pop a (sub)game
-		for i := range b {             // for all cells
+		if b == goal {
+			return costs[goal]
+		}
+		for i := range b { // for all cells
 			if _, ok := b.pawn(i); !ok { // empty cell, nothing to do
 				continue
 			}
@@ -171,7 +174,7 @@ func (b board) solve() map[board]int {
 			}
 		}
 	}
-	return costs
+	return costs[goal]
 }
 
 func main() {
@@ -181,7 +184,7 @@ func main() {
 	p1 := board{
 		".", ".", "AB", ".", "DC", ".", "BA", ".", "DC", ".", ".",
 	}
-	fmt.Println(p1.solve()[goal])
+	fmt.Println(p1.solve(goal))
 
 	goal = board{
 		".", ".", "AAAA", ".", "BBBB", ".", "CCCC", ".", "DDDD", ".", ".",
@@ -189,7 +192,7 @@ func main() {
 	p2 := board{
 		".", ".", "ADDB", ".", "DCBC", ".", "BBAA", ".", "DACC", ".", ".",
 	}
-	fmt.Println(p2.solve()[goal])
+	fmt.Println(p2.solve(goal))
 }
 
 func abs(a int) int {

@@ -48,15 +48,15 @@ func (g graph) all(a, b string) {
 	path := make([]*node, 0, len(g))
 
 	var reall func(*node, *node, map[*node]int, []*node)
-	reall = func(u, t *node, visits map[*node]int, path []*node) {
+	reall = func(s, t *node, visits map[*node]int, path []*node) {
 		seen := func(n *node) bool {
 			return !n.big() && visits[n] >= n.limit
 		}
 
-		visits[u]++
-		path = append(path, u)
+		visits[s]++
+		path = append(path, s)
 
-		if u == t {
+		if s == t {
 			var sb strings.Builder
 			for _, n := range path {
 				sb.WriteString(n.name)
@@ -65,14 +65,14 @@ func (g graph) all(a, b string) {
 				paths[sb.String()] = true
 			}
 		} else {
-			for _, v := range u.links {
+			for _, v := range s.links {
 				if !seen(v) {
 					reall(v, t, visits, path)
 				}
 			}
 		}
 
-		visits[u]--
+		visits[s]--
 		i := len(path) - 1
 		path, path[i] = path[:i], nil
 

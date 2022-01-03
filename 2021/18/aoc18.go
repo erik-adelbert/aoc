@@ -108,7 +108,6 @@ func flatten(p *pair) []*pair {
 	var flat []*pair
 	switch {
 	case p.null():
-		break
 	case p.leaf():
 		flat = append(flat, p)
 	default:

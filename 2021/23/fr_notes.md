@@ -1,0 +1,3 @@
+J'ai une première implémentation de ce problème, mais récemment, en regardant d'autres solutions, j'ai vu la représentation du board présentée ici. J'ai trouvé la forme tellement drôle que j'ai refais ma version avec!
+
+En revanche, j'ai perdu le lien reddit, si l'auteur original se reconnaît et qu'il me le dit, je pourrais le créditer mieux! Mais parfois, il y a des perles en ligne...

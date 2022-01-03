@@ -118,7 +118,7 @@ func difs(r reading) reading {
 	return difs
 }
 
-func inter(a, b reading) reading {
+func inter(a, b reading, first bool) reading {
 	if len(a) > len(b) {
 		a, b = b, a
 	}
@@ -130,7 +130,9 @@ func inter(a, b reading) reading {
 	inter := make(reading, 0, len(m))
 	for _, v := range b {
 		if m[v] {
-			inter = append(inter, v)
+			if inter = append(inter, v); first {
+				break
+			}
 		}
 	}
 	return inter
@@ -170,15 +172,16 @@ func main() {
 		fixed[p] = true
 	}
 
-	cur, nxt := reads[1:], make([]reading, 0, len(reads[1:]))
+	cur := reads[1:]
 	for len(cur) > 0 {
-		nxt = nxt[:0]
+		i := 0
 		for _, r := range cur {
 			if !rotal(r) {
-				nxt = append(nxt, r)
+				cur[i] = r
+				i++
 			}
 		}
-		cur = nxt
+		cur = cur[:i]
 	}
 
 	fmt.Println(len(fixed)) // part1
@@ -226,14 +229,14 @@ func align(r reading) bool {
 
 		rdifs, kdifs := difs(read), difs(known)
 
-		if matches := inter(rdifs, kdifs); len(matches) > 0 {
+		if matches := inter(rdifs, kdifs, true); len(matches) > 0 {
 			pivot := matches[0]
 			i := index(rdifs, pivot)
 			j := index(kdifs, pivot)
 			o := read[i].sub(known[j])
 
 			rebased := rebase(read, o)
-			if len(inter(known, rebased)) >= 12 {
+			if len(inter(known, rebased, false)) >= 12 {
 				for _, v := range rebased {
 					fixed[v] = true
 				}
