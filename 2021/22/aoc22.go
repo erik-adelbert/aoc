@@ -8,33 +8,17 @@ import (
 	"strconv"
 )
 
+type axis int
+
 const (
-	X = iota
+	X axis = iota
 	Y
 	Z
 )
 
-type axis int // X, Y or Z
-
 type vec [3]int
 
 var null vec
-
-func (a vec) min(b vec) vec {
-	return vec{
-		min(a[X], b[X]),
-		min(a[Y], b[Y]),
-		min(a[Z], b[Z]),
-	}
-}
-
-func (a vec) max(b vec) vec {
-	return vec{
-		max(a[X], b[X]),
-		max(a[Y], b[Y]),
-		max(a[Z], b[Z]),
-	}
-}
 
 type cubo struct {
 	min, max vec
@@ -64,11 +48,9 @@ func (c cubo) contains(d cubo) bool {
 }
 
 func (c cubo) trim(r cubo) cubo { // r(egion)
-	cm, cM := c.min, c.max
-	rm, rM := r.min, r.max
 	return cubo{
-		cm.max(rm),
-		cM.min(rM),
+		max(c.min, r.min),
+		min(c.max, r.max),
 	}
 }
 
@@ -96,8 +78,7 @@ func add(n *node, c cubo) *node {
 		return &node{c: c}
 	}
 
-	for i := X; i <= Z; i++ {
-		a := axis(i)
+	for a := X; a <= Z; a++ { // for X, Y, Z
 		switch {
 		case c.max[a] < n.c.min[a]:
 			return &node{a: a, v: c.max[a], left: &node{c: c}, right: n} // left leaf
@@ -129,8 +110,7 @@ func del(n *node, c cubo) *node {
 		return n
 	}
 
-	for i := X; i <= Z; i++ {
-		a := axis(i)
+	for a := X; a <= Z; a++ { // for X, Y, Z
 		if v := c.min[a]; n.c.min[a] < v && n.c.max[a] >= v {
 			in, out := n.c, n.c
 			in.min[a], out.max[a] = v, v-1
@@ -169,6 +149,20 @@ func reboot(n *node, on bool, c cubo) *node {
 		return n
 	}
 
+	min := func(a, b int) int {
+		if a < b {
+			return a
+		}
+		return b
+	}
+
+	max := func(a, b int) int {
+		if a > b {
+			return a
+		}
+		return b
+	}
+
 	if !leaf(n) {
 		left, right := c, c
 		left.max[n.a] = min(left.max[n.a], n.v)
@@ -190,9 +184,8 @@ func reboot(n *node, on bool, c cubo) *node {
 
 	if on {
 		return add(n, c)
-	} else {
-		return del(n, c)
 	}
+	return del(n, c)
 }
 
 func count(n *node) int64 {
@@ -237,16 +230,32 @@ func main() {
 	fmt.Println(count(p2))
 }
 
-func min(a, b int) int {
-	if a < b {
-		return a
+func min(a, b vec) vec {
+	min := func(a, b int) int {
+		if a < b {
+			return a
+		}
+		return b
 	}
-	return b
+
+	return vec{
+		min(a[X], b[X]),
+		min(a[Y], b[Y]),
+		min(a[Z], b[Z]),
+	}
 }
 
-func max(a, b int) int {
-	if a > b {
-		return a
+func max(a, b vec) vec {
+	max := func(a, b int) int {
+		if a > b {
+			return a
+		}
+		return b
 	}
-	return b
+
+	return vec{
+		max(a[X], b[X]),
+		max(a[Y], b[Y]),
+		max(a[Z], b[Z]),
+	}
 }

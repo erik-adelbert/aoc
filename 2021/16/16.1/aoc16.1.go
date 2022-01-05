@@ -74,7 +74,7 @@ func load(r *bs.Reader) []seg {
 	switch typ {
 	case 4:
 		val := lit(r)
-		return append(segs, seg{ver, typ, val, nil})
+		return append(segs, seg{ver, typ, val, []seg(nil)})
 	default:
 		subs := op(r)
 		return append(segs, seg{ver, typ, 0, subs})

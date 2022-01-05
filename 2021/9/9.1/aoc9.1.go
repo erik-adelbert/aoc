@@ -45,8 +45,11 @@ func (g *grid) redim(h, w int) {
 	g.h, g.w = h, w
 }
 
-func (g *grid) copy(i int, data []byte) {
-	copy(g.d[i+1], append([]byte{0}, data...))
+func (g *grid) copy(i int, data []byte) int {
+	t := g.d[i+1]
+
+	t, t[0] = t[1:], 0
+	return copy(t, data)
 }
 
 func (g *grid) String() string {
@@ -67,9 +70,9 @@ func main() {
 
 	h, w, input := 0, 0, bufio.NewScanner(os.Stdin)
 	for input.Scan() {
-		args := input.Bytes()
-		g.copy(h, args)
-		h, w = h+1, len(args)
+		data := input.Bytes()
+		w = g.copy(h, data)
+		h++
 	}
 	g.redim(h, w)
 

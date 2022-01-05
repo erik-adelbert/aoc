@@ -7,28 +7,34 @@ import (
 	"strings"
 )
 
-const (
-	min = 0
-	max = 1
+type bitmap struct {
+	data   [][]byte
+	h, w   int
+	popcnt int
+}
+
+var (
+	cur, nxt = 0, 1    // parity, ^parity
+	kern     []byte    // kern(el filter)
+	bufs     [2]bitmap // double buffers
 )
 
-type pixel struct {
-	y, x int
+func init() {
+	bufs[0].data = make([][]byte, 200)
+	bufs[1].data = make([][]byte, 200)
+	for j := 0; j < 200; j++ {
+		bufs[0].data[j] = make([]byte, 200)
+		bufs[1].data[j] = make([]byte, 200)
+	}
 }
 
-type bitmap struct {
-	kern *[512]byte     // kernel filter
-	bbox [2]pixel       // bounding box
-	data map[pixel]byte // raw data
+func (b *bitmap) redim(h, w int) {
+	b.h, b.w = h, w
+	b.popcnt = 0
 }
-
-var par = false // par(ity)
 
 func (b bitmap) inf(y, x int) bool {
-	switch {
-	case y < b.bbox[min].y || y > b.bbox[max].y:
-		fallthrough
-	case x < b.bbox[min].x || x > b.bbox[max].x:
+	if y < 0 || y >= b.h || x < 0 || x >= b.w {
 		return true
 	}
 	return false
@@ -36,27 +42,14 @@ func (b bitmap) inf(y, x int) bool {
 
 func (b bitmap) get(y, x int) int {
 	if b.inf(y, x) { // p is infinite
-		if par {
-			return 1
-		}
-		return 0
+		return cur
 	}
-	return int(b.data[pixel{y, x}])
+	return int(b.data[y][x])
 }
 
-func (b bitmap) count() int {
-	return len(b.data)
-}
-
-func (b bitmap) enhance() *bitmap {
-	nxt := bitmap{ // double buffer
-		kern: b.kern,
-		bbox: [2]pixel{
-			{b.bbox[min].y - 1, b.bbox[min].x - 1},
-			{b.bbox[max].y + 1, b.bbox[max].x + 1},
-		},
-		data: make(map[pixel]byte, 1<<15),
-	}
+func enhance() {
+	h, w := bufs[cur].h+2, bufs[cur].w+2
+	bufs[nxt].redim(h, w)
 
 	kern9 := func(y, x int) byte { // apply filter
 		δy := []int{-1, -1, -1, +0, 0, 0, +1, 1, 1}
@@ -64,35 +57,39 @@ func (b bitmap) enhance() *bitmap {
 
 		n := 0
 		for i := 0; i < len(δx); i++ {
-			n = (n << 1) | b.get(y+δy[i], x+δx[i])
+			n = (n << 1) | bufs[cur].get(y+δy[i], x+δx[i])
 		}
-		return b.kern[n]
+
+		if kern[n] == '#' {
+			return 1
+		}
+		return 0
 	}
 
-	for y := b.bbox[min].y - 1; y <= b.bbox[max].y+1; y++ {
-		for x := b.bbox[min].x - 1; x <= b.bbox[max].x+1; x++ {
-			if kern9(y, x) == 1 {
-				nxt.data[pixel{y, x}] = 1 // it's a map!
+	for y := 0; y < h; y++ {
+		for x := 0; x < w; x++ {
+			bufs[nxt].data[y][x] = kern9(y-1, x-1)
+			if bufs[nxt].data[y][x] == 1 {
+				bufs[nxt].popcnt++
 			}
 		}
 	}
 
-	par = !par
-	return &nxt
+	cur, nxt = nxt, cur // swap buffers
 }
 
 func (b bitmap) String() string {
 	var sb strings.Builder
 
-	for y := b.bbox[min].y - 1; y <= b.bbox[max].y+1; y++ {
-		for x := b.bbox[min].x - 1; x <= b.bbox[max].x+1; x++ {
+	for y := -1; y < b.h+1; y++ {
+		for x := -1; x < b.w+1; x++ {
 			if b.get(y, x) == 1 {
 				sb.WriteByte('@')
 			} else {
 				sb.WriteByte('.')
 			}
 		}
-		if y != b.bbox[max].y+1 {
+		if y != b.h+1 {
 			sb.WriteByte('\n')
 		}
 	}
@@ -100,54 +97,37 @@ func (b bitmap) String() string {
 	return sb.String()
 }
 
-func newBitmap(ker string, raw []string) *bitmap {
-	b := bitmap{
-		kern: &[512]byte{},
-		bbox: [...]pixel{
-			{0, 0},
-			{len(raw) - 1, len(raw[0]) - 1},
-		},
-		data: make(map[pixel]byte, 1<<15),
-	}
-
-	for i, c := range ker {
-		if c == '#' {
-			b.kern[i] = 1
-		}
-	}
-
-	for y, row := range raw {
-		for x, v := range row {
-			if v == '#' {
-				b.data[pixel{y, x}] = 1
-			}
-		}
-	}
-	return &b
-}
-
 func main() {
 	var raw []string
-	var kern string // kern(el filter)
 
-	input := bufio.NewScanner(os.Stdin)
+	h, w, input := 0, 0, bufio.NewScanner(os.Stdin)
 	for input.Scan() {
 		switch len(input.Bytes()) {
 		case 0: // continue
 		case 512:
-			kern = input.Text()
+			kern = []byte(input.Text())
 		default:
 			line := input.Text()
 			raw = append(raw, line)
+			h, w = h+1, len(line)
 		}
 	}
-	img := newBitmap(kern, raw)
+
+	bufs[cur].redim(h, w)
+	for j := 0; j < h; j++ {
+		for i := 0; i < w; i++ {
+			if raw[j][i] == '#' {
+				bufs[cur].data[j][i] = 1
+				bufs[cur].popcnt++
+			}
+		}
+	}
 
 	for i := 0; i < 50; i++ {
 		if i == 2 {
-			fmt.Println(img.count()) // part1
+			fmt.Println(bufs[cur].popcnt) // part1
 		}
-		img = img.enhance()
+		enhance()
 	}
-	fmt.Println(img.count()) // part2
+	fmt.Println(bufs[cur].popcnt) // part2
 }

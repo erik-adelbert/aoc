@@ -38,22 +38,36 @@ func (n *node) String() string {
 	return sb.String()
 }
 
+type nodes []*node
+
+func (n *nodes) push(x *node) {
+	*n = append(*n, x)
+}
+
+func (n *nodes) pop() *node {
+	i := len(*n) - 1
+
+	pop := (*n)[i]
+	*n, (*n)[i] = (*n)[:i], nil
+	return pop
+}
+
 type graph map[string]*node
 
 var npath int
 
 func (g graph) paths(a, b string) {
 	visits := make(map[*node]int)
-	path := make([]*node, 0, len(g))
+	path := make(nodes, 0, len(g))
 
-	var repaths func(*node, *node, map[*node]int, []*node)
-	repaths = func(u, t *node, visits map[*node]int, path []*node) {
+	var repaths func(*node, *node, map[*node]int, nodes)
+	repaths = func(u, t *node, visits map[*node]int, path nodes) {
 		seen := func(n *node) bool {
 			return !n.big() && visits[n] > 0
 		}
 
 		visits[u]++
-		path = append(path, u)
+		path.push(u)
 
 		if u == t {
 			npath++
@@ -65,9 +79,8 @@ func (g graph) paths(a, b string) {
 			}
 		}
 
+		path.pop()
 		visits[u]--
-		i := len(path) - 1
-		path, path[i] = path[:i], nil
 
 		return
 	}

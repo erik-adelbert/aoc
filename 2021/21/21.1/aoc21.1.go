@@ -18,12 +18,13 @@ func main() {
 		i++
 	}
 
+	type player int
 	const (
-		p1 = iota // p(layer)1
+		p1 player = iota
 		p2
 	)
 
-	other := func(p int) int {
+	other := func(p player) player {
 		return (p + 1) & 1
 	}
 
@@ -39,6 +40,6 @@ func main() {
 			fmt.Println(n * s[other(p)])
 			break
 		}
-		p = other(p)
+		p = other(p) // switch player
 	}
 }

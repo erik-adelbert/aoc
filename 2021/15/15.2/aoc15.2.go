@@ -86,7 +86,7 @@ func (g *grid) redim(h, w int) {
 	g.h, g.w = h, w
 }
 
-func (g grid) safest(factor int) int {
+func safest(g *grid, factor int) int {
 	const MaxInt = int(^uint(0) >> 1)
 
 	h, w := factor*g.h, factor*g.w
@@ -151,14 +151,14 @@ func main() {
 	// uncomment for sample.txt :)
 	// fmt.Println(cave)
 
-	// for y := 0; y < cave.h*factor; y++ {
-	// 	for x := 0; x < cave.w*factor; x++ {
+	// for y := 0; y < cave.h*5; y++ {
+	// 	for x := 0; x < cave.w*5; x++ {
 	// 		fmt.Print(cave.get(y, x))
 	// 	}
 	// 	fmt.Println()
 	// }
 
-	fmt.Println(cave.safest(5))
+	fmt.Println(safest(cave, 5))
 }
 
 func min(a, b int) int {

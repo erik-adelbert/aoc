@@ -35,7 +35,7 @@ func main() { // suboptimal but easy
 			nxt = append(nxt, []byte{pair[0], new}...)
 			count[new]++
 		}
-		cur, nxt = append(nxt, cur[len(cur)-1]), nil
+		cur, nxt = append(nxt, cur[len(cur)-1]), []byte(nil)
 	}
 
 	min, max := extrema(count)

@@ -2,11 +2,14 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
+	"log"
 	"os"
+	"reflect"
+	"runtime/pprof"
 	"strconv"
 	"strings"
-	"sync"
 )
 
 type tokens []string
@@ -29,235 +32,227 @@ func tokenize(s string) *tokens { // old school wow inside!
 	return &fields
 }
 
-type pair struct {
-	v           int
-	left, right *pair
+type snum struct {
+	vals []int
+	deps []int
 }
 
-func (p *pair) String() string {
-	var reprint func(p *pair) string
-
-	reprint = func(p *pair) string {
-		switch {
-		case p == nil:
-			return ""
-		case p.leaf():
-			return fmt.Sprint(p.v)
-		default:
-			return fmt.Sprintf("[ %s, %s ]", reprint(p.left), reprint(p.right))
-		}
-	}
-
-	return reprint(p)
-}
-
-func (a *pair) eq(b *pair) bool {
-	switch {
-	case a == nil:
-		return b == nil
-	case b == nil:
-		return a == nil
-	case a == b:
-		return true
-	case a.leaf() != b.leaf():
-		return false
-	default:
-		return a.left.eq(b.left) && a.right.eq(b.right)
-	}
-}
-
-func (p *pair) null() bool {
-	return p.v < -1 && p.left == nil && p.right == nil
-}
-
-func newPair(args ...interface{}) *pair {
+func SNum(args ...interface{}) snum {
+	var sn snum
 	switch len(args) {
 	case 0:
-		return &pair{-1, nil, nil}
+		return snum{}
 	case 1:
-		if n, ok := args[0].(int); ok {
-			return &pair{n, nil, nil}
+		toks := args[0].(*tokens)
+		// fmt.Println(*toks)
+		sn = snum{
+			make([]int, 0, len(*toks)),
+			make([]int, 0, len(*toks)),
 		}
-		in := args[0].(*tokens)
-		for tok := in.shift(); tok != ""; tok = in.shift() {
-			switch tok {
-			case "[":
-				return newPair(newPair(in), newPair(in))
-			case "]":
-				continue
+
+		var depth int
+		for _, t := range *toks {
+			t = strings.Trim(t, " ")
+			switch {
+			case t[0] == '[':
+				depth++
+			case t[0] == ']':
+				depth--
 			default:
-				n, _ := strconv.Atoi(tok)
-				return newPair(n)
+				n, _ := strconv.Atoi(t)
+				sn.vals = append(sn.vals, n)
+				sn.deps = append(sn.deps, depth-1)
 			}
 		}
-		return &pair{-1, nil, nil}
 	case 2:
-		l, r := args[0].(*pair), args[1].(*pair)
-		if l == nil || l.eq(&pair{-1, nil, nil}) {
-			return r
+		a, b := args[0].(snum), args[1].(snum)
+		if reflect.DeepEqual(a, snum{}) {
+			sn.vals = b.vals
+			sn.deps = b.deps
+		} else {
+			sn.vals = append(a.vals, b.vals...)
+			sn.deps = append(a.deps, b.deps...)
+			for i := range sn.deps {
+				sn.deps[i]++
+			}
 		}
-		return &pair{-1, l, r}
-	}
-	panic("newPair: unreachable")
-}
-
-func (p *pair) leaf() bool {
-	return p.v > -1
-}
-
-func (p *pair) clone() *pair {
-	t := *p
-	if !p.null() && !p.leaf() {
-		left, right := p.left.clone(), p.right.clone()
-		t.left, t.right = left, right
-	}
-	return &t
-}
-
-func flatten(p *pair) []*pair {
-	var flat []*pair
-	switch {
-	case p.null():
-	case p.leaf():
-		flat = append(flat, p)
 	default:
-		left, right := flatten(p.left), flatten(p.right)
-		flat = append(flat, append(left, right...)...)
+		panic("illegal SNum() call")
 	}
-	return flat
+	return sn
 }
 
-func explode(p *pair) *pair {
-	// fmt.Println("explode")
-	i, flat, done := 0, flatten(p), false
+func clone(sn snum) snum {
+	cn := snum{
+		make([]int, len(sn.vals)),
+		make([]int, len(sn.deps)),
+	}
+	copy(cn.vals, sn.vals)
+	copy(cn.deps, sn.deps)
+	return cn
+}
 
-	var rexplode func(*pair, int) *pair
-	rexplode = func(p *pair, depth int) *pair {
-		if p.leaf() {
-			i++
-			return p
+func explode(sn snum) (snum, bool) {
+	for i := 0; i < len(sn.deps); i++ {
+		if sn.deps[i] != 4 {
+			continue
 		}
-		if p.left.leaf() && p.right.leaf() {
-			if depth > 3 && !done {
-				if i > 0 {
-					flat[i-1].v += flat[i].v
+
+		if i > 0 {
+			sn.vals[i-1] += sn.vals[i]
+		}
+
+		if i+2 < len(sn.vals) {
+			sn.vals[i+2] += sn.vals[i+1]
+		}
+
+		sn.vals[i], sn.deps[i] = 0, 3
+		if i+1 < len(sn.deps) {
+			sn.vals, _ = remove(sn.vals, i+1)
+			sn.deps, _ = remove(sn.deps, i+1)
+		}
+		return sn, true
+	}
+	return sn, false
+}
+
+func mag(sn snum) int {
+	vals, deps := sn.vals, sn.deps
+	for len(vals) > 1 {
+		for i := 0; i < len(deps); i++ {
+			if deps[i] == deps[i+1] {
+				vals[i] = 3*vals[i] + 2*vals[i+1]
+				vals, _ = remove(vals, i+1)
+				deps, _ = remove(deps, i+1)
+
+				if deps[i] > 0 {
+					deps[i]--
 				}
-				if i+1 < len(flat)-1 {
-					flat[i+2].v += flat[i+1].v
-				}
-				done = true
-				return newPair(0)
+				break
 			}
 		}
-		return newPair(
-			rexplode(p.left, depth+1), rexplode(p.right, depth+1),
-		)
 	}
-	return rexplode(p, 0)
+	return vals[0]
 }
 
-func split(p *pair) *pair {
-	done := false
-
-	var resplit func(*pair) *pair
-	resplit = func(p *pair) *pair {
-		if p.leaf() {
-			if p.v >= 10 && !done {
-				done = true
-				return newPair(newPair(p.v/2), newPair(p.v-p.v/2))
-			}
-			return p
-		}
-		return newPair(resplit(p.left), resplit(p.right))
-	}
-	return resplit(p)
-}
-
-func reduce(p *pair) *pair {
+func reduce(sn snum) snum {
 	const (
 		xflag = iota + 1 // 1
 		sflag            // 2
 		both             // xflag | sflag == 3
 	)
 
-	cur, nxt, done := newPair(), p, 0
+	more, done := false, 0
 	for done != both {
-		cur, done = nxt, both // reset, flag
-		if nxt = explode(cur); !nxt.eq(cur) {
-			done &= ^xflag // unflag
+		done = both // reset
+		if sn, more = explode(sn); more {
+			done &^= xflag // unflag
 			continue
 		}
-		if nxt = split(cur); !nxt.eq(cur) {
-			done &= ^sflag // unflag
+		if sn, more = split(sn); more {
+			done &^= sflag // unflag
 			continue
 		}
 	}
-	return cur
+	return sn
 }
 
-func mag(p *pair) int {
-	if p.leaf() {
-		return p.v
+func split(sn snum) (snum, bool) {
+	ok := false
+
+	for i, v := range sn.vals {
+		if v < 10 {
+			continue
+		}
+
+		l, r := v/2, v-v/2
+		sn.vals[i] = l
+		sn.deps[i]++
+		sn.vals = insert(sn.vals, i+1, r)
+		sn.deps = insert(sn.deps, i+1, sn.deps[i])
+		ok = true
+		break
 	}
-	return 3*mag(p.left) + 2*mag(p.right)
+	return sn, ok
 }
 
-// var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
+func (sn snum) String() string {
+	var sb strings.Builder
+
+	depth := 0
+	sb.WriteRune('[')
+	for i, v := range sn.vals {
+		switch {
+		case depth < sn.deps[i]:
+			for depth < sn.deps[i] {
+				sb.WriteRune('[')
+				depth++
+			}
+		case depth > sn.deps[i]:
+			for depth > sn.deps[i] {
+				sb.WriteRune(']')
+				depth--
+			}
+		case depth == sn.deps[i]:
+			sb.WriteRune(',')
+		}
+		sb.WriteString(fmt.Sprintf(" %d ", v))
+	}
+	for depth > 0 {
+		sb.WriteRune(']')
+		depth--
+	}
+	sb.WriteRune(']')
+
+	return sb.String()
+}
+
+var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
 
 func main() {
-	// flag.Parse()
-	// if *cpuprofile != "" {
-	// 	f, err := os.Create(*cpuprofile)
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// 	pprof.StartCPUProfile(f)
-	// 	defer pprof.StopCPUProfile()
-	// }
+	flag.Parse()
+	if *cpuprofile != "" {
+		f, err := os.Create(*cpuprofile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
+	}
 
-	args := make([]*pair, 0, 128)
+	args := make([]snum, 0, 128)
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
 		line := input.Text()
-		args = append(args, newPair(tokenize(line)))
+		args = append(args, SNum(tokenize(line)))
 	}
 
-	num := newPair()
-	for _, x := range args {
-		num = reduce(newPair(num, x.clone()))
+	num := SNum()
+	for _, sn := range args {
+		num = reduce(SNum(num, clone(sn)))
 	}
 	fmt.Println(mag(num)) // part1
 
-	jobs := make(chan [2]*pair)
+	jobs := make(chan snum)
 	mags := make(chan int)
 
 	go func() { // producer
 		defer close(jobs)
 
-		wp := &sync.WaitGroup{}
-		wp.Add(len(args) / 5)
-		for k := 0; k < len(args); k += len(args) / 5 {
-			sub := args[k : k+len(args)/5]
-			go func() { // sliced sub producer
-				for i, a := range sub {
-					for j, b := range args {
-						if i != j {
-							jobs <- [...]*pair{a.clone(), b.clone()}
-						}
-					}
+		for i, a := range args {
+			for j, b := range args {
+				if i != j {
+					jobs <- SNum(clone(a), clone(b))
 				}
-				wp.Done()
-			}()
+			}
 		}
-		wp.Wait() // production done
 	}()
 
-	for i := 0; i < 16; i++ { // consumers
+	for i := 0; i < 4; i++ { // consumers
 		go func() {
-			for args := range jobs {
-				a, b := args[0], args[1]
-				mags <- mag(reduce(newPair(a, b)))
+			for sn := range jobs {
+				mags <- mag(reduce(sn))
 			}
 		}()
 	}
@@ -273,4 +268,20 @@ func main() {
 	}
 	close(mags)
 	fmt.Println(max) // part2
+}
+
+func remove(a []int, i int) ([]int, bool) {
+	if i >= len(a) {
+		return a, false
+	}
+	return append(a[:i], a[i+1:]...), true
+}
+
+func insert(a []int, i int, v int) []int {
+	if len(a) == i { // nil or empty slice or after last element
+		return append(a, v)
+	}
+	a = append(a[:i+1], a[i:]...) // i < len(a)
+	a[i] = v
+	return a
 }

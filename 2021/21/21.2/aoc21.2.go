@@ -40,9 +40,9 @@ func solve(g game) wins {
 		for _, r := range rolls { // play all
 			c1 := (g.c1+r-1)%10 + 1 // one move at a time
 			s1 := g.s1 + c1
-			sub := solve(game{g.c2, g.s2, c1, s1}) // switch players
+			sub := solve(game{g.c2, g.s2, c1, s1}) // swap players
 			count = wins{
-				count[0] + sub[1], // update with switched back players
+				count[0] + sub[1], // update with swapped back players
 				count[1] + sub[0],
 			}
 		}

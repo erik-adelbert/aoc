@@ -36,7 +36,7 @@ func (ca *card) biff(n int) bool { // biff a number, return true if it's a win
 		ca.row[r] -= n
 		ca.col[c] -= n
 
-		if ca.row[r] == 0 || ca.col[c] == 0 { // win
+		if ca.row[r]*ca.col[c] == 0 { // win
 			return true
 		}
 	}

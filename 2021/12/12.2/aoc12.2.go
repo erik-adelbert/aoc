@@ -39,26 +39,34 @@ func (n *node) String() string {
 	return sb.String()
 }
 
-type graph map[string]*node
+type nodes []*node
 
-var paths map[string]bool
-
-func init() {
-	paths = make(map[string]bool, 130513)
+func (n *nodes) push(x *node) {
+	*n = append(*n, x)
 }
+
+func (n *nodes) pop() *node {
+	i := len(*n) - 1
+
+	pop := (*n)[i]
+	*n, (*n)[i] = (*n)[:i], nil
+	return pop
+}
+
+type graph map[string]*node
 
 func (g graph) all(a, b string) {
 	visits := make(map[*node]int, 31)
-	path := make([]*node, 0, len(g))
+	path := make(nodes, 0, len(g)) // stack as path!
 
-	var reall func(*node, *node, map[*node]int, []*node)
-	reall = func(s, t *node, visits map[*node]int, path []*node) {
+	var reall func(*node, *node)
+	reall = func(s, t *node) {
 		seen := func(n *node) bool {
 			return !n.big() && visits[n] >= n.limit
 		}
 
 		visits[s]++
-		path = append(path, s)
+		path.push(s)
 
 		if s == t {
 			var sb strings.Builder
@@ -71,19 +79,24 @@ func (g graph) all(a, b string) {
 		} else {
 			for _, v := range s.links {
 				if !seen(v) {
-					reall(v, t, visits, path)
+					reall(v, t)
 				}
 			}
 		}
 
+		path.pop()
 		visits[s]--
-		i := len(path) - 1
-		path, path[i] = path[:i], nil
 
 		return
 	}
 
-	reall(g[a], g[b], visits, path)
+	reall(g[a], g[b])
+}
+
+var paths map[string]bool
+
+func init() {
+	paths = make(map[string]bool, 130513)
 }
 
 func main() {

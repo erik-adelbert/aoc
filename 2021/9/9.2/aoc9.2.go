@@ -35,7 +35,7 @@ func (g *grid) get(y, x int) int {
 	return g.d[y+1][x+1]
 }
 
-func (g *grid) comps() map[int]int {
+func (g *grid) groups() map[int]int {
 	label := newGrid() // reuse grid
 	label.redim(g.h, g.w)
 
@@ -81,27 +81,29 @@ func (g *grid) comps() map[int]int {
 		}
 	}
 
-	comps := make(map[int]int)
+	groups := make(map[int]int)
 	for y := 0; y < g.h; y++ {
 		for x := 0; x < g.w; x++ {
 			if v := label.get(y, x); v != 0 {
-				comps[find(v)]++
+				groups[find(v)]++
 			}
 		}
 	}
-	return comps
+	return groups
 }
 
 func (g *grid) redim(h, w int) {
 	g.h, g.w = h, w
 }
 
-func (g *grid) copy(i int, data []byte) {
-	buf := make([]int, len(data))
-	for i := 0; i < len(data); i++ {
-		buf[i] = int(data[i])
+func (g *grid) copy(i int, data []byte) int {
+	t := g.d[i+1]
+
+	t, t[0] = t[1:], 0
+	for i, b := range data {
+		t[i] = int(b)
 	}
-	copy(g.d[i+1], append([]int{0}, buf...))
+	return len(data)
 }
 
 func (g *grid) String() string {
@@ -126,18 +128,21 @@ func main() {
 
 	h, w, input := 0, 0, bufio.NewScanner(os.Stdin)
 	for input.Scan() {
-		args := input.Bytes()
-		g.copy(h, args) // data ('0'..'9')
-		h, w = h+1, len(args)
+		data := input.Bytes()
+		w = g.copy(h, data) // data ('0'..'9')
+		h++
 	}
 	g.redim(h, w)
 
-	comps := g.comps()
-	popcnt := make([]int, 0, len(comps))
-	for _, pop := range comps {
-		popcnt = append(popcnt, pop)
-	}
+	popcnt := values(g.groups())
 	sort.Sort(sort.Reverse(sort.IntSlice(popcnt)))
-
 	fmt.Println(popcnt[0] * popcnt[1] * popcnt[2])
+}
+
+func values(m map[int]int) []int {
+	vals := make([]int, 0, len(m))
+	for _, v := range m {
+		vals = append(vals, v)
+	}
+	return vals
 }

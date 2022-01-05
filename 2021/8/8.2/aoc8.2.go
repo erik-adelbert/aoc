@@ -41,7 +41,7 @@ func (s seg) String() string {
 
 var digs = []int{6, 2, 5, 5, 4, 5, 6, 3, 7, 6} //  segment counts for 0..9
 
-func decode(segs []seg, sigs [][]seg) int {
+func match(segs []seg, sigs [][]seg) int {
 	sig1 := sigs[digs[1]][0] // segment signal for 1
 	sig4 := sigs[digs[4]][0] // segment signal for 4
 
@@ -101,7 +101,7 @@ func main() {
 
 	sum := 0
 	for i, segs := range outs {
-		sum += decode(segs, sigs[i])
+		sum += match(segs, sigs[i])
 	}
 	fmt.Println(sum)
 }

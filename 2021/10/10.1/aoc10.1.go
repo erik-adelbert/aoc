@@ -27,12 +27,11 @@ func main() {
 	closing := map[byte]byte{
 		'(': ')', '[': ']', '{': '}', '<': '>',
 	}
-
 	scale := map[byte]int{
 		')': 3, ']': 57, '}': 1197, '>': 25137,
 	}
 
-	n, input := 0, bufio.NewScanner(os.Stdin)
+	sum, input := 0, bufio.NewScanner(os.Stdin)
 SCAN:
 	for input.Scan() {
 		stack = stack[:0] // reset
@@ -42,12 +41,12 @@ SCAN:
 				push(closing[b])
 			case ')', ']', '}', '>':
 				if a := pop(); a != b {
-					n += scale[b]
+					sum += scale[b]
 					continue SCAN
 				}
 			}
 		}
 	}
 
-	fmt.Println(n)
+	fmt.Println(sum)
 }

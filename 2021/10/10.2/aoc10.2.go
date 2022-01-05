@@ -30,6 +30,9 @@ func main() {
 	closing := map[byte]byte{
 		'(': ')', '[': ']', '{': '}', '<': '>',
 	}
+	scale := map[byte]int64{
+		')': 1, ']': 2, '}': 3, '>': 4,
+	}
 
 	scores := make([]int64, 0, 128)
 	input := bufio.NewScanner(os.Stdin)
@@ -45,10 +48,6 @@ SCAN:
 					continue SCAN
 				}
 			}
-		}
-
-		scale := map[byte]int64{
-			')': 1, ']': 2, '}': 3, '>': 4,
 		}
 
 		var n int64

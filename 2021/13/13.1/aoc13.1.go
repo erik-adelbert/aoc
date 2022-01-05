@@ -48,7 +48,8 @@ func main() {
 		}
 		if args := strings.Split(line, "="); len(args) > 1 { // folding
 			n, _ := strconv.Atoi(args[1])
-			if args[0][len(args[0])-1] == 'x' {
+			i := len(args[0]) - 1
+			if args[0][i] == 'x' { // last car of arg0
 				vfold(n)
 			} else {
 				hfold(n)

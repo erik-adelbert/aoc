@@ -38,8 +38,10 @@ func main() {
 
 	s, n := 0, 1 // step, change counts
 	for n > 0 {
-		s, n, cur = s+1, 0, clone(nxt) // reset
-		for j := 0; j < h; j++ {       // east scan
+		s++
+		n = 0            // reset
+		cur = clone(nxt) // east scan
+		for j := 0; j < h; j++ {
 			for i := 0; i < w; i++ {
 				x := (i + 1) % w
 				if cur[j*w+i] == '>' && cur[j*w+x] == '.' {
@@ -48,8 +50,8 @@ func main() {
 				}
 			}
 		}
-		cur = clone(nxt)
-		for j := 0; j < h; j++ { // south scan
+		cur = clone(nxt) // south scan
+		for j := 0; j < h; j++ {
 			y := (j + 1) % h
 			for i := 0; i < w; i++ {
 				if cur[j*w+i] == 'v' && cur[y*w+i] == '.' {

@@ -13,19 +13,19 @@ const (
 	MinInt = -MaxInt - 1
 )
 
-type coo struct { // dot or axis
+type vec struct { // dot or axis
 	x, y int
 }
 
 func main() {
-	dots := make([]coo, 0, 1024)
+	dots := make([]vec, 0, 1024)
 
 	vfold := func(x int) { // fold along vertical axis
 		for i, d := range dots {
 			if d.x > x {
 				d.x = 2*x - d.x
 			}
-			dots[i] = coo{d.x, d.y}
+			dots[i] = vec{d.x, d.y}
 		}
 	}
 
@@ -34,21 +34,22 @@ func main() {
 			if d.y > y {
 				d.y = 2*y - d.y
 			}
-			dots[i] = coo{d.x, d.y}
+			dots[i] = vec{d.x, d.y}
 		}
 	}
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
 		line := input.Text()
-		if args := strings.Split(line, ","); len(args) > 1 { // dots (code)
+		if args := strings.Split(line, ","); len(args) > 1 { // dots (coded)
 			x, _ := strconv.Atoi(args[0])
 			y, _ := strconv.Atoi(args[1])
-			dots = append(dots, coo{x, y})
+			dots = append(dots, vec{x, y})
 		}
-		if args := strings.Split(line, "="); len(args) > 1 { // folding (decode)
+		if args := strings.Split(line, "="); len(args) > 1 { // fold (decode)
 			n, _ := strconv.Atoi(args[1])
-			if args[0][len(args[0])-1] == 'x' {
+			i := len(args[0]) - 1
+			if args[0][i] == 'x' { // last car of arg0
 				vfold(n)
 			} else {
 				hfold(n)
@@ -62,10 +63,10 @@ func main() {
 		White = '\uFFFD' // undefined is very bright
 	)
 
-	b, frame := BBox(), make(map[coo]int)
+	b, frame := BBox(), make(map[vec]int)
 	for _, d := range dots {
-		frame[d]++  // could be color
-		b.update(d) // bounding box
+		frame[d]++ // could be color
+		b.add(d)   // bounding box
 	}
 
 	fb := make([][]rune, b.h()) // frame buffer
@@ -76,8 +77,9 @@ func main() {
 		}
 	}
 
-	for d := range frame { // rasterize
-		fb[d.y-b.ymin()][d.x-b.xmin()] = White // light up! could use color LUT
+	for d := range frame { // rasterise
+		d = b.rebase(d)      // this translation convert vectors (dots) to actual pixels
+		fb[d.y][d.x] = White // light up! could use color LUT
 	}
 
 	for _, r := range fb { // scan display
@@ -85,21 +87,27 @@ func main() {
 	}
 }
 
-type bbox struct {
-	a, b coo
+type bbox struct { // aabb
+	a, b vec
 }
 
 func BBox() bbox {
 	return bbox{
-		coo{MaxInt, MaxInt},
-		coo{MinInt, MinInt},
+		vec{MaxInt, MaxInt},
+		vec{MinInt, MinInt},
 	}
 }
 
-func (b *bbox) update(c coo) {
+func (b *bbox) add(c vec) {
 	b.a = min(b.a, c)
 	b.b = max(b.b, c)
 	return
+}
+
+func (b bbox) rebase(c vec) vec {
+	c.y -= b.ymin()
+	c.x -= b.xmin()
+	return c
 }
 
 func (b bbox) h() int {
@@ -118,22 +126,22 @@ func (b bbox) ymin() int {
 	return b.a.y
 }
 
-func min(a, b coo) coo {
+func min(a, b vec) vec {
 	λ := func(a, b int) int {
 		if a < b {
 			return a
 		}
 		return b
 	}
-	return coo{λ(a.x, b.x), λ(a.y, b.y)}
+	return vec{λ(a.x, b.x), λ(a.y, b.y)}
 }
 
-func max(a, b coo) coo {
+func max(a, b vec) vec {
 	λ := func(a, b int) int {
 		if a > b {
 			return a
 		}
 		return b
 	}
-	return coo{λ(a.x, b.x), λ(a.y, b.y)}
+	return vec{λ(a.x, b.x), λ(a.y, b.y)}
 }

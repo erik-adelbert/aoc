@@ -63,7 +63,7 @@ func op(r *bs.Reader) []seg {
 }
 
 const ( // cmd map
-	ADD = iota
+	ADD uint8 = iota
 	MUL
 	MIN
 	MAX
@@ -84,7 +84,7 @@ func load(r *bs.Reader) []seg {
 	switch typ {
 	case LIT: // data from segment
 		val := lit(r)
-		return append(segs, seg{ver, typ, val, nil})
+		return append(segs, seg{ver, typ, val, []seg(nil)})
 	default:
 		subs := op(r)
 		return append(segs, seg{ver, typ, 0, subs})

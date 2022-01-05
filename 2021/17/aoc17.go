@@ -36,7 +36,11 @@ func hit(v speed) bool {
 			return false
 		}
 
-		if min[X] <= p[X] && p[X] <= max[X] && min[Y] <= p[Y] && p[Y] <= max[Y] {
+		λ := func(a int) bool {
+			return min[a] <= p[a] && p[a] <= max[a]
+		}
+
+		if λ(X) && λ(Y) {
 			return true
 		}
 	}
