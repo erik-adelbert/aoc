@@ -60,8 +60,8 @@ func (g graph) paths(a, b string) {
 	visits := make(map[*node]int)
 	path := make(nodes, 0, len(g))
 
-	var repaths func(*node, *node, map[*node]int, nodes)
-	repaths = func(u, t *node, visits map[*node]int, path nodes) {
+	var repaths func(*node, *node)
+	repaths = func(u, t *node) {
 		seen := func(n *node) bool {
 			return !n.big() && visits[n] > 0
 		}
@@ -74,7 +74,7 @@ func (g graph) paths(a, b string) {
 		} else {
 			for _, v := range u.links {
 				if !seen(v) {
-					repaths(v, t, visits, path)
+					repaths(v, t)
 				}
 			}
 		}
@@ -85,7 +85,7 @@ func (g graph) paths(a, b string) {
 		return
 	}
 
-	repaths(g[a], g[b], visits, path)
+	repaths(g[a], g[b])
 }
 
 func main() {

@@ -43,10 +43,10 @@ func (ca *card) biff(n int) bool { // biff a number, return true if it's a win
 	return false
 }
 
-func (c *card) sum() int { // sum remaining numbers (kinda)
+func (ca *card) sum() int { // sum remaining numbers (kinda)
 	sum := 0
 	for i := 0; i < 5; i++ {
-		sum += c.row[i]
+		sum += ca.row[i]
 	}
 	return sum
 }

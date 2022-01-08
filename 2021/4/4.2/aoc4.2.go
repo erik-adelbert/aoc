@@ -43,10 +43,10 @@ func (ca *card) biff(n int) bool {
 	return false
 }
 
-func (c *card) sum() int {
+func (ca *card) sum() int {
 	sum := 0
 	for i := 0; i < 5; i++ {
-		sum += c.row[i]
+		sum += ca.row[i]
 	}
 	return sum
 }

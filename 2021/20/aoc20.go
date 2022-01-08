@@ -16,7 +16,7 @@ type bitmap struct {
 var (
 	cur, nxt = 0, 1    // parity, ^parity
 	kern     []byte    // kern(el filter)
-	bufs     [2]bitmap // double buffers
+	bufs     [2]bitmap // double buffering
 )
 
 func init() {

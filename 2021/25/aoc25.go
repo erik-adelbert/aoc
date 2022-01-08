@@ -45,7 +45,7 @@ func main() {
 			for i := 0; i < w; i++ {
 				x := (i + 1) % w
 				if cur[j*w+i] == '>' && cur[j*w+x] == '.' {
-					nxt[j*w+i], nxt[j*w+x] = '.', '>'
+					nxt[j*w+i], nxt[j*w+x] = nxt[j*w+x], nxt[j*w+i] // swap!
 					n++
 				}
 			}
@@ -55,7 +55,7 @@ func main() {
 			y := (j + 1) % h
 			for i := 0; i < w; i++ {
 				if cur[j*w+i] == 'v' && cur[y*w+i] == '.' {
-					nxt[j*w+i], nxt[y*w+i] = '.', 'v'
+					nxt[j*w+i], nxt[y*w+i] = nxt[y*w+i], nxt[j*w+i] // swap!
 					n++
 				}
 			}

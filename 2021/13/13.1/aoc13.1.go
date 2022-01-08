@@ -13,19 +13,19 @@ const (
 	MinInt = -MaxInt - 1
 )
 
-type coo struct {
+type vec struct {
 	x, y int
 }
 
 func main() {
-	dots := make([]coo, 0, 1024)
+	dots := make([]vec, 0, 1024)
 
 	vfold := func(x int) { // fold along vertical axis
 		for i, d := range dots {
 			if d.x > x {
 				d.x = 2*x - d.x
 			}
-			dots[i] = coo{d.x, d.y}
+			dots[i] = vec{d.x, d.y}
 		}
 	}
 
@@ -34,7 +34,7 @@ func main() {
 			if d.y > y {
 				d.y = 2*y - d.y
 			}
-			dots[i] = coo{d.x, d.y}
+			dots[i] = vec{d.x, d.y}
 		}
 	}
 
@@ -44,7 +44,7 @@ func main() {
 		if args := strings.Split(line, ","); len(args) > 1 { // dots
 			x, _ := strconv.Atoi(args[0])
 			y, _ := strconv.Atoi(args[1])
-			dots = append(dots, coo{x, y})
+			dots = append(dots, vec{x, y})
 		}
 		if args := strings.Split(line, "="); len(args) > 1 { // folding
 			n, _ := strconv.Atoi(args[1])
@@ -58,7 +58,7 @@ func main() {
 		}
 	}
 
-	frame := make(map[coo]int)
+	frame := make(map[vec]int)
 	for _, d := range dots {
 		frame[d]++
 	}

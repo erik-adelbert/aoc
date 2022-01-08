@@ -56,6 +56,7 @@ func main() {
 	}
 
 	rates := make(chan int64)
+	defer close(rates)
 
 	const (
 		O2  = true
