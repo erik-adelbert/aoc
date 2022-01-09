@@ -19,7 +19,7 @@ func newNode(s string) *node {
 	return &node{s, links, 1}
 }
 
-func (a *node) link(b *node) {
+func link(a, b *node) {
 	a.links = append(a.links, b)
 	b.links = append(b.links, a)
 }
@@ -34,9 +34,7 @@ func (n *node) big() bool {
 }
 
 func (n *node) String() string {
-	var sb strings.Builder
-	sb.WriteString(n.name)
-	return sb.String()
+	return n.name
 }
 
 type nodes []*node
@@ -55,6 +53,15 @@ func (n *nodes) pop() *node {
 
 type graph map[string]*node
 
+func (g *graph) add(nodes []string) {
+	for _, n := range nodes { // len(nodes) == 2
+		if _, ok := (*g)[n]; !ok {
+			(*g)[n] = newNode(n)
+		}
+	}
+	link((*g)[nodes[0]], (*g)[nodes[1]])
+}
+
 func (g graph) all(a, b string) {
 	visits := make(map[*node]int, 31)
 	path := make(nodes, 0, len(g)) // stack as path!
@@ -71,11 +78,9 @@ func (g graph) all(a, b string) {
 		if s == t {
 			var sb strings.Builder
 			for _, n := range path {
-				sb.WriteString(n.name)
+				sb.WriteString(n.name[:2]) // cheat mode on
 			}
-			if !paths[sb.String()] {
-				paths[sb.String()] = true
-			}
+			paths[sb.String()] = true
 		} else {
 			for _, v := range s.links {
 				if !seen(v) {
@@ -104,14 +109,7 @@ func main() {
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
-		args := strings.Split(input.Text(), "-")
-		if _, ok := g[args[0]]; !ok {
-			g[args[0]] = newNode(args[0])
-		}
-		if _, ok := g[args[1]]; !ok {
-			g[args[1]] = newNode(args[1])
-		}
-		g[args[0]].link(g[args[1]])
+		g.add(strings.Split(input.Text(), "-"))
 	}
 	fmt.Println(g)
 

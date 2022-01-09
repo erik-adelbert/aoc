@@ -18,7 +18,7 @@ func newNode(s string) *node {
 	return &node{s, links}
 }
 
-func (a *node) link(b *node) {
+func link(a, b *node) {
 	a.links = append(a.links, b)
 	b.links = append(b.links, a)
 }
@@ -33,9 +33,7 @@ func (n *node) big() bool {
 }
 
 func (n *node) String() string {
-	var sb strings.Builder
-	sb.WriteString(n.name)
-	return sb.String()
+	return n.name
 }
 
 type nodes []*node
@@ -55,6 +53,15 @@ func (n *nodes) pop() *node {
 type graph map[string]*node
 
 var npath int
+
+func (g *graph) add(nodes []string) {
+	for _, n := range nodes { // len(nodes) == 2
+		if _, ok := (*g)[n]; !ok {
+			(*g)[n] = newNode(n)
+		}
+	}
+	link((*g)[nodes[0]], (*g)[nodes[1]])
+}
 
 func (g graph) paths(a, b string) {
 	visits := make(map[*node]int)
@@ -93,14 +100,7 @@ func main() {
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
-		args := strings.Split(input.Text(), "-")
-		if _, ok := g[args[0]]; !ok {
-			g[args[0]] = newNode(args[0])
-		}
-		if _, ok := g[args[1]]; !ok {
-			g[args[1]] = newNode(args[1])
-		}
-		g[args[0]].link(g[args[1]])
+		g.add(strings.Split(input.Text(), "-"))
 	}
 	g.paths("start", "end")
 
