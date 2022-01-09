@@ -11,6 +11,8 @@ import (
 
 func main() {
 	var runtime float64
+	fmt.Println("| day | time |")
+	fmt.Println("|-----|-----:|")
 	for _, f := range os.Args[1:] {
 		fd, err := os.Open(f)
 		if err != nil {
@@ -31,8 +33,8 @@ func main() {
 		fd.Close()
 		labels := strings.Split(f, "/")
 		label := labels[len(labels)-2]
-		fmt.Printf("%s:\t%.1f\n", label, times[1]-times[0])
+		fmt.Printf("| %s | %.1f |\n", label, times[1]-times[0])
 		runtime += times[1] - times[0]
 	}
-	fmt.Printf("total:\t%.1f\n", runtime)
+	fmt.Printf("| total | %.1f |\n", runtime)
 }
