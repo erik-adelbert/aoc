@@ -5,6 +5,7 @@ import (
 	"math"
 )
 
+// Axis
 const (
 	X = iota
 	Y

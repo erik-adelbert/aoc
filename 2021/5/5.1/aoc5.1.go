@@ -8,12 +8,14 @@ import (
 	"strings"
 )
 
+// Infinity is equal to MaxInt
 const Infinity = int(^uint(0) >> 1)
 
 type point struct {
 	x, y int
 }
 
+// Point constructs a point object
 func Point(a, b string) point {
 	x, _ := strconv.Atoi(strings.TrimSpace(a))
 	y, _ := strconv.Atoi(strings.TrimSpace(b))

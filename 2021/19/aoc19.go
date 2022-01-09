@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+// Axis
 const (
 	X = iota
 	Y
@@ -17,15 +18,15 @@ const (
 
 type vec [3]int
 
-func (a vec) sign(b vec) vec {
+func (v vec) sign(b vec) vec {
 	return vec{
-		a[X] * b[X], a[Y] * b[Y], a[Z] * b[Z],
+		v[X] * b[X], v[Y] * b[Y], v[Z] * b[Z],
 	}
 }
 
-func (a vec) sub(b vec) vec {
+func (v vec) sub(a vec) vec {
 	return vec{
-		a[X] - b[X], a[Y] - b[Y], a[Z] - b[Z],
+		v[X] - a[X], v[Y] - a[Y], v[Z] - a[Z],
 	}
 }
 

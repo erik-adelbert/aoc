@@ -9,6 +9,7 @@ import (
 
 type seg map[rune]bool // 8 segments display abstraction
 
+// Seg constructs a seg object
 func Seg(s string) seg {
 	x := make(seg)
 	for _, r := range s {

@@ -62,6 +62,7 @@ func op(r *bs.Reader) []seg {
 	return subs
 }
 
+// Syntactic sugars for cmd type
 const ( // cmd map
 	ADD uint8 = iota
 	MUL
@@ -91,6 +92,7 @@ func load(r *bs.Reader) []seg {
 	}
 }
 
+// MaxInt and MinInt are defined in the idiomatic way
 const (
 	MaxInt = int(^uint(0) >> 1)
 	MinInt = -int(^uint(0)>>1) - 1

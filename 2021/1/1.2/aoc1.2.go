@@ -7,6 +7,7 @@ import (
 	"strconv"
 )
 
+// MaxInt is defined in the idiomatic way
 const MaxInt = int(^uint(0) >> 1)
 
 func main() {

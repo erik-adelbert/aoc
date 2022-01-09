@@ -40,9 +40,10 @@ func (c *cave) String() string {
 
 type idx [2]int // row major index
 
+// Row and Column
 const (
-	R = iota // R(ow)
-	C        // C(ol)
+	R = iota
+	C
 )
 
 type blast map[idx]bool

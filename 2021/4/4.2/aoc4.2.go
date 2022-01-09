@@ -18,7 +18,7 @@ type card struct {
 	val map[int]coo
 }
 
-func NewCard() *card {
+func newCard() *card {
 	c := new(card)
 	c.val = make(map[int]coo)
 	return c
@@ -54,7 +54,7 @@ func (ca *card) sum() int {
 func main() {
 	draw := make([]int, 0, 128)
 	deck := make([]*card, 0, 128)
-	cur, row := NewCard(), 0
+	cur, row := newCard(), 0
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
@@ -64,7 +64,7 @@ func main() {
 		case 0: // sep
 			if row > 0 {
 				deck = append(deck, cur)
-				cur, row = NewCard(), 0
+				cur, row = newCard(), 0
 			}
 		case 5: // cardboard row
 			for col, s := range args {

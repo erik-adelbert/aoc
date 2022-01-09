@@ -10,6 +10,7 @@ import (
 
 type axis int
 
+// Axis
 const (
 	X axis = iota
 	Y
@@ -54,9 +55,9 @@ func (c cubo) trim(r cubo) cubo { // r(egion)
 	}
 }
 
-func (b cubo) vol() int64 {
+func (c cubo) vol() int64 {
 	λ := func(d axis) int64 {
-		return int64(1 + b.max[d] - b.min[d])
+		return int64(1 + c.max[d] - c.min[d])
 	}
 	return λ(X) * λ(Y) * λ(Z)
 }

@@ -12,6 +12,7 @@ type point struct {
 	x, y int
 }
 
+// Point constructs a point object
 func Point(a, b string) point {
 	x, _ := strconv.Atoi(strings.TrimSpace(a))
 	y, _ := strconv.Atoi(strings.TrimSpace(b))

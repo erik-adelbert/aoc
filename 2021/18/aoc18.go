@@ -37,6 +37,7 @@ type snum struct {
 	deps []int
 }
 
+// SNum constructs a snailfish number from variadic args
 func SNum(args ...interface{}) snum {
 	var sn snum
 	switch len(args) {
@@ -142,8 +143,9 @@ func reduce(sn snum) snum {
 		both             // xflag | sflag == 3
 	)
 
-	more, done := false, 0
+	done := 0
 	for done != both {
+		var more bool
 		done = both // reset
 		if sn, more = explode(sn); more {
 			done &^= xflag // unflag

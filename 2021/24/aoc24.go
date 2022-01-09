@@ -57,8 +57,8 @@ func main() {
 				xq += i - j
 			}
 
-			p -= abs(a+b) * Pow(10, xp)
-			q += abs(a+b) * Pow(10, xq)
+			p -= abs(a+b) * pow(10, xp)
+			q += abs(a+b) * pow(10, xq)
 		}
 	}
 	fmt.Println(p, q)
@@ -71,7 +71,7 @@ func abs(a int) int {
 	return a
 }
 
-func Pow(a, n int) int {
+func pow(a, n int) int {
 	if n == 0 {
 		return 1
 	}

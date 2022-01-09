@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// MaxInt and MinInt are defined in the idiomatic way
 const (
 	MaxInt = int(^uint(0) >> 1)
 	MinInt = -MaxInt - 1

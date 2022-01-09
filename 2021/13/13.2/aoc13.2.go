@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// MaxInt an MinInt are defined in the idiomatic way
 const (
 	MaxInt = int(^uint(0) >> 1)
 	MinInt = -MaxInt - 1
@@ -58,6 +59,8 @@ func main() {
 	}
 
 	// display
+
+	// pixel colors
 	const (
 		Black = ' '
 		White = '\uFFFD' // undefined is very bright
@@ -91,6 +94,7 @@ type bbox struct { // aabb
 	a, b vec
 }
 
+// BBox constructs an aabb object
 func BBox() bbox {
 	return bbox{
 		vec{MaxInt, MaxInt},

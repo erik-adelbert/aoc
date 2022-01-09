@@ -57,7 +57,7 @@ func main() {
 		line := input.Text()
 		if args := strings.Split(line, " -> "); len(args) == 2 {
 			rules[args[0]] = args[1][0]
-			cache[args[0]] = make([]histo, depth+1) // allocate cache space to accomodate for new rule
+			cache[args[0]] = make([]histo, depth+1) // allocate cache space to accommodate for new rule
 		} else if line != "" {
 			seed = []byte(line)
 		}
