@@ -58,9 +58,10 @@ func main() {
 		}
 	}
 
-	// display
+	display(dots)
+}
 
-	// pixel colors
+func display(dots []vec) {
 	const (
 		Black = ' '
 		White = '\uFFFD' // undefined is very bright

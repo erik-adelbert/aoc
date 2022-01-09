@@ -52,7 +52,7 @@ func (g *grid) groups() map[int]int {
 	}
 
 	union := func(y, x int) {
-		if x > y {
+		if y < x {
 			labels[y] = x
 		} else {
 			labels[x] = y

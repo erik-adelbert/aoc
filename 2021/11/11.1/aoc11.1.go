@@ -88,11 +88,12 @@ func (c *cave) cascade(glob, cur blast) int {
 		for k, v := range cur {
 			glob[k] = v // merge current blast to the global one
 		}
-		cur = nxt
 
 		if nxt.popcount() == 0 { // no more flashing cell
 			return glob.popcount()
 		}
+
+		cur, nxt = nxt, nil
 	}
 }
 
