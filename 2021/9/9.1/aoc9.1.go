@@ -26,13 +26,17 @@ func (g *grid) get(y, x int) byte {
 }
 
 func (g *grid) filter(y, x int) int {
+	btoi := func(b byte) int {
+		return int(b - '0') // fast convert
+	}
+
 	v := g.get(y, x)
 	for _, x := range g.neigh(y, x) {
-		if x > 0 && v >= x {
+		if 0 < x && x <= v {
 			return 0
 		}
 	}
-	return 1 + int(v-'0')
+	return 1 + btoi(v)
 }
 
 func (g *grid) neigh(y, x int) []byte {

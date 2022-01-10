@@ -10,12 +10,11 @@ import (
 
 type popcnt [9]uint64
 
-func incube(cur popcnt) popcnt {
-	var nxt popcnt = popcnt{6: cur[0]}
-	for i, v := range cur {
-		nxt[(i+8)%9] += v // rotate left
-	}
-	return nxt
+// incube rotates/adds the underlying array
+func incube(a []uint64) {
+	i, n := len(a)-1, a[0]
+	copy(a, a[1:])
+	a[6], a[i] = a[6]+n, n
 }
 
 func sum(p popcnt) uint64 {
@@ -42,7 +41,7 @@ func main() {
 		if i == 80 {
 			fmt.Println(sum(fishes)) // part1
 		}
-		fishes = incube(fishes)
+		incube(fishes[:]) // pass slice
 	}
 	fmt.Println(sum(fishes)) // part2
 }

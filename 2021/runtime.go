@@ -11,7 +11,7 @@ import (
 
 func main() {
 	var runtime float64
-	fmt.Println("| day | time |")
+	// fmt.Println("| day | time |")
 	fmt.Println("|-----|-----:|")
 	for _, f := range os.Args[1:] {
 		fd, err := os.Open(f)

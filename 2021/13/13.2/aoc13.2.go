@@ -132,21 +132,21 @@ func (b bbox) ymin() int {
 }
 
 func min(a, b vec) vec {
-	λ := func(a, b int) int {
+	min := func(a, b int) int {
 		if a < b {
 			return a
 		}
 		return b
 	}
-	return vec{λ(a.x, b.x), λ(a.y, b.y)}
+	return vec{min(a.x, b.x), min(a.y, b.y)}
 }
 
 func max(a, b vec) vec {
-	λ := func(a, b int) int {
+	max := func(a, b int) int {
 		if a > b {
 			return a
 		}
 		return b
 	}
-	return vec{λ(a.x, b.x), λ(a.y, b.y)}
+	return vec{max(a.x, b.x), max(a.y, b.y)}
 }

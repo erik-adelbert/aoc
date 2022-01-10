@@ -7,10 +7,14 @@ import (
 	"strings"
 )
 
+type (
+	histo map[byte]int64
+	rules map[string]byte
+)
+
 func main() { // suboptimal but easy
 	var seed []byte
-	count := make(map[byte]int64)
-	rules := make(map[string]byte)
+	rules := make(rules)
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
 		line := input.Text()
@@ -23,19 +27,31 @@ func main() { // suboptimal but easy
 
 	const depth = 10
 
+	count := make(histo)
 	for _, b := range seed {
 		count[b]++
 	}
-	nxt := make([]byte, 0, len(seed)*(1<<depth)+1)
-	for j, cur := 0, seed; j < depth; j++ {
-		nxt = nxt[:0] // reset
-		for i := range cur[:len(cur)-1] {
-			pair := cur[i : i+2]
-			new := rules[string(pair)]
-			nxt = append(nxt, []byte{pair[0], new}...)
+
+	bufs := [][]byte{ // double buffering
+		make([]byte, 1-(1<<depth)+len(seed)*(1<<depth)), // n*2^d - (2^d - 1)
+		make([]byte, 1-(1<<depth)+len(seed)*(1<<depth)),
+	}
+
+	// init slices
+	cur, nxt := bufs[0], bufs[1]
+	cur = cur[:len(seed)]
+	copy(cur, seed)
+
+	for j := 0; j < depth; j++ {
+		n := len(cur) - 1 // last car
+		nxt = nxt[:0]
+		for i := range cur[:n] {
+			cur := cur[i : i+2] // current pair from current seed
+			new := rules[string(cur)]
+			nxt = append(nxt, []byte{cur[0], new}...)
 			count[new]++
 		}
-		cur, nxt = append(nxt, cur[len(cur)-1]), []byte(nil)
+		cur, nxt = append(nxt, cur[n]), cur
 	}
 
 	min, max := extrema(count)
