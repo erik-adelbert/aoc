@@ -61,7 +61,8 @@ func main() {
 			q += abs(a+b) * pow(10, xq)
 		}
 	}
-	fmt.Println(p, q)
+	fmt.Println(p) // part1
+	fmt.Println(q) // part2
 }
 
 func abs(a int) int {

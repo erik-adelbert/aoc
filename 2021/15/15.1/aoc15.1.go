@@ -9,7 +9,7 @@ import (
 )
 
 type cell struct {
-	x, y, v int
+	y, x, v int
 }
 
 func (a *cell) smaller(b *cell) bool {

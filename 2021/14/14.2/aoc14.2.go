@@ -20,10 +20,6 @@ func init() {
 }
 
 func merge(a, b histo) histo {
-	if len(a) < len(b) {
-		a, b = b, a
-	}
-
 	for k, v := range b {
 		a[k] += v
 	}
@@ -71,7 +67,8 @@ func main() {
 		counts = merge(counts, count(string(seed[i:i+2]), depth))
 	}
 
-	fmt.Println(extrema(counts))
+	min, max := extrema(counts)
+	fmt.Println(max - min)
 }
 
 func extrema(m histo) (int64, int64) {

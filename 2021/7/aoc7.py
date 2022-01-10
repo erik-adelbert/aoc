@@ -15,7 +15,7 @@ def part2(data):
     def g(x):
         return (x * (x+1))/2
 
-    m = round(mean(data))
+    m = int(mean(data))  # round doesn't work on my input
     return [g(abs(x - m)) for x in data]
 
 def main():

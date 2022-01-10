@@ -16,7 +16,7 @@ func (p pos) mean() int {
 	for _, x := range p {
 		sum += x
 	}
-	return int(math.Round(float64(sum) / float64(len(p))))
+	return int(math.Floor(float64(sum) / float64(len(p)))) // Round doesn't work on my input
 }
 
 func (p pos) sumdist() int {

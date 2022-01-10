@@ -39,27 +39,27 @@ func (n *node) String() string {
 
 type nodes []*node
 
-func (n *nodes) push(x *node) {
-	*n = append(*n, x)
+func (n nodes) push(x *node) nodes {
+	return append(n, x)
 }
 
-func (n *nodes) pop() *node {
-	i := len(*n) - 1
+func (n nodes) pop() (nodes, *node) {
+	i := len(n) - 1
 
-	pop := (*n)[i]
-	*n, (*n)[i] = (*n)[:i], nil
-	return pop
+	pop := n[i]
+	n, n[i] = n[:i], nil
+	return n, pop
 }
 
 type graph map[string]*node
 
-func (g *graph) add(nodes []string) {
+func (g graph) add(nodes []string) {
 	for _, n := range nodes { // len(nodes) == 2
-		if _, ok := (*g)[n]; !ok {
-			(*g)[n] = newNode(n)
+		if _, ok := g[n]; !ok {
+			g[n] = newNode(n)
 		}
 	}
-	link((*g)[nodes[0]], (*g)[nodes[1]])
+	link(g[nodes[0]], g[nodes[1]])
 }
 
 func (g graph) all(a, b string) {
@@ -73,7 +73,7 @@ func (g graph) all(a, b string) {
 		}
 
 		visits[s]++
-		path.push(s)
+		path = path.push(s)
 
 		if s == t {
 			var sb strings.Builder
@@ -89,7 +89,7 @@ func (g graph) all(a, b string) {
 			}
 		}
 
-		path.pop()
+		path, s = path.pop()
 		visits[s]--
 
 		return
