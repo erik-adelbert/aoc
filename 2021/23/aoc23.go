@@ -2,12 +2,7 @@ package main
 
 import (
 	hp "container/heap"
-	"flag"
 	"fmt"
-	"log"
-	"os"
-	"runtime"
-	"runtime/pprof"
 	"strings"
 )
 
@@ -15,11 +10,11 @@ type board [11]string // hhRhRhRhRhh h(allway), R(oom)
 
 func cost(p rune) int {
 	costs := [...]int{1, 10, 100, 1000}
-	return costs[p-'A']
+	return costs[rtoi(p)]
 }
 
 func goal(p rune) int {
-	return 2 + 2*int(p-'A') // 'A': 2, 'B': 4, 'C':6 'D': 8
+	return 2 + 2*int(rtoi(p)) // 'A': 2, 'B': 4, 'C':6 'D': 8
 }
 
 func room(r int) bool {
@@ -60,7 +55,7 @@ func (b board) pawn(r int) rune { // r(oom)
 	return 0
 }
 
-func (b board) get(r int) (string, int) { // r(oom)
+func (b board) rem(r int) (string, int) { // r(oom)
 	cell := []byte(b[r])
 	for i, c := range b[r] {
 		if c != '.' {
@@ -71,7 +66,7 @@ func (b board) get(r int) (string, int) { // r(oom)
 	return string(cell), 0
 }
 
-func (b board) put(r int, p rune) (string, int) { // r(oom), p(awn)
+func (b board) add(r int, p rune) (string, int) { // r(oom), p(awn)
 	cell := []byte(b[r])
 	if i := strings.Count(b[r], "."); i != 0 { // room has free cells
 		cell[i-1] = byte(p) // take the deeper one
@@ -83,26 +78,32 @@ func (b board) put(r int, p rune) (string, int) { // r(oom), p(awn)
 func (b board) moves(r int) []int { // r(oom)
 
 	p := b.pawn(r) // pawn to move
-
-	if r == goal(p) && b.granted(r, p) { // pawn already at destination
-		return []int(nil)
+	if p == 0 {    // empty space
+		return []int(nil) // no move
 	}
 
-	if !room(r) { // pawn in the hallway, moving to goal is the only move
+	if !room(r) { // pawn is in the hallway, moving to goal room is the only move
 		if b.free(r, goal(p)) && b.granted(goal(p), p) {
 			return []int{goal(p)} // move if way is free and room is open
 		}
+		return []int(nil) // else no move
+	}
+
+	if b.granted(r, p) { // pawn already at destination
 		return []int(nil)
 	}
 
 	moves := make([]int, 0, 8)
 	for i := 0; i < len(b); i++ {
 		switch {
-		case i == r: // skip starting room
-		case i != goal(p) && room(i): // enter no room except for...
-		case i == goal(p) && !b.granted(i, p): // ...the goal one, if not closed ...
-		case b.free(r, i): // ... and free way
-			moves = append(moves, i)
+		case i == r: // skip starting room,
+		case room(i) && !b.granted(i, p): // ... closed rooms, ...
+		case b.free(r, i): // ... if the way is free ...
+			if i == goal(p) { // ... moving to the goal is a killer move ...
+				moves = []int(nil)
+				return []int{goal(p)}
+			}
+			moves = append(moves, i) // ... else move to the hallway
 		}
 	}
 	return moves
@@ -114,22 +115,22 @@ func (b board) move(s, t int) (board, int) { // s(ource), t(arget) -> board, cos
 	n, dist := 0, 0
 	nxt[s] = "."
 	if room(s) {
-		nxt[s], n = b.get(s)
+		nxt[s], n = b.rem(s)
 		dist += n
 	}
 	nxt[t] = string(p)
 	if room(t) {
-		nxt[t], n = b.put(t, p)
+		nxt[t], n = b.add(t, p)
 		dist += n
 	}
 	dist += abs(s - t)
 	return nxt, dist * cost(p)
 }
 
-var costs map[board]int
+var costs map[string]int
 
 func init() {
-	costs = make(map[board]int, 16411)
+	costs = make(map[string]int, 16411)
 }
 
 type cboard struct {
@@ -161,6 +162,15 @@ func (h *heap) Pop() interface{} {
 	return pop
 }
 
+func concat(b board) string {
+	var sb strings.Builder
+	sb.Grow(32)
+	for i := 0; i < len(b); i++ {
+		sb.WriteString(b[i])
+	}
+	return sb.String()
+}
+
 func (b board) solve(goal board) int {
 	heap := make(heap, 0, 16411)
 	hp.Init(&heap)
@@ -169,41 +179,25 @@ func (b board) solve(goal board) int {
 	for heap.Len() > 0 {         // ...play all possible games
 		b := hp.Pop(&heap).(*cboard).b // pop a (sub)game
 		if b == goal {                 // it works because heap is sorted by costs
-			return costs[goal]
+			return costs[concat(goal)]
 		}
 		for i := range b { // for all cells
-			if b.pawn(i) == 0 { // empty cell, nothing to do
-				continue
-			}
 			for _, j := range b.moves(i) { // for all legal moves from cell i...
 				sub, cost := b.move(i, j) // ...play one
-				cost += costs[b]
-				if costs[sub] == 0 || costs[sub] > cost {
-					costs[sub] = cost                 // if it's the best move so far...
+				cost += costs[concat(b)]
+
+				skey := concat(sub)
+				if known, seen := costs[skey]; !seen || known > cost {
+					costs[skey] = cost                // if it's the best move so far...
 					hp.Push(&heap, cboard{sub, cost}) // ...send subgame to resolution
 				}
 			}
 		}
 	}
-	return costs[goal]
+	return costs[concat(goal)]
 }
 
-var (
-	cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
-	memprofile = flag.String("memprofile", "", "write memory profile to `file`")
-)
-
 func main() {
-	flag.Parse()
-	if *cpuprofile != "" {
-		f, err := os.Create(*cpuprofile)
-		if err != nil {
-			log.Fatal(err)
-		}
-		pprof.StartCPUProfile(f)
-		defer pprof.StopCPUProfile()
-	}
-
 	goal := board{
 		".", ".", "AA", ".", "BB", ".", "CC", ".", "DD", ".", ".",
 	}
@@ -219,18 +213,10 @@ func main() {
 		".", ".", "ADDB", ".", "DCBC", ".", "BBAA", ".", "DACC", ".", ".",
 	}
 	fmt.Println(part2.solve(goal))
+}
 
-	if *memprofile != "" {
-		f, err := os.Create(*memprofile)
-		if err != nil {
-			log.Fatal("could not create memory profile: ", err)
-		}
-		defer f.Close() // error handling omitted for example
-		runtime.GC()    // get up-to-date statistics
-		if err := pprof.WriteHeapProfile(f); err != nil {
-			log.Fatal("could not write memory profile: ", err)
-		}
-	}
+func rtoi(r rune) rune {
+	return r - 'A'
 }
 
 func abs(a int) int {
