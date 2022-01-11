@@ -2,12 +2,9 @@ package main
 
 import (
 	"bufio"
-	"flag"
 	"fmt"
-	"log"
 	"os"
 	"reflect"
-	"runtime/pprof"
 	"strconv"
 	"strings"
 )
@@ -178,50 +175,76 @@ func split(sn snum) (snum, bool) {
 	return sn, ok
 }
 
+// String outputs a representation of a snum.
+// With n the count of numbers in the snum, it regrows the snum into a b-tree
+// in O(n^2) and recursivly prints the tree in O(n). It's slow and heavy but
+// reliable and somehow easy to understand.
+// The overall O(n^2) is acceptable: the sole purpose here is to help us
+// compose, debug and tune the code. This is also why we have regrow and
+// reprint instead of a single but intricate function.
 func (sn snum) String() string {
-	var sb strings.Builder
+	type bnode struct {
+		v           int
+		left, right *bnode
+	}
 
-	depth := 0
-	sb.WriteRune('[')
-	for i, v := range sn.vals {
-		switch {
-		case depth < sn.deps[i]:
-			for depth < sn.deps[i] {
-				sb.WriteRune('[')
-				depth++
+	new := func() *bnode {
+		return &bnode{v: -1}
+	}
+
+	var regrow func(r *bnode, v, d int) bool
+	regrow = func(r *bnode, v, d int) bool {
+		if d == 0 {
+			if *r == *new() {
+				r.v = v
+				return true
 			}
-		case depth > sn.deps[i]:
-			for depth > sn.deps[i] {
-				sb.WriteRune(']')
-				depth--
+			return false
+		} else {
+			if r.v != -1 {
+				return false
 			}
-		case depth == sn.deps[i]:
-			sb.WriteRune(',')
+			if r.left == nil { // grow one level
+				r.left = new()
+			}
+			if regrow(r.left, v, d-1) {
+				return true
+			}
+			if r.right == nil { // grow one level
+				r.right = new()
+			}
+			return regrow(r.right, v, d-1)
 		}
-		sb.WriteString(fmt.Sprintf(" %d ", v))
 	}
-	for depth > 0 {
-		sb.WriteRune(']')
-		depth--
-	}
-	sb.WriteRune(']')
 
-	return sb.String()
+	var reprint func(*bnode) string
+	reprint = func(r *bnode) string {
+		switch {
+		case r == nil:
+			return ""
+		case -1 < r.v:
+			return fmt.Sprint(r.v)
+		default:
+			return fmt.Sprintf("[%s,%s]", reprint(r.left), reprint(r.right))
+		}
+	}
+
+	max := -1
+	for _, v := range sn.deps {
+		if v > max {
+			max = v
+		}
+	}
+
+	root := &bnode{v: -1}
+	for i, v := range sn.vals {
+		regrow(root, v, sn.deps[i]+1)
+	}
+
+	return reprint(root)
 }
 
-var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
-
 func main() {
-	flag.Parse()
-	if *cpuprofile != "" {
-		f, err := os.Create(*cpuprofile)
-		if err != nil {
-			log.Fatal(err)
-		}
-		pprof.StartCPUProfile(f)
-		defer pprof.StopCPUProfile()
-	}
-
 	args := make([]snum, 0, 128)
 
 	input := bufio.NewScanner(os.Stdin)
@@ -229,6 +252,8 @@ func main() {
 		line := input.Text()
 		args = append(args, SNum(tokenize(line)))
 	}
+
+	// fmt.Println(args[0])
 
 	num := SNum()
 	for _, sn := range args {
