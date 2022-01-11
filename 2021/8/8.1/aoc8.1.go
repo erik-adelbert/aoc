@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-var digits = []int{6, 2, 5, 5, 4, 5, 6, 3, 7, 6} // number of segments for 0..9
+var segs = []int{6, 2, 5, 5, 4, 5, 6, 3, 7, 6} // number of segments for 0..9
 
 func main() {
 	counts := make([]int, 8)
@@ -23,7 +23,7 @@ func main() {
 
 	sum := 0
 	for _, n := range []int{1, 4, 7, 8} {
-		sum += counts[digits[n]]
+		sum += counts[segs[n]]
 	}
 	fmt.Println(sum)
 }

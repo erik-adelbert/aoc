@@ -33,8 +33,8 @@ func main() { // suboptimal but easy
 	}
 
 	bufs := [][]byte{ // double buffering
-		make([]byte, 1-(1<<depth)+len(seed)*(1<<depth)), // n*2^d - (2^d - 1)
-		make([]byte, 1-(1<<depth)+len(seed)*(1<<depth)),
+		make([]byte, (1<<depth)*(len(seed)-1)+1),
+		make([]byte, (1<<depth)*(len(seed)-1)+1),
 	}
 
 	// init slices

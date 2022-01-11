@@ -10,7 +10,7 @@ import (
 	bs "github.com/bearmini/bitstream-go"
 )
 
-type seg struct {
+type seg struct { // datagram segment
 	ver uint8
 	typ uint8
 	val int
@@ -62,7 +62,7 @@ func op(r *bs.Reader) []seg {
 	return subs
 }
 
-// Syntactic sugars for cmd type
+// Sugars for cmd type
 const ( // cmd map
 	ADD uint8 = iota
 	MUL
