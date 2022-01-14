@@ -1,1 +1,0 @@
-Si les lignes avaient été autrement qu'à ±45º, il aurait fallu utiliser l'algorithme de [bresenham](https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm)! 

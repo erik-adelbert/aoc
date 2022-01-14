@@ -1,1 +1,0 @@
-C'est en tournant l'exemple à la main que j'ai vu qu'il s'agissait d'une rotation vers la gauche avec une addition sur le jour 6. Je trouve la version `python` délicieuse!
