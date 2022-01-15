@@ -227,8 +227,8 @@ func main() {
 		p2 = reboot(p2, on, c)
 	}
 
-	fmt.Println(count(p1))
-	fmt.Println(count(p2))
+	fmt.Println(count(p1)) // part1
+	fmt.Println(count(p2)) // part2
 }
 
 func min(a, b vec) vec {

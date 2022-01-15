@@ -22,10 +22,12 @@ func (t *tokens) shift() string {
 }
 
 func tokenize(s string) *tokens { // old school wow inside!
-	s = strings.Replace(s, ",", " ", -1)
-	s = strings.Replace(s, "[", " [ ", -1)
-	s = strings.Replace(s, "]", " ] ", -1)
-	fields := tokens(strings.Fields(s))
+	r := strings.NewReplacer(
+		",", " ",
+		"[", " [ ",
+		"]", " ] ",
+	)
+	fields := tokens(strings.Fields(r.Replace(s)))
 	return &fields
 }
 

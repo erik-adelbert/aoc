@@ -1,3 +1,3 @@
 #!/bin/bash
 
-./runtime `find . -name time.md`
+go run ./runtime.go `find . -name time.md`

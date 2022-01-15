@@ -42,7 +42,7 @@ func (b bitmap) inf(y, x int) bool {
 
 func (b bitmap) get(y, x int) int {
 	if b.inf(y, x) { // p is infinite
-		return cur
+		return cur // as parity
 	}
 	return int(b.data[y][x])
 }
@@ -75,7 +75,7 @@ func enhance() {
 		}
 	}
 
-	cur, nxt = nxt, cur // swap buffers
+	cur, nxt = nxt, cur // swap buffers (and switch parity)
 }
 
 func (b bitmap) String() string {

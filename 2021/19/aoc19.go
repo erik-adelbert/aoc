@@ -18,15 +18,15 @@ const (
 
 type vec [3]int
 
-func (v vec) sign(b vec) vec {
+func (v vec) sign(s vec) vec {
 	return vec{
-		v[X] * b[X], v[Y] * b[Y], v[Z] * b[Z],
+		s[X] * v[X], s[Y] * v[Y], s[Z] * v[Z],
 	}
 }
 
-func (v vec) sub(a vec) vec {
+func (v vec) sub(u vec) vec {
 	return vec{
-		v[X] - a[X], v[Y] - a[Y], v[Z] - a[Z],
+		v[X] - u[X], v[Y] - u[Y], v[Z] - u[Z],
 	}
 }
 
@@ -44,7 +44,7 @@ func (r reading) π2rots() <-chan reading { // rotations iterator
 	c := make(chan reading)
 
 	rots := []struct {
-		s, a vec
+		s, a vec // sign, axis
 	}{
 		{vec{-1, -1, +1}, vec{X, Y, Z}},
 		{vec{-1, +1, -1}, vec{X, Y, Z}},
@@ -110,8 +110,8 @@ func list(m map[vec]bool) reading {
 
 func difs(r reading) reading {
 	difs := make([]vec, len(r)-1)
-	for i, v1 := range r[1:] {
-		difs[i] = v1.sub(r[i]) // v0 = r[i], difs[i] == v1-v0
+	for i, v1 := range r[1:] { // v0, v1 = r[0], r[1] ...
+		difs[i] = v1.sub(r[i]) // difs[0] == v1-v0, ...
 	}
 
 	return difs
@@ -222,20 +222,25 @@ func align(r reading) bool {
 	}
 
 	read, known := Reading(r), list(fixed)
-	for a := X; a <= Z; a++ {
+	for a := X; a <= Z; a++ { // X, Y, Z
 		sort(&read, a)
 		sort(&known, a)
 
 		rdifs, kdifs := difs(read), difs(known)
 
-		if matches := inter(rdifs, kdifs, true); len(matches) > 0 {
+		const (
+			All   = false
+			First = !All
+		)
+
+		if matches := inter(rdifs, kdifs, First); len(matches) == 1 {
 			pivot := matches[0]
 			i := index(rdifs, pivot)
 			j := index(kdifs, pivot)
 			o := read[i].sub(known[j])
 
 			rebased := rebase(read, o)
-			if len(inter(known, rebased, false)) >= 12 {
+			if len(inter(known, rebased, All)) >= 12 {
 				for _, v := range rebased {
 					fixed[v] = true
 				}
