@@ -63,7 +63,7 @@ func main() {
 
 	const (
 		O2  = true
-		CO2 = false
+		CO2 = !O2
 	)
 
 	go func() {

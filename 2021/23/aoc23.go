@@ -55,6 +55,17 @@ func (b board) pawn(r int) rune { // r(oom)
 	return 0
 }
 
+func (b board) pawns(r int) string { // r(oom)
+	var pawns strings.Builder
+	pawns.Grow(len(b[r]))
+	for _, p := range b[r] {
+		if p != '.' {
+			pawns.WriteRune(p)
+		}
+	}
+	return pawns.String()
+}
+
 func (b board) rem(r int) (string, int) { // r(oom)
 	cell := []byte(b[r])
 	for i, c := range b[r] {
@@ -94,7 +105,7 @@ func (b board) moves(r int) []int { // r(oom)
 	}
 
 	moves := make([]int, 0, 8)
-	for i := 0; i < len(b); i++ {
+	for i := range b {
 		switch {
 		case i == r: // skip starting room,
 		case room(i) && !b.granted(i, p): // ... closed rooms, ...
@@ -125,6 +136,40 @@ func (b board) move(s, t int) (board, int) { // s(ource), t(arget) -> board, cos
 	}
 	dist += abs(s - t)
 	return nxt, dist * cost(p)
+}
+
+// hfun is a heuristic function from:
+// https://github.com/pemoreau/advent-of-code-2021/blob/main/go/23/day23.go#L377-L401
+// see:
+// https://www.reddit.com/r/adventofcode/comments/rzvsjq/comment/hswxkbr/?utm_source=share&utm_medium=web2x&context=3
+func hfun(b board) int {
+	popcnts := make([]int, len(b))
+	entropy := 0
+
+SCAN:
+	for s := range b { // for all cells as sources
+		pawns := b.pawns(s)
+		for j, p := range pawns { // for all pawns in a source cell
+			t := goal(p) // target
+
+			if s == t && b.granted(t, p) { // pawns already at home
+				continue SCAN // discard
+			}
+
+			dist := abs(s - t)             // walk p back home
+			dist += len(b[t]) - popcnts[t] // put p in there
+			popcnts[t]++
+
+			if room(s) { // get out first
+				dist += len(b[s]) - len(pawns)
+				dist += 1 + j
+			}
+
+			entropy += dist * cost(p)
+		}
+	}
+	// fmt.Println(b, entropy)
+	return entropy
 }
 
 var costs map[string]int
@@ -177,7 +222,7 @@ func (b board) solve(goal board) int {
 
 	hp.Push(&heap, cboard{b, 0}) // from start...
 	for heap.Len() > 0 {         // ...play all possible games
-		b := hp.Pop(&heap).(*cboard).b // pop a (sub)game
+		b := hp.Pop(&heap).(*cboard).b // pop a (sub)game board
 		if b == goal {                 // it works because heap is sorted by costs
 			return costs[concat(goal)]
 		}
@@ -189,6 +234,7 @@ func (b board) solve(goal board) int {
 				skey := concat(sub)
 				if known, seen := costs[skey]; !seen || known > cost {
 					costs[skey] = cost                // if it's the best move so far...
+					cost += hfun(sub)                 // heuristic function
 					hp.Push(&heap, cboard{sub, cost}) // ...send subgame to resolution
 				}
 			}

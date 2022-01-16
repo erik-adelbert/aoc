@@ -231,13 +231,6 @@ func (sn snum) String() string {
 		}
 	}
 
-	max := -1
-	for _, v := range sn.deps {
-		if v > max {
-			max = v
-		}
-	}
-
 	root := &bnode{v: -1}
 	for i, v := range sn.vals {
 		regrow(root, v, sn.deps[i]+1)
@@ -256,12 +249,6 @@ func main() {
 	}
 
 	// fmt.Println(args[0])
-
-	num := SNum()
-	for _, sn := range args {
-		num = reduce(SNum(num, clone(sn)))
-	}
-	fmt.Println(mag(num)) // part1
 
 	jobs := make(chan snum)
 	mags := make(chan int)
@@ -285,6 +272,12 @@ func main() {
 			}
 		}()
 	}
+
+	num := SNum()
+	for _, sn := range args {
+		num = reduce(SNum(num, clone(sn)))
+	}
+	fmt.Println(mag(num)) // part1
 
 	i, max := 0, 0
 	for n := range mags {
