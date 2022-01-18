@@ -36,6 +36,7 @@ func (v vec) manh() int {
 
 type reading []vec
 
+// Reading is a vector field abstraction
 func Reading(points []vec) reading {
 	return append(points[:0:0], points...)
 }

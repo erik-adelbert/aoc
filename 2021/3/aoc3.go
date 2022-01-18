@@ -25,7 +25,9 @@ func popcounts(nums []string) []int {
 }
 
 const (
-	O2  = true
+	// O2 sugar
+	O2 = true
+	// CO2 sugar
 	CO2 = !O2
 )
 

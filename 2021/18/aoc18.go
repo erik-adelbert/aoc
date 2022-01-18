@@ -202,7 +202,6 @@ func (sn snum) String() string {
 				r.v = v
 				return true
 			}
-			return false
 		} else {
 			if r.v != -1 {
 				return false
@@ -218,6 +217,7 @@ func (sn snum) String() string {
 			}
 			return regrow(r.right, v, d-1)
 		}
+		return false
 	}
 
 	var reprint func(*bnode) string
@@ -249,7 +249,7 @@ func main() {
 		args = append(args, SNum(tokenize(line)))
 	}
 
-	// fmt.Println(args[0])
+	fmt.Println(args[0])
 
 	jobs := make(chan snum)
 	mags := make(chan int)
