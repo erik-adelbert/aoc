@@ -29,9 +29,9 @@ func hit(v speed) bool {
 		p[Y] += v[Y]
 
 		if v[X] != 0 {
-			v[X] -= 1
+			v[X]--
 		}
-		v[Y] -= 1
+		v[Y]--
 
 		if p[X] > max[X] || p[Y] < min[Y] { // over/under shoot
 			return false

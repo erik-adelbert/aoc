@@ -1,4 +1,4 @@
 | Command | Mean [ms] | Min [ms] | Max [ms] | Relative |
 |:---|---:|---:|---:|---:|
-| `cat input.txt` | 0.4 ± 0.2 | 0.0 | 1.0 | 1.00 |
-| `cat input.txt \| ./aoc22` | 5.3 ± 0.2 | 4.7 | 6.3 | 13.40 ± 5.56 |
+| `cat input.txt` | 0.6 ± 0.2 | 0.4 | 1.5 | 1.00 |
+| `cat input.txt \| ./aoc22` | 5.5 ± 0.2 | 5.1 | 7.1 | 8.81 ± 2.76 |

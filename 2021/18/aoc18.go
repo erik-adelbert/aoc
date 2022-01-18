@@ -203,21 +203,20 @@ func (sn snum) String() string {
 				return true
 			}
 			return false
-		} else {
-			if r.v != -1 {
-				return false
-			}
-			if r.left == nil { // grow one level
-				r.left = new()
-			}
-			if regrow(r.left, v, d-1) {
-				return true
-			}
-			if r.right == nil { // grow one level
-				r.right = new()
-			}
-			return regrow(r.right, v, d-1)
 		}
+		if r.v != -1 {
+			return false
+		}
+		if r.left == nil { // grow one level
+			r.left = new()
+		}
+		if regrow(r.left, v, d-1) {
+			return true
+		}
+		if r.right == nil { // grow one level
+			r.right = new()
+		}
+		return regrow(r.right, v, d-1)
 	}
 
 	var reprint func(*bnode) string

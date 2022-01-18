@@ -25,8 +25,8 @@ func popcounts(nums []string) []int {
 }
 
 const (
-	O2  = true
-	CO2 = !O2
+	o2  = true
+	co2 = !o2
 )
 
 func rate(nums []string, gas bool) (int64, error) {
@@ -36,8 +36,8 @@ func rate(nums []string, gas bool) (int64, error) {
 		popcnts := popcounts(n)
 
 		bits := map[bool]string{ // most popular bit filters ordered by gas
-			O2:  "01",
-			CO2: "10",
+			o2:  "01",
+			co2: "10",
 		}
 
 		j := 0
@@ -66,12 +66,12 @@ func main() {
 	defer close(rates)
 
 	go func() {
-		o2, _ := rate(nums, O2)
+		o2, _ := rate(nums, o2)
 		rates <- o2
 	}()
 
 	go func() {
-		co2, _ := rate(nums, CO2)
+		co2, _ := rate(nums, co2)
 		rates <- co2
 	}()
 
