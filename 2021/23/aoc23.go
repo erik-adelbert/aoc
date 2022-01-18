@@ -4,6 +4,7 @@ import (
 	hp "container/heap"
 	"fmt"
 	"strings"
+	"sync"
 )
 
 type board [11]string // hhRhRhRhRhh h(allway), R(oom)
@@ -21,8 +22,13 @@ func room(r int) bool {
 	return 1 < r && r < 9 && r&1 == 0 // true for 2, 4, 6, 8
 }
 
+var (
+	halls = []int{0, 1, 3, 5, 7, 9, 10} // hallway cells
+	rooms = []int{2, 4, 6, 8}
+)
+
 // free checks if hallway cells between s,t are free
-func (b board) free(s, t int) bool { // s(rc), t(arget)
+func (b board) free(s, t int) bool {
 	l, r := min(s, t), max(s, t)
 	for i := l; i <= r; i++ {
 		if i != s && !room(i) && b[i] != "." {
@@ -34,7 +40,7 @@ func (b board) free(s, t int) bool { // s(rc), t(arget)
 
 // granted checks if a room is either empty or populated with
 // homies only
-func (b board) granted(r int, p rune) bool { // r(oom), p(awn)
+func (b board) granted(r int, p rune) bool { // room, pawn
 	if r != goal(p) {
 		return false
 	}
@@ -46,7 +52,7 @@ func (b board) granted(r int, p rune) bool { // r(oom), p(awn)
 	return true
 }
 
-func (b board) pawn(r int) rune { // r(oom)
+func (b board) pawn(r int) rune { // room
 	for _, c := range b[r] {
 		if c != '.' {
 			return c
@@ -55,78 +61,135 @@ func (b board) pawn(r int) rune { // r(oom)
 	return 0
 }
 
-func (b board) pawns(r int) string { // r(oom)
-	var pawns strings.Builder
-	pawns.Grow(len(b[r]))
-	for _, p := range b[r] {
-		if p != '.' {
-			pawns.WriteRune(p)
-		}
+func (b board) rem(r int, p rune) (string, int) { // room, pawn -> board, cost
+	if i := strings.IndexRune(b[r], p); i > -1 {
+		cell := []rune(b[r])
+		cell[i] = '.'
+		return string(cell), i + 1
 	}
-	return pawns.String()
+	return b[r], 0
 }
 
-func (b board) rem(r int) (string, int) { // r(oom)
-	cell := []byte(b[r])
-	for i, c := range b[r] {
-		if c != '.' {
-			cell[i] = '.'
-			return string(cell), i + 1
-		}
-	}
-	return string(cell), 0
-}
-
-func (b board) add(r int, p rune) (string, int) { // r(oom), p(awn)
-	cell := []byte(b[r])
+func (b board) add(r int, p rune) (string, int) { // room, pawn -> board, cost
 	if i := strings.Count(b[r], "."); i != 0 { // room has free cells
-		cell[i-1] = byte(p) // take the deeper one
+		cell := []rune(b[r])
+		cell[i-1] = p // take the deeper one
 		return string(cell), i
 	}
 	return b[r], 0
 }
 
-func (b board) moves(r int) []int { // r(oom)
-
-	p := b.pawn(r) // pawn to move
-	if p == 0 {    // empty space
-		return []int(nil) // no move
-	}
-
-	if !room(r) { // pawn is in the hallway, moving to goal room is the only move
-		if b.free(r, goal(p)) && b.granted(goal(p), p) {
-			return []int{goal(p)} // move if way is free and room is open
-		}
-		return []int(nil) // else no move
-	}
-
-	if b.granted(r, p) { // pawn already at destination
-		return []int(nil)
-	}
-
-	moves := make([]int, 0, 8)
-	for i := range b {
-		switch {
-		case i == r: // skip starting room,
-		case room(i) && !b.granted(i, p): // ... closed rooms, ...
-		case b.free(r, i): // ... if the way is free ...
-			if i == goal(p) { // ... moving to the goal is a killer move ...
-				moves = []int(nil)
-				return []int{goal(p)}
+// https://github.com/pemoreau/advent-of-code-2021/blob/main/go/23/day23.go#L147-L204
+// dead1 detects an interlock in the middle section of the board
+func (b board) dead1() bool {
+	for i := range []int{3, 5, 7} {
+		for j := i + 2; j < 8; j += 2 {
+			x, y := b.pawn(i), b.pawn(j)
+			if x*y*(y-x) != 0 && goal(x) >= j && goal(y) <= i {
+				return true
 			}
-			moves = append(moves, i) // ... else move to the hallway
 		}
 	}
+	return false
+}
+
+// dead2 detects interlocks at either edge of the board
+func (b board) dead2() bool {
+	edges := []struct {
+		r   rune
+		off int
+	}{
+		{'D', +1},
+		{'A', -1},
+	}
+
+	for _, st := range edges {
+		g := goal(st.r)
+		if b.pawn(g-st.off) == st.r {
+			nspace := 0
+			if b.pawn(g+st.off) == 0 {
+				nspace++
+			}
+			if b.pawn(g+2*st.off) == 0 {
+				nspace++
+			}
+			nalien := 0
+			if !b.granted(g, st.r) {
+				for _, r := range b[g] {
+					if r != st.r {
+						nalien++
+					}
+				}
+			}
+			if nalien > nspace {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+type cboard struct {
+	b *board
+	c int
+}
+
+func (b board) moves() []cboard {
+	if b.dead1() || b.dead2() { // prune deadlocked board
+		return []cboard(nil) // no move
+	}
+
+	// step1 - go back home
+	nxt := cboard{&b, 0}
+	done := false
+	for !done { // always a good move, make all such moves at once!
+		done = true
+		for i := range nxt.b {
+			b := nxt.b
+			p := b.pawn(i)
+			g := goal(p)
+			if p == 0 || (i == g && b.granted(g, p)) { // skip empty & @home
+				continue
+			}
+			if b.free(i, g) && b.granted(g, p) {
+				new, cost := b.move(i, g)
+				nxt.b, nxt.c = new, nxt.c+cost
+				done = false
+			}
+		}
+	}
+
+	if nxt.c > 0 { // send back up for prioritization
+		return []cboard{nxt}
+	}
+
+	// step2 - move out (later)
+	moves := make([]cboard, 0, 28)
+	for _, s := range rooms {
+		b := nxt.b
+		p := b.pawn(s)
+		if p == 0 || b.granted(s, p) { // skip empty & @home
+			continue
+		}
+		for _, t := range halls {
+			if b.free(s, t) {
+				new, cost := b.move(s, t)
+				moves = append(moves, cboard{new, cost + nxt.c})
+			}
+		}
+	}
+
 	return moves
 }
 
-func (b board) move(s, t int) (board, int) { // s(ource), t(arget) -> board, cost
-	nxt, p := b, b.pawn(s)
+func (b board) move(s, t int) (*board, int) { // source, target -> board, cost
+	nxt := b // array copy
+	p := b.pawn(s)
 
 	n, dist := 0, 0
 	nxt[s] = "."
 	if room(s) {
-		nxt[s], n = b.rem(s)
+		nxt[s], n = b.rem(s, p)
 		dist += n
 	}
 	nxt[t] = string(p)
@@ -135,55 +198,50 @@ func (b board) move(s, t int) (board, int) { // s(ource), t(arget) -> board, cos
 		dist += n
 	}
 	dist += abs(s - t)
-	return nxt, dist * cost(p)
+	return &nxt, dist * cost(p)
 }
 
-// hfun is a heuristic function from:
+// hcost is a heuristic function from:
 // https://github.com/pemoreau/advent-of-code-2021/blob/main/go/23/day23.go#L377-L401
 // see:
 // https://www.reddit.com/r/adventofcode/comments/rzvsjq/comment/hswxkbr/?utm_source=share&utm_medium=web2x&context=3
-func hfun(b board) int {
+func hcost(b *board) int {
 	popcnts := make([]int, len(b))
 	entropy := 0
 
 SCAN:
 	for s := range b { // for all cells as sources
-		pawns := b.pawns(s)
-		for j, p := range pawns { // for all pawns in a source cell
+		var pawns strings.Builder
+		pawns.Grow(len(b[s]))
+		for _, p := range b[s] {
+			if p != '.' {
+				pawns.WriteRune(p)
+			}
+		}
+
+		for j, p := range pawns.String() { // for all pawns in a source cell
 			t := goal(p) // target
 
-			if s == t && b.granted(t, p) { // pawns already at home
+			if s == t && b.granted(t, p) { // pawns already @home
 				continue SCAN // discard
 			}
 
 			dist := abs(s - t)             // walk p back home
-			dist += len(b[t]) - popcnts[t] // put p in there
+			dist += len(b[t]) - popcnts[t] // put it in there
 			popcnts[t]++
 
-			if room(s) { // get out first
-				dist += len(b[s]) - len(pawns)
+			if room(s) { // get it out first
+				dist += len(b[s]) - len(pawns.String())
 				dist += 1 + j
 			}
 
 			entropy += dist * cost(p)
 		}
 	}
-	// fmt.Println(b, entropy)
 	return entropy
 }
 
-var costs map[string]int
-
-func init() {
-	costs = make(map[string]int, 16411)
-}
-
-type cboard struct {
-	b board
-	c int
-}
-
-type heap []*cboard
+type heap []cboard
 
 func (h heap) Len() int { return len(h) }
 
@@ -197,68 +255,81 @@ func (h heap) Swap(i, j int) {
 
 func (h *heap) Push(x interface{}) {
 	b := x.(cboard)
-	*h = append(*h, &b)
+	*h = append(*h, b)
 }
 
 func (h *heap) Pop() interface{} {
 	q, i := *h, len(*h)-1
 	pop := q[i]
-	*h, q[i] = q[:i], nil
+	*h, q[i] = q[:i], cboard{}
 	return pop
 }
 
-func concat(b board) string {
-	var sb strings.Builder
-	sb.Grow(32)
-	for i := 0; i < len(b); i++ {
-		sb.WriteString(b[i])
+func (b board) solve(goal *board, costs map[string]int) int {
+	concat := func(b *board) string {
+		var sb strings.Builder
+		sb.Grow(24)
+		for _, s := range *b {
+			sb.WriteString(s)
+		}
+		return sb.String()
 	}
-	return sb.String()
-}
 
-func (b board) solve(goal board) int {
-	heap := make(heap, 0, 16411)
+	heap := make(heap, 0, 5920)
 	hp.Init(&heap)
 
-	hp.Push(&heap, cboard{b, 0}) // from start...
-	for heap.Len() > 0 {         // ...play all possible games
-		b := hp.Pop(&heap).(*cboard).b // pop a (sub)game board
-		if b == goal {                 // it works because heap is sorted by costs
+	hp.Push(&heap, cboard{&b, 0}) // from the start...
+	for heap.Len() > 0 {          // ...play all possible games
+		cur := hp.Pop(&heap).(cboard).b // pop a (sub)game board
+		if *cur == *goal {              // this cut works because heap is kinda sorted by costs
 			return costs[concat(goal)]
 		}
-		for i := range b { // for all cells
-			for _, j := range b.moves(i) { // for all legal moves from cell i...
-				sub, cost := b.move(i, j) // ...play one
-				cost += costs[concat(b)]
+		for _, move := range cur.moves() {
+			nxt, cost := move.b, move.c
+			cost += costs[concat(cur)]
 
-				skey := concat(sub)
-				if known, seen := costs[skey]; !seen || known > cost {
-					costs[skey] = cost                // if it's the best move so far...
-					cost += hfun(sub)                 // heuristic function
-					hp.Push(&heap, cboard{sub, cost}) // ...send subgame to resolution
-				}
+			nkey := concat(nxt)
+			if known, seen := costs[nkey]; !seen || known > cost {
+				costs[nkey] = cost                // if it's the best move so far...
+				prio := cost + hcost(nxt)         // prioritize by hypercosts (heuristic/entropy)
+				hp.Push(&heap, cboard{nxt, prio}) // ...send subgame to resolution
 			}
 		}
 	}
-	return costs[concat(goal)]
+	panic("solve() unreachable")
 }
 
 func main() {
-	goal := board{
-		".", ".", "AA", ".", "BB", ".", "CC", ".", "DD", ".", ".",
-	}
-	part1 := board{
-		".", ".", "AB", ".", "DC", ".", "BA", ".", "DC", ".", ".",
-	}
-	fmt.Println(part1.solve(goal))
+	var wg sync.WaitGroup
+	wg.Add(2)
 
-	goal = board{
-		".", ".", "AAAA", ".", "BBBB", ".", "CCCC", ".", "DDDD", ".", ".",
-	}
-	part2 := board{
-		".", ".", "ADDB", ".", "DCBC", ".", "BBAA", ".", "DACC", ".", ".",
-	}
-	fmt.Println(part2.solve(goal))
+	go func() {
+		costs := make(map[string]int, 4800)
+		goal := board{
+			".", ".", "AA", ".", "BB", ".", "CC", ".", "DD", ".", ".",
+		}
+		part1 := board{
+			".", ".", "AB", ".", "DC", ".", "BA", ".", "DC", ".", ".",
+		}
+		fmt.Println(part1.solve(&goal, costs)) // part1
+		// fmt.Println(len(costs))
+		wg.Done()
+	}()
+
+	go func() {
+		costs := make(map[string]int, 42200)
+		goal := board{
+			".", ".", "AAAA", ".", "BBBB", ".", "CCCC", ".", "DDDD", ".", ".",
+		}
+		part2 := board{
+			".", ".", "ADDB", ".", "DCBC", ".", "BBAA", ".", "DACC", ".", ".",
+		}
+		fmt.Println(part2.solve(&goal, costs)) // part2
+		// fmt.Println(len(costs))
+		wg.Done()
+	}()
+
+	wg.Wait()
 }
 
 func rtoi(r rune) rune {

@@ -311,6 +311,16 @@ I made a first solution for this but afterward I saw the string representation o
 
 As I've lost the link to the original reddit contribution, if you are the first coder to have used this representation, please tell me: I'll credit you for your finding in a more proper way.
 
+`<EDIT>` [pem](https://www.reddit.com/r/adventofcode/comments/rzvsjq/2021_all_daysgo_fast_solutions_under_a_second/hsx595b/?context=3) told me about a good heuristic function and made structural comments about the game space: he enabled me to refactor the move generation, to augment `Dijkstra` into `A*` and finally I had to fix/tweak the code to ease Go runtime memory handling. Namely, **before** optimizing anything I first [profiled](https://jvns.ca/blog/2017/09/24/profiling-go-with-pprof/) a flat version (without concurrency) of the program. After having lighten the program by fixing data structures (pointers/no pointer mainly), I studied the decisions made by my Go compiler with:  
+ ```go build -gcflags '-m' aoc23.go```  
+
+When using Go, `strings` are immutable and every transformation on a string induce an allocation. Moreover, strings tend to easily escape to the `heap` inducing even more operations there (allocs/gc). For part2, the solution explores 57k paths of 23B strings. This amounts to a modest 1MB but it's the tens of thousand strings we don't want to move around unwillingly. That is to say, strings may not be the best choice here but it was mine, for the sake of fun: I surely went heavy on this problem, my board abstraction is a fixed-size array of strings. The only good thing that comes here is copying the data: a [walrus assignement](https://realpython.com/lessons/assignment-expressions/) of a board does the trick! I also made the choice to break a rule and pass some `strings.Builder` by value (I won't do this IRL).
+
+pem's featured version is faster than mine (~90ms) and worth studying (same principle/clean code).
+
+The solution presented here runs in around 100ms (GOGC=off) and the total runtime for this collection is 478ms. 
+**\o/ Total runtime of my programs is under half a second \o/** Though, I believe some carefully crafted `rust` could run in the double-digits ms (and some crazy dark magic rust invocations may even run in the single-digit ms on selected hardware).
+
 * * *
 ## Day 24
 

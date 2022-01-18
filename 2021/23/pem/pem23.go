@@ -398,7 +398,7 @@ func heuristicCost(w World) int {
 			res += distance * costMove(occupant)
 		}
 	}
-	fmt.Println(w, res)
+	// fmt.Println(w, res)
 	return res
 }
 
