@@ -160,11 +160,11 @@ func main() {
 			sum += g.filter(y, x)
 		}
 	}
-	fmt.Println(sum)
+	fmt.Println(sum) // part1
 
-	popcnt := values(g.groups())
-	sort.Sort(sort.Reverse(sort.IntSlice(popcnt)))
-	fmt.Println(popcnt[0] * popcnt[1] * popcnt[2])
+	popcnts := values(g.groups())
+	sort.Sort(sort.Reverse(sort.IntSlice(popcnts)))
+	fmt.Println(popcnts[0] * popcnts[1] * popcnts[2]) // part2
 }
 
 func values(m map[int]int) []int {

@@ -21,13 +21,13 @@ func Point(a, b string) point {
 }
 
 const (
-	w = 1024
-	h = 1024
+	w = 1000
+	h = 1000
 )
 
 type field [w * h]int
 
-var part1, part2 field
+var field1, field2 field
 
 func draw(a, b point) {
 	Δx, Δy := b.x-a.x, b.y-a.y
@@ -35,36 +35,36 @@ func draw(a, b point) {
 	switch {
 	case Δx == 0:
 		x := a.x
-		ymin, ymax := min(a.y, b.y), max(a.y, b.y)
+		ymin, ymax := minax(a.y, b.y)
 		for y := ymin; y <= ymax; y++ {
-			part1[x*w+y]++
-			part2[x*w+y]++
+			field1[x*w+y]++
+			field2[x*w+y]++
 		}
 	case Δy == 0:
 		y := a.y
-		xmin, xmax := min(a.x, b.x), max(a.x, b.x)
+		xmin, xmax := minax(a.x, b.x)
 		for x := xmin; x <= xmax; x++ {
-			part1[x*w+y]++
-			part2[x*w+y]++
+			field1[x*w+y]++
+			field2[x*w+y]++
 		}
 	default:
 		m := Δy / Δx
 		c := a.y - a.x*m
-		xmin, xmax := min(a.x, b.x), max(a.x, b.x)
+		xmin, xmax := minax(a.x, b.x)
 		for x := xmin; x <= xmax; x++ {
 			y := m*x + c
-			part2[x*w+y]++
+			field2[x*w+y]++
 		}
 	}
 }
 
 func popcounts() (int, int) {
 	p1, p2 := 0, 0
-	for i := 0; i < len(part1); i++ {
-		if part1[i] > 1 {
+	for i := 0; i < len(field1); i++ {
+		if field1[i] > 1 {
 			p1++
 		}
-		if part2[i] > 1 {
+		if field2[i] > 1 {
 			p2++
 		}
 	}
@@ -84,16 +84,9 @@ func main() {
 	fmt.Println(popcounts()) // part1 & part2
 }
 
-func min(a, b int) int {
+func minax(a, b int) (int, int) {
 	if a < b {
-		return a
+		return a, b
 	}
-	return b
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
+	return b, a
 }

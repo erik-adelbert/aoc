@@ -26,7 +26,7 @@ func merge(a, b histo) histo {
 	return a
 }
 
-func count(rule string, depth int) histo {
+func popcnt(rule string, depth int) histo {
 	if len(cache[rule][depth]) > 0 {
 		return cache[rule][depth]
 	}
@@ -36,8 +36,8 @@ func count(rule string, depth int) histo {
 	if depth > 1 { // subsequent rules
 		l := string([]byte{rule[0], rules[rule]}) // left
 		r := string([]byte{rules[rule], rule[1]}) // right
-		cache[rule][depth] = merge(cache[rule][depth], count(l, depth-1))
-		cache[rule][depth] = merge(cache[rule][depth], count(r, depth-1))
+		cache[rule][depth] = merge(cache[rule][depth], popcnt(l, depth-1))
+		cache[rule][depth] = merge(cache[rule][depth], popcnt(r, depth-1))
 	}
 
 	return cache[rule][depth]
@@ -46,34 +46,37 @@ func count(rule string, depth int) histo {
 func main() {
 	var seed []byte
 
-	const maxdepth = 40
+	const (
+		depth1 = 10
+		depth2 = 40
+	)
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
 		line := input.Text()
 		if args := strings.Split(line, " -> "); len(args) == 2 {
 			rules[args[0]] = args[1][0]
-			cache[args[0]] = make([]histo, maxdepth+1) // allocate cache space to accommodate for new rule
+			cache[args[0]] = make([]histo, depth2+1) // allocate cache space to accommodate for new rule
 		} else if line != "" {
 			seed = []byte(line)
 		}
 	}
 
-	counts := func(depth int) {
-		counts := make(histo)
+	extent := func(depth int) int64 {
+		popcnts := make(histo)
 		for _, b := range seed {
-			counts[b]++
+			popcnts[b]++
 		}
 		for i := range seed[:len(seed)-1] { // extract and count pairs from seed
-			counts = merge(counts, count(string(seed[i:i+2]), depth))
+			popcnts = merge(popcnts, popcnt(string(seed[i:i+2]), depth))
 		}
 
-		min, max := extrema(counts)
-		fmt.Println(max - min)
+		min, max := extrema(popcnts)
+		return max - min
 	}
 
-	counts(10)       // part1
-	counts(maxdepth) // part2
+	fmt.Println(extent(depth1)) // part1
+	fmt.Println(extent(depth2)) // part2
 }
 
 func extrema(m histo) (int64, int64) {

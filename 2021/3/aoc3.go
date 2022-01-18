@@ -24,30 +24,34 @@ func popcounts(nums []string) []int {
 	return popcnts
 }
 
-func rate(nums []string, o2 bool) (int64, error) {
-	for i := 0; i < width && len(nums) > 1; i++ {
-		popcnts := popcounts(nums)
-		matched := make([]string, 0, len(nums))
-		for _, s := range nums {
-			if o2 {
-				switch {
-				case s[i] == '0' && len(nums) > 2*popcnts[i]:
-					matched = append(matched, s)
-				case s[i] == '1' && len(nums) <= 2*popcnts[i]:
-					matched = append(matched, s)
-				}
-			} else { // co2
-				switch {
-				case s[i] == '0' && len(nums) <= 2*popcnts[i]:
-					matched = append(matched, s)
-				case s[i] == '1' && len(nums) > 2*popcnts[i]:
-					matched = append(matched, s)
-				}
+const (
+	O2  = true
+	CO2 = !O2
+)
+
+func rate(nums []string, gas bool) (int64, error) {
+	n := append(nums[:0:0], nums...) // clone
+
+	for i := 0; i < width && len(n) > 1; i++ {
+		popcnts := popcounts(n)
+
+		bits := map[bool]string{ // most popular bit filters ordered by gas
+			O2:  "01",
+			CO2: "10",
+		}
+
+		j := 0
+		for _, s := range n {
+			switch {
+			case s[i] == bits[gas][0] && len(n) > 2*popcnts[i]:
+				n[j], j = s, j+1
+			case s[i] == bits[gas][1] && len(n) <= 2*popcnts[i]:
+				n[j], j = s, j+1
 			}
 		}
-		nums = matched
+		n = n[:j]
 	}
-	return strconv.ParseInt(nums[0], 2, 32)
+	return strconv.ParseInt(n[0], 2, 32)
 }
 
 func main() {
@@ -60,11 +64,6 @@ func main() {
 
 	rates := make(chan int64)
 	defer close(rates)
-
-	const (
-		O2  = true
-		CO2 = !O2
-	)
 
 	go func() {
 		o2, _ := rate(nums, O2)

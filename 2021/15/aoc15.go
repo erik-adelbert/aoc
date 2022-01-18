@@ -12,7 +12,7 @@ type cell struct {
 	y, x, v int
 }
 
-func (a *cell) less(b *cell) bool {
+func less(a, b *cell) bool {
 	if a.v != b.v {
 		return a.v < b.v
 	}
@@ -27,7 +27,7 @@ type heap []*cell
 func (h heap) Len() int { return len(h) }
 
 func (h heap) Less(i, j int) bool {
-	return h[i].less(h[j])
+	return less(h[i], h[j])
 }
 
 func (h heap) Swap(i, j int) {

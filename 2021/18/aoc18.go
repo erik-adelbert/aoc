@@ -83,6 +83,7 @@ func SNum(args ...interface{}) snum {
 }
 
 func clone(sn snum) snum {
+	// tedious but faster than append(sn.x[:0:0], sn.x...)
 	cn := snum{
 		make([]int, len(sn.vals)),
 		make([]int, len(sn.deps)),

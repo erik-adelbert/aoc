@@ -19,12 +19,12 @@ In competitive programming, when confronted to simulation problems, we frequentl
 
 I love Go utf8 support, greek γράμματα and *old school* low-level problems: I pleased myself writing this solution. This program only supports 12bits numbers. With a little effort it could support dynamic widths but, again, I aimed for simplicity: the constant width is easy to edit if inputs are ever to change.
 
-I've written a single `rate()` function to solve `part2`. It executes one of its two branches according to a *modal* argument `o2`. As this choice is binary, `o2` is naturally a boolean. I  use the constants `O2` and `CO2` in order to improve readability.
+I've written a single `rate()` function to solve `part2`. It executes its parameterized workflow according to a *modal* argument `gas`. As this choice is binary, `gas` is naturally a boolean. I  use the constants `O2` and `CO2` in order to improve readability.
 
 `rate()` computes (in a string representing a binary number) the *most/least popular bits* of inputs (also a bunch of strings), it returns the result of `strconv.ParseInt()` from the standard library. Instead of handling the possible error right after calling `ParseInt()`, I let it float up the calling stack until I *need* to address it: here it's just before sending the conversion down to a channel.  
 I tend to (gracefully) handle errors only when they can't go up in the calling stack: usually, they have a clear meaning by then. That said, unless I have to, I won't do any error handling during competitive programming sessions.
 
-As the computations (`part1`, `part2/[o2, co2]`) are clearly independent, I use *go routines* [concurrency](https://youtu.be/oV9rvDllKEg): it's almost free and the speedup worth it!
+As the computations (`part1`, `part2/[o2, co2]`) are clearly independent, I use *goroutines* [concurrency](https://youtu.be/oV9rvDllKEg): it's almost free and the speedup worth it!
 
 Finally, [`popcnt`](https://en.wikipedia.org/wiki/SSE4#POPCNT_and_LZCNT) is a `CPU` instruction that counts how many bits are set to one in an integer. H.S. Warren Jr. made the concept famous in [Hacker's Delight](https://en.wikipedia.org/wiki/Hacker%27s_Delight). The underlying concept is the [*Hamming weight*](https://en.wikipedia.org/wiki/Hamming_weight) and I use `popcount` or `popcnt` whenever I have to count a population of some sort.
 
