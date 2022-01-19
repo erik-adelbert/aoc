@@ -94,7 +94,7 @@ func clone(sn snum) snum {
 }
 
 func explode(sn snum) (snum, bool) {
-	for i := 0; i < len(sn.deps); i++ {
+	for i := range sn.deps {
 		if sn.deps[i] != 4 {
 			continue
 		}

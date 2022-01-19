@@ -60,12 +60,12 @@ func (g grid) String() string {
 }
 
 func newGrid() *grid {
-	var g grid
-	g.d = make([][]int, 128)
-	for i := 0; i < 128; i++ {
-		g.d[i] = make([]int, 128)
+	N, g := 128, new(grid)
+	g.d = make([][]int, N)
+	for i := range g.d {
+		g.d[i] = make([]int, N)
 	}
-	return &g
+	return g
 }
 
 func (g grid) get(y, x int) int {
@@ -94,7 +94,7 @@ func safest(g *grid, factor int) int {
 	dist := make([][]int, h)
 	for j := range dist {
 		dist[j] = make([]int, w)
-		for i := 0; i < w; i++ {
+		for i := range dist[j] {
 			dist[j][i] = MaxInt
 		}
 	}

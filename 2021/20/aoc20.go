@@ -20,11 +20,12 @@ var (
 )
 
 func init() {
-	bufs[0].data = make([][]byte, 200)
-	bufs[1].data = make([][]byte, 200)
-	for j := 0; j < 200; j++ {
-		bufs[0].data[j] = make([]byte, 200)
-		bufs[1].data[j] = make([]byte, 200)
+	N := 200
+	bufs[0].data = make([][]byte, N)
+	bufs[1].data = make([][]byte, N)
+	for j := range bufs[0].data {
+		bufs[0].data[j] = make([]byte, N)
+		bufs[1].data[j] = make([]byte, N)
 	}
 }
 
@@ -56,7 +57,7 @@ func enhance() {
 		δx := []int{-1, +0, +1, -1, 0, 1, -1, 0, 1}
 
 		n := 0
-		for i := 0; i < len(δx); i++ {
+		for i := range δx {
 			n = (n << 1) | bufs[cur].get(y+δy[i], x+δx[i])
 		}
 

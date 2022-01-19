@@ -9,16 +9,21 @@ import (
 )
 
 type grid struct {
-	d    [][]int
+	d    [128][128]int
 	h, w int
 }
 
-func newGrid() *grid {
-	d := make([][]int, 128)
-	for i := 0; i < 128; i++ {
-		d[i] = make([]int, 128)
+func (g *grid) redim(h, w int) {
+	g.h, g.w = h, w
+}
+
+func (g *grid) copy(i int, data []byte) int {
+	t := g.d[i+1][1:]
+
+	for i, b := range data {
+		t[i] = int(b)
 	}
-	return &grid{d, 128, 128}
+	return len(data)
 }
 
 func (g *grid) set(y, x, v int) {
@@ -29,7 +34,7 @@ func (g *grid) set(y, x, v int) {
 }
 
 func (g *grid) get(y, x int) int {
-	if x < 0 || y < 0 {
+	if y < 0 || x < 0 {
 		return 0
 	}
 	return g.d[y+1][x+1]
@@ -47,8 +52,8 @@ func (g *grid) filter(y, x int) int {
 	}
 
 	v := g.get(y, x)
-	for _, x := range neighbors(y, x) {
-		if 0 < x && x <= v {
+	for _, n := range neighbors(y, x) {
+		if 0 < n && n <= v {
 			return 0
 		}
 	}
@@ -56,26 +61,26 @@ func (g *grid) filter(y, x int) int {
 }
 
 func (g *grid) groups() map[int]int {
-	label := newGrid() // reuse grid
+	label := new(grid)
 	label.redim(g.h, g.w)
 
-	labels := make([]int, 256+g.w*g.h) // labels (>256)
+	labels := make([]int, g.w*g.h+256)
 	for i := range labels {
 		labels[i] = i
 	}
 
-	find := func(x int) int {
-		for labels[x] != x {
-			x, labels[x] = labels[x], labels[labels[x]] // path splitting
+	find := func(a int) int {
+		for labels[a] != a {
+			a, labels[a] = labels[a], labels[labels[a]] // path splitting
 		}
-		return x
+		return a
 	}
 
-	union := func(y, x int) {
-		if y < x {
-			labels[y] = x
+	union := func(a, b int) {
+		if a < b {
+			labels[a] = b
 		} else {
-			labels[x] = y
+			labels[b] = a
 		}
 	}
 
@@ -112,20 +117,6 @@ func (g *grid) groups() map[int]int {
 	return groups
 }
 
-func (g *grid) redim(h, w int) {
-	g.h, g.w = h, w
-}
-
-func (g *grid) copy(i int, data []byte) int {
-	t := g.d[i+1]
-
-	t, t[0] = t[1:], 0
-	for i, b := range data {
-		t[i] = int(b)
-	}
-	return len(data)
-}
-
 func (g *grid) String() string {
 	var sb strings.Builder
 	for j := 1; j <= g.h; j++ {
@@ -144,7 +135,7 @@ func (g *grid) String() string {
 }
 
 func main() {
-	g := newGrid() // data
+	g := new(grid) // data
 
 	h, w, input := 0, 0, bufio.NewScanner(os.Stdin)
 	for input.Scan() {

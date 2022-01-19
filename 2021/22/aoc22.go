@@ -17,6 +17,8 @@ const (
 	Z
 )
 
+var Axis = []axis{X, Y, Z}
+
 type vec [3]int
 
 var null vec
@@ -79,7 +81,7 @@ func add(n *node, c cubo) *node {
 		return &node{c: c}
 	}
 
-	for a := X; a <= Z; a++ { // for X, Y, Z
+	for _, a := range Axis { // for X, Y, Z
 		switch {
 		case c.max[a] < n.c.min[a]:
 			return &node{a: a, v: c.max[a], left: &node{c: c}, right: n} // left leaf
@@ -111,7 +113,7 @@ func del(n *node, c cubo) *node {
 		return n
 	}
 
-	for a := X; a <= Z; a++ { // for X, Y, Z
+	for _, a := range Axis { // for X, Y, Z
 		if v := c.min[a]; n.c.min[a] < v && n.c.max[a] >= v {
 			in, out := n.c, n.c
 			in.min[a], out.max[a] = v, v-1
