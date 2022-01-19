@@ -41,9 +41,9 @@ func Reading(points []vec) reading {
 	return append(points[:0:0], points...)
 }
 
-func (r reading) π2rots() <-chan reading { // rotations iterator
-	c := make(chan reading, len(r))
+type rotator func() reading
 
+func (r reading) π2rots() rotator { // rotations iterator
 	rots := []struct {
 		s, a vec // sign, axis
 	}{
@@ -73,20 +73,22 @@ func (r reading) π2rots() <-chan reading { // rotations iterator
 		{vec{+1, +1, -1}, vec{Z, Y, X}},
 	}
 
-	go func() {
-		defer close(c)
-		for _, rot := range rots {
-			turned := make([]vec, len(r))
-			for i, v := range r {
-				turned[i] = vec{
-					v[rot.a[0]], v[rot.a[1]], v[rot.a[2]],
-				}.sign(rot.s)
-			}
-			c <- turned
-		}
-	}()
+	i, turned := 0, make(reading, len(r))
 
-	return c
+	return func() reading { // rotator
+		if i >= len(rots) {
+			return []vec(nil)
+		}
+
+		rot := rots[i]
+		for j, v := range r {
+			turned[j] = vec{
+				v[rot.a[X]], v[rot.a[Y]], v[rot.a[Z]],
+			}.sign(rot.s)
+		}
+		i++
+		return turned
+	}
 }
 
 var (
@@ -198,10 +200,14 @@ func main() {
 }
 
 func rotal(r reading) bool {
-	for rot := range r.π2rots() {
+	next := r.π2rots()
+
+	rot := next()
+	for rot != nil {
 		if align(rot) {
 			return true
 		}
+		rot = next()
 	}
 	return false
 }
