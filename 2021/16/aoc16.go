@@ -10,14 +10,14 @@ import (
 	bs "github.com/bearmini/bitstream-go"
 )
 
+var nread uint // global bit count
+
 type seg struct { // datagram segment
 	ver uint8
 	typ uint8
 	val int
 	sub []seg
 }
-
-var nread uint // global bit count
 
 func lit(r *bs.Reader) int {
 	chunk := func(r *bs.Reader) (uint8, bool) {
@@ -36,26 +36,26 @@ func lit(r *bs.Reader) int {
 	}
 }
 
-func op(r *bs.Reader) []seg {
-	count, _ := r.ReadBool() // len id
+func subs(r *bs.Reader) []seg {
+	enum, _ := r.ReadBool() // load mode: enumerate or read subsegments
 	nread++
 
 	usize := uint(15)
-	if count {
+	if enum {
 		usize = 11
 	}
 
 	n, _ := r.ReadNBitsAsUint16BE(uint8(usize))
 	nread += usize
-	end, nsub := nread+uint(n), int(n) // only one in use according to count (bool)
+	end, nsub := nread+uint(n), int(n) // only one in use according to (bool) enum
 
 	subs := make([]seg, 0, 16)
 	for {
-		sub := load(r) // recurse
+		sub := load(r) // recursive loading
 		subs = append(subs, sub...)
 		nsub--
 
-		if (!count && end <= nread) || (count && nsub <= 0) {
+		if (!enum && end <= nread) || (enum && nsub <= 0) {
 			break
 		}
 	}
@@ -83,23 +83,15 @@ func load(r *bs.Reader) []seg {
 	nread += 3
 
 	switch typ {
-	case LIT: // data from segment
-		val := lit(r)
-		return append(segs, seg{ver, typ, val, []seg(nil)})
-	default:
-		subs := op(r)
-		return append(segs, seg{ver, typ, 0, subs})
+	case LIT: // load literal
+		return append(segs, seg{ver, typ, lit(r), []seg(nil)})
+	default: // load args
+		return append(segs, seg{ver, typ, 0, subs(r)})
 	}
 }
 
-// MaxInt and MinInt are defined in the idiomatic way
-const (
-	MaxInt = int(^uint(0) >> 1)
-	MinInt = -int(^uint(0)>>1) - 1
-)
-
 func eval(cmd seg) int { // command from segment
-	acc, args := 0, cmd.sub // args from segments
+	acc, args := 0, cmd.sub // set accumulator and args from sub segments
 	switch cmd.typ {
 	case ADD:
 		for _, a := range args {
@@ -164,3 +156,9 @@ func main() {
 	fmt.Println(sum(dgram))
 	fmt.Println(eval(dgram[0]))
 }
+
+// MaxInt and MinInt are defined in the idiomatic way
+const (
+	MaxInt = int(^uint(0) >> 1)
+	MinInt = -int(^uint(0)>>1) - 1
+)

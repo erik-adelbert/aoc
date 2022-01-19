@@ -27,7 +27,7 @@ const (
 
 type field [w * h]int
 
-var field1, field2 field
+var canvas1, canvas2 field
 
 func draw(a, b point) {
 	Δx, Δy := b.x-a.x, b.y-a.y
@@ -37,15 +37,15 @@ func draw(a, b point) {
 		x := a.x
 		ymin, ymax := minax(a.y, b.y)
 		for y := ymin; y <= ymax; y++ {
-			field1[x*w+y]++
-			field2[x*w+y]++
+			canvas1[x*w+y]++
+			canvas2[x*w+y]++
 		}
 	case Δy == 0:
 		y := a.y
 		xmin, xmax := minax(a.x, b.x)
 		for x := xmin; x <= xmax; x++ {
-			field1[x*w+y]++
-			field2[x*w+y]++
+			canvas1[x*w+y]++
+			canvas2[x*w+y]++
 		}
 	default:
 		m := Δy / Δx
@@ -53,18 +53,18 @@ func draw(a, b point) {
 		xmin, xmax := minax(a.x, b.x)
 		for x := xmin; x <= xmax; x++ {
 			y := m*x + c
-			field2[x*w+y]++
+			canvas2[x*w+y]++
 		}
 	}
 }
 
 func popcounts() (int, int) {
 	p1, p2 := 0, 0
-	for i := 0; i < len(field1); i++ {
-		if field1[i] > 1 {
+	for i := 0; i < len(canvas1); i++ {
+		if canvas1[i] > 1 {
 			p1++
 		}
-		if field2[i] > 1 {
+		if canvas2[i] > 1 {
 			p2++
 		}
 	}

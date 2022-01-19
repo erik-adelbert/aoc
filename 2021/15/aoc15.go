@@ -120,7 +120,7 @@ func safest(g *grid, factor int) int {
 			break
 		}
 
-		for i := 0; i < 4; i++ {
+		for i := range δy {
 			u := cell{y: v.y + δy[i], x: v.x + δx[i]}
 
 			if !valid(u.y, u.x) {

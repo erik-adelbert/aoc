@@ -1,13 +1,14 @@
 * * *
 ## Day 1
 
-For the first day of `aoc2021`, I've written and submited the results in less than 5mn but it only got me in the top 3k ranks, wow!
+For the first day of `aoc2021`, I've written and submitted the results in less than 5mn but it only got me in the top 3k ranks, wow!
 We have to count, in a serie of numbers, how many time there's an increase between two successive numbers. I've got nothing to say about the problem: it's all about composing speed.
 For `part2`, I chose to use three variables (say instead of an array) because *the simpler, the better*: between two readable and efficient syntaxes, I always try to write the simplest form. That said, here, three is the limit before the array form being better.
   
 Speaking of this problem simplicity, it's nonetheless the perfect occasion to compose a *well written* program. I mean we have to use a naming and a style made to last: the construct `for input.scan(){}` is to be found as it is in the Go manual by [Donovan & Kernighan (D&K)](https://www.gopl.io). It's efficient because it states `simply`, `clearly` and `shortly` what the coding *intention* is.
 A word about the variable `old`: here we have a previous and a current value to compare, we could use `last`/`prev` and `cur`. As I find same length names nice to manipulate when I edit a program, you'll often see me using `old`/`cur`/`nxt` and it usually helps to understand what's going on at first sight.  
-Finally, we can also feel the minimalism of the Go language: I have to define `MaxInt` and I try to do this in the [*idiomatic*](https://dgryski.medium.com/idiomatic-go-resources-966535376dba) way.
+
+Finally, we can also feel the minimalism of the Go language: I have to define `MaxInt`. I try to do this in the [*idiomatic*](https://dgryski.medium.com/idiomatic-go-resources-966535376dba) way even if it's not: I'm supposed to link to the `math` library only to import this constant. As it feels like a `C` style regression to me, I don't!
 
 * * *
 ## Day 2
@@ -170,7 +171,7 @@ For the record, when coding `part1` I mistakenly chose the mean instead of the m
 * * *
 ## Day 9
 
-I tackled `part2` with [Hoshen-Kopelman](https://www.ocf.berkeley.edu/~fricke/projects/hoshenkopelman/hoshenkopelman.html) that I've used [previously](https://github.com/erik-adelbert/mcs/blob/master/pkg/chaingame/tag.go) with success. The algorithm exploits the reordering properties of a standard `Union-Find` ([here](https://www.cs.princeton.edu/~rs/AlgsDS07/01UnionFind.pdf) is [sedgewick](https://en.wikipedia.org/wiki/Robert_Sedgewick_(computer_scientist))'s lecture about it). It's able to overcome connected components contouring problems: when `north-west flooding` a grid the result can show concavity and numerous irregularities (corner cases) that are difficult to acccount for. When using `Hoshen-Kopelman` one can achieve the perfect output in *linear time*, just like my solution for this day \o/. 
+I tackled `part2` with [Hoshen-Kopelman](https://www.ocf.berkeley.edu/~fricke/projects/hoshenkopelman/hoshenkopelman.html) that I've used [previously](https://github.com/erik-adelbert/mcs/blob/master/pkg/chaingame/tag.go) with success. The algorithm exploits the reordering properties of a standard `Union-Find` ([here](https://www.cs.princeton.edu/~rs/AlgsDS07/01UnionFind.pdf) is [sedgewick](https://en.wikipedia.org/wiki/Robert_Sedgewick_(computer_scientist))'s lecture about it). It's able to overcome connected components contouring problems: when [north-west flood filling](https://en.wikipedia.org/wiki/Flood_fill) a grid the result can show concavity and numerous irregularities (corner cases) that are difficult to acccount for. When using `Hoshen-Kopelman` one can achieve the perfect output in *linear time*, just like my solution for this day \o/. 
 
 * * *
 ## Day 10
@@ -249,6 +250,11 @@ To solve this problem, I'm using the really nice `bearmini`'s [`bitstream-go`](h
 
 These libraries implement standard [interfaces](https://jordanorelli.com/post/32665860244/how-to-use-interfaces-in-go) like [`Reader`](https://go.dev/tour/methods/21) and [`Writer`](https://www.grant.pizza/blog/the-beauty-of-io-writer/). Thanks to these interfaces, filters (functions) share the same prototypes as the low-level functions in front of which they're laid. This enables us to build [data pipelines](https://en.wikipedia.org/wiki/Pipeline_(computing)) like the one on line 161.
 
+In `part2`, I implement an [accumulator machine](https://en.wikipedia.org/wiki/Accumulator_(computing)) that [evaluates](https://en.wikipedia.org/wiki/Eval) commands encoded in a `BITS` [datagram](https://en.wikipedia.org/wiki/Datagram#Examples). 
+
+`Pedantic Note`:  
+I believe the problem mistakenly states BITS [packet](https://en.wikipedia.org/wiki/Network_packet) instead of `datagram`.
+
 * * *
 ## Day 18
 
@@ -314,7 +320,7 @@ As I've lost the link to the original reddit contribution, if you are the first 
 `<EDIT>` [pem](https://www.reddit.com/r/adventofcode/comments/rzvsjq/2021_all_daysgo_fast_solutions_under_a_second/hsx595b/?context=3) told me about a good heuristic function and made structural comments about the game space: he enabled me to refactor the move generation, to augment `Dijkstra` into `A*` and finally I had to fix/tweak the code to ease Go runtime memory handling. Namely, **before** optimizing anything I first [profiled](https://jvns.ca/blog/2017/09/24/profiling-go-with-pprof/) a flat version (without concurrency) of the program. After having lighten the program by fixing data structures (pointers/no pointer mainly), I studied the decisions made by my Go compiler with:  
  ```go build -gcflags '-m' aoc23.go```  
 
-When using Go, `strings` are immutable and every transformation on a string induce an allocation. Moreover, strings tend to easily escape to the `heap` inducing even more operations there (allocs/gc). For part2, the solution explores 57k paths of 23B strings. This amounts to a modest 1MB but it's the tens of thousand strings we don't want to move around unwillingly. That is to say, strings may not be the best choice here but it was mine, for the sake of fun: I surely went heavy on this problem, my board abstraction is a fixed-size array of strings. The only good thing that comes here is copying the data: a [walrus assignement](https://realpython.com/lessons/assignment-expressions/) of a board does the trick! I also made the choice to break a rule and pass some `strings.Builder` by value (I won't do this IRL).
+When using Go, `strings` are immutable and every transformation on a string induce an allocation. Moreover, strings tend to easily escape to the `heap` inducing even more operations there (allocs/gc). For `part2`, the solution explores 57k paths of 23B strings. This amounts to a modest 1MB but it's the tens of thousand strings we don't want to move around unwillingly. That is to say, strings may not be the best choice here but it was mine, for the sake of fun: I surely went heavy on this problem, my board abstraction is a fixed-size array of strings. The only good thing that comes here is copying the data: a [walrus assignement](https://realpython.com/lessons/assignment-expressions/) of a board does the trick! I also made the choice to break a rule and pass some `strings.Builder` by value (I won't do this IRL).
 
 pem's featured version is faster than mine (~90ms) and worth studying (same principle/clean code).
 
@@ -336,6 +342,14 @@ I've implemented a [fast integer exponentiation](https://en.wikipedia.org/wiki/E
 
 Phew! It ends well: my program uses `multi-buffering` and follows closely the description of the problem. I've managed to keep memory allocations on the low side. The visualisation is [mesmerizing](https://www.reddit.com/r/adventofcode/comments/ro4c23/2021_day_25_visualization_of_the_sea_cucumbers/).
 
-
 Feedback is welcome and happy coding!
 * * *
+## Post Scriptum
+
+If you're reading this, I believe you find my programs worth studying. If you take a quick look to the commits I've made to this repository it's obvious that I've turned this `aoc` into an obsessive *exercice de style*.  
+
+My style doesn't come from nowhere: first I had the chance of becoming a student of the late [Jean Méhat](https://www.chessprogramming.org/Jean_Méhat) at paris8 university, a true [10x](https://www.techopedia.com/definition/31673/10x-developer). He was the first to told me about [K&R](https://en.wikipedia.org/wiki/The_C_Programming_Language), [The Element Of Programming Style](https://en.wikipedia.org/wiki/The_Elements_of_Programming_Style), [The Practice Of Programming](https://en.wikipedia.org/wiki/The_Practice_of_Programming) (my favorite), and I started studying algorithms in [Algorithms in C](https://www.pearson.com/us/higher-education/program/Sedgewick-Algorithms-in-C-Parts-1-4-Fundamentals-Data-Structures-Sorting-Searching-3rd-Edition/PGM295950.html) before going for [The big book](https://en.wikipedia.org/wiki/Introduction_to_Algorithms) and the [Dragon book](https://en.wikipedia.org/wiki/Compilers:_Principles,_Techniques,_and_Tools). Eventually, I had to go back to this *absolute* source: [TAOCP](https://en.wikipedia.org/wiki/The_Art_of_Computer_Programming).  
+
+While under-graduating in CS/AI there, I also met [Tristan Cazenave](https://www.lamsade.dauphine.fr/~cazenave/papers/rootparallelggp.pdf) who introduced me to game theory. JM and him won the [GGP](https://en.wikipedia.org/wiki/General_game_playing), they were inspirationnal! This [project](https://github.com/erik-adelbert/mcs) of mine is closely related to this time and it has not been properly explored yet.
+
+I'm currently reading the (only) Go manual: the [D&K](https://www.gopl.io).

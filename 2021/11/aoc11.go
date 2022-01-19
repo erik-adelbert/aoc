@@ -79,7 +79,7 @@ func (c *cave) cascade(glob, cur blast) int {
 			δj := []int{-1, -1, -1, +0, +0, +1, +1, +1}
 			δi := []int{-1, +0, +1, -1, +1, -1, +0, +1}
 
-			for k := 0; k < len(δj); k++ {
+			for k := range δj {
 				j, i := flash[R]+δj[k], flash[C]+δi[k]
 				if j < 0 || j >= c.h || i < 0 || i >= c.w {
 					continue
