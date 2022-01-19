@@ -153,8 +153,7 @@ func main() {
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
-		switch line := input.Text(); {
-		case line == "":
+		switch line := input.Text(); line != "" {
 		case strings.Contains(line, "---"):
 			if len(points) > 0 {
 				reads = append(reads, Reading(points))

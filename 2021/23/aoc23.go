@@ -93,7 +93,7 @@ func (b board) dead1() bool {
 	return false
 }
 
-// dead2 detects interlocks at either edge of the board
+// dead2 detects an interlock at either edge of the board
 func (b board) dead2() bool {
 	edges := []struct {
 		r   rune
@@ -103,20 +103,20 @@ func (b board) dead2() bool {
 		{'A', -1},
 	}
 
-	for _, st := range edges {
-		g := goal(st.r)
-		if b.pawn(g-st.off) == st.r {
+	for _, e := range edges {
+		g := goal(e.r)
+		if b.pawn(g-e.off) == e.r {
 			nspace := 0
-			if b.pawn(g+st.off) == 0 {
+			if b.pawn(g+e.off) == 0 {
 				nspace++
 			}
-			if b.pawn(g+2*st.off) == 0 {
+			if b.pawn(g+2*e.off) == 0 {
 				nspace++
 			}
 			nalien := 0
-			if !b.granted(g, st.r) {
+			if !b.granted(g, e.r) {
 				for _, r := range b[g] {
-					if r != st.r {
+					if r != e.r {
 						nalien++
 					}
 				}
@@ -159,7 +159,7 @@ func (b board) moves() []cboard {
 		}
 	}
 
-	if nxt.c > 0 { // send back up for prioritization
+	if nxt.c > 0 { // send back for prioritization
 		return []cboard{nxt}
 	}
 
