@@ -24,28 +24,30 @@ func popcounts(nums []string) []int {
 	return popcnts
 }
 
+type gas bool
+
 const (
-	o2  = true
-	co2 = !o2
+	o2  gas = true
+	co2     = !o2
 )
 
-func rate(nums []string, gas bool) (int64, error) {
+func rate(nums []string, g gas) (int64, error) {
 	n := append(nums[:0:0], nums...) // clone
+
+	bits := map[gas]string{ // most popular bit filters ordered by gas
+		o2:  "01",
+		co2: "10",
+	}
 
 	for i := 0; i < width && len(n) > 1; i++ {
 		popcnts := popcounts(n)
 
-		bits := map[bool]string{ // most popular bit filters ordered by gas
-			o2:  "01",
-			co2: "10",
-		}
-
 		j := 0
 		for _, s := range n {
 			switch {
-			case s[i] == bits[gas][0] && len(n) > 2*popcnts[i]:
+			case s[i] == bits[g][0] && len(n) > 2*popcnts[i]:
 				n[j], j = s, j+1
-			case s[i] == bits[gas][1] && len(n) <= 2*popcnts[i]:
+			case s[i] == bits[g][1] && len(n) <= 2*popcnts[i]:
 				n[j], j = s, j+1
 			}
 		}
@@ -66,13 +68,13 @@ func main() {
 	defer close(rates)
 
 	go func() {
-		o2, _ := rate(nums, o2)
-		rates <- o2
+		n, _ := rate(nums, o2)
+		rates <- n
 	}()
 
 	go func() {
-		co2, _ := rate(nums, co2)
-		rates <- co2
+		n, _ := rate(nums, co2)
+		rates <- n
 	}()
 
 	var ε int

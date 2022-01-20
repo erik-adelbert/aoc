@@ -10,13 +10,14 @@ import (
 
 type axis int
 
-// Axis
+// Axis sugars
 const (
 	X axis = iota
 	Y
 	Z
 )
 
+// Axis sugar
 var Axis = []axis{X, Y, Z}
 
 type vec [3]int
@@ -191,14 +192,14 @@ func reboot(n *node, on bool, c cubo) *node {
 	return del(n, c)
 }
 
-func count(n *node) int64 {
+func recount(n *node) int64 {
 	switch {
 	case n == nil:
 		return 0
 	case leaf(n):
 		return n.c.vol()
 	default:
-		return count(n.left) + count(n.right)
+		return recount(n.left) + recount(n.right)
 	}
 }
 
@@ -229,8 +230,8 @@ func main() {
 		p2 = reboot(p2, on, c)
 	}
 
-	fmt.Println(count(p1)) // part1
-	fmt.Println(count(p2)) // part2
+	fmt.Println(recount(p1)) // part1
+	fmt.Println(recount(p2)) // part2
 }
 
 func min(a, b vec) vec {

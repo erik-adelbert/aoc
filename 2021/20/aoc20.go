@@ -34,16 +34,9 @@ func (b *bitmap) redim(h, w int) {
 	b.popcnt = 0
 }
 
-func (b bitmap) inf(y, x int) bool {
-	if y < 0 || y >= b.h || x < 0 || x >= b.w {
-		return true
-	}
-	return false
-}
-
 func (b bitmap) get(y, x int) int {
-	if b.inf(y, x) { // p is infinite
-		return cur // as parity
+	if y < 0 || y >= b.h || x < 0 || x >= b.w { // p is infinite
+		return cur
 	}
 	return int(b.data[y][x])
 }
@@ -67,10 +60,11 @@ func enhance() {
 		return 0
 	}
 
+	data := bufs[nxt].data
 	for y := 0; y < h; y++ {
 		for x := 0; x < w; x++ {
-			bufs[nxt].data[y][x] = kern9(y-1, x-1)
-			if bufs[nxt].data[y][x] == 1 {
+			data[y][x] = kern9(y-1, x-1)
+			if data[y][x] == 1 {
 				bufs[nxt].popcnt++
 			}
 		}
@@ -114,15 +108,15 @@ func main() {
 		}
 	}
 
-	bufs[cur].redim(h, w)
-	for j := 0; j < h; j++ {
-		for i := 0; i < w; i++ {
-			if raw[j][i] == '#' {
+	for j := range raw {
+		for i, v := range raw[j] {
+			if v == '#' {
 				bufs[cur].data[j][i] = 1
 				bufs[cur].popcnt++
 			}
 		}
 	}
+	bufs[cur].redim(h, w)
 
 	for i := 0; i < 50; i++ {
 		if i == 2 {

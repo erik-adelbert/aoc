@@ -41,9 +41,9 @@ func Reading(points []vec) reading {
 	return append(points[:0:0], points...)
 }
 
-type rotator func() reading
+type rotator func() reading // rotations iterator
 
-func (r reading) π2rots() rotator { // rotations iterator
+func (r reading) π2rots() rotator {
 	rots := []struct {
 		s, a vec // sign, axis
 	}{
@@ -77,7 +77,7 @@ func (r reading) π2rots() rotator { // rotations iterator
 
 	return func() reading { // rotator
 		if i >= len(rots) {
-			return []vec(nil)
+			return reading(nil)
 		}
 
 		rot := rots[i]
@@ -93,7 +93,7 @@ func (r reading) π2rots() rotator { // rotations iterator
 
 var (
 	reads []reading
-	scans []vec
+	scans reading
 	fixed map[vec]bool
 )
 
@@ -156,8 +156,8 @@ func main() {
 		switch line := input.Text(); line != "" {
 		case strings.Contains(line, "---"):
 			if len(points) > 0 {
-				reads = append(reads, Reading(points))
-				points = points[:0]
+				reads = append(reads, Reading(points)) // clone points
+				points = points[:0]                    // reset
 			}
 		default:
 			args := strings.Split(line, ",")
@@ -167,7 +167,9 @@ func main() {
 			points = append(points, vec{x, y, z})
 		}
 	}
-	reads = append(reads, Reading(points)) // last reading
+	if points != nil {
+		reads = append(reads, points) // last reading
+	}
 
 	for _, p := range reads[0] {
 		fixed[p] = true
@@ -227,12 +229,12 @@ func align(r reading) bool {
 		})
 	}
 
-	read, known := Reading(r), list(fixed)
+	known := list(fixed)
 	for a := X; a <= Z; a++ { // X, Y, Z
-		sort(&read, a)
+		sort(&r, a)
 		sort(&known, a)
 
-		rdifs, kdifs := difs(read), difs(known)
+		rdifs, kdifs := difs(r), difs(known)
 
 		const (
 			All   = false
@@ -243,9 +245,9 @@ func align(r reading) bool {
 			pivot := matches[0]
 			i := index(rdifs, pivot)
 			j := index(kdifs, pivot)
-			o := read[i].sub(known[j])
+			o := r[i].sub(known[j])
 
-			rebased := rebase(read, o)
+			rebased := rebase(r, o)
 			if len(inter(known, rebased, All)) >= 12 {
 				for _, v := range rebased {
 					fixed[v] = true

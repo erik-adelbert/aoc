@@ -25,7 +25,7 @@ func (p pos) median() int {
 	return p[len(p)/2]
 }
 
-// sumdist does parallel summation of distances for part1 & part2
+// sumdist does parallel summation of distances for part1 & part2.
 func (p pos) sumdist() (int, int) {
 	m1, m2 := p.median(), p.mean()
 	g := func(x int) int { return (x * (x + 1)) / 2 } // gauss sum
@@ -39,7 +39,7 @@ func (p pos) sumdist() (int, int) {
 }
 
 func main() {
-	var crabs pos
+	crabs := make(pos, 0, 1000)
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {

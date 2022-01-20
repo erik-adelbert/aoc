@@ -174,7 +174,7 @@ func (b board) moves() []cboard {
 		for _, t := range halls {
 			if b.free(s, t) {
 				new, cost := b.move(s, t)
-				moves = append(moves, cboard{new, cost + nxt.c})
+				moves = append(moves, cboard{new, nxt.c + cost})
 			}
 		}
 	}
@@ -182,7 +182,8 @@ func (b board) moves() []cboard {
 	return moves
 }
 
-func (b board) move(s, t int) (*board, int) { // source, target -> board, cost
+// move moves the top pawn of s to t, it returns the resulting board and the move cost
+func (b board) move(s, t int) (*board, int) {
 	nxt := b // array copy
 	p := b.pawn(s)
 

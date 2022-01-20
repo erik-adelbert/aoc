@@ -198,13 +198,13 @@ func (sn snum) String() string {
 	var regrow func(r *bnode, v, d int) bool
 	regrow = func(r *bnode, v, d int) bool {
 		if d == 0 {
-			if *r == *new() {
+			if *r == *new() { // *new() is null
 				r.v = v
 				return true
 			}
 			return false
 		}
-		if r.v != -1 {
+		if r.v != -1 { // not a leaf
 			return false
 		}
 		if r.left == nil { // grow one level

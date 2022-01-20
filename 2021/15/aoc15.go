@@ -51,14 +51,6 @@ type grid struct {
 	h, w int
 }
 
-func (g grid) String() string {
-	rows := make([]string, g.h)
-	for j := 0; j < g.h; j++ {
-		rows[j] = fmt.Sprintln(g.d[j][:g.w])
-	}
-	return strings.Join(rows, "")
-}
-
 func newGrid() *grid {
 	N, g := 128, new(grid)
 	g.d = make([][]int, N)
@@ -86,6 +78,17 @@ func (g *grid) redim(h, w int) {
 	g.h, g.w = h, w
 }
 
+func (g grid) String() string {
+	var sb strings.Builder
+	for i := 0; i < g.h; i++ {
+		fmt.Fprintln(&sb, g.d[i][:g.w]) // ignore errors
+	}
+	return sb.String()
+}
+
+// safest computes the shortest distance between the upper-left and the lower-right of the grid.
+// It uses a shortest-path tree from (0,0) built by a canonical Dijkstra. The grid is virtual:
+// it can be arbitrarily scaled up using a factor.
 func safest(g *grid, factor int) int {
 	const MaxInt = int(^uint(0) >> 1)
 
@@ -101,10 +104,6 @@ func safest(g *grid, factor int) int {
 
 	δy := []int{+0, 1, 0, -1}
 	δx := []int{-1, 0, 1, +0}
-
-	valid := func(y, x int) bool {
-		return !(y < 0 || y >= h || x < 0 || x >= w)
-	}
 
 	heap := make(heap, 0, 1024)
 	hp.Init(&heap)
@@ -122,9 +121,8 @@ func safest(g *grid, factor int) int {
 
 		for i := range δy {
 			u := cell{y: v.y + δy[i], x: v.x + δx[i]}
-
-			if !valid(u.y, u.x) {
-				continue
+			if u.y < 0 || u.y >= h || u.x < 0 || u.x >= w {
+				continue // discard out of bounds
 			}
 
 			if dist[u.y][u.x] > dist[v.y][v.x]+g.get(u.y, u.x) {

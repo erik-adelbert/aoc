@@ -9,14 +9,24 @@ import (
 )
 
 type node struct {
+	big   bool
 	name  string
-	links []*node // could be []string
 	limit int
+	links []*node // could be []string
 }
 
 func newNode(s string) *node {
+	big := func() bool {
+		for _, r := range s {
+			if unicode.IsUpper(r) {
+				return true
+			}
+		}
+		return false
+	}
+
 	links := make([]*node, 0, 16)
-	return &node{s, links, 1}
+	return &node{big(), s, 1, links}
 }
 
 func link(a, b *node) {
@@ -24,14 +34,14 @@ func link(a, b *node) {
 	b.links = append(b.links, a)
 }
 
-func (n *node) big() bool {
-	for _, r := range n.name {
-		if unicode.IsUpper(r) {
-			return true
-		}
-	}
-	return false
-}
+// func (n *node) big() bool {
+// 	for _, r := range n.name {
+// 		if unicode.IsUpper(r) {
+// 			return true
+// 		}
+// 	}
+// 	return false
+// }
 
 func (n *node) String() string {
 	return n.name
@@ -68,10 +78,6 @@ func (g graph) paths(a, b string) {
 
 	var repaths func(*node, *node)
 	repaths = func(s, t *node) {
-		seen := func(n *node) bool {
-			return !n.big() && visits[n] >= n.limit
-		}
-
 		visits[s]++
 		path = path.push(s)
 
@@ -83,7 +89,7 @@ func (g graph) paths(a, b string) {
 			paths[sb.String()] = true
 		} else {
 			for _, v := range s.links {
-				if !seen(v) {
+				if v.big || visits[v] < v.limit {
 					repaths(v, t)
 				}
 			}
@@ -91,8 +97,6 @@ func (g graph) paths(a, b string) {
 
 		path, s = path.pop()
 		visits[s]--
-
-		return
 	}
 
 	repaths(g[a], g[b])
@@ -115,7 +119,7 @@ func main() {
 	fmt.Println(len(paths)) // part1
 
 	for _, n := range g {
-		if n.name != "start" && n.name != "end" && !n.big() {
+		if n.name != "start" && n.name != "end" && !n.big {
 			n.limit = 2
 			g.paths("start", "end")
 			n.limit = 1

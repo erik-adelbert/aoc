@@ -8,16 +8,16 @@ import (
 	"strings"
 )
 
-type popcnt [9]uint64
+type popcnts [9]uint64
 
-// incube rotates/adds the underlying array
+// incube computes fishes population.
 func incube(a []uint64) {
 	i, n := len(a)-1, a[0]
 	copy(a, a[1:])
 	a[6], a[i] = a[6]+n, n
 }
 
-func sum(p popcnt) uint64 {
+func sum(p popcnts) uint64 {
 	var sum uint64
 	for _, n := range p {
 		sum += n
@@ -26,7 +26,7 @@ func sum(p popcnt) uint64 {
 }
 
 func main() {
-	var fishes popcnt
+	var fishes popcnts
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
