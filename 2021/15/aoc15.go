@@ -12,27 +12,13 @@ type cell struct {
 	y, x, v int
 }
 
-func less(a, b *cell) bool {
-	if a.v != b.v {
-		return a.v < b.v
-	}
-	if a.x != b.x {
-		return a.x < b.x
-	}
-	return a.y < b.y
-}
-
 type heap []*cell
 
 func (h heap) Len() int { return len(h) }
 
-func (h heap) Less(i, j int) bool {
-	return less(h[i], h[j])
-}
+func (h heap) Less(i, j int) bool { return h[i].v < h[j].v }
 
-func (h heap) Swap(i, j int) {
-	h[i], h[j] = h[j], h[i]
-}
+func (h heap) Swap(i, j int) { h[i], h[j] = h[j], h[i] }
 
 func (h *heap) Push(x interface{}) {
 	c := x.(cell)
@@ -61,17 +47,14 @@ func newGrid() *grid {
 }
 
 func (g grid) get(y, x int) int {
-	next := func(v, inc int) int {
-		if v+inc > 9 {
-			return v + inc - 9
-		}
-		return v + inc
-	}
-
 	j, y := y/g.h, y%g.h
 	i, x := x/g.w, x%g.w
 
-	return next(g.d[y][x], j+i)
+	v, inc := g.d[y][x], j+i
+	if v+inc > 9 {
+		return v + inc - 9
+	}
+	return v + inc
 }
 
 func (g *grid) redim(h, w int) {
@@ -121,7 +104,7 @@ func safest(g *grid, factor int) int {
 
 		for i := range δy {
 			u := cell{y: v.y + δy[i], x: v.x + δx[i]}
-			if u.y < 0 || u.y >= h || u.x < 0 || u.x >= w {
+			if !(u.y >= 0 && u.y < h && u.x >= 0 && u.x < w) {
 				continue // discard out of bounds
 			}
 

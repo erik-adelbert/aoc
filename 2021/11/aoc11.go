@@ -81,7 +81,7 @@ func (c *cave) cascade(glob, cur blast) int {
 
 			for k := range δj {
 				j, i := flash[R]+δj[k], flash[C]+δi[k]
-				if j < 0 || j >= c.h || i < 0 || i >= c.w {
+				if !(j >= 0 && j < c.h && i >= 0 && i < c.w) {
 					continue
 				}
 				ji := idx{j, i}
@@ -118,9 +118,10 @@ func main() {
 		j++
 	}
 
-	i, popcnt := 0, 0
-	for i = 0; i < 100; i++ {
+	var i, popcnt int
+	for i < 100 {
 		popcnt += flash(cave)
+		i++
 	}
 	fmt.Println(popcnt) // part1
 

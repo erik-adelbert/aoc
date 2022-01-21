@@ -17,12 +17,12 @@ func incube(a []uint64) {
 	a[6], a[i] = a[6]+n, n
 }
 
-func sum(p popcnts) uint64 {
-	var sum uint64
+func popcnt(p popcnts) uint64 {
+	var popcnt uint64
 	for _, n := range p {
-		sum += n
+		popcnt += n
 	}
-	return sum
+	return popcnt
 }
 
 func main() {
@@ -39,9 +39,9 @@ func main() {
 
 	for i := 0; i < 256; i++ {
 		if i == 80 {
-			fmt.Println(sum(fishes)) // part1
+			fmt.Println(popcnt(fishes)) // part1
 		}
 		incube(fishes[:]) // pass slice
 	}
-	fmt.Println(sum(fishes)) // part2
+	fmt.Println(popcnt(fishes)) // part2
 }

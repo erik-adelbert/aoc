@@ -45,26 +45,20 @@ func enhance() {
 	h, w := bufs[cur].h+2, bufs[cur].w+2
 	bufs[nxt].redim(h, w)
 
-	kern9 := func(y, x int) byte { // apply filter
-		δy := []int{-1, -1, -1, +0, 0, 0, +1, 1, 1}
-		δx := []int{-1, +0, +1, -1, 0, 1, -1, 0, 1}
-
-		n := 0
-		for i := range δx {
-			n = (n << 1) | bufs[cur].get(y+δy[i], x+δx[i])
-		}
-
-		if kern[n] == '#' {
-			return 1
-		}
-		return 0
-	}
-
 	data := bufs[nxt].data
 	for y := 0; y < h; y++ {
 		for x := 0; x < w; x++ {
-			data[y][x] = kern9(y-1, x-1)
-			if data[y][x] == 1 {
+			δy := []int{-1, -1, -1, +0, 0, 0, +1, 1, 1}
+			δx := []int{-1, +0, +1, -1, 0, 1, -1, 0, 1}
+
+			n := 0
+			for i := range δx {
+				n = (n << 1) | bufs[cur].get(y-1+δy[i], x-1+δx[i])
+			}
+
+			data[y][x] = 0
+			if kern[n] == '#' {
+				data[y][x] = 1
 				bufs[nxt].popcnt++
 			}
 		}

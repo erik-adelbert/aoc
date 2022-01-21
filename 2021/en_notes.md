@@ -190,7 +190,7 @@ This is a direct application of [dynamic programming](https://en.wikipedia.org/w
 
 This is a direct application of [depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) on a graph. It surely will be given as an exercise of the baccalauréat of code, in the futur.
 
-`<EDIT>` While exploring Go vs. Rust performances, I came to [Tim Visée's work](https://github.com/timvisee/advent-of-code-2021). For this problem, he went the extra mile of 1) putting the strings aside to have a full integer problem, 2) building an adjacency matrix and 3) use a stack-based iterative dfs. All in all, these optimizations also work for go: the runtime of this problem vanished from 44.3ms to 1.7ms. That said, if you don't feel comfortable studying this (expert) version, pull the old one instead...
+`<EDIT>` While exploring Go vs. Rust performances, I came to [Tim Visée's work](https://github.com/timvisee/advent-of-code-2021). For this problem, he has gone the extra mile of 1) putting the strings aside to have a full integer problem, 2) building an adjacency matrix and 3) use a stack-based iterative dfs. All in all, these optimizations also work for Go: the runtime of this problem vanished from 44.3ms to 1.7ms. That said, if you don't feel comfortable studying this (expert) version, pull the old one instead...
 
 * * *
 ## Day 13

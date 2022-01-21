@@ -82,12 +82,12 @@ func adjacency() {
 			if adjs[nid] == nil {
 				adjs[nid] = make(edges, 12)
 			}
-			if bigs[i] {
+			if bigs[i] { // bigs act like teleports
 				for _, j := range graph[i] {
-					adjs[nid][j] += 1
+					adjs[nid][j]++
 				}
 			} else {
-				adjs[nid][i] += 1
+				adjs[nid][i]++
 			}
 		}
 	}
@@ -120,23 +120,23 @@ func dfs(part bool) int {
 	for i := range hops {
 		hops[i] = 1
 	}
-	push(nids["end"], nids["start"], 1, part)
+	push(node("end"), node("start"), 1, part)
 
 	count := 0
 	for !empty() {
-		s, t, d, m := pop()
+		s, t, n, m := pop() // source, target, npath, multipaths (part1/part2)
 		hops[int(t)] = int(s)
 		adj := adjs[s]
-		for i, next := range adj {
-			if next == 0 {
+		for i, npath := range adj {
+			if npath == 0 {
 				continue
 			}
 			switch i {
 			case 1:
-				count += d * next
+				count += n * npath
 			default:
 				if unseen := i == 0 || !hops[2:t+1].contains(i); unseen || m {
-					push(id(i), t+1, d*next, m && unseen)
+					push(id(i), t+1, n*npath, m && unseen)
 				}
 			}
 		}

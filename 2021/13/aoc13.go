@@ -21,19 +21,13 @@ type vec struct { // dot or axis
 func main() {
 	dots := make([]vec, 0, 1024)
 
-	vfold := func(x int) { // fold along vertical axis
+	fold := func(a byte, n int) { // fold along axis (x|y) = n
 		for i, d := range dots {
-			if d.x > x {
-				d.x = 2*x - d.x
+			if d.x > n && a == 'x' {
+				d.x = 2*n - d.x
 			}
-			dots[i] = vec{d.x, d.y}
-		}
-	}
-
-	hfold := func(y int) { // fold along horizontal axis
-		for i, d := range dots {
-			if d.y > y {
-				d.y = 2*y - d.y
+			if d.y > n && a == 'y' {
+				d.y = 2*n - d.y
 			}
 			dots[i] = vec{d.x, d.y}
 		}
@@ -49,13 +43,10 @@ func main() {
 			dots = append(dots, vec{x, y})
 		}
 		if args := strings.Split(line, "="); len(args) > 1 { // fold (decode)
+			a := args[0][len(args[0])-1] // a = (x|y)
 			n, _ := strconv.Atoi(args[1])
-			i := len(args[0]) - 1
-			if args[0][i] == 'x' { // last car of arg0
-				vfold(n)
-			} else {
-				hfold(n)
-			}
+			fold(a, n)
+
 			if first {
 				first = false
 				_, frame := frame(dots)

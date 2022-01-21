@@ -214,8 +214,8 @@ func rotal(r reading) bool {
 }
 
 func align(r reading) bool {
-	index := func(r reading, v vec) int {
-		for i, x := range r {
+	index := func(r reading, x vec) int {
+		for i, v := range r {
 			if x == v {
 				return i
 			}
@@ -223,16 +223,15 @@ func align(r reading) bool {
 		return len(r)
 	}
 
-	sort := func(r *reading, a int) {
-		sort.Slice(*r, func(i, j int) bool {
-			return (*r)[i][a] <= (*r)[j][a]
-		})
-	}
-
 	known := list(fixed)
 	for a := X; a <= Z; a++ { // X, Y, Z
-		sort(&r, a)
-		sort(&known, a)
+		sort.Slice(r, func(i, j int) bool {
+			return r[i][a] <= r[j][a]
+		})
+
+		sort.Slice(known, func(i, j int) bool {
+			return known[i][a] <= known[j][a]
+		})
 
 		rdifs, kdifs := difs(r), difs(known)
 
@@ -241,7 +240,7 @@ func align(r reading) bool {
 			First = !All
 		)
 
-		if matches := inter(rdifs, kdifs, First); len(matches) == 1 {
+		if matches := inter(rdifs, kdifs, First); len(matches) > 0 {
 			pivot := matches[0]
 			i := index(rdifs, pivot)
 			j := index(kdifs, pivot)

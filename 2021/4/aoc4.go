@@ -45,7 +45,7 @@ func (ca *card) biff(n int) bool {
 
 func (ca *card) sum() int {
 	sum := 0
-	for i := 0; i < 5; i++ {
+	for i := range ca.row {
 		sum += ca.row[i]
 	}
 	return sum

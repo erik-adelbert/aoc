@@ -27,14 +27,14 @@ func (g *grid) copy(i int, data []byte) int {
 }
 
 func (g *grid) set(y, x, v int) {
-	if y < 0 || x < 0 || g.d[y+1][x+1] == '9' {
+	if !(y >= 0 && x >= 0 && g.d[y+1][x+1] != '9') {
 		return
 	}
 	g.d[y+1][x+1] = v
 }
 
 func (g *grid) get(y, x int) int {
-	if y < 0 || x < 0 {
+	if !(y >= 0 && x >= 0) {
 		return 0
 	}
 	return g.d[y+1][x+1]

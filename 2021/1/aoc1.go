@@ -13,18 +13,18 @@ const MaxInt = int(^uint(0) >> 1)
 func main() {
 	old1, old2, old3 := MaxInt, MaxInt, MaxInt // 3 last depths window
 
-	p1, p2 := 0, 0
+	n1, n2 := 0, 0
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
 		cur, _ := strconv.Atoi(input.Text())
 		if old1 < cur { // increase!
-			p1++
+			n1++
 		}
 		if old3 < cur { // increase!
-			p2++
+			n2++
 		}
-		old3, old2, old1 = old2, old1, cur // shift/update window
+		old1, old2, old3 = cur, old1, old2 // shift/update window
 	}
-	fmt.Println(p1)
-	fmt.Println(p2)
+	fmt.Println(n1) // part1
+	fmt.Println(n2) // part2
 }

@@ -36,14 +36,14 @@ func plot(a, b point) {
 	switch {
 	case Δx == 0:
 		x := a.x
-		ymin, ymax := minax(a.y, b.y)
+		ymin, ymax := sort(a.y, b.y)
 		for y := ymin; y <= ymax; y++ {
 			can1[x*w+y]++
 			can2[x*w+y]++
 		}
 	case Δy == 0:
 		y := a.y
-		xmin, xmax := minax(a.x, b.x)
+		xmin, xmax := sort(a.x, b.x)
 		for x := xmin; x <= xmax; x++ {
 			can1[x*w+y]++
 			can2[x*w+y]++
@@ -51,7 +51,7 @@ func plot(a, b point) {
 	default:
 		m := Δy / Δx
 		c := a.y - a.x*m
-		xmin, xmax := minax(a.x, b.x)
+		xmin, xmax := sort(a.x, b.x)
 		for x := xmin; x <= xmax; x++ {
 			y := m*x + c
 			can2[x*w+y]++
@@ -60,16 +60,16 @@ func plot(a, b point) {
 }
 
 func popcounts() (int, int) {
-	pop1, pop2 := 0, 0
-	for i := 0; i < len(can1); i++ {
+	popcnt1, popcnt2 := 0, 0
+	for i := range can1 {
 		if can1[i] > 1 {
-			pop1++
+			popcnt1++
 		}
 		if can2[i] > 1 {
-			pop2++
+			popcnt2++
 		}
 	}
-	return pop1, pop2
+	return popcnt1, popcnt2
 }
 
 func main() {
@@ -85,7 +85,7 @@ func main() {
 	fmt.Println(popcounts()) // part1 & part2
 }
 
-func minax(a, b int) (int, int) {
+func sort(a, b int) (int, int) {
 	if a < b {
 		return a, b
 	}
