@@ -1,3 +1,13 @@
+| day | time (ms) |
+|-----|-----:|
+| 6 | 0.6 |
+| 3 | 1.2 |
+| 1 | 1.3 |
+| 2 | 1.3 |
+| 4 | 1.3 |
+| 5 | 1.3 |
+| total | 7.0 |
+
 ## Day 1
 
 For this 2022 edition first day, I have written a simple and fast solution:
