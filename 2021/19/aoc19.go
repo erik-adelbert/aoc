@@ -240,7 +240,7 @@ func align(r reading) bool {
 			First = !All
 		)
 
-		if matches := inter(rdifs, kdifs, First); len(matches) > 0 {
+		if matches := inter(rdifs, kdifs, First); len(matches) == 1 {
 			pivot := matches[0]
 			i := index(rdifs, pivot)
 			j := index(kdifs, pivot)

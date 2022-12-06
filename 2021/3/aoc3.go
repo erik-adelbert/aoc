@@ -24,36 +24,33 @@ func popcounts(nums []string) []int {
 	return popcnts
 }
 
-type gas bool
+type gas int
 
 const (
-	o2  gas = true
-	co2     = !o2
+	o2 gas = iota
+	co2
 )
 
 func rate(nums []string, g gas) (int64, error) {
-	n := append(nums[:0:0], nums...) // clone
+	bs := append(nums[:0:0], nums...) // clone binary strings
 
-	bits := map[gas]string{ // most popular bit filters ordered by gas
-		o2:  "01",
-		co2: "10",
-	}
+	bits := [...]string{o2: "01", co2: "10"}[g] // most popular bit filters by gas
 
-	for i := 0; i < width && len(n) > 1; i++ {
-		popcnts := popcounts(n)
+	for i := 0; i < width && len(bs) > 1; i++ {
+		popcnts := popcounts(bs)
 
 		j := 0
-		for _, s := range n {
+		for _, s := range bs {
 			switch {
-			case s[i] == bits[g][0] && len(n) > 2*popcnts[i]:
-				n[j], j = s, j+1
-			case s[i] == bits[g][1] && len(n) <= 2*popcnts[i]:
-				n[j], j = s, j+1
+			case s[i] == bits[0] && len(bs) > 2*popcnts[i]:
+				bs[j], j = s, j+1
+			case s[i] == bits[1] && len(bs) <= 2*popcnts[i]:
+				bs[j], j = s, j+1
 			}
 		}
-		n = n[:j]
+		bs = bs[:j]
 	}
-	return strconv.ParseInt(n[0], 2, 32)
+	return strconv.ParseInt(bs[0], 2, 32)
 }
 
 func main() {

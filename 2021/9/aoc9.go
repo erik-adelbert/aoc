@@ -41,23 +41,17 @@ func (g *grid) get(y, x int) int {
 }
 
 func (g *grid) filter(y, x int) int {
-	btoi := func(b int) int {
-		return int(b - '0') // fast convert
-	}
-
-	neighbors := func(y, x int) []int {
-		return []int{
-			g.d[y][x+1], g.d[y+1][x], g.d[y+2][x+1], g.d[y+1][x+2],
-		}
+	neighbors := []int{
+		g.d[y][x+1], g.d[y+1][x], g.d[y+2][x+1], g.d[y+1][x+2],
 	}
 
 	v := g.get(y, x)
-	for _, n := range neighbors(y, x) {
+	for _, n := range neighbors {
 		if 0 < n && n <= v {
 			return 0
 		}
 	}
-	return 1 + btoi(v)
+	return 1 + int(v-'0')
 }
 
 func (g *grid) groups() map[int]int {
@@ -122,8 +116,8 @@ func (g *grid) String() string {
 	for j := 1; j <= g.h; j++ {
 		for i := 1; i <= g.w; i++ {
 			b := byte(' ')
-			if g.d[j][i] != 0 {
-				b = byte('0' + (g.d[j][i]-'0')%10) // works for data & labels
+			if g.d[j][i] != 0 { // works for data & labels
+				b = byte('0' + (g.d[j][i]-'0')%10) // remap to '0'..'9'
 			}
 			sb.WriteByte(b)
 		}

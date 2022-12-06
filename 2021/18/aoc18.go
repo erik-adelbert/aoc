@@ -93,6 +93,25 @@ func clone(sn snum) snum {
 	return cn
 }
 
+func mag(sn snum) int {
+	vals, deps := sn.vals, sn.deps
+	for len(vals) > 1 {
+		for i := range deps {
+			if deps[i] == deps[i+1] {
+				vals[i] = 3*vals[i] + 2*vals[i+1]
+				vals, _ = remove(vals, i+1)
+				deps, _ = remove(deps, i+1)
+
+				if deps[i] > 0 {
+					deps[i]--
+				}
+				break
+			}
+		}
+	}
+	return vals[0]
+}
+
 func explode(sn snum) (snum, bool) {
 	for i := range sn.deps {
 		if sn.deps[i] != 4 {
@@ -115,25 +134,6 @@ func explode(sn snum) (snum, bool) {
 		return sn, true
 	}
 	return sn, false
-}
-
-func mag(sn snum) int {
-	vals, deps := sn.vals, sn.deps
-	for len(vals) > 1 {
-		for i := 0; i < len(deps); i++ {
-			if deps[i] == deps[i+1] {
-				vals[i] = 3*vals[i] + 2*vals[i+1]
-				vals, _ = remove(vals, i+1)
-				deps, _ = remove(deps, i+1)
-
-				if deps[i] > 0 {
-					deps[i]--
-				}
-				break
-			}
-		}
-	}
-	return vals[0]
 }
 
 func reduce(sn snum) snum {
