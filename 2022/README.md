@@ -8,6 +8,8 @@
 | 5 | 1.3 |
 | total | 7.0 |
 
+mbair M1/16GB - go1.17.5 darwin/arm64
+
 ## Day 1
 
 For this 2022 edition first day, I have written a simple and fast solution:
@@ -188,7 +190,7 @@ In practice, only the current window length needs to be maintained.
 _Did you notice?_
 
 The proposed solution builds [_the longest substring without repeating characters_](https://leetcode.com/problems/longest-substring-without-repeating-characters/solutions/) that means it can *generally solve* the question.
-Let me rephrase this idea: The _same code_ solves part 1&2. At runtime, if we _watch_ the window len and display the first index after a 4 non-repeating chars and later the first one after 14 such chars, we're done! 
+Let me rephrase this idea: The _same code_ solves part 1&2. At runtime, if we _watch_ the window len and display the first index after a 4 non-repeating chars and later on the first one after 14 such chars, we're done! 
 
-Last but not least the internal memory size is also fixed, the solution also has `O(1)` `space` `complexity`:
+Last but not least the internal memory size is fixed, the solution also has `O(1)` `space` `complexity`:
 *It is one of the best to solve the task at hand*.
