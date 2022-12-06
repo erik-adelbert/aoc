@@ -14,7 +14,7 @@ func main() {
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
-		once := true
+		first := true
 
 		line := input.Text()
 		// slide over input:
@@ -36,9 +36,9 @@ func main() {
 			seen[line[i]] = i
 
 			// display and loop (part1) or terminate (part2)
-			if once && wlen == 4 { // part1
+			if first && wlen == 4 { // part1
 				fmt.Println(i + 1)
-				once = false
+				first = false
 			}
 
 			if wlen == 14 { // part2

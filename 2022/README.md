@@ -41,7 +41,7 @@ Move scores are:
 |   P  | 2 |
 |   S  | 3 |
 
-With o, any O move, i, any of my move, D(raw), L(ost) and W(in), outcomes are [widely known](https://en.wikipedia.org/wiki/Rock_paper_scissors) to be:
+With o, any O moves, i, any of my moves, D(raw), L(ost) and W(in), outcomes are [widely known](https://en.wikipedia.org/wiki/Rock_paper_scissors) to be:
 |o\i| R | P | S |
 |:-:|:-:|:-:|:-:|
 | R | D | W | L |
@@ -125,7 +125,7 @@ Moving forward, every 3 lines, the program scans the last 3 maps for a
 common item. Once found it is *counted for Part2*.
 
 Using a sparse `[128]int` (no symbol is higher than `z = 122`), instead of, say,
-hashmap is trading space for speed. 
+a hashmap is trading space for speed. 
 Only the 2 previous maps are buffered. 
 
 If item `c` is common to all 3 input lines, then:
