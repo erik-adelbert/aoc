@@ -147,6 +147,9 @@ There's a fact about 1D segments that translates elegantly in Go: *when one
 segment contains the other one, they also intersect*. It nicely becomes a 
 `fallthrough` in the 2 branches `switch/case` of the main loop.
 
+`<EDIT>` I've even removed the `fallthrough` because it simply means that part2 
+score is part1 score + something!
+
 ## Day 5
 Today I wasn't in the mood for parsing the challenge initial state: I hard-coded 
 it into the program. From there, most of the pain was gone. Part1, is a classical
@@ -194,3 +197,5 @@ Let me rephrase this idea: The _same code_ solves part 1&2. At runtime, if we _w
 
 Last but not least the internal memory size is fixed, the solution also has `O(1)` `space` `complexity`:
 *It is one of the best to solve the task at hand*.
+
+`<EDIT>` I have an [ongoing discussion](https://www.reddit.com/r/adventofcode/comments/zdw0u6/comment/iz6e67e/?utm_source=share&utm_medium=web2x&context=3) about the space complexity that I may have not gotten right on this... more to come!
