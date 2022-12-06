@@ -174,7 +174,7 @@ My solution grows a [sliding window](https://itnext.io/sliding-window-algorithm-
 
 This algorithm `runtime` `complexity` is `O(n)` with `n` the number of symbols. _It is the fastest possible_.
 
-Now, I just have to define how a symbol is unique in a window, for this purpose I use a symbol indexed array (say a faster map) that records for every occurring symbol its last index in the input. Let me dig in a little more:
+Now, I just have to define how a symbol is unique in a window, for this purpose I use a symbol indexed array (say a faster map) that records for every occurring symbol its last index in the input (ie. one place back scan). Let me dig in a little more:
 
 _What is a unique symbol window-wised ?_
 
@@ -183,7 +183,7 @@ _What is a unique symbol window-wised ?_
 
 _What if it is not unique?_
 
-- the current window has to be left shrinked to start just after the mapped symbol index to avoid repetition.
+- to avoid repetition, the current window has to be shrunk to start just after the previous symbol index
 
 In practice, only the current window length needs to be maintained.
 

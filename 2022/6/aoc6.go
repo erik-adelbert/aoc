@@ -24,14 +24,14 @@ func main() {
 			//   extend window!
 			// or
 			//   repeating inside?
-			//   redim window!
+			//   shrink window!
 			switch {
 			case seen[line[i]] == 0 && line[i] != line[0]:
 				fallthrough
 			case i-seen[line[i]] > wlen:
-				wlen++ // extend
+				wlen++ // extend right
 			case i-seen[line[i]] < wlen:
-				wlen = i - seen[line[i]] // redim
+				wlen = i - seen[line[i]] // shrink left
 			}
 			seen[line[i]] = i
 
