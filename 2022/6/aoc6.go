@@ -36,14 +36,13 @@ func main() {
 			seen[line[i]] = i
 
 			// display and loop (part1) or terminate (part2)
-			if first && wlen == 4 { // part1
+			switch {
+			case first && wlen == 4:
 				fmt.Println(i + 1)
 				first = false
-			}
-
-			if wlen == 14 { // part2
+			case wlen == 14:
 				fmt.Println(i + 1)
-				break // all done!
+				break
 			}
 		}
 
