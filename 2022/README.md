@@ -6,7 +6,8 @@
 | 2 | 1.3 |
 | 4 | 1.3 |
 | 5 | 1.3 |
-| total | 7.0 |
+| 7 | 1.3 |
+| total | 8.3 |
 
 mbair M1/16GB - go1.17.5 darwin/arm64
 
@@ -190,12 +191,70 @@ _What if it is not unique?_
 
 In practice, only the current window length needs to be maintained.
 
-_Did you notice?_
+_Did you notice (I didn't at first)?_
 
 The proposed solution builds [_the longest substring without repeating characters_](https://leetcode.com/problems/longest-substring-without-repeating-characters/solutions/) that means it can *generally solve* the question.
 Let me rephrase this idea: The _same code_ solves part 1&2. At runtime, if we _watch_ the window len and display the first index after a 4 non-repeating chars and later on the first one after 14 such chars, we're done! 
 
-Last but not least the internal memory size is fixed, the solution also has `O(1)` `space` `complexity`:
+Last but not least the internal memory size is fixed, the solution also has `O(1)` `space` `complexity` `n-wise`:
 *It is one of the best to solve the task at hand*.
 
-`<EDIT>` I have an [ongoing discussion](https://www.reddit.com/r/adventofcode/comments/zdw0u6/comment/iz6e67e/?utm_source=share&utm_medium=web2x&context=3) about the space complexity that I may have not gotten right on this... more to come!
+`<EDIT>` I have an [ongoing discussion](https://www.reddit.com/r/adventofcode/comments/zdw0u6/comment/iz6e67e/?utm_source=share&utm_medium=web2x&context=3) about the space complexity that I may have not gotten right on this... ~more to come~!
+
+## Day 7
+Today, the challenge is an other kind of beast: the program has to 1) parse a shell dump, 2) rebuild a filesystem and
+3) help decide what to do because of a storage shortage.
+
+The shell session itself presents a [preorder traversal](https://en.wikipedia.org/wiki/Tree_traversal#Pre-order_implementation) of
+the filesystem. Here is the today sample directory layout:
+
+    ❯ grep cd sample.txt
+    $ cd /
+    $ cd a
+    $ cd e
+    $ cd ..
+    $ cd ..
+    $ cd d
+
+As I said, preorder traversal of:
+```
+    /
+    ├── a
+    │   └── e
+    └── d
+```    
+    
+
+This part of the challenge is a classical question about the filesystem graph: I've looked for a recursive solution 
+from the start because it's the easiest to develop and fix in this context.
+
+There is not much room from improvement here and `part1` is pretty linear. But `part2` is a tad more interesting to design, the program has to memorize `subdir` sizes and fast scan them afterward. The trick here is to keep their array sorted as we build it as it will speed up search when scanning them later on. Fortunately, there's a single usefull tool to help us for both building and scanning a sorted array: it's [binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm). This algorithm is so handy that it lives in many standard libraries. Here, in `Go`, it is available as [`sort.SearchInts`](https://pkg.go.dev/sort#SearchInts).
+
+Finally, some remarks about inputs: we don't care the `dir` or `ls` lines, they are noise here:
+
+    ❯ grep -v dir sample.txt | grep -v ls
+    $ cd /
+    14848514 b.txt
+    8504156 c.dat
+    $ cd a
+    29116 f
+    2557 g
+    $ cd e
+    584 i
+    $ cd ..
+    $ cd ..
+    $ cd d
+    4060174 j
+    8033020 d.log
+    5626152 d.ext
+    7214296 k
+
+See? Without them it's even easier to answer today's questions!
+
+Once again my solution runs bounded by `O(n)`: input lines are accessed only once.
+Thanks to the memoization for `part2`, the filesystem tree is never retraversed.
+
+The programs runs in about `1ms` so I will leave it there for now but be warned:
+there's a way to throw out everything except for the subdirs size calculation and
+to get away with it. If I ever was to look for more total speed, I'll be coming back
+for this.
