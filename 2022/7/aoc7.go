@@ -8,25 +8,10 @@ import (
 	"strings"
 )
 
-var part1 int
-
-// strconv.Atoi simplified core loop
-// s is ^\d+$
-func atoi(s string) int {
-	var n int
-	for _, c := range []byte(s) {
-		n = 10*n + int(c-'0')
-	}
-	return n
-}
-
-func file(line string) int {
-	fields := strings.Fields(line)
-	return atoi(fields[0])
-}
-
-// part2 sizes for part2
-var part2 []int
+var (
+	part1 int   // small subdirs total size
+	part2 []int // subdirs sizes for part2
+)
 
 // sort insert
 func record(s int) {
@@ -34,6 +19,11 @@ func record(s int) {
 	part2 = append(part2, 0)
 	copy(part2[i+1:], part2[i:])
 	part2[i] = s
+}
+
+func file(line string) int {
+	fields := strings.Fields(line)
+	return atoi(fields[0])
 }
 
 func tree(input *bufio.Scanner) int {
@@ -85,4 +75,14 @@ func main() {
 	i := sort.SearchInts(part2, root-40000000)
 
 	fmt.Println(part1, part2[i])
+}
+
+// strconv.Atoi simplified core loop
+// s is ^\d+$
+func atoi(s string) int {
+	var n int
+	for _, c := range []byte(s) {
+		n = 10*n + int(c-'0')
+	}
+	return n
 }
