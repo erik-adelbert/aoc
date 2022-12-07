@@ -8,12 +8,7 @@ import (
 	"strings"
 )
 
-const (
-	Part1 = iota
-	Part2
-)
-
-var answers [2]int
+var part1 int
 
 // strconv.Atoi simplified core loop
 // s is ^\d+$
@@ -25,34 +20,24 @@ func atoi(s string) int {
 	return n
 }
 
-type node struct {
-	name string
-	size int
-	link []*node
-}
-
-func file(line string) *node {
+func file(line string) int {
 	fields := strings.Fields(line)
-	return &node{
-		name: fields[1],
-		size: atoi(fields[0]),
-	}
+	return atoi(fields[0])
 }
 
-// subdirs sizes for part2
-var subdirs []int
+// part2 sizes for part2
+var part2 []int
 
 // sort insert
 func record(s int) {
-	i := sort.SearchInts(subdirs, s)
-	subdirs = append(subdirs, 0)
-	copy(subdirs[i+1:], subdirs[i:])
-	subdirs[i] = s
+	i := sort.SearchInts(part2, s)
+	part2 = append(part2, 0)
+	copy(part2[i+1:], part2[i:])
+	part2[i] = s
 }
 
-func tree(name string, input *bufio.Scanner) *node {
-	root := new(node)
-	root.name = name
+func tree(input *bufio.Scanner) int {
+	root := 0
 
 	for input.Scan() {
 		line := input.Text()
@@ -68,25 +53,20 @@ func tree(name string, input *bufio.Scanner) *node {
 				case "..":
 					return root
 				default:
-					// subdir
-					subdir := tree(fields[1], input)
-					root.size += subdir.size
-					root.link = append(root.link, subdir)
+					subdir := tree(input)
+					root += subdir
 
 					// part1 counting
-					if subdir.size <= 100000 {
-						answers[Part1] += subdir.size
+					if subdir <= 100000 {
+						part1 += subdir
 					}
 
 					// part2 memoization
-					record(subdir.size)
+					record(subdir)
 				}
 			}
 		default:
-			// file
-			leaf := file(line)
-			root.size += leaf.size
-			root.link = append(root.link, leaf)
+			root += file(line)
 		}
 	}
 
@@ -94,16 +74,15 @@ func tree(name string, input *bufio.Scanner) *node {
 }
 
 func main() {
-	var root *node
+	var root int
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
 		_ = input.Text() // discard initial cd /
-		root = tree("/", input)
+		root = tree(input)
 	}
 
 	// part2 binsearch
-	i := sort.SearchInts(subdirs, root.size-40000000)
-	answers[Part2] = subdirs[i]
+	i := sort.SearchInts(part2, root-40000000)
 
-	fmt.Println(answers[Part1], answers[Part2])
+	fmt.Println(part1, part2[i])
 }

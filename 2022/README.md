@@ -24,7 +24,7 @@ Finally, I like the way max3, as a closure, captures global vars and gives the
 resulting code a vintage-ish look and feel.
 
 ## Day 2
-There two efficient ways to solve today challenge: either the solution should precompute all
+There is two efficient ways to solve today challenge: either the solution should precompute all
 possible outcomes and match inputs against them or devise a scoring formula that is fast enough 
 to be computed on the fly while parsing inputs.
 
@@ -258,3 +258,5 @@ The programs runs in about `1ms` so I will leave it there for now but be warned:
 there's a way to throw out everything except for the subdirs size calculation and
 to get away with it. If I ever was to look for more total speed, I'll be coming back
 for this.
+
+`<EDIT>` I couldn't resist so I simplified the program. If you want to follow my notes, please pull the previous version.
