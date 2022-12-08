@@ -8,17 +8,14 @@ import (
 	"strings"
 )
 
-var (
-	part1 int   // small subdirs total size
-	part2 []int // subdirs sizes for part2
-)
+var subdirs []int // subdir sizes for part2
 
 // sort insert
 func record(s int) {
-	i := sort.SearchInts(part2, s)
-	part2 = append(part2, 0)
-	copy(part2[i+1:], part2[i:])
-	part2[i] = s
+	i := sort.SearchInts(subdirs, s)
+	subdirs = append(subdirs, 0)
+	copy(subdirs[i+1:], subdirs[i:])
+	subdirs[i] = s
 }
 
 func file(line string) int {
@@ -28,7 +25,6 @@ func file(line string) int {
 
 func tree(input *bufio.Scanner) int {
 	root := 0
-
 	for input.Scan() {
 		line := input.Text()
 
@@ -45,13 +41,6 @@ func tree(input *bufio.Scanner) int {
 				default:
 					subdir := tree(input)
 					root += subdir
-
-					// part1 counting
-					if subdir <= 100000 {
-						part1 += subdir
-					}
-
-					// part2 memoization
 					record(subdir)
 				}
 			}
@@ -59,7 +48,6 @@ func tree(input *bufio.Scanner) int {
 			root += file(line)
 		}
 	}
-
 	return root
 }
 
@@ -71,10 +59,16 @@ func main() {
 		root = tree(input)
 	}
 
-	// part2 binsearch
-	i := sort.SearchInts(part2, root-40000000)
+	// part1 sum
+	smalls := 0
+	for i := 0; subdirs[i] <= 100_000; i++ {
+		smalls += subdirs[i]
+	}
 
-	fmt.Println(part1, part2[i])
+	// part2 binsearch
+	i := sort.SearchInts(subdirs, root-40_000_000)
+
+	fmt.Println(smalls, subdirs[i])
 }
 
 // strconv.Atoi simplified core loop

@@ -19,15 +19,12 @@ func main() {
 		line := input.Text()
 		// slide over input:
 		for i := range line {
-			//   first time sym or
 			//   outside current window?
 			//   extend window!
 			// or
 			//   repeating inside?
 			//   shrink window!
 			switch {
-			case seen[line[i]] == 0 && line[i] != line[0]:
-				fallthrough
 			case i-seen[line[i]] > wlen:
 				wlen++ // extend right
 			case i-seen[line[i]] < wlen:
