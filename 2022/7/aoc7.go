@@ -30,9 +30,8 @@ func tree(input *bufio.Scanner) int {
 
 		switch line[0] {
 		case 'd':
-			// dir (discard)
+			// discard dir
 		case '$':
-			// ls is discarded
 			fields := strings.Fields(line[2:])
 			if fields[0] == "cd" {
 				switch fields[1] {
@@ -44,6 +43,7 @@ func tree(input *bufio.Scanner) int {
 					record(subdir)
 				}
 			}
+			// discard ls
 		default:
 			root += file(line)
 		}
