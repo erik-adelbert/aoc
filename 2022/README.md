@@ -8,8 +8,8 @@
 | 7 | 1.3 |
 | 4 | 1.4 |
 | 8 | 1.7 |
-| 9 | 3.3 |
-| total | 13.4 |
+| 9 | 3.2 |
+| total | 13.3 |
 
 mbair M1/16GB - go1.17.5 darwin/arm64
 
@@ -278,6 +278,6 @@ As trees are *counted* from *distances* and all distances are `chars` (offsetted
 `<EDIT>` I've realised that `dist(o, v)` which counts the viewing distance from `o` needed to also output `h` the highest height. From there I was able to remove the call to `max(v)`. And the program runtime went to ~1.6ms which I'm happy with.  
 
 ## Day 9
-I find this one funny. The challenge teasing adds a lot of complications and by the end of reading it, all the necessary operations are split into many small pieces. I have not find a better way than to follow closely the text: the program is a very straightforward, it turns the challenge at hand into a vector problem.
+I find this one funny. The challenge teasing adds a lot of complications and by the end of reading it, all the necessary operations are split into too many small pieces. I have not find a better way than to follow the text: the program is a very straightforward, it turns the challenge at hand into a vector problem.
 
-The catches are small but fatal: there's no `sign` function _per se_ but a doppleganger that I've called `dir` and yes it can return `0` when either vector component is null `(x|y) == 0`. This simplifies the workflow. The other trick I've used is to compute `dist(A,B)^2` instead of `dist(A,B)` this also eases the flow of control.
+`dir()` returns a unit vector that is used to translate a tail knot toward the head one. This simplifies the workflow. The other trick I've used is to compute `dist(A,B)^2` instead of `dist(A,B)` this also eases the flow of control.

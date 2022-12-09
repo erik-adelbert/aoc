@@ -12,7 +12,7 @@ const (
 )
 
 type (
-	dot struct{} // small marker
+	dot struct{} // smallest marker
 	pos [2]int
 )
 
@@ -60,7 +60,7 @@ func main() {
 		'D': {+0, -1}, 'R': {+1, +0},
 	}
 
-	knots := [16]pos{}
+	knots := [10]pos{}
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
@@ -72,13 +72,14 @@ func main() {
 			// move head
 			knots[0].add(off[θ])
 
-			// vectors scanning
-			for i, vec := range knots[:len(knots)-1] { // vec = head
-				vec.sub(knots[i+1]) // vec = head - tail
+			// vectors/rope scanning
+			for i, vec := range knots[:len(knots)-1] {
+				// vec is k[i] - k[i+1] / head - tail
+				vec.sub(knots[i+1])
 
 				// len(vec)^2 >= 4 => abs(len(vec)) >= 2
 				if vec.len2() >= 4 {
-					// move tail
+					// move tail knot
 					knots[i+1].add(vec.dir())
 				}
 			}
