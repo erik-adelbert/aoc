@@ -70,5 +70,5 @@ func main() {
 		nline++ // input is 300 lines
 	}
 
-	fmt.Println(prios[Part1], prios[Part2])
+	fmt.Println(prios)
 }

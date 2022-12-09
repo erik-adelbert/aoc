@@ -1,13 +1,15 @@
-| day | time (ms) |
+| day | time |
 |-----|-----:|
 | 6 | 0.6 |
 | 3 | 1.2 |
 | 1 | 1.3 |
 | 2 | 1.3 |
-| 4 | 1.3 |
 | 5 | 1.3 |
 | 7 | 1.3 |
-| total | 8.3 |
+| 4 | 1.4 |
+| 8 | 3.1 |
+| 9 | 3.3 |
+| total | 14.8 |
 
 mbair M1/16GB - go1.17.5 darwin/arm64
 
@@ -251,8 +253,9 @@ Finally, some remarks about inputs: we don't care the `dir` or `ls` lines, they 
 
 See? Without them it's even easier to answer today's questions!
 
-Once again my solution runs bounded by `O(n)`: input lines are accessed only once.
-Thanks to the memoization for `part2`, the filesystem tree is never retraversed.
+~~Once again my solution runs bounded by `O(n)`: input lines are accessed only once.~~
+The programs run in `O(n + log d)` with `n` the input lines count and `d` the subdirs
+count. Thanks to the memoization for `part2`, the filesystem tree is never retraversed.
 
 The programs runs in about `1ms` so I will leave it there for now but be warned:
 there's a way to throw out everything except for the subdirs size calculation and
@@ -260,3 +263,16 @@ to get away with it. If I ever was to look for more total speed, I'll be coming 
 for this.
 
 `<EDIT>` I couldn't resist so I simplified the program. If you want to follow my notes, please pull the previous version.
+
+## Day 8
+My solution runs in ~3ms on my mbair M1/16GB but I'm not satisfied. The runtime complexity feels too high.
+
+The program follows the naive approach. To speed things up, it precompute the 4-axis field rotations matrices and scanning the 4-axis views becomes easy: it's a matter of slicing the 
+right matrix at the right place and scanning this slice.
+
+As trees are *counted* from *distances* and all distances are `chars` (offsetted by `'0'`), I really don't care bringing them back into integers: the `'0'` offset is auto-cancelled during computations. *The problem is a `pure` `byte` one*.
+
+I will eventually rework this one to use a `monotonic` `stack` and I'm sure that will bring the complexity down to `n^2` instead of `n^3`. That is cutting the runtime by ~1/3 in this case.
+
+## Day 9
+I find this one funny. The challenge teasing is way too complicated and by the end of reading it, all the necessary operations are split into many small pieces. I have not find a better way than to follow closely the text: the program is very straightforward. The catches are small but fatal: there's no `sign` function _per se_ but a doppleganger that I've called `dir` and yes it can return `0` when `δ(x|y) == 0`. This simplifies the workflow. The other trick I've used is to compute `dist(A,B)^2` instead of `dist(A,B)` this also eases the flow of control.

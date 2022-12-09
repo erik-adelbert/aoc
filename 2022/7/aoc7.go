@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-var subdirs []int // subdir sizes for part2
+var subdirs []int // subdir sizes
 
 // sort insert
 func record(s int) {

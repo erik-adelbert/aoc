@@ -33,5 +33,5 @@ func main() {
 		scores[Part2] += 1 + scale[2-c][r] + 3*c // apply symmetry
 	}
 
-	fmt.Println(scores[Part1], scores[Part2])
+	fmt.Println(scores)
 }
