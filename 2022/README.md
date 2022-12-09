@@ -275,6 +275,7 @@ right matrix at the right place and scanning this slice.
 As trees are *counted* from *distances* and all distances are `chars` (offsetted by `'0'`), I really don't care bringing them back into integers: the `'0'` offset is auto-cancelled during computations. *The problem is a `pure` `byte` one*.
 
 ~~I will eventually rework this one to use a `monotonic` `stack` and I'm sure that will bring the complexity down to `n^2` instead of `n^3`. That is cutting the runtime by ~1/3 in this case.~~
+
 `<EDIT>` I've realised that `dist(o, v)` which counts the viewing distance from `o` needed to also output `h` the highest height. From there I was able to remove the call to `max(v)`. And the program runtime went to ~1.6ms which I'm happy with.  
 
 ## Day 9
