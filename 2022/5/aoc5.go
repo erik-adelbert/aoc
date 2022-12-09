@@ -61,17 +61,17 @@ func main() {
 		},
 	}
 
-	// for top, pop, cut and push:
-	//   p: Part1|Part2,
-	//   s: source stack,
-	//   d: target stack
-
 	rev := func(x []byte) []byte {
 		for i, j := 0, len(x)-1; i < j; i, j = i+1, j-1 {
 			x[i], x[j] = x[j], x[i]
 		}
 		return x
 	}
+
+	// for top, pop, cut and push:
+	//   p: Part1|Part2,
+	//   s: source stack,
+	//   d: target stack
 
 	top := func(p, s int) byte {
 		i := len(STACKS[p][s]) - 1 // stack top index

@@ -12,7 +12,7 @@ const (
 )
 
 type (
-	dot struct{}
+	dot struct{} // small marker
 	pos [2]int
 )
 
@@ -41,6 +41,7 @@ func (a pos) dir() pos {
 	return dir
 }
 
+// square of length
 func (a pos) len2() int {
 	return a[0]*a[0] + a[1]*a[1]
 }
@@ -65,18 +66,20 @@ func main() {
 	for input.Scan() {
 		// input text: ^([U,D,L,R]) (\d)$
 		line := input.Text()
-		θ, n := line[0], atoi(line[2:])
+		θ, n := line[0], atoi(line[2:]) // heading, steps
 
 		for ; n > 0; n-- {
 			// move head
 			knots[0].add(off[θ])
 
-			for i, seg := range knots[:len(knots)-1] { // head
-				seg.sub(knots[i+1]) // head - tail
+			// vectors scanning
+			for i, vec := range knots[:len(knots)-1] { // vec = head
+				vec.sub(knots[i+1]) // vec = head - tail
 
-				if seg.len2() >= 4 {
-					// update tail
-					knots[i+1].add(seg.dir())
+				// len(vec)^2 >= 4 => abs(len(vec)) >= 2
+				if vec.len2() >= 4 {
+					// move tail
+					knots[i+1].add(vec.dir())
 				}
 			}
 

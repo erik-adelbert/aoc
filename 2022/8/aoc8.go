@@ -11,7 +11,7 @@ const (
 	Part2
 )
 
-func mat(h, w int) [][]byte {
+func mkmat(h, w int) [][]byte {
 	r := make([]byte, h*w)
 	m := make([][]byte, h)
 	lo, hi := 0, w
@@ -23,7 +23,7 @@ func mat(h, w int) [][]byte {
 }
 
 func transpose(m [][]byte) [][]byte {
-	t := mat(len(m[0]), len(m))
+	t := mkmat(len(m[0]), len(m))
 	for i := 0; i < len(t); i++ {
 		r := t[i]
 		for j := 0; j < len(r); j++ {
@@ -34,7 +34,7 @@ func transpose(m [][]byte) [][]byte {
 }
 
 func mirror(m [][]byte) [][]byte {
-	t := mat(len(m[0]), len(m))
+	t := mkmat(len(m[0]), len(m))
 	for i := 0; i < len(t); i++ {
 		r := t[i]
 		for j := 0; j < len(r); j++ {
@@ -54,11 +54,9 @@ func main() {
 		M = append(M, []byte(input.Text()))
 	}
 
-	T := transpose(M)
 	MM := mirror(M)
+	T := transpose(M)
 	MT := mirror(T)
-
-	_, _, _, _ = M, T, MM, MT
 
 	views := func(x, y int) [][]byte {
 		U := MT[x][len(MT[0])-y:] // up
@@ -67,34 +65,40 @@ func main() {
 		D := T[x][y+1:]           // down
 
 		return [][]byte{U, L, R, D}
-		// return [][]byte{}
 	}
 
 	// part2
-	dist := func(o byte, axis []byte) int {
-		acc := 0
-		for _, x := range axis {
+	dist := func(o byte, axis []byte) (int, byte) {
+		var (
+			acc int
+			x   byte
+		)
+		for _, x = range axis {
 			acc++
 			if x >= o {
 				break
 			}
 		}
-		return acc
+		return acc, x
 	}
 
 	for y, r := range M {
 		for x, o := range r {
 			count := 1    // part2
 			seen := false // part1
+
 			for _, v := range views(x, y) {
+
+				d, h := dist(o, v)
+
 				// part1
-				if !seen && o > max(v) {
+				if !seen && o > h {
 					counts[Part1]++
 					seen = true
 				}
 
 				// part2
-				count *= dist(o, v)
+				count *= d
 			}
 
 			// part2
@@ -105,14 +109,4 @@ func main() {
 	}
 
 	fmt.Println(counts)
-}
-
-func max(b []byte) byte {
-	var m byte = 0
-	for _, v := range b {
-		if v > m {
-			m = v
-		}
-	}
-	return m
 }
