@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"os"
 	"strings"
@@ -21,7 +22,8 @@ func main() {
 	)
 
 	// part2 decode/display message
-	// synchronous scan display
+	// synchronous scan display to fb
+	var fb bytes.Buffer
 	crt := func() {
 		// sync beamer xpos
 		bmx := clk%40 - 1
@@ -29,9 +31,9 @@ func main() {
 			bmx += 40
 		}
 
-		// wrap beamer
+		// CR/LF beamer
 		if bmx == 0 && clk > 1 {
-			fmt.Println()
+			fb.WriteByte('\n')
 		}
 
 		// beam-on window
@@ -43,9 +45,10 @@ func main() {
 		// beam
 		pix := Black
 		if min <= bmx && bmx <= max {
+			// in range, light on!
 			pix = White
 		}
-		fmt.Printf("%c", pix)
+		fb.WriteByte(byte(pix))
 	}
 
 	input := bufio.NewScanner(os.Stdin)
@@ -86,8 +89,9 @@ func main() {
 		}
 
 	}
-	// part1
-	fmt.Println(sig)
+
+	fmt.Println(sig)         // part1
+	fmt.Println(fb.String()) // part2
 }
 
 // strconv.Atoi simplified core loop
