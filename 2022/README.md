@@ -292,4 +292,12 @@ In this case, I had to be torough writing every single case separately and later
 
 At first, I needed to relate `{20, 60, 100, 140, 180, 220, ...}` form `part1` with a closed formula, I went to [Sloane Sequence Encyclopedia](https://oeis.org) and discovered `f(x) = 40 x − 20`. This is where `20` was hidden. Reversing `f(x)` gave `(cycle+20)%40 == 0` as a starting point.
 
+    10760
+    ���� ���   ��  ���  �  � ����  ��  �  � 
+    �    �  � �  � �  � �  � �    �  � �  � 
+    ���  �  � �    �  � ���� ���  �    ���� 
+    �    ���  � �� ���  �  � �    � �� �  � 
+    �    �    �  � �    �  � �    �  � �  � 
+    �    �     ��� �    �  � �     ��� �  �
+
 I've updated my go toolchain from 1.17 to 1.19: it spared me 1ms. As of today my programs from day1-10 run all parts collectively under 15ms!
