@@ -8,29 +8,42 @@ import (
 )
 
 func main() {
+	// vm
 	X := 1
 	clk, pwr := 0, 0
 
-	y := 0
-	frame := [6][40]bool{}
+	// part2
+	const (
+		Black = ' '
+		// undefined is very bright
+		White = '\uFFFD'
+	)
 
+	// scan display
 	beam := func() {
-		x := clk%40 - 1
-		if x < 0 {
-			x += 40
+		// column
+		c := clk%40 - 1
+		if c < 0 {
+			c += 40
 		}
 
-		if x == 0 && clk > 1 {
-			y++
+		// wrap beam
+		if c == 0 && clk > 1 {
+			fmt.Println()
 		}
 
-		min := X - 1
-		max := 39
-		if X < 39 {
+		// window
+		min, max := X-1, 39
+		if X < max {
 			max = X + 1
 		}
 
-		frame[y][x] = min <= x && x <= max
+		// output
+		x := Black
+		if min <= c && c <= max {
+			x = White
+		}
+		fmt.Printf("%c", x)
 	}
 
 	input := bufio.NewScanner(os.Stdin)
@@ -41,7 +54,7 @@ func main() {
 		beam()
 
 		switch fields[0][0] {
-		case 'a':
+		case 'a': // addx
 			switch (clk + 21) % 40 {
 			default:
 				clk++
@@ -55,7 +68,7 @@ func main() {
 
 			beam()
 			X += atoi(fields[1])
-		case 'n':
+		case 'n': // nop
 			if (clk+20)%40 == 0 {
 				pwr += clk * X
 			}
@@ -65,25 +78,6 @@ func main() {
 
 	// part1
 	fmt.Println(pwr)
-
-	// part2
-	const (
-		Black = ' '
-		// undefined is very bright
-		White = '\uFFFD'
-	)
-
-	// scan display
-	for _, r := range frame {
-		for _, v := range r {
-			x := Black
-			if v {
-				x = White
-			}
-			fmt.Printf("%c", x)
-		}
-		fmt.Println()
-	}
 }
 
 // strconv.Atoi simplified core loop
