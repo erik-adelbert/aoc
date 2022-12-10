@@ -19,9 +19,10 @@ func main() {
 		White = '\uFFFD'
 	)
 
-	// scan display
+	// part2 decode/display message
+	// synchronous scan display
 	crt := func() {
-		// column from clock
+		// sync column from clock
 		c := clk%40 - 1
 		if c < 0 {
 			c += 40
@@ -32,7 +33,7 @@ func main() {
 			fmt.Println()
 		}
 
-		// window
+		// beam-on window
 		min, max := X-1, 39
 		if X < max {
 			max = X + 1
@@ -48,7 +49,7 @@ func main() {
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
-		// split incoming instruction:
+		// fetch and tokenize instruction
 		// fields:  0   1
 		// values: cmd arg
 		inst := strings.Fields(input.Text())
@@ -56,10 +57,10 @@ func main() {
 		clk++ // tick
 		crt() // beam CRT
 
-		// execute, monitor power, beam CRT
+		// decode, monitor power, beam CRT, execute
 		switch inst[0][0] {
 		case 'a': // addx
-			// part1 clock sync
+			// part1 sync power monitoring
 			switch (clk + 21) % 40 {
 			default:
 				clk++
@@ -71,13 +72,16 @@ func main() {
 				pwr += clk * X
 			}
 
-			crt()
+			crt() // beam CRT
+
+			// execute
 			X += atoi(inst[1])
-		case 'n': // noop
-			// part1 clock sync
+		case 'n':
+			// part1 sync power monitoring
 			if (clk+20)%40 == 0 {
 				pwr += clk * X
 			}
+			// noop
 		}
 
 	}
