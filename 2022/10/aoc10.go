@@ -65,15 +65,15 @@ func main() {
 		switch ins[0][0] {
 		case 'a':
 			// part1 sync signal monitoring
-			switch (clk + 21) % 40 {
+			switch clk % 40 {
 			default:
 				clk++
-			case 1:
-				sig += clk * X
-				clk++
-			case 0:
+			case 19:
 				clk++
 				sig += clk * X
+			case 20:
+				sig += clk * X
+				clk++
 			}
 
 			crt() // beam CRT
@@ -82,7 +82,7 @@ func main() {
 			X += atoi(ins[1])
 		case 'n':
 			// part1 sync signal monitoring
-			if (clk+20)%40 == 0 {
+			if clk%40 == 20 {
 				sig += clk * X
 			}
 			// noop
