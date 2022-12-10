@@ -23,14 +23,14 @@ func main() {
 	// part2 decode/display message
 	// synchronous scan display
 	crt := func() {
-		// sync column from clock
-		c := clk%40 - 1
-		if c < 0 {
-			c += 40
+		// sync beamer xpos
+		bmx := clk%40 - 1
+		if bmx < 0 {
+			bmx += 40
 		}
 
 		// wrap beamer
-		if c == 0 && clk > 1 {
+		if bmx == 0 && clk > 1 {
 			fmt.Println()
 		}
 
@@ -41,11 +41,11 @@ func main() {
 		}
 
 		// beam
-		x := Black
-		if min <= c && c <= max {
-			x = White
+		pix := Black
+		if min <= bmx && bmx <= max {
+			pix = White
 		}
-		fmt.Printf("%c", x)
+		fmt.Printf("%c", pix)
 	}
 
 	input := bufio.NewScanner(os.Stdin)
@@ -86,7 +86,6 @@ func main() {
 		}
 
 	}
-
 	// part1
 	fmt.Println(sig)
 }
