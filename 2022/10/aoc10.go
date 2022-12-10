@@ -27,7 +27,7 @@ func main() {
 			c += 40
 		}
 
-		// wrap beam
+		// wrap beamer
 		if c == 0 && clk > 1 {
 			fmt.Println()
 		}
