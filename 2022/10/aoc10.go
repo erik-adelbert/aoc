@@ -12,7 +12,7 @@ func main() {
 	clk, pwr := 0, 0
 
 	y := 0
-	frame := [6][40]byte{}
+	frame := [6][40]bool{}
 
 	beam := func() {
 		x := clk%40 - 1
@@ -30,9 +30,7 @@ func main() {
 			max = X + 1
 		}
 
-		if min <= x && x <= max {
-			frame[y][x] = 1
-		}
+		frame[y][x] = min <= x && x <= max
 	}
 
 	input := bufio.NewScanner(os.Stdin)
@@ -69,11 +67,18 @@ func main() {
 	fmt.Println(pwr)
 
 	// part2
+	const (
+		Black = ' '
+		// undefined is very bright
+		White = '\uFFFD'
+	)
+
+	// scan display
 	for _, r := range frame {
-		for _, c := range r {
-			x := ' '
-			if c > 0 {
-				x = '�'
+		for _, v := range r {
+			x := Black
+			if v {
+				x = White
 			}
 			fmt.Printf("%c", x)
 		}
@@ -82,7 +87,7 @@ func main() {
 }
 
 // strconv.Atoi simplified core loop
-// s is ^(-)?\d+$
+// s is ^-?\d+$
 func atoi(s string) int {
 	sign := 1
 	if s[0] == '-' {

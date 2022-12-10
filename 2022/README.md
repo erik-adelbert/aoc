@@ -17,7 +17,6 @@
 end-to-end timing for part1&2 - mbair M1/16GB - go1.19.4 darwin/arm64
 
 ## Day 1
-
 For this 2022 edition first day, I have written a simple and fast solution:
 The logic is like a fragment of [insertion sort](https://en.wikipedia.org/wiki/Insertion_sort).
 There's not much to say here, once again it's about pure composing speed. 
@@ -235,7 +234,7 @@ As I said, preorder traversal of:
 This part of the challenge is a classical question about the filesystem graph: I've looked for a recursive solution 
 from the start because it's the easiest to develop and fix in this context.
 
-There is not much room from improvement here and `part1` is pretty linear. But `part2` is a tad more interesting to design, the program has to memorize `subdir` sizes and fast scan them afterward. The trick here is to keep their array sorted as we build it as it will speed up search when scanning them later on. Fortunately, there's a single usefull tool to help us for both building and scanning a sorted array: it's [binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm). This algorithm is so handy that it lives in many standard libraries. Here, in `Go`, it is available as [`sort.SearchInts`](https://pkg.go.dev/sort#SearchInts).
+There is not much room from improvement here and `part1` is pretty linear. But `part2` is a tad more interesting to design, the program has to memorize `subdir` sizes and fast scan them afterward. The trick here is to keep their array sorted as we build it as it will speed up search when scanning them later on. Fortunately, there's a single useful tool to help us for both building and scanning a sorted array: it's [binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm). This algorithm is so handy that it lives in many standard libraries. Here, in `Go`, it is available as [`sort.SearchInts`](https://pkg.go.dev/sort#SearchInts).
 
 Finally, some remarks about inputs: we don't care the `dir` or `ls` lines, they are noise here:
 
