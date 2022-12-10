@@ -8,9 +8,10 @@ import (
 )
 
 func main() {
-	// machine register X, clock and signal power:
+	// machine initial state
+	// register X, clock and signal strength
 	X := 1
-	clk, pwr := 0, 0
+	clk, sig := 0, 0
 
 	// part2
 	const (
@@ -59,27 +60,27 @@ func main() {
 
 		// decode, monitor power, beam CRT, execute
 		switch ins[0][0] {
-		case 'a': // addx
-			// part1 sync power monitoring
+		case 'a':
+			// part1 sync signal monitoring
 			switch (clk + 21) % 40 {
 			default:
 				clk++
 			case 1:
-				pwr += clk * X
+				sig += clk * X
 				clk++
 			case 0:
 				clk++
-				pwr += clk * X
+				sig += clk * X
 			}
 
 			crt() // beam CRT
 
-			// execute
+			// addx
 			X += atoi(ins[1])
 		case 'n':
-			// part1 sync power monitoring
+			// part1 sync signal monitoring
 			if (clk+20)%40 == 0 {
-				pwr += clk * X
+				sig += clk * X
 			}
 			// noop
 		}
@@ -87,19 +88,19 @@ func main() {
 	}
 
 	// part1
-	fmt.Println(pwr)
+	fmt.Println(sig)
 }
 
 // strconv.Atoi simplified core loop
 // s is ^-?\d+$
 func atoi(s string) int {
-	sig := 1
+	neg := 1
 	if s[0] == '-' {
-		sig, s = -1, s[1:]
+		neg, s = -1, s[1:]
 	}
 	var n int
 	for _, c := range s {
 		n = 10*n + int(c-'0')
 	}
-	return sig * n
+	return neg * n
 }
