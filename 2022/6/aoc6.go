@@ -16,21 +16,21 @@ func main() {
 	for input.Scan() {
 		first := true
 
-		line := input.Text()
+		line := input.Bytes()
 		// slide over input:
-		for i := range line {
+		for i, c := range line {
 			//   outside current window?
 			//   extend window!
 			// or
 			//   repeating inside?
 			//   shrink window!
 			switch {
-			case i-seen[line[i]] > wlen:
+			case i-seen[c] > wlen:
 				wlen++ // extend right
-			case i-seen[line[i]] < wlen:
-				wlen = i - seen[line[i]] // shrink left
+			case i-seen[c] < wlen:
+				wlen = i - seen[c] // shrink left
 			}
-			seen[line[i]] = i
+			seen[c] = i
 
 			// display and loop (part1) or terminate (part2)
 			switch {

@@ -58,13 +58,13 @@ func main() {
 	T := transpose(M)
 	MT := mirror(T)
 
-	views := func(x, y int) [][]byte {
+	views := func(x, y int) [4][]byte {
 		U := MT[x][len(MT[0])-y:] // up
 		L := MM[y][len(MM[0])-x:] // left
 		R := M[y][x+1:]           // right
 		D := T[x][y+1:]           // down
 
-		return [][]byte{U, L, R, D}
+		return [4][]byte{U, L, R, D}
 	}
 
 	// part2
@@ -90,6 +90,7 @@ func main() {
 			for _, v := range views(x, y) {
 
 				d, h := dist(o, v)
+				// fmt.Println(d, h, o, v)
 
 				// part1
 				if !seen && o > h {

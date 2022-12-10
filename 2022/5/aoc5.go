@@ -5,15 +5,14 @@ import (
 	"bytes"
 	"fmt"
 	"os"
-	"strings"
 )
 
 func main() {
 	// strconv.Atoi simplified core loop
 	// s is ^\d+$
-	atoi := func(s string) int {
+	atoi := func(s []byte) int {
 		n := 0
-		for _, c := range []byte(s) {
+		for _, c := range s {
 			n = 10*n + int(c-'0')
 		}
 		return n
@@ -93,7 +92,7 @@ func main() {
 		STACKS[p][d] = append(STACKS[p][d], x...)
 	}
 
-	move := func(nel, src, dst string) {
+	move := func(nel, src, dst []byte) {
 		n, s, d := atoi(nel), atoi(src), atoi(dst)
 
 		push(Part1, d, pop(Part1, s, n))
@@ -104,7 +103,7 @@ func main() {
 	for input.Scan() {
 		// input text: ^move (\d+) from (\d+) to (\d+)$
 		// args:          0    1     2    3    4   5
-		args := strings.Fields(input.Text())
+		args := bytes.Fields(input.Bytes())
 		move(args[1], args[3], args[5])
 	}
 

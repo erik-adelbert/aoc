@@ -24,7 +24,7 @@ func main() {
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
-		line := input.Text()
+		line := input.Bytes()
 
 		r := int(line[0] - 'A') // opponent move
 		c := int(line[2] - 'X') // our move or goal
@@ -33,5 +33,5 @@ func main() {
 		scores[Part2] += 1 + scale[2-c][r] + 3*c // apply symmetry
 	}
 
-	fmt.Println(scores)
+	fmt.Println(scores[:2])
 }

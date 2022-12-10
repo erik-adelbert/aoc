@@ -2,17 +2,17 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"os"
-	"strings"
 )
 
 func main() {
 	// strconv.Atoi simplified core loop
 	// s is trusted to be ^\d+$
-	atoi := func(s string) int {
+	atoi := func(s []byte) int {
 		n := 0
-		for _, c := range []byte(s) {
+		for _, c := range s {
 			n = 10*n + int(c-'0')
 		}
 		return n
@@ -30,9 +30,8 @@ func main() {
 		// input text: ^(\d+)-(\d+),(\d+)-(\d+)$
 		// fields:        0     1     2     3
 		// varname:       l1    r1    l2    r2
-
-		fields := strings.FieldsFunc(
-			input.Text(),
+		fields := bytes.FieldsFunc(
+			input.Bytes(),
 			func(r rune) bool {
 				return r == '-' || r == ','
 			},

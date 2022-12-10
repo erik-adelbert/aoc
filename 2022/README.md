@@ -1,17 +1,20 @@
+## Timings
+
 | day | time |
 |-----|-----:|
-| 6 | 0.6 |
-| 3 | 1.2 |
-| 1 | 1.3 |
-| 2 | 1.3 |
-| 5 | 1.3 |
-| 7 | 1.3 |
-| 4 | 1.4 |
-| 8 | 1.7 |
+| 1 | 1.1 |
+| 2 | 1.1 |
+| 3 | 1.1 |
+| 5 | 1.2 |
+| 6 | 1.2 |
+| 7 | 1.2 |
+| 10 | 1.2 |
+| 4 | 1.3 |
+| 8 | 1.6 |
 | 9 | 3.2 |
-| total | 13.3 |
+| total | 14.2 |
 
-mbair M1/16GB - go1.17.5 darwin/arm64
+end-to-end timing for part1&2 - mbair M1/16GB - go1.19.4 darwin/arm64
 
 ## Day 1
 
@@ -114,8 +117,8 @@ faster score computation!
 Today my solution closely follows the challenge story and it's pretty boring 
 but fast. First, the program splits any input line in two halves and maps 
 each of them, in turn, with either `Head` or `Tail`, *two strictly positive
-values*, in a *single map*. This amounts to build a set from the input while
-intersecting its head and tail.
+values*, in a *single map*. This amounts to build a set from the input line
+while intersecting its head and tail.
 
 ex: 
 
@@ -279,6 +282,14 @@ As trees are *counted* from *distances* and all distances are `chars` (offsetted
 `<EDIT>` I've realised that `dist(o, v)` which counts the viewing distance from `o` needed to also output `h` the highest height. From there I was able to remove the call to `max(v)`. And the program runtime went to ~1.6ms which I'm happy with.  
 
 ## Day 9
-I find this one funny. The challenge teasing adds a lot of complications and by the end of reading it, all the necessary operations are split into too many small pieces. I have not find a better way than to follow the text: the program is a very straightforward, it turns the challenge at hand into a vector problem.
+I find this one funny. The challenge teasing adds a lot of complications and by the end of reading it, all the necessary operations are split into too many small pieces. I have not find a better way than to follow the text: the program is very straightforward, it turns the challenge at hand into a vector problem.
 
-`dir()` returns a unit vector that is used to translate a tail knot toward the head one. This simplifies the workflow. The other trick I've used is to compute `dist(A,B)^2` instead of `dist(A,B)` this also eases the flow of control.
+`dir()` returns a translation vector that is used to move a tail knot closer to its head one. This simplifies the workflow. The other trick I've used is to compute `dist(A,B)^2` instead of `dist(A,B)` this also eases the flow of control.
+
+## Day 10
+Today's challenge reminds me of [last year day13](https://github.com/erik-adelbert/aoc/blob/2022/2021/13/aoc13.go), I have *carefully* implemented the description: offsets are everywhere and magic numbers such as `20`, `21`, `39`, `40` keep popping from seemingly nowhere.
+In this case, I had to be torough writing every single case separately and later on I went on simplifying the code. As you can easily guess, there's a `+1` offset on `20` and a `-1` on `40`. `40` is obviously known from the challenge but `20` is interesting:
+
+At first, I needed to relate `{20, 60, 100, 140, 180, 220, ...}` form `part1` with a closed formula, I went to [Sloane Sequence Encyclopedia](https://oeis.org) and discovered `f(x) = 40 x − 20`. This is where `20` was hidden. Reversing `f(x)` gave `(cycle+20)%40 == 0` as a starting point.
+
+I've updated my go toolchain from 1.17 to 1.19: it spared me 1ms. As of today my programs from day1-10 run all parts collectively under 15ms!

@@ -29,7 +29,7 @@ func (a *pos) sub(b pos) {
 func (a pos) dir() pos {
 	dir := pos{0, 0}
 
-	for i := 0; i < 2; i++ {
+	for i := 0; i < len(dir); i++ {
 		switch {
 		case a[i] < 0:
 			dir[i] = -1
@@ -72,9 +72,9 @@ func main() {
 			// move head
 			knots[0].add(off[θ])
 
-			// vectors/rope scanning
+			// scan rope vectors/knots
 			for i, vec := range knots[:len(knots)-1] {
-				// vec is k[i] - k[i+1] / head - tail
+				// vec is k[i] - k[i+1] ie. head - tail
 				vec.sub(knots[i+1])
 
 				// len(vec)^2 >= 4 => abs(len(vec)) >= 2
@@ -96,7 +96,7 @@ func main() {
 // s is ^\d+$
 func atoi(s string) int {
 	var n int
-	for _, c := range []byte(s) {
+	for _, c := range s {
 		n = 10*n + int(c-'0')
 	}
 	return n
