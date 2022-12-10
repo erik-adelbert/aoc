@@ -52,13 +52,13 @@ func main() {
 		// fetch and tokenize instruction
 		// fields:  0   1
 		// values: cmd arg
-		inst := strings.Fields(input.Text())
+		ins := strings.Fields(input.Text())
 
 		clk++ // tick
 		crt() // beam CRT
 
 		// decode, monitor power, beam CRT, execute
-		switch inst[0][0] {
+		switch ins[0][0] {
 		case 'a': // addx
 			// part1 sync power monitoring
 			switch (clk + 21) % 40 {
@@ -75,7 +75,7 @@ func main() {
 			crt() // beam CRT
 
 			// execute
-			X += atoi(inst[1])
+			X += atoi(ins[1])
 		case 'n':
 			// part1 sync power monitoring
 			if (clk+20)%40 == 0 {
@@ -93,13 +93,13 @@ func main() {
 // strconv.Atoi simplified core loop
 // s is ^-?\d+$
 func atoi(s string) int {
-	sign := 1
+	sig := 1
 	if s[0] == '-' {
-		sign, s = -1, s[1:]
+		sig, s = -1, s[1:]
 	}
 	var n int
 	for _, c := range s {
 		n = 10*n + int(c-'0')
 	}
-	return sign * n
+	return sig * n
 }
