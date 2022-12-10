@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	// vm
+	// machine register X, clock and signal power:
 	X := 1
 	clk, pwr := 0, 0
 
@@ -20,8 +20,8 @@ func main() {
 	)
 
 	// scan display
-	beam := func() {
-		// column
+	crt := func() {
+		// column from clock
 		c := clk%40 - 1
 		if c < 0 {
 			c += 40
@@ -38,7 +38,7 @@ func main() {
 			max = X + 1
 		}
 
-		// output
+		// beam
 		x := Black
 		if min <= c && c <= max {
 			x = White
@@ -48,13 +48,18 @@ func main() {
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
-		fields := strings.Fields(input.Text())
+		// split incoming instruction:
+		// fields:  0   1
+		// values: cmd arg
+		inst := strings.Fields(input.Text())
 
-		clk++
-		beam()
+		clk++ // tick
+		crt() // beam CRT
 
-		switch fields[0][0] {
+		// execute, monitor power, beam CRT
+		switch inst[0][0] {
 		case 'a': // addx
+			// part1 clock sync
 			switch (clk + 21) % 40 {
 			default:
 				clk++
@@ -66,9 +71,10 @@ func main() {
 				pwr += clk * X
 			}
 
-			beam()
-			X += atoi(fields[1])
-		case 'n': // nop
+			crt()
+			X += atoi(inst[1])
+		case 'n': // noop
+			// part1 clock sync
 			if (clk+20)%40 == 0 {
 				pwr += clk * X
 			}
