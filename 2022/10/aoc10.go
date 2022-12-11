@@ -46,7 +46,7 @@ func main() {
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
-		// fetch and tokenize instruction
+		// fetch instruction
 		ins := input.Text()
 
 		clk++ // tick
