@@ -12,7 +12,8 @@
 | 4 | 1.3 |
 | 8 | 1.6 |
 | 9 | 3.2 |
-| total | 14.1 |
+| 11 | 5.9 |
+| total | 20.0 |
 
 end-to-end timing for part1&2 - mbair M1/16GB - go1.19.4 darwin/arm64
 
@@ -318,3 +319,8 @@ in a way invisible to `updates` *and* `data routing`. Updates are not subject
 to number cutting side-effects: they are a dumb single arithmetic operation.
 Routing is done modular-wise, the number that is invisible to all routing tests
 done in the network is the *least common multiple* of all modulos! 
+
+| Command | Mean [ms] | Min [ms] | Max [ms] | Relative |
+|:---|---:|---:|---:|---:|
+| `cat input.txt` | 0.6 ± 0.2 | 0.2 | 2.1 | 1.00 |
+| `cat input.txt \| ./aoc11` | 6.5 ± 0.3 | 6.0 | 13.0 | 10.52 ± 3.45 |
