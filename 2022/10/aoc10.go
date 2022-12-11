@@ -30,8 +30,8 @@ func main() {
 			bmx += 40
 		}
 
-		// CR/LF beamer
-		if bmx == 0 && clk > 1 {
+		// CR/LF beamer, slightly incorrect but ok
+		if bmx == 0 {
 			fb.WriteByte('\n')
 		}
 
@@ -81,7 +81,7 @@ func main() {
 
 	}
 
-	fmt.Println(sig)         // part1
+	fmt.Print(sig)           // part1
 	fmt.Println(fb.String()) // part2
 }
 
