@@ -7,12 +7,12 @@ import (
 	"strings"
 )
 
-type arith struct {
+type arit struct {
 	op   byte
 	args [2]int
 }
 
-func (a arith) eval(f func(int) int, x int) int {
+func (a arit) eval(f func(int) int, x int) int {
 	// when a.arg[1] < 0 binds to x
 	args := [2]int{x, x}
 	if a.args[1] >= 0 {
@@ -22,31 +22,23 @@ func (a arith) eval(f func(int) int, x int) int {
 	r := 0
 	switch a.op {
 	case '+':
-		r = (args[0] + args[1])
+		r = args[0] + args[1]
 	case '-':
-		r = (args[0] - args[1])
+		r = args[0] - args[1]
 	case '*':
-		r = (args[0] * args[1])
-	default:
-		panic("unreachable")
+		r = args[0] * args[1]
 	}
 
 	return f(r)
 }
 
 type state struct {
-	cmd arith
+	cmd arit
 	mod int
 
 	count int
 	links [2]int
 	items []int
-}
-
-func (s *state) clone() state {
-	n := *s
-	copy(n.items, s.items)
-	return n
 }
 
 func (s *state) load(input *bufio.Scanner) int {
@@ -58,6 +50,7 @@ func (s *state) load(input *bufio.Scanner) int {
 
 		switch line[0] {
 		case 'M':
+			// discard name
 		case 'S':
 			items := strings.Split(line[16:], ", ")
 			for _, v := range items {
@@ -115,8 +108,6 @@ func main() {
 	part1 := func(n int) int { return n / 3 }
 	part2 := func(n int) int { return n % m }
 
-	_, _ = part1, part2
-
 	max := [2]int{0, 0}
 
 	max2 := func(n int) {
@@ -128,11 +119,32 @@ func main() {
 		}
 	}
 
-	states2 := states
-	for i, s := range states {
-		states2[i] = s.clone()
+	backup := states
+	for i := range states {
+		backup[i].items = make([]int, len(states[i].items))
+		copy(backup[i].items, states[i].items)
 	}
-	fmt.Println(states)
+
+	for i := 0; i < 20; i++ {
+		for j := range states {
+			states[j].update(part1)
+		}
+	}
+
+	for i := range states {
+		max2(states[i].count)
+	}
+
+	// part 1
+	fmt.Println(max[0] * max[1])
+
+	max[0], max[1] = 0, 0
+
+	for i := range states {
+		states[i] = backup[i]
+		states[i].items = make([]int, len(backup[i].items))
+		copy(states[i].items, backup[i].items)
+	}
 
 	for i := 0; i < 10_000; i++ {
 		for j := range states {
@@ -140,14 +152,12 @@ func main() {
 		}
 	}
 
-	for j := range states {
-		max2(states[j].count)
+	for i := range states {
+		max2(states[i].count)
 	}
 
+	// part2
 	fmt.Println(max[0] * max[1])
-
-	// fmt.Println(states)
-	fmt.Println(states2)
 }
 
 func abs(n int) int {
@@ -167,43 +177,12 @@ func atoi(s string) int {
 	return n
 }
 
-// gcd binary algorithm, derived from
-// https://en.wikipedia.org/wiki/Binary_GCD_algorithm#Iterative_version_in_C
-func gcd(u, v int) int {
-	var shift uint
-
-	if u == 0 {
-		return v
-	}
-	if v == 0 {
-		return u
+func gcd(a, b int) int {
+	for b != 0 {
+		a, b = b, a%b
 	}
 
-	for shift = 0; ((u | v) & 1) == 0; shift++ {
-		u >>= 1
-		v >>= 1
-	}
-
-	for (u & 1) == 0 {
-		u >>= 1
-	}
-
-	for {
-		for (v & 1) == 0 {
-			v >>= 1
-		}
-
-		if u > v {
-			v, u = u, v
-		}
-		v = v - u
-
-		if v == 0 {
-			break
-		}
-	}
-
-	return u << shift
+	return a
 }
 
 func lcm(a, b int) int {
