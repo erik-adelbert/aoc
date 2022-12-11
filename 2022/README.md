@@ -300,3 +300,21 @@ At first, I needed to relate `{20, 60, 100, 140, 180, 220, ...}` form `part1` wi
     �    �     ��� �    �  � �     ��� �  �
 
 I've updated my go toolchain from 1.17 to 1.19: it spared me 1ms. As of today my programs from day1-10 run all parts collectively under 15ms!
+
+## Day 11
+AoC 2022 is on! Today challenge describes an interesting dispatching or routing mechanism based on [modular arithmetic](https://en.wikipedia.org/wiki/Modular_arithmetic).
+
+My solution is a straightforward implementation of the described design. 
+*Monkeys* are modelised as parameterized states capable to self-update.
+One of these parameters is an update function description: there's an embed minimal interpret that parse, tokenize and finally evaluates to an integer.
+
+This works great for `part1` but coding put me in a state of mind and when
+`part2` came I was caught off guard. First, I thought, well `math/big` could 
+do the trick... well not really feasible given the `10_000` loop.
+
+And suddenly, I realised that it was about *modular arithmetic*: to keep
+the numbers checked while preserving speed, I needed a way to reduce the number
+in a way invisible to `updates` *and* `data routing`. Updates are not subject
+to number cutting side-effects: they are a dumb single arithmetic operation.
+Routing is done modular-wise, the number that is invisible to all routing tests
+done in the network is the *least common multiple* of all modulos! 
