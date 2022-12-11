@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"fmt"
 	"os"
-	"strings"
 )
 
 func main() {
@@ -36,15 +35,9 @@ func main() {
 			fb.WriteByte('\n')
 		}
 
-		// beam-on window
-		min, max := X-1, 39
-		if X < max {
-			max = X + 1
-		}
-
 		// beam
 		pix := Black
-		if min <= bmx && bmx <= max {
+		if abs(X-bmx) <= 1 {
 			// in range, light on!
 			pix = White
 		}
@@ -54,15 +47,13 @@ func main() {
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
 		// fetch and tokenize instruction
-		// fields:  0   1
-		// values: cmd arg
-		ins := strings.Fields(input.Text())
+		ins := input.Text()
 
 		clk++ // tick
 		crt() // beam CRT
 
 		// decode, monitor power, beam CRT, execute
-		switch ins[0][0] {
+		switch ins[0] {
 		case 'a':
 			// part1 sync signal monitoring
 			switch clk % 40 {
@@ -79,7 +70,7 @@ func main() {
 			crt() // beam CRT
 
 			// addx
-			X += atoi(ins[1])
+			X += atoi(ins[5:])
 		case 'n':
 			// part1 sync signal monitoring
 			if clk%40 == 20 {
@@ -92,6 +83,13 @@ func main() {
 
 	fmt.Println(sig)         // part1
 	fmt.Println(fb.String()) // part2
+}
+
+func abs(n int) int {
+	if n < 0 {
+		return -n
+	}
+	return n
 }
 
 // strconv.Atoi simplified core loop
