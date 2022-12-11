@@ -309,16 +309,17 @@ My solution is a straightforward implementation of the described design.
 *Monkeys* are modelised as parameterized states capable to self-update.
 One of these parameters is an update function description: there's an embed minimal interpret that parse, tokenize and finally evaluates to an integer.
 
-This works great for `part1` but coding put me in a state of mind and when
-`part2` came I was caught off guard. First, I thought, well `math/big` could 
+This works great for `part1` but coding it put me in a slow state of mind.
+`part2` caught me off guard. First, I thought, well `math/big` could 
 do the trick... well not really feasible given the `10_000` loop.
 
-And suddenly, I realised that it was about *modular arithmetic*: to keep
-the numbers checked while preserving speed, I needed a way to reduce the number
-in a way invisible to `updates` *and* `data routing`. Updates are not subject
-to number cutting side-effects: they are a dumb single arithmetic operation.
-Routing is done modular-wise, the number that is invisible to all routing tests
-done in the network is the *least common multiple* of all modulos! 
+After a while, and a lot of circular thinking, I realised that it was about 
+*modular arithmetic*: to keep the numbers checked while preserving speed, 
+I needed a way to reduce the number in a way invisible to `updates` *and* 
+`data routing`. Updates are not subject to number cutting side-effects: they 
+are a dumb single arithmetic operation. Routing is done modular-wise, the number 
+that is invisible to all routing tests done in the network is the *least common 
+multiple* of all modulos! 
 
 | Command | Mean [ms] | Min [ms] | Max [ms] | Relative |
 |:---|---:|---:|---:|---:|
