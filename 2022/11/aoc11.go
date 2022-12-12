@@ -34,7 +34,7 @@ func main() {
 
 	// run simulations
 	for _, p := range parts {
-		fmt.Println(p.update())
+		fmt.Println(p.solve())
 	}
 }
 
@@ -44,7 +44,7 @@ type part struct {
 	lim int
 }
 
-func (p part) update() int {
+func (p part) solve() int {
 	ctx := p.ctx
 	for i := 0; i < p.lim; i++ {
 		for j := range ctx {

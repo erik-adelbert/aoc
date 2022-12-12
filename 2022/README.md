@@ -12,8 +12,9 @@
 | 4 | 1.3 |
 | 8 | 1.6 |
 | 9 | 3.2 |
-| 11 | 5.9 |
-| total | 20.0 |
+| 11 | 6.0 |
+| 12 | 58.0 |
+| total | 78.1 |
 
 end-to-end timing for part1&2 - mbair M1/16GB - go1.19.4 darwin/arm64
 
@@ -325,3 +326,15 @@ multiple* of all modulos!
 |:---|---:|---:|---:|---:|
 | `cat input.txt` | 0.6 ± 0.2 | 0.2 | 2.1 | 1.00 |
 | `cat input.txt \| ./aoc11` | 6.5 ± 0.3 | 6.0 | 13.0 | 10.52 ± 3.45 |
+
+PS. ahah, program runtimes have been doubling for the last 3 days, `dijkstra` 
+is probably coming on day 16! 
+
+## Day 12
+See? This is day 16 already! My last year [`day` `15`](https://github.com/erik-adelbert/aoc/blob/2022/2021/15/aoc15.go) comment still stands: you can't say must when using [`dijkstra`]((https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm)).
+
+The design encloses dijkstra in a loop to set the starting points. This allows the same code to solve `part1` given a singleton and `part2` a list of starting points. 
+
+<div style="text-align:center">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/2/23/Dijkstras_progress_animation.gif" />
+</div>
