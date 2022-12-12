@@ -7,29 +7,79 @@ import (
 	"strings"
 )
 
-type arit struct {
-	op   byte
-	args [2]int
+func main() {
+	ctx1 := new(context)
+
+	// load inputs, compute running lcm
+	m, n := 1, 0
+	input := bufio.NewScanner(os.Stdin)
+	for input.Scan() {
+		m = lcm(m, ctx1[n].load(input))
+		n++
+	}
+
+	// parameterized part 1 & 2
+	parts := []part{
+		{
+			ctx1,
+			func(n int) int { return n / 3 },
+			20,
+		},
+		{
+			ctx1.clone(),
+			func(n int) int { return n % m }, // capture m
+			10_000,
+		},
+	}
+
+	// run simulations
+	for _, p := range parts {
+		fmt.Println(p.update())
+	}
 }
 
-func (a arit) eval(f func(int) int, x int) int {
-	// when a.arg[1] < 0 binds to x
-	args := [2]int{x, x}
-	if a.args[1] >= 0 {
-		args[1] = a.args[1]
+type part struct {
+	ctx *context
+	fun func(n int) int
+	lim int
+}
+
+func (p part) update() int {
+	ctx := p.ctx
+	for i := 0; i < p.lim; i++ {
+		for j := range ctx {
+			// single state part update
+			ctx[j].update(p)
+		}
 	}
 
-	r := 0
-	switch a.op {
-	case '+':
-		r = args[0] + args[1]
-	case '-':
-		r = args[0] - args[1]
-	case '*':
-		r = args[0] * args[1]
+	max := [2]int{0, 0}
+
+	// maintain 2 highest
+	max2 := func(n int) {
+		switch {
+		case n >= max[0]:
+			max[1], max[0] = max[0], n
+		case n >= max[1]:
+			max[1] = n
+		}
 	}
 
-	return f(r)
+	for i := range ctx {
+		max2(ctx[i].count)
+	}
+	return max[0] * max[1]
+}
+
+type context [8]state
+
+func (c context) clone() *context {
+	new := c
+	for i := range c {
+		new[i].items = make([]int, len(c[i].items))
+		copy(new[i].items, c[i].items)
+	}
+	return &new
 }
 
 type state struct {
@@ -80,7 +130,8 @@ func (s *state) load(input *bufio.Scanner) int {
 	return s.mod
 }
 
-func (s *state) update(f func(int) int) {
+func (s *state) update(p part) {
+	ctx, f := p.ctx, p.fun
 	op, m := s.cmd, s.mod
 
 	for _, x := range s.items {
@@ -89,75 +140,36 @@ func (s *state) update(f func(int) int) {
 		if r%m > 0 {
 			nxt = s.links[1]
 		}
-		states[nxt].items = append(states[nxt].items, r)
+		ctx[nxt].items = append(ctx[nxt].items, r)
 	}
 	s.count += len(s.items)
 	s.items = s.items[:0]
 }
 
-var states [8]state
+type arit struct {
+	op   byte
+	args [2]int
+}
 
-func main() {
-	m, n := 1, 0
-	input := bufio.NewScanner(os.Stdin)
-	for input.Scan() {
-		m = lcm(m, states[n].load(input))
-		n++
+func (a arit) eval(f func(int) int, n int) int {
+	// local args[1] defaults to n...
+	args := [2]int{n, n}
+	//... unless defined
+	if a.args[1] >= 0 {
+		args[1] = a.args[1]
 	}
 
-	part1 := func(n int) int { return n / 3 }
-	part2 := func(n int) int { return n % m }
-
-	max := [2]int{0, 0}
-
-	max2 := func(n int) {
-		switch {
-		case n >= max[0]:
-			max[1], max[0] = max[0], n
-		case n >= max[1]:
-			max[1] = n
-		}
+	x := 0
+	switch a.op {
+	case '+':
+		x = args[0] + args[1]
+	case '-':
+		x = args[0] - args[1]
+	case '*':
+		x = args[0] * args[1]
 	}
 
-	backup := states
-	for i := range states {
-		backup[i].items = make([]int, len(states[i].items))
-		copy(backup[i].items, states[i].items)
-	}
-
-	for i := 0; i < 20; i++ {
-		for j := range states {
-			states[j].update(part1)
-		}
-	}
-
-	for i := range states {
-		max2(states[i].count)
-	}
-
-	// part 1
-	fmt.Println(max[0] * max[1])
-
-	max[0], max[1] = 0, 0
-
-	for i := range states {
-		states[i] = backup[i]
-		states[i].items = make([]int, len(backup[i].items))
-		copy(states[i].items, backup[i].items)
-	}
-
-	for i := 0; i < 10_000; i++ {
-		for j := range states {
-			states[j].update(part2)
-		}
-	}
-
-	for i := range states {
-		max2(states[i].count)
-	}
-
-	// part2
-	fmt.Println(max[0] * max[1])
+	return f(x)
 }
 
 func abs(n int) int {
@@ -181,7 +193,6 @@ func gcd(a, b int) int {
 	for b != 0 {
 		a, b = b, a%b
 	}
-
 	return a
 }
 
