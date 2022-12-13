@@ -11,13 +11,13 @@ import (
 // types and interface used with hp
 type cell struct {
 	y, x int
-	h    int
+	d    int
 }
 
 type heap []*cell
 
 func (h heap) Len() int           { return len(h) }
-func (h heap) Less(i, j int) bool { return h[i].h < h[j].h }
+func (h heap) Less(i, j int) bool { return h[i].d < h[j].d }
 func (h heap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
 
 func (h *heap) Push(x any) {
@@ -63,72 +63,70 @@ func (g grid) String() string {
 	return sb.String()
 }
 
-// solve computes the shortest distance between s and e,
-// two cells of the grid. It uses a shortest-path tree
+// solve computes the shortest distance between e and all
+// the cells of the grid. It uses a shortest-path tree
 // built by a canonical Dijkstra.
-func (g *grid) shortest(start []*cell, end *cell) int {
+func (g *grid) shortest(start []*cell, end *cell) (int, int) {
 	const MaxInt = int(^uint(0) >> 1)
 
-	paths := []int{}
+	// paths := []int{}
 
 	dist := make([][]int, g.h)
 	for j := range dist {
 		dist[j] = make([]int, g.w)
+		for i := range dist[j] {
+			dist[j][i] = MaxInt
+		}
 	}
 
 	heap := make(heap, 0, 1024)
 
-	for _, s := range start {
+	δy := []int{+0, 1, 0, -1}
+	δx := []int{-1, 0, 1, +0}
 
-		for j := range dist {
-			for i := range dist[j] {
-				dist[j][i] = MaxInt
+	heap = heap[:0]
+	hp.Init(&heap)
+
+	// push end as single source
+	hp.Push(&heap, end)
+	dist[end.y][end.x] = 0
+
+	// dijkstra
+	for heap.Len() > 0 {
+		a := hp.Pop(&heap).(*cell)
+		dist[a.y][a.x] = a.d
+
+		for i := range δy {
+			b := cell{y: a.y + δy[i], x: a.x + δx[i]}
+
+			outside := func() bool {
+				return !(b.y >= 0 && b.y < g.h && b.x >= 0 && b.x < g.w)
+			}
+
+			// constraint from day12
+			low := func() bool {
+				return g.get(a.y, a.x)-g.get(b.y, b.x) > 1
+			}
+
+			switch {
+			case outside() || low():
+				// discard
+				continue
+			case dist[b.y][b.x] > dist[a.y][a.x]+1:
+				dist[b.y][b.x] = dist[a.y][a.x] + 1
+				hp.Push(&heap, &cell{b.y, b.x, dist[b.y][b.x]})
 			}
 		}
-
-		δy := []int{+0, 1, 0, -1}
-		δx := []int{-1, 0, 1, +0}
-
-		heap = heap[:0]
-		hp.Init(&heap)
-
-		// push start
-		hp.Push(&heap, s)
-		dist[s.y][s.x] = 0
-
-		for heap.Len() > 0 {
-			v := hp.Pop(&heap).(*cell)
-			dist[v.y][v.x] = v.h
-
-			if v.y == end.y && v.x == end.x {
-				break
-			}
-
-			for i := range δy {
-				u := cell{y: v.y + δy[i], x: v.x + δx[i]}
-
-				outside := func() bool {
-					return !(u.y >= 0 && u.y < g.h && u.x >= 0 && u.x < g.w)
-				}
-
-				high := func() bool {
-					return g.get(u.y, u.x)-g.get(v.y, v.x) > 1
-				}
-
-				switch {
-				// discard out of bounds & too high
-				case outside() || high():
-					continue
-				case dist[u.y][u.x] > dist[v.y][v.x]+1:
-					dist[u.y][u.x] = dist[v.y][v.x] + 1
-					hp.Push(&heap, &cell{u.y, u.x, dist[u.y][u.x]})
-				}
-			}
-		}
-		paths = append(paths, dist[end.y][end.x]-dist[s.y][s.x])
 	}
 
-	return min(paths)
+	min := start[0]
+	for _, s := range start[1:] {
+		if dist[s.y][s.x] < dist[min.y][min.x] {
+			min = s
+		}
+	}
+
+	return dist[start[0].y][start[0].x], dist[min.y][min.x]
 }
 
 func main() {
@@ -151,7 +149,7 @@ func main() {
 				all = append(all, &cell{h, i, 0})
 			case 'E':
 				area.d[h][i] = int('z')
-				end = &cell{h, i, int('z')}
+				end = &cell{h, i, 0}
 			}
 		}
 		w = len(line)
@@ -159,8 +157,9 @@ func main() {
 	}
 	area.redim(h, w)
 
-	fmt.Println(area.shortest(one, end)) // part1
-	fmt.Println(area.shortest(all, end)) // part2
+	all = append(one, all...)
+
+	fmt.Println(area.shortest(all, end)) // part 1&2
 }
 
 func min(A []int) int {

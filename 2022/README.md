@@ -10,11 +10,11 @@
 | 6 | 1.2 |
 | 7 | 1.2 |
 | 4 | 1.3 |
+| 12 | 1.4 |
 | 8 | 1.6 |
 | 9 | 3.2 |
 | 11 | 6.0 |
-| 12 | 58.0 |
-| total | 78.1 |
+| total | 21.5 |
 
 end-to-end timing for part1&2 - mbair M1/16GB - go1.19.4 darwin/arm64
 
@@ -278,7 +278,7 @@ right matrix at the right place and scanning this slice.
 
 As trees are *counted* from *distances* and all distances are `chars` (offsetted by `'0'`), I really don't care bringing them back into integers: the `'0'` offset is auto-cancelled during computations. *The problem is a `pure` `byte` one*.
 
-~~I will eventually rework this one to use a `monotonic` `stack` and I'm sure that will bring the complexity down to `n^2` instead of `n^3`. That is cutting the runtime by ~1/3 in this case.~~
+~~I will eventually rework this one to use a `monotonic` `stack` and I'm sure that will bring the complexity down to `n^2` instead of `n^3`. That is cutting the runtime by 1/3 in this case.~~
 
 `<EDIT>` I've realised that `dist(o, v)` which counts the viewing distance from `o` needed to also output `h` the highest height. From there I was able to remove the call to `max(v)`. And the program runtime went to ~1.6ms which I'm happy with.  
 
@@ -318,7 +318,7 @@ After a while, and a lot of circular thinking, I realised that it was about
 *modular arithmetic*: to keep the numbers checked while preserving speed, 
 I needed a way to reduce the number in a way invisible to `updates` *and* 
 `data routing`. Updates are not subject to number cutting side-effects: they 
-are a dumb single arithmetic operation. Routing is done modular-wise, the number 
+are a dumb single arithmetic operations. Routing is done modular-wise, the number 
 that is invisible to all routing tests done in the network is the *least common 
 multiple* of all modulos! 
 
@@ -333,7 +333,9 @@ is probably coming on day 16!
 ## Day 12
 See? This is day 16 already! My last year [`day` `15`](https://github.com/erik-adelbert/aoc/blob/2022/2021/15/aoc15.go) comment still stands: you can't say must when using [`dijkstra`]((https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm)).
 
-The design encloses dijkstra in a loop to set the starting points. This allows the same code to solve `part1` given a singleton and `part2` a list of starting points. 
+~~The design encloses dijkstra in a loop to set the starting points. This allows the same code to solve `part1` given a singleton and `part2` a list of starting points.~~ 
+
+There's much to say: we can solve this problem backward. By working out the solution from then end, there's a unique run that brings all the answers efficiently. 
 
 <div style="text-align:center">
   <img src="https://upload.wikimedia.org/wikipedia/commons/2/23/Dijkstras_progress_animation.gif" />
