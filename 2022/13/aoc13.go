@@ -58,16 +58,16 @@ func cmp(a, b packet) int {
 }
 
 func load(s []byte) packet {
-	var rec func([]byte, int) (packet, int)
+	var rec func(int) (packet, int)
 
-	rec = func(s []byte, i int) (packet, int) {
+	rec = func(i int) (packet, int) {
 		a := packet{val: -1}
 
 		for ; i < len(s); i++ {
 			switch s[i] {
 			case '[':
 				var b packet
-				b, i = rec(s, i+1)
+				b, i = rec(i + 1)
 				a.list = append(a.list, b)
 				fallthrough
 			case ',':
@@ -87,7 +87,7 @@ func load(s []byte) packet {
 		return a, i
 	}
 
-	a, _ := rec(s, 0)
+	a, _ := rec(0)
 	return a
 }
 
