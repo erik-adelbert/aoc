@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"bytes"
 	"fmt"
 	"os"
 	"sort"
@@ -76,13 +75,8 @@ func load(s []byte) packet {
 				return a, i
 			}
 
-			j := i
-			var num bytes.Buffer
-			for s[j] >= 48 && s[j] <= 57 {
-				num.WriteByte(s[j])
-				j++
-			}
-			a.list = append(a.list, packet{val: atoi(num.Bytes())})
+			a.list = append(
+				a.list, packet{val: atoi(s[i:])})
 		}
 		return a, i
 	}
@@ -118,7 +112,10 @@ func main() {
 	fmt.Println(popcnt)
 
 	// part2
-	markers := []packet{load([]byte("[[2]]")), load([]byte("[[6]]"))}
+	markers := []packet{
+		load([]byte("[[2]]")),
+		load([]byte("[[6]]")),
+	}
 	packets = append(packets, markers...)
 	sort.Sort(byPacket(packets))
 
@@ -143,6 +140,9 @@ func (a byPacket) Less(i, j int) bool { return cmp(a[i], a[j]) < 0 }
 func atoi(s []byte) int {
 	var n int
 	for _, c := range s {
+		if c < 48 || c > 57 {
+			break
+		}
 		n = 10*n + int(c-'0')
 	}
 	return n

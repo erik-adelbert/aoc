@@ -12,10 +12,10 @@
 | 4 | 1.3 |
 | 12 | 1.4 |
 | 8 | 1.6 |
-| 13 | 1.9 |
+| 13 | 1.7 |
 | 9 | 3.2 |
 | 11 | 6.0 |
-| total | 23.4 |
+| total | 23.2 |
 
 end-to-end timing for part1&2 - mbair M1/16GB - go1.19.4 darwin/arm64
 
