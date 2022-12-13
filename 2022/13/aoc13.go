@@ -12,14 +12,6 @@ type packet struct {
 	list []packet
 }
 
-func mkint(v int) packet {
-	return packet{val: v}
-}
-
-func mklist(l []packet) packet {
-	return packet{-1, l}
-}
-
 func (p packet) isint() bool {
 	return p.val != -1
 }
@@ -64,7 +56,15 @@ func cmp(a, b packet) int {
 	return 0
 }
 
-func load(s []byte) packet {
+func mkint(v int) packet {
+	return packet{val: v}
+}
+
+func mklist(l []packet) packet {
+	return packet{-1, l}
+}
+
+func mkpacket(s []byte) packet {
 	var rec func(int) (packet, int)
 
 	rec = func(i int) (packet, int) {
@@ -83,7 +83,8 @@ func load(s []byte) packet {
 				return a, i
 			}
 
-			a.list = append(a.list, mkint(atoi(s[i:])))
+			a.list = append(
+				a.list, mkint(atoi(s[i:])))
 		}
 		return a, i
 	}
@@ -112,7 +113,7 @@ func main() {
 		}
 
 		// part2
-		packets = append(packets, load(bytes))
+		packets = append(packets, mkpacket(bytes))
 	}
 
 	// part1
@@ -120,8 +121,8 @@ func main() {
 
 	// part2
 	markers := []packet{
-		load([]byte("[[2]]")),
-		load([]byte("[[6]]")),
+		mkpacket([]byte("[[2]]")),
+		mkpacket([]byte("[[6]]")),
 	}
 	packets = append(packets, markers...)
 	sort.Sort(byPacket(packets))
@@ -129,7 +130,6 @@ func main() {
 	key := 1
 	for i, p := range packets {
 		if cmp(p, markers[0])*cmp(p, markers[1]) == 0 {
-			// either one marker
 			key *= i + 1
 		}
 	}

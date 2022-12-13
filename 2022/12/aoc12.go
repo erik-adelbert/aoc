@@ -43,9 +43,11 @@ func main() {
 
 			switch b {
 			case 'S':
+				// part1
 				area.d[h][i] = int('a')
 				one = append(one, &cell{h, i, 0})
 			case 'a':
+				// part2
 				area.d[h][i] = int('a')
 				all = append(all, &cell{h, i, 0})
 			case 'E':

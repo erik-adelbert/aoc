@@ -52,7 +52,7 @@ func tree(input *bufio.Scanner) int {
 }
 
 func main() {
-	var root int
+	var root int // root size
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
 		_ = input.Text() // discard initial cd /
