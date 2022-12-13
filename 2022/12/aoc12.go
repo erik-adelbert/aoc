@@ -5,32 +5,7 @@ import (
 	hp "container/heap"
 	"fmt"
 	"os"
-	"strings"
 )
-
-// types and interface used with hp
-type cell struct {
-	y, x int
-	d    int
-}
-
-type heap []*cell
-
-func (h heap) Len() int           { return len(h) }
-func (h heap) Less(i, j int) bool { return h[i].d < h[j].d }
-func (h heap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
-
-func (h *heap) Push(x any) {
-	c := x.(*cell)
-	*h = append(*h, c)
-}
-
-func (h *heap) Pop() any {
-	q, i := *h, len(*h)-1
-	pop := q[i]
-	*h, q[i] = q[:i], nil
-	return pop
-}
 
 // elevation map
 type grid struct {
@@ -55,12 +30,37 @@ func (g *grid) redim(h, w int) {
 	g.h, g.w = h, w
 }
 
-func (g grid) String() string {
-	var sb strings.Builder
-	for i := 0; i < g.h; i++ {
-		fmt.Fprintln(&sb, g.d[i][:g.w])
+func main() {
+	area := newGrid()
+	var one, all []*cell
+	var end *cell
+
+	h, w, input := 0, 0, bufio.NewScanner(os.Stdin)
+	for input.Scan() {
+		line := input.Bytes()
+		for i, b := range input.Bytes() {
+			area.d[h][i] = int(b)
+
+			switch b {
+			case 'S':
+				area.d[h][i] = int('a')
+				one = append(one, &cell{h, i, 0})
+			case 'a':
+				area.d[h][i] = int('a')
+				all = append(all, &cell{h, i, 0})
+			case 'E':
+				area.d[h][i] = int('z')
+				end = &cell{h, i, 0}
+			}
+		}
+		w = len(line)
+		h++
 	}
-	return sb.String()
+	area.redim(h, w)
+
+	all = append(one, all...)
+
+	fmt.Println(area.shortest(all, end)) // part 1&2
 }
 
 // solve computes the shortest distance between e and all
@@ -129,45 +129,26 @@ func (g *grid) shortest(start []*cell, end *cell) (int, int) {
 	return dist[start[0].y][start[0].x], dist[min.y][min.x]
 }
 
-func main() {
-	area := newGrid()
-	var one, all []*cell
-	var end *cell
-
-	h, w, input := 0, 0, bufio.NewScanner(os.Stdin)
-	for input.Scan() {
-		line := input.Bytes()
-		for i, b := range input.Bytes() {
-			area.d[h][i] = int(b)
-
-			switch b {
-			case 'S':
-				area.d[h][i] = int('a')
-				one = append(one, &cell{h, i, 0})
-			case 'a':
-				area.d[h][i] = int('a')
-				all = append(all, &cell{h, i, 0})
-			case 'E':
-				area.d[h][i] = int('z')
-				end = &cell{h, i, 0}
-			}
-		}
-		w = len(line)
-		h++
-	}
-	area.redim(h, w)
-
-	all = append(one, all...)
-
-	fmt.Println(area.shortest(all, end)) // part 1&2
+// types and interface used with hp
+type cell struct {
+	y, x int
+	d    int
 }
 
-func min(A []int) int {
-	min := A[0]
-	for _, v := range A {
-		if v < min {
-			min = v
-		}
-	}
-	return min
+type heap []*cell
+
+func (h heap) Len() int           { return len(h) }
+func (h heap) Less(i, j int) bool { return h[i].d < h[j].d }
+func (h heap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+
+func (h *heap) Push(x any) {
+	c := x.(*cell)
+	*h = append(*h, c)
+}
+
+func (h *heap) Pop() any {
+	q, i := *h, len(*h)-1
+	pop := q[i]
+	*h, q[i] = q[:i], nil
+	return pop
 }
