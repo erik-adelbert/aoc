@@ -12,9 +12,10 @@
 | 4 | 1.3 |
 | 12 | 1.4 |
 | 8 | 1.6 |
+| 13 | 1.9 |
 | 9 | 3.2 |
 | 11 | 6.0 |
-| total | 21.5 |
+| total | 23.4 |
 
 end-to-end timing for part1&2 - mbair M1/16GB - go1.19.4 darwin/arm64
 
@@ -340,3 +341,13 @@ There's much to say: we can solve this problem backward. By working out the solu
 <div style="text-align:center">
   <img src="https://upload.wikimedia.org/wikipedia/commons/2/23/Dijkstras_progress_animation.gif" />
 </div>
+
+## Day 13
+Today's challenge describes some `packet` numbers. They are somewhat related to `snailfish` numbers from [last year day 18](https://github.com/erik-adelbert/aoc/blob/main/2021/18/aoc18.go). These numbers parsing is the crux of today's challenge, my parser is recursive and pretty straightforward. I had though times putting it together though and the thinest mistake here is fatal. The `cmp` function is nicely described: it was easy to sort the `packet` numbers with the standard Go sorting library. 
+
+    ❯ make sample
+    cat sample.txt | go run ./aoc13.go
+    {-1 [{-1 [{1 []} {1 []} {3 []} {1 []} {1 []}]}]}
+    13
+    140
+
