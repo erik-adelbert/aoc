@@ -12,6 +12,14 @@ type packet struct {
 	list []packet
 }
 
+func mkint(v int) packet {
+	return packet{val: v}
+}
+
+func mklist(l []packet) packet {
+	return packet{-1, l}
+}
+
 func (p packet) isint() bool {
 	return p.val != -1
 }
@@ -49,9 +57,9 @@ func cmp(a, b packet) int {
 			return -1
 		}
 	case a.isint():
-		return cmp(packet{-1, []packet{a}}, b)
+		return cmp(mklist([]packet{a}), b)
 	case b.isint():
-		return cmp(a, packet{-1, []packet{b}})
+		return cmp(a, mklist([]packet{b}))
 	}
 	return 0
 }
@@ -75,8 +83,7 @@ func load(s []byte) packet {
 				return a, i
 			}
 
-			a.list = append(
-				a.list, packet{val: atoi(s[i:])})
+			a.list = append(a.list, mkint(atoi(s[i:])))
 		}
 		return a, i
 	}
@@ -122,6 +129,7 @@ func main() {
 	key := 1
 	for i, p := range packets {
 		if cmp(p, markers[0])*cmp(p, markers[1]) == 0 {
+			// either one marker
 			key *= i + 1
 		}
 	}
@@ -135,12 +143,13 @@ func (a byPacket) Len() int           { return len(a) }
 func (a byPacket) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a byPacket) Less(i, j int) bool { return cmp(a[i], a[j]) < 0 }
 
-// strconv.Atoi simplified core loop
-// s is ^\d+$
+// strconv.Atoi modified core loop
+// s is ^\d+.*
+// capture breaks at first non digit
 func atoi(s []byte) int {
 	var n int
 	for _, c := range s {
-		if c < 48 || c > 57 {
+		if c < '0' || c > '9' {
 			break
 		}
 		n = 10*n + int(c-'0')
