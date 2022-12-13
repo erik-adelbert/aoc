@@ -97,10 +97,10 @@ func main() {
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
-		line := input.Bytes()
+		bytes := input.Bytes()
 
 		// part1
-		if len(line) == 0 {
+		if len(bytes) == 0 {
 			a := packets[len(packets)-2]
 			b := packets[len(packets)-1]
 
@@ -111,7 +111,7 @@ func main() {
 		}
 
 		// part2
-		packets = append(packets, load(line))
+		packets = append(packets, load(bytes))
 	}
 
 	// part1
