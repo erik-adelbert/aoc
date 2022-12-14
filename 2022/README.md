@@ -343,7 +343,9 @@ There's much to say: we can solve this problem backward. By working out the solu
 </div>
 
 ## Day 13
-Today's challenge describes some `packet` numbers. They are somewhat related to `snailfish` numbers from [last year day 18](https://github.com/erik-adelbert/aoc/blob/main/2021/18/aoc18.go). These numbers parsing is the crux of today's challenge, my parser is recursive and pretty straightforward. I had though times putting it together though and the thinest mistake here is fatal. The `cmp` function is nicely described: it was easy to sort the `packet` numbers with the standard Go sorting library. 
+Today's challenge describes some `packet` numbers. They are somewhat related to `snailfish` numbers from [last year day 18](https://github.com/erik-adelbert/aoc/blob/main/2021/18/aoc18.go). These numbers parsing is the crux of today's challenge, my parser is recursive and pretty straightforward. I had though times putting it together though and the tyniest mistake here is fatal. ~~The `cmp` function is nicely described: it was easy to have the standard Go library sorting the numbers.~~ No need to sort the packages!
+
+I've chosen to represent a `packet` as `struct{ val int, list []packet }`, with the added convention that if `p.val < 0` then the number is a `list`. It's an `integer` otherwise. The following have been modified to display the internal representation of `[1, 1, 3, 1, 1]`:
 
     ❯ make sample
     cat sample.txt | go run ./aoc13.go

@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"sort"
 )
 
 type packet struct {
@@ -120,28 +119,25 @@ func main() {
 	fmt.Println(popcnt)
 
 	// part2
+	keys := []int{1, 2}
 	markers := []packet{
-		mkpacket([]byte("[[2]]")),
-		mkpacket([]byte("[[6]]")),
+		// from u/Elavid on reddit
+		mkint(2),
+		mkint(6),
+		// mkpacket([]byte("[[2]]")),
+		// mkpacket([]byte("[[6]]")),
 	}
-	packets = append(packets, markers...)
-	sort.Sort(byPacket(packets))
 
-	key := 1
-	for i, p := range packets {
-		if cmp(p, markers[0])*cmp(p, markers[1]) == 0 {
-			key *= i + 1
+	for i := range packets {
+		if cmp(packets[i], markers[0]) <= 0 {
+			keys[0]++
+		}
+		if cmp(packets[i], markers[1]) <= 0 {
+			keys[1]++
 		}
 	}
-	fmt.Println(key)
+	fmt.Println(keys[0] * (keys[1]))
 }
-
-// packet sorting interface
-type byPacket []packet
-
-func (a byPacket) Len() int           { return len(a) }
-func (a byPacket) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a byPacket) Less(i, j int) bool { return cmp(a[i], a[j]) < 0 }
 
 // strconv.Atoi modified core loop
 // s is ^\d+.*
