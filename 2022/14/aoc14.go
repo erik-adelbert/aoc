@@ -8,31 +8,38 @@ import (
 )
 
 type (
-	mark  any
-	point [2]int
+	mark any
+	XY   [2]int
 )
 
-func (a point) add(b point) point {
+func (a XY) add(b XY) XY {
 	a[0] += b[0]
 	a[1] += b[1]
 	return a
 }
 
-func (a point) cmp(b point) point {
-	return point{cmp(b[0], a[0]), cmp(b[1], a[1])}
+func (a XY) cmp(b XY) XY {
+	return XY{cmp(b[0], a[0]), cmp(b[1], a[1])}
 }
 
-func (a point) eq(b point) bool {
+func (a XY) eq(b XY) bool {
 	return a[0] == b[0] && a[1] == b[1]
 }
 
-var lines, grains map[[2]int]any
+func (a XY) idx() int {
+	return a[1]*512 + (a[0] - 300)
+}
 
-func mklines(s string) int {
+var (
+	walls  [256][512]byte
+	grains [256][512]byte
+)
+
+func mkwalls(s string) int {
 	ymax := -1
-	shape := make([]point, 0, 256)
+	shape := make([]XY, 0, 256)
 	for _, segs := range strings.Split(s, "->") {
-		var seg point
+		var seg XY
 		for i, s := range strings.Split(segs, ",") {
 			seg[i] = atoi(s)
 		}
@@ -45,24 +52,24 @@ func mklines(s string) int {
 			if ymax < p[1] {
 				ymax = p[1]
 			}
-			lines[p] = mark(nil)
+			walls[p[1]][p[0]-300] = 1
 		}
-		lines[b] = mark(nil)
+		walls[b[1]][b[0]-300] = 1
 	}
 	return ymax
 }
 
-func drop(floor int) point {
-	free := func(p point) bool {
-		_, r := lines[p]
-		_, g := grains[p]
-		return !r && !g && p[1] < floor
+func drop(floor int) XY {
+	free := func(p XY) bool {
+		r := walls[p[1]][p[0]]
+		g := grains[p[1]][p[0]]
+		return r == 0 && g == 0 && p[1] < floor
 	}
 
-	cur, nxt := point{-1, -1}, point{500, 0}
+	cur, nxt := XY{-1, -1}, XY{200, 0}
 	for !cur.eq(nxt) {
 		cur = nxt
-		for _, δ := range []point{{0, 1}, {-1, 1}, {1, 1}} {
+		for _, δ := range []XY{{0, 1}, {-1, 1}, {1, 1}} {
 			if free(cur.add(δ)) {
 				nxt = cur.add(δ)
 				break
@@ -73,34 +80,36 @@ func drop(floor int) point {
 }
 
 func fill(floor int, ymax int) int {
+	pop := 0
 	dst := drop(floor)
 	for dst[1] != ymax {
-		grains[dst] = mark(nil)
+		grains[dst[1]][dst[0]] = 1
+		pop++
 		dst = drop(floor)
 	}
-	return len(grains)
+	return pop
 }
 
 func main() {
 	depth := 0
-	lines = make(map[[2]int]any)
-	grains = make(map[[2]int]any)
-
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
-		y := mklines(input.Text())
+		y := mkwalls(input.Text())
 		if depth < y {
 			depth = y
 		}
 	}
 
-	// fmt.Println(len(lines), len(grains))
-	fmt.Println(fill(depth+1, depth))
-	fmt.Println(1 + fill(depth+2, 0))
+	part1 := fill(depth+1, depth)
+	// no reset of part1 grains
+	part2 := part1 + 1 + fill(depth+2, 0)
+
+	fmt.Println(part1, part2)
 }
 
 // strconv.Atoi modified core loop
 // s is ^\s+\d+.*
+// front spaces are trimmed
 func atoi(s string) int {
 	var n int
 	for _, c := range s {
@@ -121,4 +130,3 @@ func cmp(a, b int) int {
 	}
 	return 0
 }
-
