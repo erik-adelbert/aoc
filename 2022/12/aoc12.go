@@ -14,7 +14,7 @@ type grid struct {
 }
 
 func newGrid() *grid {
-	H, W, g := 64, 128, new(grid)
+	H, W, g := 8192, 8192, new(grid)
 	g.d = make([][]int, H)
 	for i := range g.d {
 		g.d[i] = make([]int, W)
