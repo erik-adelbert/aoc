@@ -13,9 +13,10 @@
 | 12 | 1.4 |
 | 8 | 1.6 |
 | 13 | 1.7 |
+| 14 | 2.0 |
 | 9 | 3.2 |
 | 11 | 6.0 |
-| total | 23.2 |
+| total | 25.2 |
 
 end-to-end timing for part1&2 - mbair M1/16GB - go1.19.4 darwin/arm64
 
@@ -353,3 +354,18 @@ I've chosen to represent a `packet` as `struct{ val int, list []packet }`, with 
     13
     140
 
+## Day 14
+There's so much to say about this challenge! I worked my solution through many reworks and here it is running in less than 2ms!!
+You'll see much more wizardry in this program than I intended at first. But the first iteration of this program was running in the 150ms realm, drowning in map accesses... Then I decided to translate and resize the world to fit it into a byte array: 50ms. 
+
+Casually talking about this challenge with a friend, he was telling me about is plan to solve part2 by mapping hollows instead of walls.
+Thinking of it, I realised that this world aisles would *always be the same* and *easy to compute*. I divised right away a slicing mechanism: an AABB defines the rectangle of interest where the action is. Having cut more than 50% of the world space, I was getting 
+there: 15ms.
+
+Finally, I added DFS backtracking to sand grains motion: I ended up assembling a nice dfs iterator.
+All of it is about 200 LoC tailored to the problem yet very generic.
+
+| Command | Mean [ms] | Min [ms] | Max [ms] | Relative |
+|:---|---:|---:|---:|---:|
+| `cat input.txt` | 0.5 ± 0.2 | 0.2 | 1.4 | 1.00 |
+| `cat input.txt \| ./aoc14` | 2.5 ± 0.2 | 2.0 | 4.1 | 4.61 ± 1.55 |

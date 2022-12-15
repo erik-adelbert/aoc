@@ -7,104 +7,190 @@ import (
 	"strings"
 )
 
-type (
-	mark any
-	XY   [2]int
+// world map
+var world [256][512]byte
+
+const (
+	// world is uselessly translated to far east
+	XOFF = 300
+	// world is contained is contained in 256x512
+	// so 512 is ok for +inf
+	INF = 512
 )
 
-func (a XY) add(b XY) XY {
-	a[0] += b[0]
-	a[1] += b[1]
-	return a
-}
-
-func (a XY) cmp(b XY) XY {
-	return XY{cmp(b[0], a[0]), cmp(b[1], a[1])}
-}
-
-func (a XY) eq(b XY) bool {
-	return a[0] == b[0] && a[1] == b[1]
-}
-
-func (a XY) idx() int {
-	return a[1]*512 + (a[0] - 300)
-}
-
-var (
-	walls  [256][512]byte
-	grains [256][512]byte
-)
-
-func mkwalls(s string) int {
-	ymax := -1
-	shape := make([]XY, 0, 256)
+func mkworld(s string) AABB {
+	wall := make([]XY, 0, 128)
+	box := AABB{{INF, INF}, {0, 0}}
 	for _, segs := range strings.Split(s, "->") {
 		var seg XY
 		for i, s := range strings.Split(segs, ",") {
 			seg[i] = atoi(s)
+			if i == 0 { // translate x to fit
+				seg[i] -= XOFF
+			}
 		}
-		shape = append(shape, seg)
+		box.resize(seg)
+		wall = append(wall, seg)
 	}
-	for i := range shape[:len(shape)-1] {
-		a, b := shape[i], shape[i+1]
+	for i := range wall[:len(wall)-1] {
+		a, b := wall[i], wall[i+1]
+
 		δ := a.cmp(b)
 		for p := a; !p.eq(b); p = p.add(δ) {
-			if ymax < p[1] {
-				ymax = p[1]
-			}
-			walls[p[1]][p[0]-300] = 1
+			world[p[1]][p[0]] = '#'
 		}
-		walls[b[1]][b[0]-300] = 1
+		world[b[1]][b[0]] = '#'
 	}
-	return ymax
-}
-
-func drop(floor int) XY {
-	free := func(p XY) bool {
-		r := walls[p[1]][p[0]]
-		g := grains[p[1]][p[0]]
-		return r == 0 && g == 0 && p[1] < floor
-	}
-
-	cur, nxt := XY{-1, -1}, XY{200, 0}
-	for !cur.eq(nxt) {
-		cur = nxt
-		for _, δ := range []XY{{0, 1}, {-1, 1}, {1, 1}} {
-			if free(cur.add(δ)) {
-				nxt = cur.add(δ)
-				break
-			}
-		}
-	}
-	return cur
-}
-
-func fill(floor int, ymax int) int {
-	pop := 0
-	dst := drop(floor)
-	for dst[1] != ymax {
-		grains[dst[1]][dst[0]] = 1
-		pop++
-		dst = drop(floor)
-	}
-	return pop
+	return box
 }
 
 func main() {
-	depth := 0
+	box := AABB{{INF, 0}, {0, 0}}
+
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
-		y := mkwalls(input.Text())
-		if depth < y {
-			depth = y
-		}
+		box.merge(mkworld(input.Text()))
 	}
 
-	part1 := fill(depth+1, depth)
-	// no reset of part1 grains
-	part2 := part1 + 1 + fill(depth+2, 0)
+	// offset to have sand boundaries
+	box[Min][X] -= 1
+	box[Max][X] += 1
+	box[Max][Y] += 1
+
+	depth := box[1][1]
+
+	part1 := fill(depth+1, depth, box)
+	part2 := part1 + 1 + fill(depth+2, 0, box)
 
 	fmt.Println(part1, part2)
+
+	// uncomment for visualization
+	// worldmap()
+}
+
+func fill(floor int, depth int, box AABB) int {
+	// free slices world where the action is (ie. the rocks)
+	// this world physics garantee that the final shape will
+	// always be an isosceles right triangle centered at X=200
+	//
+	// we don't want to simulate those as we can compute them
+	// easily
+	free := func(p XY) bool {
+		return world[p[1]][p[0]] == 0 &&
+			p[1] < floor &&
+			box.contains(p)
+	}
+
+	stack := make([]XY, 0, 256)
+
+	push := func(p XY) {
+		stack = append(stack, p)
+	}
+
+	pop := func() XY {
+		if len(stack) > 0 {
+			p := stack[len(stack)-1]
+			stack = stack[:len(stack)-1]
+			return p
+		}
+		return XY{200, 0}
+	}
+
+	// dfs iterator
+	next := func() XY {
+		cur, nxt := XY{-1, -1}, pop() // backtrack
+		for !cur.eq(nxt) {
+			cur = nxt
+			// try in turn if stuck: south, sw, se
+			for _, δ := range []XY{{0, 1}, {-1, 1}, {1, 1}} {
+				if free(cur.add(δ)) {
+					push(cur) // backup last moving location
+					nxt = cur.add(δ)
+					break
+				}
+			}
+		}
+		return cur
+	}
+
+	// pour and count sand grains
+	cnt := 0
+	for dst := next(); dst[Y] != depth; dst = next() {
+		world[dst[Y]][dst[X]] = '.'
+		cnt++
+		// on world boundaries, bring back sliced parts
+		if dst[X] == box[Min][X] || dst[X] == box[Max][X] {
+			cnt += box[Max][Y] - dst[Y]
+		}
+	}
+	return cnt
+}
+
+// pretty print worldmap
+// !!rise your term resolution!!
+func worldmap() {
+	var worldmap strings.Builder
+	for _, row := range world {
+		for _, b := range row {
+			switch b {
+			case 0:
+				worldmap.WriteByte(' ')
+			default:
+				worldmap.WriteByte(b)
+			}
+		}
+		worldmap.WriteByte('\n')
+	}
+	fmt.Println(worldmap.String())
+}
+
+const (
+	X = iota
+	Y
+)
+
+const (
+	Min = iota
+	Max
+)
+
+type XY [2]int
+
+func (a XY) add(b XY) XY {
+	a[X] += b[X]
+	a[Y] += b[Y]
+	return a
+}
+
+func (a XY) cmp(b XY) XY {
+	return XY{cmp(b[X], a[X]), cmp(b[Y], a[Y])}
+}
+
+func (a XY) eq(b XY) bool {
+	return a[X] == b[X] && a[Y] == b[Y]
+}
+
+type AABB [2]XY
+
+func (a AABB) contains(p XY) bool {
+	// a[Min][Y] is 0
+	return a[Min][X] <= p[X] &&
+		a[Max][X] >= p[X] &&
+		a[Max][Y] >= p[Y]
+}
+
+func (a *AABB) resize(p XY) {
+	a[Min][X] = min(a[Min][X], p[X])
+	a[Min][Y] = min(a[Min][Y], p[Y])
+	a[Max][X] = max(a[Max][X], p[X])
+	a[Max][Y] = max(a[Max][Y], p[Y])
+}
+
+func (a *AABB) merge(b AABB) {
+	a[Min][X] = min(a[Min][X], b[Min][X])
+	a[Min][Y] = min(a[Min][Y], b[Min][Y])
+	a[Max][X] = max(a[Max][X], b[Max][X])
+	a[Max][Y] = max(a[Max][Y], b[Max][Y])
 }
 
 // strconv.Atoi modified core loop
@@ -129,4 +215,18 @@ func cmp(a, b int) int {
 		return -1
 	}
 	return 0
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }
