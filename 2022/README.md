@@ -283,7 +283,7 @@ As trees are *counted* from *distances* and all distances are `chars` (offsetted
 
 ~~I will eventually rework this one to use a `monotonic` `stack` and I'm sure that will bring the complexity down to `n^2` instead of `n^3`. That is cutting the runtime by 1/3 in this case.~~
 
-`<EDIT>` I've realised that `dist(o, v)` which counts the viewing distance from `o` needed to also output `h` the highest height. From there I was able to remove the call to `max(v)`. And the program runtime went to ~1.6ms which I'm happy with.  
+`<EDIT>` I've realised that `dist(o, v)` which counts the viewing distance from `o` needed to also output `h` the highest height. From there I was able to remove the call to `max(v)`. And the program runtime went down to ~1.6ms which I'm happy with.  
 
 ## Day 9
 I find this one funny. The challenge teasing adds a lot of complications and by the end of reading it, all the necessary operations are split into too many small pieces. I have not find a better way than to follow the text: the program is very straightforward, it turns the challenge at hand into a vector problem.
@@ -321,7 +321,7 @@ After a while, and a lot of circular thinking, I realised that it was about
 *modular arithmetic*: to keep the numbers checked while preserving speed, 
 I needed a way to reduce the number in a way invisible to `updates` *and* 
 `data routing`. Updates are not subject to number cutting side-effects: they 
-are a dumb single arithmetic operations. Routing is done modular-wise, the number 
+are dumb single arithmetic operations. Routing is done modular-wise, the number 
 that is invisible to all routing tests done in the network is the *least common 
 multiple* of all modulos! 
 
@@ -345,7 +345,7 @@ There's much to say: we can solve this problem backward. By working out the solu
 </div>
 
 ## Day 13
-Today's challenge describes some `packet` numbers. They are somewhat related to `snailfish` numbers from [last year day 18](https://github.com/erik-adelbert/aoc/blob/main/2021/18/aoc18.go). These numbers parsing is the crux of today's challenge, my parser is recursive and pretty straightforward. I had though times putting it together though and the tyniest mistake here is fatal. ~~The `cmp` function is nicely described: it was easy to have the standard Go library sorting the numbers.~~ No need to sort the packages!
+Today's challenge describes some `packet` numbers. They are somewhat related to `snailfish` numbers from [last year day 18](https://github.com/erik-adelbert/aoc/blob/main/2021/18/aoc18.go). These numbers parsing is the crux of today's challenge, my parser is recursive and pretty straightforward. I had though times putting it together though and the tyniest mistake here is fatal. ~~The `cmp` function is nicely described: it was easy to have the standard Go library sorting the numbers.~~ No need to sort the packets!
 
 I've chosen to represent a `packet` as `struct{ val int, list []packet }`, with the added convention that if `p.val < 0` then the number is a `list`. It's an `integer` otherwise. The following have been modified to display the internal representation of `[1, 1, 3, 1, 1]`:
 
@@ -364,7 +364,7 @@ Thinking of it, I realised that this world aisles would *always be the same* and
 there: 15ms.
 
 Finally, I added DFS backtracking to sand grains motion: I ended up assembling a nice dfs iterator.
-All of it is about 200 LoC tailored to the problem yet very generic.
+All of it is about 200 LoC tailored to the problem but yet very generic.
 
 | Command | Mean [ms] | Min [ms] | Max [ms] | Relative |
 |:---|---:|---:|---:|---:|
@@ -375,7 +375,6 @@ All of it is about 200 LoC tailored to the problem yet very generic.
 I have been working this challenge for almost 6 hours today. I've tried (number of) different ways and my solution
 time was down to ~10ms and going. When things go sideways when coding, I always make a break and then work my way 
 out using a paper and a pencil. It was when drawing corner cases for a friend that I realised it was possible to 
-solve this problem from another perpective: it is possible (and easy) to track the gap that could enclose the 
-missing beacon. 
+solve this problem from another perpective: it is possible (and [easy](https://www.reddit.com/r/adventofcode/comments/zmw9d8/comment/j0dhu1w/?utm_source=share&utm_medium=web2x&context=3)) to track the gap that could enclose the missing beacon. 
 
 And then I saw this [reddit post](https://www.reddit.com/r/adventofcode/comments/zmcn64/comment/j0cdi3j/?utm_source=share&utm_medium=web2x&context=3). The solution is so beautiful and balanced, that it would have been a waste of my time to finish mine (same idea anyway). Instead, I studied this one and adapted my work to become a port of it.
