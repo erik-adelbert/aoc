@@ -12,13 +12,12 @@ var world [256][512]byte
 
 // worl facts
 const (
-	// world is contained is contained in 256x512
+	// world is contained in 256x512
 	// so 512 is ok for +inf
 	INF = 512
-	// world is uselessly translated to far east
+	// world is uselessly translated too far east
 	XOFF = 300
-	// sand is poured at X=200, Y=0 in translated
-	// world
+	// sand is poured from X=200, Y=0 in our translated world
 	XORG = 500 - XOFF
 	YORG = 0
 )
