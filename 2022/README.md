@@ -19,7 +19,7 @@
 | 11 | 6.0 |
 | total | 26.3 |
 
-end-to-end timing for part1&2 - mbair M1/16GB - go1.19.4 darwin/arm64
+end-to-end timing for part1&2 in ms - mbair M1/16GB - go1.19.4 darwin/arm64
 
 ## Day 1
 For this 2022 edition first day, I have written a simple and fast solution:
