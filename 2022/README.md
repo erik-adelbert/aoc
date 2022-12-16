@@ -4,6 +4,7 @@
 |-----|-----:|
 | 1 | 1.1 |
 | 10 | 1.1 |
+| 15 | 1.1 |
 | 2 | 1.1 |
 | 3 | 1.1 |
 | 5 | 1.2 |
@@ -16,7 +17,7 @@
 | 14 | 2.0 |
 | 9 | 3.2 |
 | 11 | 6.0 |
-| total | 25.2 |
+| total | 26.3 |
 
 end-to-end timing for part1&2 - mbair M1/16GB - go1.19.4 darwin/arm64
 
@@ -369,3 +370,12 @@ All of it is about 200 LoC tailored to the problem yet very generic.
 |:---|---:|---:|---:|---:|
 | `cat input.txt` | 0.5 ± 0.2 | 0.2 | 1.4 | 1.00 |
 | `cat input.txt \| ./aoc14` | 2.5 ± 0.2 | 2.0 | 4.1 | 4.61 ± 1.55 |
+
+## Day 15
+I have been working this challenge for almost 6 hours today. I've tried (number of) different ways and my solution
+time was down to ~10ms and going. When things go sideways when coding, I always make a break and then work my way 
+out using a paper and a pencil. It was when drawing corner cases for a friend that I realised it was possible to 
+solve this problem from another perpective: it is possible (and easy) to track the gap that could enclose the 
+missing beacon. 
+
+And then I saw this [reddit post](https://www.reddit.com/r/adventofcode/comments/zmcn64/comment/j0cdi3j/?utm_source=share&utm_medium=web2x&context=3). The solution is so beautiful and balanced, that it would have been a waste of my time to finish mine (same idea anyway). Instead, I studied this one and adapted my work to become a port of it.

@@ -10,12 +10,17 @@ import (
 // world map
 var world [256][512]byte
 
+// worl facts
 const (
-	// world is uselessly translated to far east
-	XOFF = 300
 	// world is contained is contained in 256x512
 	// so 512 is ok for +inf
 	INF = 512
+	// world is uselessly translated to far east
+	XOFF = 300
+	// sand is poured at X=200, Y=0 in translated
+	// world
+	XORG = 500 - XOFF
+	YORG = 0
 )
 
 func mkworld(s string) AABB {
@@ -29,7 +34,7 @@ func mkworld(s string) AABB {
 				seg[i] -= XOFF
 			}
 		}
-		box.resize(seg)
+		box.add(seg)
 		wall = append(wall, seg)
 	}
 	for i := range wall[:len(wall)-1] {
@@ -93,7 +98,7 @@ func fill(floor int, depth int, box AABB) int {
 			stack = stack[:len(stack)-1]
 			return p
 		}
-		return XY{200, 0}
+		return XY{XORG, YORG}
 	}
 
 	// dfs iterator
@@ -149,11 +154,6 @@ const (
 	Y
 )
 
-const (
-	Min = iota
-	Max
-)
-
 type XY [2]int
 
 func (a XY) add(b XY) XY {
@@ -170,6 +170,11 @@ func (a XY) eq(b XY) bool {
 	return a[X] == b[X] && a[Y] == b[Y]
 }
 
+const (
+	Min = iota
+	Max
+)
+
 type AABB [2]XY
 
 func (a AABB) contains(p XY) bool {
@@ -179,7 +184,7 @@ func (a AABB) contains(p XY) bool {
 		a[Max][Y] >= p[Y]
 }
 
-func (a *AABB) resize(p XY) {
+func (a *AABB) add(p XY) {
 	a[Min][X] = min(a[Min][X], p[X])
 	a[Min][Y] = min(a[Min][Y], p[Y])
 	a[Max][X] = max(a[Max][X], p[X])
