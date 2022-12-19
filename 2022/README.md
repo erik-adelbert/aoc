@@ -17,8 +17,9 @@
 | 14 | 2.0 |
 | 17 | 2.3 |
 | 9 | 3.2 |
+| 18 | 5.0 |
 | 11 | 6.0 |
-| total | 28.6 |
+| total | 33.6 |
 
 end-to-end timing for part1&2 in ms - mbair M1/16GB - go1.19.4 darwin/arm64
 
@@ -397,4 +398,8 @@ There are at least two good algorithms to solve the [general problem](https://en
 From there, the computations are a little tricky but manageable.
 
 PS. It's funny to see `part2` computed faster than `part1` because it has fewer remaining moves.
+
+## Day 18
+Today's solution is pretty naive, `part1` scans every cube side `x` in the input: if any of the other sides is missing from input, then `x` is added to the area. `part2` is a classical [flood fill](https://en.wikipedia.org/wiki/Flood_fill#Stack-based_recursive_implementation_(four-way)) algorithm: It starts outside of all cubes and eventually moves toward an external side. From there, it surfs the surface and
+keep track of the outside area.
 
