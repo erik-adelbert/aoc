@@ -381,7 +381,7 @@ solve this problem from another perpective: it is possible (and [easy](https://w
 And then I saw this [reddit post](https://www.reddit.com/r/adventofcode/comments/zmcn64/comment/j0cdi3j/?utm_source=share&utm_medium=web2x&context=3). The solution is so beautiful and balanced, that it would have been a waste of my time to finish mine (same idea anyway). Instead, I studied this one and adapted my work to become a port of it.
 
 ## Day 16
-The dropout dilema all over again, for now I'm not finished with this one! I did manage to get the stars but I'm not
+The dropout dilemma all over again, for now I'm not finished with this one! I did manage to get the stars but I'm not
 satisfied with the performance. I'll figure it out later.
 
 ## Day 17
