@@ -388,11 +388,13 @@ satisfied with the performance. I'll figure it out later.
 This one is kind of fun! The program has to simulate a very bad [tetrish](https://en.wikipedia.org/wiki/Tetris) player that can't even rotate the pieces. `part1` is quiet easy to simulate and [`tetrominoes`](https://en.wikipedia.org/wiki/Tetromino) are [well known](https://gamedevelopment.tutsplus.com/tutorials/implementing-tetris-collision-detection--gamedev-852).
 
 The main pitfall is in `part2`: we can't just simulate everything because the number of tetrominoes to drop `10^12` seems beyond comprehension. But the huge size of this number is also the key to this problem: we have `5` tetrominoes and `2k+` jets and they cycle.
-so, _at least_, every multiple of `lcm(5, 2k+)` the all sequence so far is repeating.
+so, _at least_, every multiple of `lcm(5, 2k+)` the all sequence so far is repeating. We just have to simulate the beginning until we find a cycle. Then it's easy to build statically the cycle result (we already have seen it) and to simulate the rest of the play until we have dropped the required number of pieces.
 
 But how to detect a cycle? 
 
 There are at least two good algorithms to solve the [general problem](https://en.wikipedia.org/wiki/Cycle_detection) but, here, they don't fit well... Let's try the naive approach for once: a cycle appears when we are about to drop the *same tetromino* with the *same jet* as before. Wait! Is that *all*? No it isn't, we also have to garantee that the new *tetromino* follows the same *path* as before. To this end we could *record* for each *tetromino*, the initial *jet* and the resulting *skyline*. And from there, we could naively (but efficiently) detect cycles!
 
 From there, the computations are a little tricky but manageable.
+
+PS. It's funny to see `part2` computed faster than `part1` because it has fewer remaining moves.
 

@@ -97,10 +97,12 @@ func (b *board) play(n []int) {
 
 		rh := make([][2]int, len(n))
 		for i := range rh {
+			// remaining full cycles
 			q := (n[i] - s0.n) / p0
+			// remaining moves
 			r := (n[i] - s0.n) % p0
 
-			// retrograd height!!
+			// retrograd cycles height!!
 			h := (H - s0.h[1]) + (s0.h[1]-s.h[1])*q
 
 			// sort/insert by remainders
@@ -110,15 +112,19 @@ func (b *board) play(n []int) {
 		}
 
 		// fast forward play
+		// move count goals and remaining moves
 		j, rmax := 0, rh[len(rh)-1][0]+1
+
+		// base line height
 		y := s.h[1]
 
+		// simulate for remainders
 		for i := 0; i < rmax; i++ {
-			// simulate for remainders
 			s.drop(b)
 			if i == rh[j][0] {
-				// tetro count is just over n:
-				// account for cycle and added height and output
+				// tetro count is just over one of the goals:
+				// account for baseline and cycles heights
+				// output total height
 				fmt.Println(rh[j][1] + (y - s.h[1]))
 				j++
 			}
