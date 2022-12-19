@@ -15,9 +15,10 @@
 | 8 | 1.6 |
 | 13 | 1.7 |
 | 14 | 2.0 |
+| 17 | 2.3 |
 | 9 | 3.2 |
 | 11 | 6.0 |
-| total | 26.3 |
+| total | 28.6 |
 
 end-to-end timing for part1&2 in ms - mbair M1/16GB - go1.19.4 darwin/arm64
 
@@ -360,7 +361,7 @@ There's so much to say about this challenge! I worked my solution through many r
 You'll see much more wizardry in this program than I intended at first. But the first iteration of this program was running in the 150ms realm, drowning in map accesses... Then I decided to translate and resize the world to fit it into a byte array: 50ms. 
 
 Casually talking about this challenge with a friend, he was telling me about is plan to solve part2 by mapping hollows instead of walls.
-Thinking of it, I realised that this world aisles would *always be the same* and *easy to compute*. I divised right away a slicing mechanism: an AABB defines the rectangle of interest where the action is. Having cut more than 50% of the world space, I was getting 
+Thinking of it, I realised that this world aisles would *always be the same* and *easy to compute*. I devised right away a slicing mechanism: an AABB defines the rectangle of interest where the action is. Having cut more than 50% of the world space, I was getting 
 there: 15ms.
 
 Finally, I added DFS backtracking to sand grains motion: I ended up assembling a nice dfs iterator.
@@ -378,3 +379,20 @@ out using a paper and a pencil. It was when drawing corner cases for a friend th
 solve this problem from another perpective: it is possible (and [easy](https://www.reddit.com/r/adventofcode/comments/zmw9d8/comment/j0dhu1w/?utm_source=share&utm_medium=web2x&context=3)) to track the gap that could enclose the missing beacon. 
 
 And then I saw this [reddit post](https://www.reddit.com/r/adventofcode/comments/zmcn64/comment/j0cdi3j/?utm_source=share&utm_medium=web2x&context=3). The solution is so beautiful and balanced, that it would have been a waste of my time to finish mine (same idea anyway). Instead, I studied this one and adapted my work to become a port of it.
+
+## Day 16
+The dropout dilema all over again, for now I'm not finished with this one! I did manage to get the stars but I'm not
+satisfied with the performance. I'll figure it out later.
+
+## Day 17
+This one is kind of fun! The program has to simulate a very bad [tetrish](https://en.wikipedia.org/wiki/Tetris) player that can't even rotate the pieces. `part1` is quiet easy to simulate and [`tetrominoes`](https://en.wikipedia.org/wiki/Tetromino) are [well known](https://gamedevelopment.tutsplus.com/tutorials/implementing-tetris-collision-detection--gamedev-852).
+
+The main pitfall is in `part2`: we can't just simulate everything because the number of tetrominoes to drop `10^12` seems beyond comprehension. But the huge size of this number is also the key to this problem: we have `5` tetrominoes and `2k+` jets and they cycle.
+so, _at least_, every multiple of `lcm(5, 2k+)` the all sequence so far is repeating.
+
+But how to detect a cycle? 
+
+There are at least two good algorithms to solve the [general problem](https://en.wikipedia.org/wiki/Cycle_detection) but, here, they don't fit well... Let's try the naive approach for once: a cycle appears when we are about to drop the *same tetromino* with the *same jet* as before. Wait! Is that *all*? No it isn't, we also have to garantee that the new *tetromino* follows the same *path* as before. To this end we could *record* for each *tetromino*, the initial *jet* and the resulting *skyline*. And from there, we could naively (but efficiently) detect cycles!
+
+From there, the computations are a little tricky but manageable.
+
