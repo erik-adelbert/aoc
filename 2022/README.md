@@ -409,23 +409,22 @@ Just like Day 16: stars but no joy for now (TPSORT+).
 ## Day 20 
 Today's about [cryptography](https://en.wikipedia.org/wiki/Key_(cryptography)) in a box!
 
-The solution program runs an `array-based` `circular` `doubly` `linked` `list` with
-two specials ops: `shuffle` and `key`. Although it means writing some other basic ops from scratch, this choice prevents data to move around by updating their indices instead.
+The solution program runs an `array-based circular doubly linked list` with
+two special ops: `shuffle` and `key`. Although it means writing some other basic ops from scratch, this choice prevents data to move around by updating their indices instead.
 
 But today sample is not up to the task: an ill-designed code can pass the sample in various ways and obfuscate the crux of this challenge: offsets!! By the way, the one that can drive any programmer in endless circles comes from the imposed order of ops during `shuffle`:
 
 1) If the program *removes* the current element
-2) and then, find it a new insertion in the list
+2) and then, finds it a new insertion point into the list
 3) *therefore*, this point is lying between the *remaining elements*
 
-By that time, the list only contains `n-1` items with `n` the sequence length. Once found, there's another pitfall around this point: when going `forward`, `i` should be inserted `after` but it should go `before` when going `backward`. Fortunately,
-inserting *before* an item is the same as inserting *after* its predecessor.
+By that time, the list contains only `n-1` items of the `n` from the sequence. Once found, there's another pitfall around this point: when going `forward`, `i` should be inserted `after` but it should go `before` when going `backward`. Fortunately, inserting *before* an item is the same as inserting *after* its predecessor.
 
 `part1` & `part2` are solved the same way. Except for, `part2` is injected a fairly big `prime` [`salt`](https://en.wikipedia.org/wiki/Salt_(cryptography)) before being shuffled *ten* times. This is too scrambled for me. I can't see a faster way to solve today's problem other than handling the tedious `shuffling` task. It amounts for `90%` of the running time: `~159ms`.
 
-Finally, the way I've coded this enabled me to use the central idea to [`Knuth's` `Algorithm` `X`](https://en.wikipedia.org/wiki/Dancing_Links#Main_ideas) (aka `DLX`):
+Finally, the way I've coded this enabled me to use the central idea to [`Knuth's Algorithm X`](https://en.wikipedia.org/wiki/Dancing_Links#Main_ideas) (aka `DLX`):
 the `cover/uncover` ops. On the funny side, my solution is akin to a *Step Dancing Subkeys*. As I've also recycled the `path` `halving` technique exposed by
-[Sedgewick](https://en.wikipedia.org/wiki/Robert_Sedgewick_(computer_scientist)) during his [`Quick` `Union-Find`](https://sedgewick.io/wp-content/themes/sedgewick/slides/algorithms/Algs01-UnionFind.pdf) study, here comes the `Quick` `Step` `Dancing` `SubMonkeys` or more on point `Algorithm` `QSDSk`!
+[Sedgewick](https://en.wikipedia.org/wiki/Robert_Sedgewick_(computer_scientist)) during his [`Quick` `Union-Find`](https://sedgewick.io/wp-content/themes/sedgewick/slides/algorithms/Algs01-UnionFind.pdf) study, here comes the `Quick Step Dancing SubMonkeys` or more on point `Algorithm QSDSk`!
 
 Yes, today I was inspired by [`Stanford`'s CS](https://web.stanford.edu/class/archive/cs/cs106b/cs106b.1126/lectures/17/Slides17.pdf)!
 
