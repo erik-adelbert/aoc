@@ -7,8 +7,8 @@ import (
 )
 
 type packet struct {
-	val  int
 	list []packet
+	val  int
 }
 
 func (p packet) isint() bool {
@@ -60,7 +60,7 @@ func mkint(v int) packet {
 }
 
 func mklist(l []packet) packet {
-	return packet{-1, l}
+	return packet{l, -1}
 }
 
 func mkpacket(s []byte) packet {

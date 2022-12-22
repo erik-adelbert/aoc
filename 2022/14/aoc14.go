@@ -57,9 +57,9 @@ func main() {
 	}
 
 	// offset to have sand boundaries
-	box[Min][X] -= 1
-	box[Max][X] += 1
-	box[Max][Y] += 1
+	box[Min][X]--
+	box[Max][X]++
+	box[Max][Y]++
 
 	depth := box[1][1]
 

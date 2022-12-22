@@ -54,8 +54,8 @@ func main() {
 	// part1
 	fmt.Println(lims[1] - lims[0] - ngaps)
 
-	intersect(A, B)
-	intersect(C, D)
+	inter(A, B)
+	inter(C, D)
 
 	a := pop(A)
 	b := pop(C)
@@ -64,7 +64,7 @@ func main() {
 	fmt.Println((a+b)*YMAX/2 + (b-a)/2)
 }
 
-func intersect(A, B map[int]any) {
+func inter(A, B map[int]any) {
 	for i := range A {
 		if _, ok := B[i]; !ok {
 			delete(A, i)

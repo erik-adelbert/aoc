@@ -83,12 +83,11 @@ func (c context) clone() *context {
 }
 
 type state struct {
-	cmd arit
-	mod int
-
-	count int
-	links [2]int
 	items []int
+	cmd   arit
+	links [2]int
+	mod   int
+	count int
 }
 
 func (s *state) load(input *bufio.Scanner) int {
