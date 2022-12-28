@@ -14,13 +14,16 @@
 | 12 | 1.4 |
 | 8 | 1.6 |
 | 13 | 1.7 |
+| 21 | 1.7 |
 | 14 | 2.0 |
+| 25 | 2.1 |
 | 17 | 2.3 |
 | 9 | 3.2 |
 | 18 | 5.0 |
 | 11 | 6.0 |
-| 20 | 158.7 |
-| total | 192.3 |
+| 16 | 16.3 |
+| 20 | 158.4 |
+| total | 212.1 |
 
 end-to-end timing for part1&2 in ms - mbair M1/16GB - go1.19.4 darwin/arm64
 
@@ -383,7 +386,8 @@ solve this problem from another perpective: it is possible (and [easy](https://w
 And then I saw this [reddit post](https://www.reddit.com/r/adventofcode/comments/zmcn64/comment/j0cdi3j/?utm_source=share&utm_medium=web2x&context=3). The solution is so beautiful and balanced, that it would have been a waste of my time to finish mine (same idea anyway). Instead, I studied this one and adapted my work to become a port of it.
 
 ## Day 16
-The dropout dilemma all over again, for now I'm not finished with this one! I did manage to get the stars but I'm not satisfied with the performance. I'll figure it out later (TSP+).
+The dropout dilemma all over again, for now I'm not finished with this one! I did manage to get the stars but I'm not satisfied with the performance. ~~I'll figure it out later.~~ Finally! I've tried many techniques and settled for a floyd-warshall computing of all pairs shortest paths. Before a slightly modified `A*`. And then I saw the same ideas [here](https://github.com/orlp/aoc2022/blob/master/src/bin/day16.rs) published before mine. Consider my work to be a port of this `rust` solution.
+
 
 ## Day 17
 This one is kind of fun! The program has to simulate a very bad [tetrish](https://en.wikipedia.org/wiki/Tetris) player that can't even rotate the pieces. `part1` is quiet easy to simulate and [`tetrominoes`](https://en.wikipedia.org/wiki/Tetromino) are [well known](https://gamedevelopment.tutsplus.com/tutorials/implementing-tetris-collision-detection--gamedev-852).
@@ -423,9 +427,45 @@ By that time, the list contains only `n-1` items of the `n` from the sequence. O
 `part1` & `part2` are solved the same way. Except for, `part2` is injected a fairly big `prime` [`salt`](https://en.wikipedia.org/wiki/Salt_(cryptography)) before being shuffled *ten* times. This is too scrambled for me. I can't see a faster way to solve today's problem other than handling the tedious `shuffling` task. It amounts for `90%` of the running time: `~159ms`.
 
 Finally, the way I've coded this enabled me to use the central idea to [`Knuth's Algorithm X`](https://en.wikipedia.org/wiki/Dancing_Links#Main_ideas) (aka `DLX`):
-the `cover/uncover` ops. On the funny side, my solution is akin to a *Step Dancing Subkeys*. As I've also recycled the `path` `halving` technique exposed by
-[Sedgewick](https://en.wikipedia.org/wiki/Robert_Sedgewick_(computer_scientist)) during his [`Quick` `Union-Find`](https://sedgewick.io/wp-content/themes/sedgewick/slides/algorithms/Algs01-UnionFind.pdf) study, here comes the `Quick Step Dancing SubMonkeys` or more on point `Algorithm QSDSk`!
+the `cover/uncover` ops. On the funny side, my solution is akin to a *Step Dancing Subkeys*. As I've also recycled the `path halving` technique exposed by
+[Sedgewick](https://en.wikipedia.org/wiki/Robert_Sedgewick_(computer_scientist)) during his [`Quick Union-Find`](https://sedgewick.io/wp-content/themes/sedgewick/slides/algorithms/Algs01-UnionFind.pdf) study, here comes the `Quick Step Dancing SubMonkeys` or more on point `Algorithm QSDSk`!
 
 Yes, today I was inspired by [`Stanford`'s CS](https://web.stanford.edu/class/archive/cs/cs106b/cs106b.1126/lectures/17/Slides17.pdf)!
+
+## Day 21
+Last year's day 23 was so painful to me: The challenge was about `compiler analysis`, I was unprepared. I tackled the challenge by writing it down and working out my solution with a pencil!
+Then I saw [Russ Cox](https://www.youtube.com/watch?v=hmq6veCFo0Y) solve the challenge and learn
+many things.
+
+I was waiting for today's challenge to reclaim vengeance for last year! I have over simplified the
+technique. First of all and without even giving it a thought I defined a `val` type that supports all supported instructions. Then I wrote an `eval()` for `val`. That was all for `part1`.
+
+`part2` is about `computer algebra`: We have to solve `humn` value to make our program work. Although I'm aware that a [`bisection`](https://en.wikipedia.org/wiki/Binary_search_algorithm) would perfectly do the trick here, I decided to go for the algebra.
+
+The idea, here, is truly basic, first it marks all the symbolic instructions of the program while descending its tree (ie. top to bottom). Then it solves for `humn` by *forcing* the values along this path to be equal to the *evaluated* values that don't depends on `humn` (the other side of the equality).
+
+All in all, I could go for more speed by `bisecting` out the value. But for now, my solution runs in `1.7ms` (thanks to the small size of input) which I'm happy with!
+
+## Day 22
+~~First star but I'm unable to undertake `part2` because 1) I'm tired and 2) It will make my brain swells not in the good way... I'm taking a break and I will take care of it in due time.~~
+
+Challenge is about (Cube Mapping)[https://en.wikipedia.org/wiki/Cube_mapping], the main problem is to get the input cube right. Fort the reste, the current position is stored as a vector relative to `O` the origin of this world and converted back and forth each time it enters/go out of a side.
+
+Right now, I've got 3 days to finish reworking (`16`, `19` et `22.2`). I'm quite sure I won't beat last year `380ms` for all parts/all days: day20 is the culprit I guess. I'm still hoping to be under `500ms` but there's no real room to jiggle.
+
+Let's see what's coming!
+
+`<EDIT>` solution is coming soon
+
+## Day 23
+It's a multi-valued GoL, I've got the stars by writting a straight forward `python` script because my Go design for it will sureley takes a lot of time but runs really fast (compared to naïve solutions, even the packed ones).
+
+## Day 24
+Comming soon!
+
+## Day 25
+For the last day of this AoC, the program defines a new number type `snafu` alongside the addition. The solution's core is a `digit adder` with `carry propagation` that can operate on `bytes`.
+
+Happy coding to you all!!
 
 

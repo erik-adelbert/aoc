@@ -10,17 +10,24 @@ import (
 
 var subdirs []int // subdir sizes
 
-// sort insert
-func record(s int) {
-	i := sort.SearchInts(subdirs, s)
-	subdirs = append(subdirs, 0)
-	copy(subdirs[i+1:], subdirs[i:])
-	subdirs[i] = s
-}
+func main() {
+	var root int // root size
+	input := bufio.NewScanner(os.Stdin)
+	for input.Scan() {
+		_ = input.Text() // discard initial cd /
+		root = tree(input)
+	}
 
-func file(line string) int {
-	fields := strings.Fields(line)
-	return atoi(fields[0])
+	// part1 sum
+	smalls := 0
+	for i := 0; subdirs[i] <= 100_000; i++ {
+		smalls += subdirs[i]
+	}
+
+	// part2 binsearch
+	i := sort.SearchInts(subdirs, root-40_000_000)
+
+	fmt.Println(smalls, subdirs[i])
 }
 
 func tree(input *bufio.Scanner) int {
@@ -51,24 +58,17 @@ func tree(input *bufio.Scanner) int {
 	return root
 }
 
-func main() {
-	var root int // root size
-	input := bufio.NewScanner(os.Stdin)
-	for input.Scan() {
-		_ = input.Text() // discard initial cd /
-		root = tree(input)
-	}
+// sort insert
+func record(s int) {
+	i := sort.SearchInts(subdirs, s)
+	subdirs = append(subdirs, 0)
+	copy(subdirs[i+1:], subdirs[i:])
+	subdirs[i] = s
+}
 
-	// part1 sum
-	smalls := 0
-	for i := 0; subdirs[i] <= 100_000; i++ {
-		smalls += subdirs[i]
-	}
-
-	// part2 binsearch
-	i := sort.SearchInts(subdirs, root-40_000_000)
-
-	fmt.Println(smalls, subdirs[i])
+func file(line string) int {
+	fields := strings.Fields(line)
+	return atoi(fields[0])
 }
 
 // strconv.Atoi simplified core loop

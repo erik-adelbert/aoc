@@ -7,32 +7,6 @@ import (
 	"sort"
 )
 
-var tetros = [][][]byte{
-	{
-		[]byte{1, 1, 1, 1},
-	},
-	{
-		[]byte{0, 1, 0},
-		[]byte{1, 1, 1},
-		[]byte{0, 1, 0},
-	},
-	{
-		[]byte{0, 0, 1},
-		[]byte{0, 0, 1},
-		[]byte{1, 1, 1},
-	},
-	{
-		[]byte{1},
-		[]byte{1},
-		[]byte{1},
-		[]byte{1},
-	},
-	{
-		[]byte{1, 1},
-		[]byte{1, 1},
-	},
-}
-
 // world
 const (
 	H    = 3192
@@ -200,6 +174,32 @@ func (b board) skyline(h int) [W / 2]int {
 	}
 
 	return heights
+}
+
+var tetros = [][][]byte{
+	{
+		[]byte{1, 1, 1, 1},
+	},
+	{
+		[]byte{0, 1, 0},
+		[]byte{1, 1, 1},
+		[]byte{0, 1, 0},
+	},
+	{
+		[]byte{0, 0, 1},
+		[]byte{0, 0, 1},
+		[]byte{1, 1, 1},
+	},
+	{
+		[]byte{1},
+		[]byte{1},
+		[]byte{1},
+		[]byte{1},
+	},
+	{
+		[]byte{1, 1},
+		[]byte{1, 1},
+	},
 }
 
 // classical min of two integers

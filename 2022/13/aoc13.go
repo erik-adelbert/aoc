@@ -11,6 +11,53 @@ type packet struct {
 	val  int
 }
 
+func main() {
+	popcnt := 0
+	packets := []packet{}
+
+	input := bufio.NewScanner(os.Stdin)
+	for input.Scan() {
+		bytes := input.Bytes()
+
+		// part1
+		if len(bytes) == 0 {
+			a := packets[len(packets)-2]
+			b := packets[len(packets)-1]
+
+			if cmp(a, b) < 1 {
+				popcnt += len(packets) / 2
+			}
+			continue
+		}
+
+		// part2
+		packets = append(packets, mkpacket(bytes))
+	}
+
+	// part1
+	fmt.Println(popcnt)
+
+	// part2
+	keys := []int{1, 2}
+	markers := []packet{
+		// from u/Elavid on reddit
+		mkint(2),
+		mkint(6),
+		// mkpacket([]byte("[[2]]")),
+		// mkpacket([]byte("[[6]]")),
+	}
+
+	for i := range packets {
+		if cmp(packets[i], markers[0]) <= 0 {
+			keys[0]++
+		}
+		if cmp(packets[i], markers[1]) <= 0 {
+			keys[1]++
+		}
+	}
+	fmt.Println(keys[0] * (keys[1]))
+}
+
 func (p packet) isint() bool {
 	return p.val != -1
 }
@@ -90,53 +137,6 @@ func mkpacket(s []byte) packet {
 
 	a, _ := rec(0)
 	return a
-}
-
-func main() {
-	popcnt := 0
-	packets := []packet{}
-
-	input := bufio.NewScanner(os.Stdin)
-	for input.Scan() {
-		bytes := input.Bytes()
-
-		// part1
-		if len(bytes) == 0 {
-			a := packets[len(packets)-2]
-			b := packets[len(packets)-1]
-
-			if cmp(a, b) < 1 {
-				popcnt += len(packets) / 2
-			}
-			continue
-		}
-
-		// part2
-		packets = append(packets, mkpacket(bytes))
-	}
-
-	// part1
-	fmt.Println(popcnt)
-
-	// part2
-	keys := []int{1, 2}
-	markers := []packet{
-		// from u/Elavid on reddit
-		mkint(2),
-		mkint(6),
-		// mkpacket([]byte("[[2]]")),
-		// mkpacket([]byte("[[6]]")),
-	}
-
-	for i := range packets {
-		if cmp(packets[i], markers[0]) <= 0 {
-			keys[0]++
-		}
-		if cmp(packets[i], markers[1]) <= 0 {
-			keys[1]++
-		}
-	}
-	fmt.Println(keys[0] * (keys[1]))
 }
 
 // strconv.Atoi modified core loop

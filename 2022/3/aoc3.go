@@ -6,12 +6,13 @@ import (
 	"os"
 )
 
-func main() {
-	const (
-		Part1 = iota
-		Part2
-	)
+// part indices
+const (
+	Part1 = iota
+	Part2
+)
 
+func main() {
 	// stricly positive integers are required
 	// see day3 notes
 	const (

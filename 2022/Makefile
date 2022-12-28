@@ -9,10 +9,10 @@ $(SUBDIRS):
 		@$(MAKE) -C $@ $(MAKECMDGOALS)
 
 cyclo:
-	@gocyclo -top 10 .
+	@gocyclo -top 10 -avg .
 
 lines:
-	@find . -name '*go' | grep -v 'v1' | xargs wc -l
+	@find . -name '*go' \( ! -iname "runtime.go" \) | grep -v 'v1' | xargs wc -l
 
 runtime:
 	@./runtime.sh | sort -n -k 4 > runtime.md

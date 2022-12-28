@@ -22,32 +22,6 @@ const (
 	YORG = 0
 )
 
-func mkworld(s string) AABB {
-	wall := make([]XY, 0, 128)
-	box := AABB{{INF, INF}, {0, 0}}
-	for _, segs := range strings.Split(s, "->") {
-		var seg XY
-		for i, s := range strings.Split(segs, ",") {
-			seg[i] = atoi(s)
-			if i == 0 { // translate x to fit
-				seg[i] -= XOFF
-			}
-		}
-		box.add(seg)
-		wall = append(wall, seg)
-	}
-	for i := range wall[:len(wall)-1] {
-		a, b := wall[i], wall[i+1]
-
-		δ := a.cmp(b)
-		for p := a; !p.eq(b); p = p.add(δ) {
-			world[p[1]][p[0]] = '#'
-		}
-		world[b[1]][b[0]] = '#'
-	}
-	return box
-}
-
 func main() {
 	box := AABB{{INF, 0}, {0, 0}}
 
@@ -73,11 +47,11 @@ func main() {
 }
 
 func fill(floor int, depth int, box AABB) int {
-	// free slices world where the action is (ie. the rocks)
-	// this world physics garantee that the final shape will
+	// free() slices world where the action is (ie. the rocks)
+	// the world physics garantee that the final shape will
 	// always be an isosceles right triangle centered at X=200
 	//
-	// we don't want to simulate those as we can compute them
+	// we don't want to simulate aisles as we can compute them
 	// easily
 	free := func(p XY) bool {
 		return world[p[1]][p[0]] == 0 &&
@@ -130,6 +104,32 @@ func fill(floor int, depth int, box AABB) int {
 	return cnt
 }
 
+func mkworld(s string) AABB {
+	wall := make([]XY, 0, 128)
+	box := AABB{{INF, INF}, {0, 0}}
+	for _, segs := range strings.Split(s, "->") {
+		var seg XY
+		for i, s := range strings.Split(segs, ",") {
+			seg[i] = atoi(s)
+			if i == 0 { // translate x to fit
+				seg[i] -= XOFF
+			}
+		}
+		box.add(seg)
+		wall = append(wall, seg)
+	}
+	for i := range wall[:len(wall)-1] {
+		a, b := wall[i], wall[i+1]
+
+		δ := a.cmp(b)
+		for p := a; !p.eq(b); p = p.add(δ) {
+			world[p[1]][p[0]] = '#'
+		}
+		world[b[1]][b[0]] = '#'
+	}
+	return box
+}
+
 // pretty print worldmap
 // !!rise your term resolution!!
 func worldmap() {
@@ -148,11 +148,13 @@ func worldmap() {
 	fmt.Println(worldmap.String())
 }
 
+// indices for XY
 const (
 	X = iota
 	Y
 )
 
+// XY is a 2D point
 type XY [2]int
 
 func (a XY) add(b XY) XY {
@@ -169,11 +171,13 @@ func (a XY) eq(b XY) bool {
 	return a[X] == b[X] && a[Y] == b[Y]
 }
 
+// indices for AABB
 const (
 	Min = iota
 	Max
 )
 
+// AABB is axis aligned bounding box
 type AABB [2]XY
 
 func (a AABB) contains(p XY) bool {

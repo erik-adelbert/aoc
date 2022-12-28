@@ -8,23 +8,13 @@ import (
 )
 
 func main() {
-	// strconv.Atoi simplified core loop
-	// s is ^\d+$
-	atoi := func(s []byte) int {
-		n := 0
-		for _, c := range s {
-			n = 10*n + int(c-'0')
-		}
-		return n
-	}
-
 	const (
 		Part1 = iota
 		Part2
 	)
 
 	// 	               [B] [L]     [J]
-	// 	           [B] [Q] [R]     [D] [T]
+	//             [B] [Q] [R]     [D] [T]
 	// 	           [G] [H] [H] [M] [N] [F]
 	//         [J] [N] [D] [F] [J] [H] [B]
 	//     [Q] [F] [W] [S] [V] [N] [F] [N]
@@ -119,4 +109,14 @@ func main() {
 
 	display(Part1)
 	display(Part2)
+}
+
+// strconv.Atoi simplified core loop
+// s is ^\d+$
+func atoi(s []byte) int {
+	var n int
+	for _, c := range s {
+		n = 10*n + int(c-'0')
+	}
+	return n
 }

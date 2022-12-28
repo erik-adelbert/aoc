@@ -7,6 +7,12 @@ import (
 	"strings"
 )
 
+type part struct {
+	ctx *context
+	fun func(n int) int
+	lim int
+}
+
 func main() {
 	ctx1 := new(context)
 
@@ -36,12 +42,6 @@ func main() {
 	for _, p := range parts {
 		fmt.Println(p.solve())
 	}
-}
-
-type part struct {
-	ctx *context
-	fun func(n int) int
-	lim int
 }
 
 func (p part) solve() int {
@@ -82,6 +82,7 @@ func (c context) clone() *context {
 	return &new
 }
 
+// state is aligned by go/fieldalignment
 type state struct {
 	items []int
 	cmd   arit

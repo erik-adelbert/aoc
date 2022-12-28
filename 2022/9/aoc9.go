@@ -6,61 +6,30 @@ import (
 	"os"
 )
 
+// part indices
 const (
 	Part1 = iota
 	Part2
 )
 
-type (
-	dot struct{} // smallest marker
-	pos [2]int
-)
-
-func (a *pos) add(b pos) {
-	a[0] += b[0]
-	a[1] += b[1]
-}
-
-func (a *pos) sub(b pos) {
-	a[0] -= b[0]
-	a[1] -= b[1]
-}
-
-func (a pos) dir() pos {
-	dir := pos{0, 0}
-
-	for i := 0; i < len(dir); i++ {
-		switch {
-		case a[i] < 0:
-			dir[i] = -1
-		case a[i] > 0:
-			dir[i] = 1
-		}
-	}
-
-	return dir
-}
-
-// square of length
-func (a pos) len2() int {
-	return a[0]*a[0] + a[1]*a[1]
-}
+// XY is 2D point
+type XY [2]int
 
 func main() {
-	visits := [2]map[pos]dot{
-		make(map[pos]dot),
-		make(map[pos]dot),
+	visits := [2]map[XY]any{
+		make(map[XY]any),
+		make(map[XY]any),
 	}
 
-	visits[Part1][pos{0, 0}] = dot{}
-	visits[Part2][pos{0, 0}] = dot{}
+	visits[Part1][XY{0, 0}] = any(nil)
+	visits[Part2][XY{0, 0}] = any(nil)
 
-	off := map[byte]pos{
+	off := map[byte]XY{
 		'U': {+0, +1}, 'L': {-1, +0},
 		'D': {+0, -1}, 'R': {+1, +0},
 	}
 
-	knots := [10]pos{}
+	knots := [10]XY{}
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
@@ -84,12 +53,42 @@ func main() {
 				}
 			}
 
-			visits[Part1][knots[1]] = dot{}
-			visits[Part2][knots[9]] = dot{}
+			visits[Part1][knots[1]] = any(nil)
+			visits[Part2][knots[9]] = any(nil)
 		}
 	}
 
 	fmt.Println(len(visits[Part1]), len(visits[Part2]))
+}
+
+func (a *XY) add(b XY) {
+	a[0] += b[0]
+	a[1] += b[1]
+}
+
+func (a *XY) sub(b XY) {
+	a[0] -= b[0]
+	a[1] -= b[1]
+}
+
+func (a XY) dir() XY {
+	dir := XY{0, 0}
+
+	for i := 0; i < len(dir); i++ {
+		switch {
+		case a[i] < 0:
+			dir[i] = -1
+		case a[i] > 0:
+			dir[i] = 1
+		}
+	}
+
+	return dir
+}
+
+// square of length
+func (a XY) len2() int {
+	return a[0]*a[0] + a[1]*a[1]
 }
 
 // strconv.Atoi simplified core loop

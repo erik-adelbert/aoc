@@ -13,23 +13,6 @@ type grid struct {
 	h, w int
 }
 
-func newGrid() *grid {
-	H, W, g := 64, 128, new(grid)
-	g.d = make([][]int, H)
-	for i := range g.d {
-		g.d[i] = make([]int, W)
-	}
-	return g
-}
-
-func (g grid) get(y, x int) int {
-	return g.d[y][x]
-}
-
-func (g *grid) redim(h, w int) {
-	g.h, g.w = h, w
-}
-
 func main() {
 	area := newGrid()
 	var one, all []*cell
@@ -129,6 +112,23 @@ func (g *grid) shortest(start []*cell, end *cell) (int, int) {
 	}
 
 	return dist[start[0].y][start[0].x], dist[min.y][min.x]
+}
+
+func newGrid() *grid {
+	H, W, g := 64, 128, new(grid)
+	g.d = make([][]int, H)
+	for i := range g.d {
+		g.d[i] = make([]int, W)
+	}
+	return g
+}
+
+func (g grid) get(y, x int) int {
+	return g.d[y][x]
+}
+
+func (g *grid) redim(h, w int) {
+	g.h, g.w = h, w
 }
 
 // types and interface used with hp

@@ -6,43 +6,11 @@ import (
 	"os"
 )
 
+// part indices
 const (
 	Part1 = iota
 	Part2
 )
-
-func mkmat(h, w int) [][]byte {
-	r := make([]byte, h*w)
-	m := make([][]byte, h)
-	lo, hi := 0, w
-	for i := range m {
-		m[i] = r[lo:hi:hi]
-		lo, hi = hi, hi+w
-	}
-	return m
-}
-
-func transpose(m [][]byte) [][]byte {
-	t := mkmat(len(m[0]), len(m))
-	for i := 0; i < len(t); i++ {
-		r := t[i]
-		for j := 0; j < len(r); j++ {
-			r[j] = m[j][i]
-		}
-	}
-	return t
-}
-
-func mirror(m [][]byte) [][]byte {
-	t := mkmat(len(m[0]), len(m))
-	for i := 0; i < len(t); i++ {
-		r := t[i]
-		for j := 0; j < len(r); j++ {
-			r[j] = m[i][len(r)-(j+1)]
-		}
-	}
-	return t
-}
 
 func main() {
 	counts := [2]int{0, 0}
@@ -84,13 +52,11 @@ func main() {
 
 	for y, r := range M {
 		for x, o := range r {
-			count := 1    // part2
 			seen := false // part1
+			count := 1    // part2
 
 			for _, v := range views(x, y) {
-
 				d, h := dist(o, v)
-				// fmt.Println(d, h, o, v)
 
 				// part1
 				if !seen && o > h {
@@ -110,4 +76,37 @@ func main() {
 	}
 
 	fmt.Println(counts)
+}
+
+func transpose(m [][]byte) [][]byte {
+	t := mkmat(len(m[0]), len(m))
+	for i := 0; i < len(t); i++ {
+		r := t[i]
+		for j := 0; j < len(r); j++ {
+			r[j] = m[j][i]
+		}
+	}
+	return t
+}
+
+func mirror(m [][]byte) [][]byte {
+	t := mkmat(len(m[0]), len(m))
+	for i := 0; i < len(t); i++ {
+		r := t[i]
+		for j := 0; j < len(r); j++ {
+			r[j] = m[i][len(r)-(j+1)]
+		}
+	}
+	return t
+}
+
+func mkmat(h, w int) [][]byte {
+	r := make([]byte, h*w)
+	m := make([][]byte, h)
+	lo, hi := 0, w
+	for i := range m {
+		m[i] = r[lo:hi:hi]
+		lo, hi = hi, hi+w
+	}
+	return m
 }

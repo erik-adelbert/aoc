@@ -80,6 +80,7 @@ func (w world) flood(p XYZ, b *AABB) int {
 	return flood
 }
 
+// Δ is neighbor offsets
 var Δ = []XYZ{
 	{+0, +1, +0}, // up
 	{+1, +0, +0}, // right
@@ -89,11 +90,13 @@ var Δ = []XYZ{
 	{+0, +0, -1}, // back
 }
 
+// Min, Max indices for AABB
 const (
 	Min = iota
 	Max
 )
 
+// AABB is axis aligned bounding box
 type AABB [2]XYZ
 
 // resize AABB to contain p
@@ -113,24 +116,24 @@ func (b *AABB) contains(p XYZ) bool {
 	return m.lte(p) && M.gte(p)
 }
 
-// axis
+// axis indices
 const (
 	X = iota
 	Y
 	Z
 )
 
-// 3D point
+// XYZ is 3D point
 type XYZ [3]int
 
-// add two points
+// add points
 func (a XYZ) add(b XYZ) XYZ {
 	return XYZ{
 		a[X] + b[X], a[Y] + b[Y], a[Z] + b[Z],
 	}
 }
 
-// subtract two points
+// subtract points
 func (a XYZ) sub(b XYZ) XYZ {
 	return XYZ{
 		a[X] - b[X], a[Y] - b[Y], a[Z] - b[Z],

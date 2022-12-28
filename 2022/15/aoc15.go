@@ -10,6 +10,7 @@ import (
 
 var sensors []sensor = make([]sensor, 0, 64)
 
+// YMAX is world max depth
 var YMAX int = 4_000_000
 
 func main() {
@@ -88,16 +89,19 @@ func mksensor(SB []XY) sensor {
 	return sensor{S, R}
 }
 
+// CIRC is a manhattan circle
 type CIRC struct {
 	O XY
 	R int
 }
 
+// indices for XY
 const (
 	X = iota
 	Y
 )
 
+// XY is a 2D point
 type XY [2]int
 
 func (a XY) manh(b XY) int {

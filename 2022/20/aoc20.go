@@ -29,8 +29,8 @@ func main() {
 			part2.o = len(part2.seq)
 		}
 
-		part1.seq = append(part1.seq, n)
-		part2.seq = append(part2.seq, n*salt)
+		part1.append(n)
+		part2.append(n * salt)
 	}
 
 	var wg sync.WaitGroup
@@ -39,12 +39,12 @@ func main() {
 
 	go func() {
 		defer wg.Done()
-		part1.shuffle(1)
+		part2.shuffle(10)
 	}()
 
 	go func() {
 		defer wg.Done()
-		part2.shuffle(10)
+		part1.shuffle(1)
 	}()
 
 	wg.Wait()
@@ -86,8 +86,8 @@ func (l *list) shuffle(nloop int) {
 		case off < 0:
 			// backward compressed scan
 
-			// later on when reinserting a backward moving key
-			// is inserted *before* j, that is *after* bck[j]
+			// later on when reinserting, backward moving keys
+			// are inserted *before* j, that is *after* bck[j]
 			//
 			// offset now to return bck[j] instead of j
 			// see move() below
@@ -177,12 +177,14 @@ func mklist() *list {
 	p.bck = make([]int, 5000)
 	p.fwd = make([]int, 5000)
 
-	for i := range p.bck {
-		p.bck[i] = i - 1
-		p.fwd[i] = i + 1
-	}
-
 	return p
+}
+
+func (l *list) append(n int) {
+	i := len(l.seq)
+	l.bck[i] = i - 1
+	l.fwd[i] = i + 1
+	l.seq = append(l.seq, n)
 }
 
 // strconv.Atoi simplified core loop

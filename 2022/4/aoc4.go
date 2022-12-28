@@ -7,22 +7,13 @@ import (
 	"os"
 )
 
+// part indices
+const (
+	Part1 = iota
+	Part2
+)
+
 func main() {
-	// strconv.Atoi simplified core loop
-	// s is trusted to be ^\d+$
-	atoi := func(s []byte) int {
-		n := 0
-		for _, c := range s {
-			n = 10*n + int(c-'0')
-		}
-		return n
-	}
-
-	const (
-		Part1 = iota
-		Part2
-	)
-
 	counts := [2]int{}
 
 	input := bufio.NewScanner(os.Stdin)
@@ -57,4 +48,14 @@ func main() {
 
 	// every contained segment is intersecting as well
 	fmt.Println(counts[Part1], counts[Part1]+counts[Part2])
+}
+
+// strconv.Atoi simplified core loop
+// s is ^\d+$
+func atoi(s []byte) int {
+	var n int
+	for _, c := range s {
+		n = 10*n + int(c-'0')
+	}
+	return n
 }

@@ -6,6 +6,7 @@ import (
 	"os"
 )
 
+// parts indices
 const (
 	Part1 = iota
 	Part2
