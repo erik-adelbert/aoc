@@ -2,16 +2,17 @@
 
 | day | time |
 |-----|-----:|
-| 1 | 1.1 |
-| 10 | 1.1 |
 | 15 | 1.1 |
 | 2 | 1.1 |
 | 3 | 1.1 |
+| 1 | 1.2 |
+| 10 | 1.2 |
 | 5 | 1.2 |
 | 6 | 1.2 |
 | 7 | 1.2 |
 | 4 | 1.3 |
 | 12 | 1.4 |
+| 22 | 1.4 |
 | 8 | 1.6 |
 | 13 | 1.7 |
 | 21 | 1.7 |
@@ -22,8 +23,8 @@
 | 18 | 5.0 |
 | 11 | 6.0 |
 | 16 | 16.3 |
-| 20 | 158.4 |
-| total | 212.1 |
+| 20 | 158.8 |
+| total | 214.1 |
 
 end-to-end timing for part1&2 in ms - mbair M1/16GB - go1.19.4 darwin/arm64
 
@@ -455,7 +456,7 @@ Right now, I've got 3 days to finish reworking (`16`, `19` et `22.2`). I'm quite
 
 Let's see what's coming!
 
-`<EDIT>` solution is coming soon
+`<EDIT>` solution is ~~coming soon~~ here!
 
 ## Day 23
 It's a multi-valued GoL, I've got the stars by writting a straight forward `python` script because my Go design for it will sureley takes a lot of time but runs really fast (compared to naïve solutions, even the packed ones).

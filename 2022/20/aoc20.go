@@ -123,6 +123,7 @@ func (l *list) shuffle(nloop int) {
 		// seek the new insertion point in the remaining sequence
 		// see seek() above
 		j := seek(i, off)
+
 		if i == j {
 			// no move, relink i and abort
 			fwd[bck[i]], bck[fwd[i]] = i, i
@@ -130,8 +131,8 @@ func (l *list) shuffle(nloop int) {
 		}
 
 		// always relink i *after* j
-		bck[i], fwd[i] = j, fwd[j]
-		bck[fwd[j]], fwd[j] = i, i
+		fwd[i], bck[i] = fwd[j], j
+		fwd[bck[i]], bck[fwd[i]] = i, i
 	}
 
 	// no global loop cycle because
