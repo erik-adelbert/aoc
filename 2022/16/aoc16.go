@@ -338,8 +338,10 @@ func min(a, b int) int {
 	return b
 }
 
+var DEBUG = false
+
 func debug(a ...any) {
-	if true {
+	if DEBUG {
 		fmt.Println(a...)
 	}
 }

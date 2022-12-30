@@ -23,8 +23,9 @@
 | 18 | 5.0 |
 | 11 | 6.0 |
 | 16 | 16.3 |
+| 24 | 58.0 |
 | 20 | 158.8 |
-| total | 214.1 |
+| total | 272.1 |
 
 end-to-end timing for part1&2 in ms - mbair M1/16GB - go1.19.4 darwin/arm64
 
@@ -450,7 +451,7 @@ All in all, I could go for more speed by `bisecting` out the value. But for now,
 ## Day 22
 ~~First star but I'm unable to undertake `part2` because 1) I'm tired and 2) It will make my brain swells not in the good way... I'm taking a break and I will take care of it in due time.~~
 
-Challenge is about (Cube Mapping)[https://en.wikipedia.org/wiki/Cube_mapping], the main problem is to get the input cube right. Fort the reste, the current position is stored as a vector relative to `O` the origin of this world and converted back and forth each time it enters/go out of a side.
+Challenge is about (Cube Mapping)[https://en.wikipedia.org/wiki/Cube_mapping], the main problem is to get the input cube right. For the rest, the current position is stored as a vector relative to `O` the origin of this worldmap and converted back and forth each time it enters/go out of a side.
 
 Right now, I've got 3 days to finish reworking (`16`, `19` et `22.2`). I'm quite sure I won't beat last year `380ms` for all parts/all days: day20 is the culprit I guess. I'm still hoping to be under `500ms` but there's no real room to jiggle.
 
@@ -462,8 +463,9 @@ Let's see what's coming!
 It's a multi-valued GoL, I've got the stars by writting a straight forward `python` script because my Go design for it will sureley takes a lot of time but runs really fast (compared to naïve solutions, even the packed ones).
 
 ## Day 24
-Comming soon!
+For this day challenge, the program `precomputes` all `wind conditions`: they `cycle` every `lcm(H, W)` with `H, W` the dimensions of this world. From there, it `floods` the resulting maze from `t0` and `start` to every `reachable cell` at a given time. The first time the `goal` cell is reached is garanteed to be the smallest possible (`dijkstra`-ish).
 
+Whenever the goal is `not reachable` (there's no way to get through), the solution is to restart the flooding from `later` than `t0`.
 ## Day 25
 For the last day of this AoC, the program defines a new number type `snafu` alongside the addition. The solution's core is a `digit adder` with `carry propagation` that can operate on `bytes`.
 
