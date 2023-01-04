@@ -22,12 +22,13 @@
 | 9 | 3.2 |
 | 18 | 5.0 |
 | 11 | 6.0 |
+| 23 | 13.5 |
 | 16 | 16.3 |
 | 24 | 58.0 |
-| 20 | 158.8 |
-| total | 272.1 |
+| 20 | 158.6 |
+| total | 285.4 |
 
-end-to-end timing for part1&2 in ms - mbair M1/16GB - go1.19.4 darwin/arm64
+end-to-end timing for part1&2 in ms - mbair M1/16GB - go1.19.4 darwin/arm64 - hyperfine 1.15.0
 
 ## Day 1
 For this 2022 edition first day, I have written a simple and fast solution:
@@ -381,9 +382,9 @@ All of it is about 200 LoC tailored to the problem but yet very generic.
 
 ## Day 15
 I have been working this challenge for almost 6 hours today. I've tried (number of) different ways and my solution
-time was down to ~10ms and going. When things go sideways when coding, I always make a break and then work my way 
+time was down to ~10ms and going. When things go sideways when coding, I always take a break and then work my way 
 out using a paper and a pencil. It was when drawing corner cases for a friend that I realised it was possible to 
-solve this problem from another perpective: it is possible (and [easy](https://www.reddit.com/r/adventofcode/comments/zmw9d8/comment/j0dhu1w/?utm_source=share&utm_medium=web2x&context=3)) to track the gap that could enclose the missing beacon. 
+solve this problem from another prospective: it is possible (and [easy](https://www.reddit.com/r/adventofcode/comments/zmw9d8/comment/j0dhu1w/?utm_source=share&utm_medium=web2x&context=3)) to track the gap that could enclose the missing beacon.
 
 And then I saw this [reddit post](https://www.reddit.com/r/adventofcode/comments/zmcn64/comment/j0cdi3j/?utm_source=share&utm_medium=web2x&context=3). The solution is so beautiful and balanced, that it would have been a waste of my time to finish mine (same idea anyway). Instead, I studied this one and adapted my work to become a port of it.
 
@@ -395,7 +396,7 @@ The dropout dilemma all over again, for now I'm not finished with this one! I di
 This one is kind of fun! The program has to simulate a very bad [tetrish](https://en.wikipedia.org/wiki/Tetris) player that can't even rotate the pieces. `part1` is quiet easy to simulate and [`tetrominoes`](https://en.wikipedia.org/wiki/Tetromino) are [well known](https://gamedevelopment.tutsplus.com/tutorials/implementing-tetris-collision-detection--gamedev-852).
 
 The main pitfall is in `part2`: we can't just simulate everything because the number of tetrominoes to drop `10^12` seems beyond comprehension. But the huge size of this number is also the key to this problem: we have `5` tetrominoes and `2k+` jets and they cycle.
-so, _at least_, every multiple of `lcm(5, 2k+)` the all sequence so far is repeating. We just have to simulate the beginning until we find a cycle. Then it's easy to build statically the cycle result (we already have seen it) and to simulate the rest of the play until we have dropped the required number of pieces.
+so, _at least_, every multiple of `lcm(5, 2k+)` the all sequence so far is repeating. We just have to simulate the beginning until we find a cycle. Then it's easy to statically fast forward all the cycles and to simulate the rest of the play until we have dropped the required number of pieces.
 
 But how to detect a cycle? 
 
@@ -439,12 +440,11 @@ Last year's day 23 was so painful to me: The challenge was about `compiler analy
 Then I saw [Russ Cox](https://www.youtube.com/watch?v=hmq6veCFo0Y) solve the challenge and learn
 many things.
 
-I was waiting for today's challenge to reclaim vengeance for last year! I have over simplified the
-technique. First of all and without even giving it a thought I defined a `val` type that supports all supported instructions. Then I wrote an `eval()` for `val`. That was all for `part1`.
+I was waiting for today's challenge to reclaim vengeance for last year! I have simplified the technique. First of all and without even giving it a thought I defined a `val` type that supports all supported instructions. Then I wrote an `eval()` for `val`. That was all for `part1`.
 
-`part2` is about `computer algebra`: We have to solve `humn` value to make our program work. Although I'm aware that a [`bisection`](https://en.wikipedia.org/wiki/Binary_search_algorithm) would perfectly do the trick here, I decided to go for the algebra.
+`part2` is about `computer algebra`: We have to solve `humn` value to make our program work. Although I'm aware that a [`bisection`](https://en.wikipedia.org/wiki/Binary_search_algorithm) would perfectly do the trick here, I decided to go for the algebra (vengeance!).
 
-The idea, here, is truly basic, first it marks all the symbolic instructions of the program while descending its tree (ie. top to bottom). Then it solves for `humn` by *forcing* the values along this path to be equal to the *evaluated* values that don't depends on `humn` (the other side of the equality).
+The idea, here, is truly basic, first all the symbolic instructions of the program are marked while descending its tree (ie. top to bottom). Then the solution solves for `humn` by *forcing* the values along this path to be equal to the *evaluated* values that don't depends on `humn` (the other side of the equality).
 
 All in all, I could go for more speed by `bisecting` out the value. But for now, my solution runs in `1.7ms` (thanks to the small size of input) which I'm happy with!
 
@@ -460,7 +460,7 @@ Let's see what's coming!
 `<EDIT>` solution is ~~coming soon~~ here!
 
 ## Day 23
-It's a multi-valued GoL, I've got the stars by writting a straight forward `python` script because my Go design for it will sureley takes a lot of time but runs really fast (compared to naïve solutions, even the packed ones).
+It's a multi-valued GoL, I've got the stars by writting a straight forward `python` script because my Go design for it will sureley takes a lot of time but runs really fast ~~(compared to naïve solutions, even the packed ones)~~. My solution is a packed simulation built upon a `u256` custom type derived from a `u128` custom type. It is akin to [u/SLiV9's](https://www.reddit.com/r/adventofcode/comments/zt6xz5/comment/j1f9cz2/?utm_source=share&utm_medium=web2x&context=3) but faster.
 
 ## Day 24
 For this day challenge, the program `precomputes` all `wind conditions`: they `cycle` every `lcm(H, W)` with `H, W` the dimensions of this world. From there, it `floods` the resulting maze from `t0` and `start` to every `reachable cell` at a given time. The first time the `goal` cell is reached is garanteed to be the smallest possible (`dijkstra`-ish).

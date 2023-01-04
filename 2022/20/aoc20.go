@@ -79,6 +79,7 @@ func (l *list) shuffle(nloop int) {
 				i = fwd[i]
 				off--
 			}
+
 			// right compressed scan
 			for ; off > 0; off -= 2 {
 				i = fwd[fwd[i]]
