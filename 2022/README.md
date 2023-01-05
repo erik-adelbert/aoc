@@ -21,12 +21,13 @@
 | 17 | 2.3 |
 | 9 | 3.2 |
 | 18 | 5.0 |
+| 19 | 5.5 |
 | 11 | 6.0 |
 | 23 | 13.5 |
 | 16 | 16.3 |
 | 24 | 58.0 |
 | 20 | 158.6 |
-| total | 285.4 |
+| total | 290.9 |
 
 end-to-end timing for part1&2 in ms - mbair M1/16GB - go1.19.4 darwin/arm64 - hyperfine 1.15.0
 
@@ -285,7 +286,7 @@ for this.
 ## Day 8
 My solution runs in ~3ms on my mbair M1/16GB but I'm not satisfied. The runtime complexity feels too high.
 
-The program follows the naive approach. To speed things up, it precompute the 4-axis field rotations matrices and scanning the 4-axis views becomes easy: it's a matter of slicing the 
+The program follows the naive approach. To speed things up, it precomputes the 4-axis field rotations matrices and scanning the 4-axis views becomes easy: it's a matter of slicing the 
 right matrix at the right place and scanning this slice.
 
 As trees are *counted* from *distances* and all distances are `chars` (offsetted by `'0'`), I really don't care bringing them back into integers: the `'0'` offset is auto-cancelled during computations. *The problem is a `pure` `byte` one*.
@@ -396,7 +397,7 @@ The dropout dilemma all over again, for now I'm not finished with this one! I di
 This one is kind of fun! The program has to simulate a very bad [tetrish](https://en.wikipedia.org/wiki/Tetris) player that can't even rotate the pieces. `part1` is quiet easy to simulate and [`tetrominoes`](https://en.wikipedia.org/wiki/Tetromino) are [well known](https://gamedevelopment.tutsplus.com/tutorials/implementing-tetris-collision-detection--gamedev-852).
 
 The main pitfall is in `part2`: we can't just simulate everything because the number of tetrominoes to drop `10^12` seems beyond comprehension. But the huge size of this number is also the key to this problem: we have `5` tetrominoes and `2k+` jets and they cycle.
-so, _at least_, every multiple of `lcm(5, 2k+)` the all sequence so far is repeating. We just have to simulate the beginning until we find a cycle. Then it's easy to statically fast forward all the cycles and to simulate the rest of the play until we have dropped the required number of pieces.
+so, _at least_, the all sequence seen up to `lcm(5, 2k+)` is repeating. We just have to simulate the play until we find a cycle. Then it's easy to statically fast forward all the cycles and to simulate the rest of the play until we have dropped the required number of pieces.
 
 But how to detect a cycle? 
 
@@ -407,11 +408,20 @@ The resulting computations are a little tricky but definitely manageable.
 PS. It's funny to see `part2` computed faster than `part1` because it has fewer remaining moves.
 
 ## Day 18
-Today's solution is pretty naive, `part1` scans every cube side `x` in the input: if any of the other sides is missing from input, then `x` is added to the area. `part2` is a classical [flood fill](https://en.wikipedia.org/wiki/Flood_fill#Stack-based_recursive_implementation_(four-way)) algorithm: It starts outside of all cubes and eventually moves toward an external side. From there, it surfs the surface and
-keeps track of the outside area.
+Today's solution is pretty naive, `part1` scans every cube side `x` in the input: if any of the other sides is missing from input, then `x` is added to the area. `part2` is a classical [flood fill](https://en.wikipedia.org/wiki/Flood_fill#Stack-based_recursive_implementation_(four-way)) algorithm: It starts outside of all cubes and eventually moves toward an external side. From there, it surfs the surface while
+keeping track of the outside area.
 
 ## Day 19
-Just like Day 16: stars but no joy for now (TPSORT+).
+~~Just like Day 16: stars but no joy for now (TPSORT+).~~
+Finally! I've managed to rework this challenge and the solution is surprisingly simple but hard to get right. The program runs a `DFS` search on possible moves with a cost heuristic to `cut` non-promising world states. Building a robot skips time forward sparing a lot of non interesting states in the process.
+
+    Benchmark 1: cat input.txt
+    Time (mean ± σ):       0.5 ms ±   0.2 ms    [User: 0.2 ms, System: 0.2 ms]
+    Range (min … max):     0.2 ms …   2.0 ms    1160 runs
+    
+    Benchmark 2: cat input.txt | ./aoc19
+    Time (mean ± σ):       6.1 ms ±   0.3 ms    [User: 4.8 ms, System: 1.9 ms]
+    Range (min … max):     5.6 ms …   7.5 ms    1000 runs
 
 ## Day 20 
 Today's about [cryptography](https://en.wikipedia.org/wiki/Key_(cryptography)) in a box!
@@ -451,7 +461,7 @@ All in all, I could go for more speed by `bisecting` out the value. But for now,
 ## Day 22
 ~~First star but I'm unable to undertake `part2` because 1) I'm tired and 2) It will make my brain swells not in the good way... I'm taking a break and I will take care of it in due time.~~
 
-Challenge is about (Cube Mapping)[https://en.wikipedia.org/wiki/Cube_mapping], the main problem is to get the input cube right. For the rest, the current position is stored as a vector relative to `O` the origin of this worldmap and converted back and forth each time it enters/go out of a side.
+Challenge is about [Cube Mapping](https://en.wikipedia.org/wiki/Cube_mapping), the main problem is to get the input cube right. For the rest, the current position is stored as a vector relative to `O` the origin of this worldmap and converted back and forth each time it enters/go out of a side.
 
 Right now, I've got 3 days to finish reworking (`16`, `19` et `22.2`). I'm quite sure I won't beat last year `380ms` for all parts/all days: day20 is the culprit I guess. I'm still hoping to be under `500ms` but there's no real room to jiggle.
 
@@ -469,6 +479,15 @@ Whenever the goal is `not reachable` (there's no way to get through), the soluti
 ## Day 25
 For the last day of this AoC, the program defines a new number type `snafu` alongside the addition. The solution's core is a `digit adder` with `carry propagation` that can operate on `bytes`.
 
-Happy coding to you all!!
+## What was it like?
+
+This year, I wanted to compose fast and simple programs every day from the start. I failed for days `16`, `19` and `22.2` because, for me, they required thorough studies. I wasn't sure until the very last moment (day19 rework) I would be able to break my [last year record](https://www.reddit.com/r/adventofcode/comments/rzvsjq/2021_all_daysgo_fast_solutions_under_a_second/) (380ms) and I agree it makes little sense to try: challenges aren't even the same. Anyway, it felt like the right way of [`upping the ante`](https://www.reddit.com/r/adventofcode/comments/zaumkz/whats_up_with_upping_the_ante/) for me.
+
+**Finally, here it is, this year collection runs all parts for all days in less than 291ms!!!**
+
+I am so happy with this result! 
+Feedback is welcome on reddit [u/erikade](https://www.reddit.com/user/erikade/).
+
+Happy new year and Happy coding to you all!!
 
 
