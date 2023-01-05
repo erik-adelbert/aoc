@@ -11,7 +11,10 @@ $(SUBDIRS):
 cyclo:
 	gocyclo -top 10 .
 
+lines:
+	find . -name '*go' | grep -v 'v1' | xargs wc -l
+
 runtime:
 	./runtime.sh | sort -n -k 4 > runtime.md
 
-.PHONY: $(TARGETS) $(SUBDIRS) cyclo runtime
+.PHONY: $(TARGETS) $(SUBDIRS) cyclo lines runtime

@@ -66,7 +66,7 @@ func match(out []seg, sigs [][]seg) int {
 			case s.inter(sig4) == 4:
 				n += 9
 			}
-		default: // for 2, 3, 4, 7 segment counts are 1, 7, 4, 8
+		default: // for 1, 7, 4, 8 segment counts are 2, 3, 4, 7
 			known := []int{2: 1, 3: 7, 4: 4, 7: 8}
 			n += known[len(s)]
 		}
