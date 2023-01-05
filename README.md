@@ -1,7 +1,7 @@
 # aoc
 My advent of code programs
 
-~This~ Last year programs have been carefully composed and run collectively in around 380ms. Coding notes have proven useful for others on reddit.  
-Happy coding!
+All programs have been carefully composed and run collectively in around 291ms(2022) and 380ms(2021). 
+Coding notes have proven useful for others on reddit.  
 
-This year programs are ~~on the way~~ here, including notes! Happy coding!
+Happy coding!
