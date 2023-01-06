@@ -21,13 +21,13 @@
 | 17 | 2.3 |
 | 9 | 3.2 |
 | 18 | 5.0 |
-| 19 | 5.5 |
+| 19 | 5.6 |
 | 11 | 6.0 |
 | 23 | 13.5 |
 | 16 | 16.3 |
 | 24 | 58.0 |
-| 20 | 158.6 |
-| total | 290.9 |
+| 20 | 118.8 |
+| total | 251.2 |
 
 end-to-end timing for part1&2 in ms - mbair M1/16GB - go1.19.4 darwin/arm64 - hyperfine 1.15.0
 
@@ -444,6 +444,8 @@ the `cover/uncover` ops. On the funny side, my solution is akin to a *Step Danci
 [Sedgewick](https://en.wikipedia.org/wiki/Robert_Sedgewick_(computer_scientist)) during his [`Quick Union-Find`](https://sedgewick.io/wp-content/themes/sedgewick/slides/algorithms/Algs01-UnionFind.pdf) study, here comes the `Quick Step Dancing SubMonkeys` or more on point `Algorithm QSDSk`!
 
 Yes, today I was inspired by [`Stanford`'s CS](https://web.stanford.edu/class/archive/cs/cs106b/cs106b.1126/lectures/17/Slides17.pdf)!
+
+`<EDIT>` thanks to the reddit community and [u/azzal07](https://www.reddit.com/r/adventofcode/comments/1046aia/2022_all_daysgo_fast_solutions_291ms_total_runtime/) the runtime is down to `119ms` but there's an even better solution provided by u/CountableFiber, stay tuned!
 
 ## Day 21
 Last year's day 23 was so painful to me: The challenge was about `compiler analysis`, I was unprepared. I tackled the challenge by writing it down and working out my solution with a pencil!
