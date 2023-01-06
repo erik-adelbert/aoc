@@ -68,7 +68,10 @@ func (l *list) shuffle(nloop int) {
 	// seek fwd or bck reinsertion point @(index+offset)
 	seek := func(i, off int) int {
 		// i is unlinked, offset cnt!
-		off %= (cnt - 1)
+		a, b := off%(cnt-1), mod(off, cnt-1)
+		// debug("seek:", off, mabs(a, b))
+		// off %= (cnt - 1)
+		off = mabs(a, b)
 
 		switch {
 		case off > 0:
@@ -189,6 +192,13 @@ func (l *list) append(n int) {
 	l.seq = append(l.seq, n)
 }
 
+func abs(n int) int {
+	if n < 0 {
+		return -n
+	}
+	return n
+}
+
 // strconv.Atoi simplified core loop
 // s is ^-?\d+$
 func atoi(b []byte) int {
@@ -203,7 +213,27 @@ func atoi(b []byte) int {
 	return s * n
 }
 
+func mod(a, b int) int {
+	return ((a % b) + b) % b
+}
+
+// incorrect but ok here
+func mabs(a, b int) int {
+	if abs(a) < b {
+		return a
+	}
+	return b
+}
+
 // parity test
 func odd(n int) bool {
 	return n&1 == 1
+}
+
+const DEBUG = true
+
+func debug(a ...any) {
+	if DEBUG {
+		fmt.Println(a...)
+	}
 }
