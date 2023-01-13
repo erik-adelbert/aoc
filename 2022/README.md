@@ -1,6 +1,6 @@
 ## Timings
 
-| day | time |
+ day | time |
 |-----|-----:|
 | 15 | 1.1 |
 | 2 | 1.1 |
@@ -23,11 +23,11 @@
 | 18 | 5.0 |
 | 19 | 5.6 |
 | 11 | 6.0 |
+| 20 | 8.0 |
 | 23 | 13.5 |
 | 16 | 16.3 |
 | 24 | 58.0 |
-| 20 | 118.8 |
-| total | 251.2 |
+| total | 140.4 |
 
 end-to-end timing for part1&2 in ms - mbair M1/16GB - go1.19.4 darwin/arm64 - hyperfine 1.15.0
 
@@ -446,6 +446,9 @@ the `cover/uncover` ops. On the funny side, my solution is akin to a *Step Danci
 Yes, today I was inspired by [`Stanford`'s CS](https://web.stanford.edu/class/archive/cs/cs106b/cs106b.1126/lectures/17/Slides17.pdf)!
 
 `<EDIT>` thanks to the reddit community and [u/azzal07](https://www.reddit.com/r/adventofcode/comments/1046aia/2022_all_daysgo_fast_solutions_291ms_total_runtime/) the runtime is down to `119ms` but there's an even better solution provided by u/CountableFiber, stay tuned!
+
+`<EDIT>` `u/CountableFiber`'s [solution](https://www.reddit.com/r/adventofcode/comments/1046aia/comment/j3421rg/?utm_source=share&utm_medium=web2x&context=3) is so efficient, I have translated it to Go and the runtime dropped from 110ms to `8ms`.
+This collection of programs runs `all AoC 2022 problems in less than 141ms`. I am so **happy** with this result!
 
 ## Day 21
 Last year's day 23 was so painful to me: The challenge was about `compiler analysis`, I was unprepared. I tackled the challenge by writing it down and working out my solution with a pencil!

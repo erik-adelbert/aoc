@@ -4,199 +4,186 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"sync"
 )
 
-// array based circular doubly linked list
-type list struct {
-	seq []int
-	bck []int
-	fwd []int
-	o   int
+func shuffle(input []int, salt, nround int) ([]int, int) {
+	const (
+		// 256*32 = 2^13 > 5000 items
+		maxbin = 256
+		// cluster bin capacity
+		nbin = 16
+		// bin item capacity
+		nitem = 32
+	)
+
+	type item struct {
+		val int
+		// global index
+		gix int
+	}
+
+	// populate bins from input
+	bins := make([][]item, 0, maxbin)
+	bin := make([]item, 0, nitem)
+	for i, x := range input {
+		bin = append(bin, item{x * salt, i})
+		if len(bin) >= nitem {
+			bins = append(bins, bin)
+			bin = make([]item, 0, nitem)
+		}
+	}
+	bins = append(bins, bin)
+
+	// compute cluster sizes
+	clusters := make([]int, 1+(len(bins)/nbin))
+	for i := range bins {
+		bin := i / nbin
+		clusters[bin] += len(bins[i])
+	}
+
+	// map bin/off addresses
+	type addr struct {
+		bin, off int
+	}
+	var addrs []addr
+	for i := range bins {
+		for j := range bins[i] {
+			addrs = append(addrs, addr{i, j})
+		}
+	}
+
+	// shuffle
+	for n := nround; n > 0; n-- {
+		// shuffle once
+		for k, a := range addrs {
+			// remove x from cur a
+
+			x := bins[a.bin][a.off]
+
+			// move
+			for i := a.off; i < len(bins[a.bin])-1; i++ {
+				bins[a.bin][i] = bins[a.bin][i+1]
+				addrs[bins[a.bin][i].gix].off = i
+			}
+			// shrink
+			bins[a.bin] = bins[a.bin][:len(bins[a.bin])-1]
+
+			// fix cluster size
+			cid := a.bin / nbin
+			clusters[cid]--
+
+			// compute cur x global index
+			gix := 0
+			for _, n := range clusters[:cid] {
+				gix += n
+			}
+			for i := cid * nbin; i < a.bin; i++ {
+				gix += len(bins[i])
+			}
+			gix += a.off
+
+			// compute new x global index
+			gix = mod(gix+x.val, len(addrs)-1)
+
+			// remap to bin/off
+			bin, off := 0, 0
+			for off+clusters[bin/nbin] <= gix {
+				off += clusters[bin/nbin]
+				bin += nbin
+			}
+			for off+len(bins[bin]) <= gix {
+				off += len(bins[bin])
+				bin++
+			}
+			off = gix - off
+
+			// reinsert x
+
+			// fix cluster size
+			cid = bin / nbin
+			clusters[cid]++
+
+			// expand
+			bins[bin] = append(bins[bin], item{})
+			// move
+			for i := len(bins[bin]) - 1; i > off; i-- {
+				bins[bin][i] = bins[bin][i-1]
+				addrs[bins[bin][i].gix].off = i
+			}
+			// insert back
+			bins[bin][off] = x
+
+			// write back new a
+			addrs[k] = addr{bin, off}
+		}
+
+		// rebalance between rounds
+		flat := make([]item, 0, len(bins)*nitem)
+		for i := range bins {
+			flat = append(flat, bins[i]...)
+		}
+
+		bins = make([][]item, 0, maxbin)
+		bin = make([]item, 0, nitem)
+		for _, x := range flat {
+			addrs[x.gix] = addr{
+				len(bins),
+				len(bin),
+			}
+			bin = append(bin, x)
+			if len(bin) >= nitem {
+				bins = append(bins, bin)
+				bin = make([]item, 0, nitem)
+			}
+		}
+		bins = append(bins, bin)
+
+		for i := range clusters {
+			clusters[i] = 0
+		}
+		for i := range bins {
+			bin := i / nbin
+			clusters[bin] += len(bins[i])
+		}
+	}
+
+	// flatten and extract origin
+	shuffled, o := make([]int, 0, len(bins)*nitem), -1
+	for i := range bins {
+		for _, x := range bins[i] {
+			if x.val == 0 {
+				o = len(shuffled)
+			}
+			shuffled = append(shuffled, x.val)
+		}
+	}
+
+	return shuffled, o
+}
+
+func key(a []int, o int) int {
+	// get key components
+	k1 := mod(o+1000, len(a))
+	k2 := mod(o+2000, len(a))
+	k3 := mod(o+3000, len(a))
+
+	// forge & return key
+	return a[k1] + a[k2] + a[k3]
 }
 
 func main() {
-	part1 := mklist()
-
-	salt := 811_589_153
-	part2 := mklist()
-
+	seq := make([]int, 0, 8192)
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
-		n := atoi(input.Bytes())
-		if n == 0 {
-			part1.o = len(part1.seq)
-			part2.o = len(part2.seq)
-		}
-
-		part1.append(n)
-		part2.append(n * salt)
+		seq = append(seq, atoi(input.Bytes()))
 	}
 
-	var wg sync.WaitGroup
+	// part 1
+	fmt.Println(key(shuffle(seq, 1, 1)))
 
-	wg.Add(2)
-
-	go func() {
-		defer wg.Done()
-		part2.shuffle(10)
-	}()
-
-	go func() {
-		defer wg.Done()
-		part1.shuffle(1)
-	}()
-
-	wg.Wait()
-
-	fmt.Println(part1.key())
-	fmt.Println(part2.key())
-}
-
-func (l *list) shuffle(nloop int) {
-	seq, bck, fwd := l.seq, l.bck, l.fwd
-	cnt := len(seq)
-
-	bck = bck[:cnt]
-	fwd = fwd[:cnt]
-
-	// loopback lists
-	last := cnt - 1
-	bck[0] = last
-	fwd[last] = 0
-
-	// seek fwd or bck reinsertion point @(index+offset)
-	seek := func(i, off int) int {
-		// i is unlinked, offset cnt!
-		a, b := off%(cnt-1), mod(off, cnt-1)
-		// debug("seek:", off, mabs(a, b))
-		// off %= (cnt - 1)
-		off = mabs(a, b)
-
-		switch {
-		case off > 0:
-			// forward compressed scan
-
-			// halve lookup path
-			if odd(off) {
-				i = fwd[i]
-				off--
-			}
-
-			// right compressed scan
-			for ; off > 0; off -= 2 {
-				i = fwd[fwd[i]]
-			}
-		case off < 0:
-			// backward compressed scan
-
-			// later on when reinserting, backward moving keys
-			// are inserted *before* j, that is *after* bck[j]
-			//
-			// offset now to return bck[j] instead of j
-			// see move() below
-			off--
-
-			// halve lookup path
-			if odd(off) {
-				i = bck[i]
-				off++
-			}
-			// left compressed scan
-			for ; off < 0; off += 2 {
-				i = bck[bck[i]]
-			}
-		}
-		return i
-	}
-
-	move := func(i, off int) {
-		// to get on point, order matters here *first* unlink i,
-		// this way the insert point is to be found between the
-		// *remaining* items
-
-		if off == 0 {
-			// nothing to do
-			return
-		}
-
-		// unlink i
-		// see https://en.wikipedia.org/wiki/Dancing_Links#Main_ideas
-		fwd[bck[i]], bck[fwd[i]] = fwd[i], bck[i]
-
-		// seek the new insertion point in the remaining sequence
-		// see seek() above
-		j := seek(i, off)
-
-		if i == j {
-			// no move, relink i and abort
-			fwd[bck[i]], bck[fwd[i]] = i, i
-			return
-		}
-
-		// always relink i *after* j
-		fwd[i], bck[i] = fwd[j], j
-		fwd[bck[i]], bck[fwd[i]] = i, i
-	}
-
-	// no global loop cycle because
-	// ppcm(key, nloop) = salt*nloop >>> nloop = 1|10
-	for nloop > 0 {
-		for i, x := range seq {
-			move(i, x)
-		}
-		nloop--
-	}
-}
-
-func (l *list) key() int {
-	seq, fwd, cnt := l.seq, l.fwd, len(l.seq)
-
-	o := l.o
-
-	// subkeys relative to n
-	k1 := 1000 % cnt
-	k2 := 2000 % cnt
-	k3 := 3000 % cnt
-
-	// synced dual loops
-	// i in indices space
-	// n is item count
-	key := 0
-	unk := 3 // unknown subkeys
-	for n, i := 0, o; unk > 0; n, i = n+1, fwd[i] {
-		switch n {
-		case k1, k2, k3:
-			// forge key from found subkey
-			key += seq[i]
-			unk--
-		}
-	}
-
-	return key
-}
-
-func mklist() *list {
-	p := new(list)
-	p.seq = make([]int, 0, 5000)
-	p.bck = make([]int, 5000)
-	p.fwd = make([]int, 5000)
-
-	return p
-}
-
-func (l *list) append(n int) {
-	i := len(l.seq)
-	l.bck[i] = i - 1
-	l.fwd[i] = i + 1
-	l.seq = append(l.seq, n)
-}
-
-func abs(n int) int {
-	if n < 0 {
-		return -n
-	}
-	return n
+	// part 2
+	const salt = 811_589_153
+	fmt.Println(key(shuffle(seq, salt, 10)))
 }
 
 // strconv.Atoi simplified core loop
@@ -215,19 +202,6 @@ func atoi(b []byte) int {
 
 func mod(a, b int) int {
 	return ((a % b) + b) % b
-}
-
-// incorrect but ok here
-func mabs(a, b int) int {
-	if abs(a) < b {
-		return a
-	}
-	return b
-}
-
-// parity test
-func odd(n int) bool {
-	return n&1 == 1
 }
 
 const DEBUG = true
