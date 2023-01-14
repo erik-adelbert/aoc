@@ -494,5 +494,3 @@ I am so happy with this result!
 Feedback is welcome on reddit [u/erikade](https://www.reddit.com/user/erikade/).
 
 Happy new year and Happy coding to you all!!
-
-

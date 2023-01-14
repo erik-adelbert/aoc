@@ -41,11 +41,12 @@ func shuffle(input []int, salt, nround int) ([]int, int) {
 		clusters[bin] += len(bins[i])
 	}
 
-	// map bin/off addresses
+	// map bin/off addresses to gix
 	type addr struct {
 		bin, off int
 	}
-	var addrs []addr
+
+	addrs := make([]addr, 0, maxbin*nitem)
 	for i := range bins {
 		for j := range bins[i] {
 			addrs = append(addrs, addr{i, j})
@@ -56,11 +57,10 @@ func shuffle(input []int, salt, nround int) ([]int, int) {
 	for n := nround; n > 0; n-- {
 		// shuffle once
 		for k, a := range addrs {
-			// remove x from cur a
-
+			// extract x from cur a
 			x := bins[a.bin][a.off]
 
-			// move
+			// move left
 			for i := a.off; i < len(bins[a.bin])-1; i++ {
 				bins[a.bin][i] = bins[a.bin][i+1]
 				addrs[bins[a.bin][i].gix].off = i
@@ -68,19 +68,18 @@ func shuffle(input []int, salt, nround int) ([]int, int) {
 			// shrink
 			bins[a.bin] = bins[a.bin][:len(bins[a.bin])-1]
 
-			// fix cluster size
+			// update cluster size
 			cid := a.bin / nbin
 			clusters[cid]--
 
 			// compute cur x global index
-			gix := 0
+			gix := a.off
 			for _, n := range clusters[:cid] {
 				gix += n
 			}
 			for i := cid * nbin; i < a.bin; i++ {
 				gix += len(bins[i])
 			}
-			gix += a.off
 
 			// compute new x global index
 			gix = mod(gix+x.val, len(addrs)-1)
@@ -99,13 +98,13 @@ func shuffle(input []int, salt, nround int) ([]int, int) {
 
 			// reinsert x
 
-			// fix cluster size
+			// update cluster size
 			cid = bin / nbin
 			clusters[cid]++
 
 			// expand
 			bins[bin] = append(bins[bin], item{})
-			// move
+			// move right
 			for i := len(bins[bin]) - 1; i > off; i-- {
 				bins[bin][i] = bins[bin][i-1]
 				addrs[bins[bin][i].gix].off = i
@@ -127,8 +126,7 @@ func shuffle(input []int, salt, nround int) ([]int, int) {
 		bin = make([]item, 0, nitem)
 		for _, x := range flat {
 			addrs[x.gix] = addr{
-				len(bins),
-				len(bin),
+				bin: len(bins), off: len(bin),
 			}
 			bin = append(bin, x)
 			if len(bin) >= nitem {
