@@ -1,37 +1,39 @@
-## Timings
 
- day | time |
+# Timings
+
+| day | time |
 |-----|-----:|
-| 15 | 1.1 |
-| 2 | 1.1 |
-| 3 | 1.1 |
-| 1 | 1.2 |
-| 10 | 1.2 |
-| 5 | 1.2 |
-| 6 | 1.2 |
-| 7 | 1.2 |
-| 4 | 1.3 |
-| 12 | 1.4 |
-| 22 | 1.4 |
-| 8 | 1.6 |
-| 13 | 1.7 |
-| 21 | 1.7 |
-| 14 | 2.0 |
-| 25 | 2.1 |
+| 1 | 0.7 |
+| 10 | 0.7 |
+| 15 | 0.7 |
+| 2 | 0.7 |
+| 3 | 0.7 |
+| 5 | 0.7 |
+| 6 | 0.7 |
+| 4 | 0.8 |
+| 7 | 0.8 |
+| 12 | 0.9 |
+| 25 | 1.0 |
+| 22 | 1.1 |
+| 8 | 1.1 |
+| 13 | 1.2 |
+| 14 | 1.4 |
+| 21 | 1.4 |
 | 17 | 2.3 |
-| 9 | 3.2 |
-| 18 | 5.0 |
-| 19 | 5.6 |
-| 11 | 6.0 |
-| 20 | 8.0 |
-| 23 | 13.5 |
-| 16 | 16.3 |
-| 24 | 58.0 |
-| total | 140.4 |
+| 9 | 2.6 |
+| 19 | 4.0 |
+| 18 | 4.5 |
+| 11 | 5.5 |
+| 20 | 7.7 |
+| 23 | 11.2 |
+| 16 | 16.1 |
+| 24 | 56.7 |
+| total | 125.2 |
 
-end-to-end timing for part1&2 in ms - mbair M1/16GB - go1.19.4 darwin/arm64 - hyperfine 1.15.0
+end-to-end timing for part1&2 in ms - mbair M1/16GB - darwin 22.6.0 - go version go1.20.3 darwin/arm64 - hyperfine 1.17.0 - 2023-09-09
 
 ## Day 1
+
 For this 2022 edition first day, I have written a simple and fast solution:
 The logic is like a fragment of [insertion sort](https://en.wikipedia.org/wiki/Insertion_sort).
 There's not much to say here, once again it's about pure composing speed. 
@@ -43,6 +45,7 @@ Finally, I like the way max3, as a closure, captures global vars and gives the
 resulting code a vintage-ish look and feel.
 
 ## Day 2
+
 There is two efficient ways to solve today challenge: either the solution should precompute all
 possible outcomes and match inputs against them or devise a scoring formula that is fast enough 
 to be computed on the fly while parsing inputs.
@@ -128,13 +131,14 @@ why bother? I have also found a static scaling matrix for an even
 faster score computation!
 
 ## Day 3
+
 Today my solution closely follows the challenge story and it's pretty boring 
 but fast. First, the program splits any input line in two halves and maps 
 each of them, in turn, with either `Head` or `Tail`, *two strictly positive
 values*, in a *single map*. This amounts to build a set from the input line
 while intersecting its head and tail.
 
-ex: 
+ex:
 
 `ABCabc -> { A: Head, B: Head, C: Head, a: Tail, b: Tail, c: Tail }`
 
@@ -159,6 +163,7 @@ ease branch prediction and here, I fancy the code layout.
 As a final word and just for fun, I've tried my best to balance the naming.
 
 ## Day 4
+
 My solution is exceptionnally boring but fast. This challenge plays against
 Go fortes but the difficulty is really low.
 It is about [1D geometry](https://en.wikipedia.org/wiki/One-dimensional_space).
@@ -171,6 +176,7 @@ segment contains the other one, they also intersect*. It nicely becomes a
 score is part1 score + something!
 
 ## Day 5
+
 Today I wasn't in the mood for parsing the challenge initial state: I hard-coded 
 it into the program. From there, most of the pain was gone. Part1, is a classical
 stack operations problem while Part2 means slice operations instead. Implementations 
@@ -180,6 +186,7 @@ Finally, to fast build the result string, I use a `bytes.Buffer` while scanning
 crate stacks.
 
 ## Day 6
+
 My solution grows a [sliding window](https://itnext.io/sliding-window-algorithm-technique-6001d5fbe8b3) over the input while scanning it. At any point, it ensures this window to be the largest possible with no repeating symbols. The underlying algorithm is:
 
     for each index, symbol in the input:
@@ -223,6 +230,7 @@ Last but not least the internal memory size is fixed, the solution also has `O(1
 `<EDIT>` I have an [ongoing discussion](https://www.reddit.com/r/adventofcode/comments/zdw0u6/comment/iz6e67e/?utm_source=share&utm_medium=web2x&context=3) about the space complexity that I may have not gotten right on this... ~more to come~!
 
 ## Day 7
+
 Today, the challenge is an other kind of beast: the program has to 1) parse a shell dump, 2) rebuild a filesystem and
 3) help decide what to do because of a storage shortage.
 
@@ -238,16 +246,15 @@ the filesystem. Here is the today sample directory layout:
     $ cd d
 
 As I said, preorder traversal of:
-```
+
+    ```
     /
     ├── a
     │   └── e
     └── d
-```    
-    
+    ```
 
-This part of the challenge is a classical question about the filesystem graph: I've looked for a recursive solution 
-from the start because it's the easiest to develop and fix in this context.
+This part of the challenge is a classical question about the filesystem graph: I've looked for a recursive solution from the start because it's the easiest to develop and fix in this context.
 
 There is not much room from improvement here and `part1` is pretty linear. But `part2` is a tad more interesting to design, the program has to memorize `subdir` sizes and fast scan them afterward. The trick here is to keep their array sorted as we build it as it will speed up search when scanning them later on. Fortunately, there's a single useful tool to help us for both building and scanning a sorted array: it's [binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm). This algorithm is so handy that it lives in many standard libraries. Here, in `Go`, it is available as [`sort.SearchInts`](https://pkg.go.dev/sort#SearchInts).
 
@@ -284,10 +291,10 @@ for this.
 `<EDIT>` I couldn't resist so I simplified the program. If you want to follow my notes, please pull the previous version.
 
 ## Day 8
+
 My solution runs in ~3ms on my mbair M1/16GB but I'm not satisfied. The runtime complexity feels too high.
 
-The program follows the naive approach. To speed things up, it precomputes the 4-axis field rotations matrices and scanning the 4-axis views becomes easy: it's a matter of slicing the 
-right matrix at the right place and scanning this slice.
+The program follows the naive approach. To speed things up, it precomputes the 4-axis field rotations matrices and scanning the 4-axis views becomes easy: it's a matter of slicing the right matrix at the right place and scanning this slice.
 
 As trees are *counted* from *distances* and all distances are `chars` (offsetted by `'0'`), I really don't care bringing them back into integers: the `'0'` offset is auto-cancelled during computations. *The problem is a `pure` `byte` one*.
 
@@ -296,11 +303,13 @@ As trees are *counted* from *distances* and all distances are `chars` (offsetted
 `<EDIT>` I've realised that `dist(o, v)` which counts the viewing distance from `o` needed to also output `h` the highest height. From there I was able to remove the call to `max(v)`. And the program runtime went down to ~1.6ms which I'm happy with.  
 
 ## Day 9
+
 I find this one funny. The challenge teasing adds a lot of complications and by the end of reading it, all the necessary operations are split into too many small pieces. I have not find a better way than to follow the text: the program is very straightforward, it turns the challenge at hand into a vector problem.
 
 `dir()` returns a translation vector that is used to move a tail knot closer to its head one. This simplifies the workflow. The other trick I've used is to compute `dist(A,B)^2` instead of `dist(A,B)` this also eases the flow of control.
 
 ## Day 10
+
 Today's challenge reminds me of [last year day13](https://github.com/erik-adelbert/aoc/blob/2022/2021/13/aoc13.go), I have *carefully* implemented the description: offsets are everywhere and magic numbers such as `20`, `21`, `39`, `40` keep popping from seemingly nowhere.
 In this case, I had to be torough writing every single case separately and later on I went on simplifying the code. As you can easily guess, there's a `+1` offset on `20` and a `-1` on `40`. `40` is obviously known from the challenge but `20` is interesting:
 
@@ -317,6 +326,7 @@ At first, I needed to relate `{20, 60, 100, 140, 180, 220, ...}` form `part1` wi
 I've updated my go toolchain from 1.17 to 1.19: it spared me 1ms. As of today my programs from day1-10 run all parts collectively under 15ms!
 
 ## Day 11
+
 AoC 2022 is on! Today challenge describes an interesting dispatching or routing mechanism based on [modular arithmetic](https://en.wikipedia.org/wiki/Modular_arithmetic).
 
 My solution is a straightforward implementation of the described design. 
@@ -344,17 +354,19 @@ PS. ahah, program runtimes have been doubling for the last 3 days, `dijkstra`
 is probably coming on day 16! 
 
 ## Day 12
+
 See? This is day 16 already! My last year [`day` `15`](https://github.com/erik-adelbert/aoc/blob/2022/2021/15/aoc15.go) comment still stands: you can't say must when using [`dijkstra`]((https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm)).
 
-~~The design encloses dijkstra in a loop to set the starting points. This allows the same code to solve `part1` given a singleton and `part2` a list of starting points.~~ 
+~~The design encloses dijkstra in a loop to set the starting points. This allows the same code to solve `part1` given a singleton and `part2` a list of starting points.~~
 
-There's much to say: we can solve this problem backward. By working out the solution from then end, there's a unique run that brings all the answers efficiently. 
+There's much to say: we can solve this problem backward. By working out the solution from then end, there's a unique run that brings all the answers efficiently.
 
 <div style="text-align:center">
   <img src="https://upload.wikimedia.org/wikipedia/commons/2/23/Dijkstras_progress_animation.gif" />
 </div>
 
 ## Day 13
+
 Today's challenge describes some `packet` numbers. They are somewhat related to `snailfish` numbers from [last year day 18](https://github.com/erik-adelbert/aoc/blob/main/2021/18/aoc18.go). These numbers parsing is the crux of today's challenge, my parser is recursive and pretty straightforward. I had though times putting it together though and the tyniest mistake here is fatal. ~~The `cmp` function is nicely described: it was easy to have the standard Go library sorting the numbers.~~ No need to sort the packets!
 
 I've chosen to represent a `packet` as `struct{ val int, list []packet }`, with the added convention that if `p.val < 0` then the number is a `list`. It's an `integer` otherwise. The following have been modified to display the internal representation of `[1, 1, 3, 1, 1]`:
@@ -366,40 +378,42 @@ I've chosen to represent a `packet` as `struct{ val int, list []packet }`, with 
     140
 
 ## Day 14
+
 There's so much to say about this challenge! I built my solution through many reworks and here it is running in less than 2ms!!
-You'll see much more wizardry in this program than I intended at first. But the first iteration of this program was running in the 150ms realm, drowning in map accesses... Then I decided to translate and resize the world to fit it into a byte array: 50ms. 
+You'll see much more wizardry in this program than I intended at first. But the first iteration of this program was running in the 150ms realm, drowning in map accesses... Then I decided to translate and resize the world to fit it into a byte array: 50ms.
 
 Casually talking about this challenge with a friend, he was telling me about is plan to solve part2 by mapping hollows instead of walls.
-Thinking of it, I realised that this world aisles would *always be the same* and *easy to compute*. I devised right away a slicing mechanism: an AABB defines the rectangle of interest where the action is. Having cut more than 50% of the world space, I was getting 
-there: 15ms.
+Thinking of it, I realised that this world aisles would *always be the same* and *easy to compute*. I devised right away a slicing mechanism: an AABB defines the rectangle of interest where the action is. Having cut more than 50% of the world space, I was getting there: 15ms.
 
 Finally, I added DFS backtracking to sand grains motion: I ended up assembling a nice dfs iterator.
 All of it is about 200 LoC tailored to the problem but yet very generic.
 
+`<EDIT>` I fixed a mistake here and had to retime evrything the new low is **125.2ms**
+
 | Command | Mean [ms] | Min [ms] | Max [ms] | Relative |
 |:---|---:|---:|---:|---:|
-| `cat input.txt` | 0.5 ± 0.2 | 0.2 | 1.4 | 1.00 |
-| `cat input.txt \| ./aoc14` | 2.5 ± 0.2 | 2.0 | 4.1 | 4.61 ± 1.55 |
+| `cat input.txt > /dev/null` | 1.2 ± 0.3 | 0.8 | 4.1 | 1.00 |
+| `./aoc15 < input.txt` | 1.9 ± 0.4 | 1.4 | 7.0 | 1.60 ± 0.52 |
 
 ## Day 15
+
 I have been working this challenge for almost 6 hours today. I've tried (number of) different ways and my solution
-time was down to ~10ms and going. When things go sideways when coding, I always take a break and then work my way 
-out using a paper and a pencil. It was when drawing corner cases for a friend that I realised it was possible to 
-solve this problem from another prospective: it is possible (and [easy](https://www.reddit.com/r/adventofcode/comments/zmw9d8/comment/j0dhu1w/?utm_source=share&utm_medium=web2x&context=3)) to track the gap that could enclose the missing beacon.
+time was down to ~10ms and going. When things go sideways when coding, I always take a break and then work my way out using a paper and a pencil. It was when drawing corner cases for a friend that I realised it was possible to solve this problem from another prospective: it is possible (and [easy](https://www.reddit.com/r/adventofcode/comments/zmw9d8/comment/j0dhu1w/?utm_source=share&utm_medium=web2x&context=3)) to track the gap that could enclose the missing beacon.
 
 And then I saw this [reddit post](https://www.reddit.com/r/adventofcode/comments/zmcn64/comment/j0cdi3j/?utm_source=share&utm_medium=web2x&context=3). The solution is so beautiful and balanced, that it would have been a waste of my time to finish mine (same idea anyway). Instead, I studied this one and adapted my work to become a port of it.
 
 ## Day 16
+
 The dropout dilemma all over again, for now I'm not finished with this one! I did manage to get the stars but I'm not satisfied with the performance. ~~I'll figure it out later.~~ Finally! I've tried many techniques and settled for a floyd-warshall computing of all pairs shortest paths. Before a slightly modified `A*`. And then I saw the same ideas [here](https://github.com/orlp/aoc2022/blob/master/src/bin/day16.rs) published before mine. Consider my work to be a port of this `rust` solution.
 
-
 ## Day 17
+
 This one is kind of fun! The program has to simulate a very bad [tetrish](https://en.wikipedia.org/wiki/Tetris) player that can't even rotate the pieces. `part1` is quiet easy to simulate and [`tetrominoes`](https://en.wikipedia.org/wiki/Tetromino) are [well known](https://gamedevelopment.tutsplus.com/tutorials/implementing-tetris-collision-detection--gamedev-852).
 
 The main pitfall is in `part2`: we can't just simulate everything because the number of tetrominoes to drop `10^12` seems beyond comprehension. But the huge size of this number is also the key to this problem: we have `5` tetrominoes and `2k+` jets and they cycle.
-so, _at least_, the all sequence seen up to `lcm(5, 2k+)` is repeating. We just have to simulate the play until we find a cycle. Then it's easy to statically fast forward all the cycles and to simulate the rest of the play until we have dropped the required number of pieces.
+so, *at least*, the all sequence seen up to `lcm(5, 2k+)` is repeating. We just have to simulate the play until we find a cycle. Then it's easy to statically fast forward all the cycles and to simulate the rest of the play until we have dropped the required number of pieces.
 
-But how to detect a cycle? 
+But how to detect a cycle?
 
 There are at least two good algorithms to solve the [general problem](https://en.wikipedia.org/wiki/Cycle_detection) but, here, they don't fit well... Let's try the naive approach for once: a cycle appears when we are about to drop the *same tetromino* with the *same jet* as before. Wait! Is that *all*? No it isn't, we also have to garantee that the new *tetromino* follows the same *path* as before. To this end we could *record* for each *tetromino*, the initial *jet* and the resulting *skyline*. And from there, we could naively (but efficiently) detect cycles!
 
@@ -408,10 +422,12 @@ The resulting computations are a little tricky but definitely manageable.
 PS. It's funny to see `part2` computed faster than `part1` because it has fewer remaining moves.
 
 ## Day 18
+
 Today's solution is pretty naive, `part1` scans every cube side `x` in the input: if any of the other sides is missing from input, then `x` is added to the area. `part2` is a classical [flood fill](https://en.wikipedia.org/wiki/Flood_fill#Stack-based_recursive_implementation_(four-way)) algorithm: It starts outside of all cubes and eventually moves toward an external side. From there, it surfs the surface while
 keeping track of the outside area.
 
 ## Day 19
+
 ~~Just like Day 16: stars but no joy for now (TPSORT+).~~
 Finally! I've managed to rework this challenge and the solution is surprisingly simple but hard to get right. The program runs a `DFS` search on possible moves with a cost heuristic to `cut` non-promising world states. Building a robot skips time forward sparing a lot of non interesting states in the process.
 
@@ -423,7 +439,8 @@ Finally! I've managed to rework this challenge and the solution is surprisingly 
     Time (mean ± σ):       6.1 ms ±   0.3 ms    [User: 4.8 ms, System: 1.9 ms]
     Range (min … max):     5.6 ms …   7.5 ms    1000 runs
 
-## Day 20 
+## Day 20
+
 Today's about [cryptography](https://en.wikipedia.org/wiki/Key_(cryptography)) in a box!
 
 The solution program runs an `array-based circular doubly linked list` with
@@ -451,6 +468,7 @@ Yes, today I was inspired by [`Stanford`'s CS](https://web.stanford.edu/class/ar
 This collection of programs runs `all AoC 2022 problems in less than 141ms`. I am so **happy** with this result!
 
 ## Day 21
+
 Last year's day 23 was so painful to me: The challenge was about `compiler analysis`, I was unprepared. I tackled the challenge by writing it down and working out my solution with a pencil!
 Then I saw [Russ Cox](https://www.youtube.com/watch?v=hmq6veCFo0Y) solve the challenge and learn
 many things.
@@ -464,6 +482,7 @@ The idea, here, is truly basic, first all the symbolic instructions of the progr
 All in all, I could go for more speed by `bisecting` out the value. But for now, my solution runs in `1.7ms` (thanks to the small size of input) which I'm happy with!
 
 ## Day 22
+
 ~~First star but I'm unable to undertake `part2` because 1) I'm tired and 2) It will make my brain swells not in the good way... I'm taking a break and I will take care of it in due time.~~
 
 Challenge is about [Cube Mapping](https://en.wikipedia.org/wiki/Cube_mapping), the main problem is to get the input cube right. For the rest, the current position is stored as a vector relative to `O` the origin of this worldmap and converted back and forth each time it enters/go out of a side.
@@ -475,22 +494,26 @@ Let's see what's coming!
 `<EDIT>` solution is ~~coming soon~~ here!
 
 ## Day 23
+
 It's a multi-valued GoL, I've got the stars by writting a straight forward `python` script because my Go design for it will sureley takes a lot of time but runs really fast ~~(compared to naïve solutions, even the packed ones)~~. My solution is a packed simulation built upon a `u256` custom type derived from a `u128` custom type. It is akin to [u/SLiV9's](https://www.reddit.com/r/adventofcode/comments/zt6xz5/comment/j1f9cz2/?utm_source=share&utm_medium=web2x&context=3) but faster.
 
 ## Day 24
+
 For this day challenge, the program `precomputes` all `wind conditions`: they `cycle` every `lcm(H, W)` with `H, W` the dimensions of this world. From there, it `floods` the resulting maze from `t0` and `start` to every `reachable cell` at a given time. The first time the `goal` cell is reached is garanteed to be the smallest possible (`dijkstra`-ish).
 
 Whenever the goal is `not reachable` (there's no way to get through), the solution is to restart the flooding from `later` than `t0`.
+
 ## Day 25
+
 For the last day of this AoC, the program defines a new number type `snafu` alongside the addition. The solution's core is a `digit adder` with `carry propagation` that can operate on `bytes`.
 
 ## What was it like?
 
 This year, I wanted to compose fast and simple programs every day from the start. I failed for days `16`, `19` and `22.2` because, for me, they required thorough studies. I wasn't sure until the very last moment (day19 rework) I would be able to break my [last year record](https://www.reddit.com/r/adventofcode/comments/rzvsjq/2021_all_daysgo_fast_solutions_under_a_second/) (380ms) and I agree it makes little sense to try: challenges aren't even the same. Anyway, it felt like the right way of [`upping the ante`](https://www.reddit.com/r/adventofcode/comments/zaumkz/whats_up_with_upping_the_ante/) for me.
 
-**Finally, here it is, this year collection runs all parts for all days in less than 291ms!!!**
+**Finally, here it is, this year collection runs all parts for all days in less than 126ms!!!**
 
-I am so happy with this result! 
+I am so happy with this result!
 Feedback is welcome on reddit [u/erikade](https://www.reddit.com/user/erikade/).
 
 Happy new year and Happy coding to you all!!

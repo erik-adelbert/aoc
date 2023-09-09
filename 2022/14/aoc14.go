@@ -111,10 +111,9 @@ func mkworld(s string) AABB {
 		var seg XY
 		for i, s := range strings.Split(segs, ",") {
 			seg[i] = atoi(s)
-			if i == 0 { // translate x to fit
-				seg[i] -= XOFF
-			}
 		}
+		seg[0] -= XOFF // translate x to fit
+
 		box.add(seg)
 		wall = append(wall, seg)
 	}
