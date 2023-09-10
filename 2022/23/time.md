@@ -1,4 +1,4 @@
 | Command | Mean [ms] | Min [ms] | Max [ms] | Relative |
 |:---|---:|---:|---:|---:|
-| `cat input.txt > /dev/null` | 1.1 ± 0.3 | 0.7 | 5.2 | 1.00 |
-| `./aoc23 < input.txt` | 12.3 ± 0.3 | 11.6 | 17.3 | 11.29 ± 3.14 |
+| `cat input.txt > /dev/null` | 1.2 ± 0.1 | 1.0 | 2.0 | 1.00 |
+| `./aoc23 < input.txt` | 12.0 ± 0.2 | 11.6 | 13.4 | 9.90 ± 0.92 |

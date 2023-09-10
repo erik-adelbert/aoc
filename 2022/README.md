@@ -3,34 +3,33 @@
 
 | day | time |
 |-----|-----:|
+| 10 | 0.6 |
 | 1 | 0.7 |
-| 10 | 0.7 |
 | 15 | 0.7 |
 | 2 | 0.7 |
 | 3 | 0.7 |
+| 4 | 0.7 |
 | 5 | 0.7 |
 | 6 | 0.7 |
-| 4 | 0.8 |
 | 7 | 0.8 |
 | 12 | 0.9 |
-| 25 | 1.0 |
+| 25 | 0.9 |
+| 13 | 1.1 |
 | 22 | 1.1 |
 | 8 | 1.1 |
-| 13 | 1.2 |
+| 21 | 1.3 |
 | 14 | 1.4 |
-| 21 | 1.4 |
-| 17 | 2.3 |
+| 17 | 2.2 |
 | 9 | 2.6 |
-| 19 | 4.0 |
-| 18 | 4.5 |
-| 11 | 5.5 |
-| 20 | 7.7 |
-| 23 | 11.2 |
-| 16 | 16.1 |
-| 24 | 56.7 |
-| total | 125.2 |
-
-end-to-end timing for part1&2 in ms - mbair M1/16GB - darwin 22.6.0 - go version go1.20.3 darwin/arm64 - hyperfine 1.17.0 - 2023-09-09
+| 19 | 3.9 |
+| 18 | 4.3 |
+| 11 | 5.4 |
+| 20 | 7.5 |
+| 23 | 10.8 |
+| 16 | 15.9 |
+| 24 | 51.9 |
+| total | 118.6 |
+end-to-end timing for part1&2 in ms - mbair M1/16GB - darwin 22.6.0 - go version go1.20.3 darwin/arm64 - hyperfine 1.17.0 - 2023-09-10
 
 ## Day 1
 
@@ -502,6 +501,8 @@ It's a multi-valued GoL, I've got the stars by writting a straight forward `pyth
 For this day challenge, the program `precomputes` all `wind conditions`: they `cycle` every `lcm(H, W)` with `H, W` the dimensions of this world. From there, it `floods` the resulting maze from `t0` and `start` to every `reachable cell` at a given time. The first time the `goal` cell is reached is garanteed to be the smallest possible (`dijkstra`-ish).
 
 Whenever the goal is `not reachable` (there's no way to get through), the solution is to restart the flooding from `later` than `t0`.
+
+`<EDIT>` I've reworked this one to reuse `map` storage, alleviating mem allocs and putting all the pressure on `go runtime map assign`. `map` are used here to implement a `set` datatype. As of today (commit), the overall runtime is **118.6ms**.
 
 ## Day 25
 

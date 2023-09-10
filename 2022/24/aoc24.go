@@ -55,6 +55,20 @@ func (a JI) eq(b JI) bool {
 	return a[J] == b[J] && a[I] == b[I]
 }
 
+type JISet map[JI]struct{}
+
+func (s JISet) add(x JI) {
+	s[x] = struct{}{}
+}
+
+func clear(s JISet) JISet {
+	// optimized at compile time
+	for k := range s {
+		delete(s, k)
+	}
+	return s
+}
+
 const (
 	Fwd = iota
 	Bck
@@ -83,31 +97,32 @@ func (m *taze) flood(t0, dir int) int {
 	for !free(t0, a) {
 		t0++
 	}
-	nxt := make(map[JI]any, 1)
-	nxt[a] = any(nil)
-
 	t := t0
-	var cur map[JI]any
-	for {
+	cur := make(JISet, H*W/3)
+	nxt := make(JISet, H*W/3)
+	nxt.add(a)
+	for { // t, passing time
 		Δ := []JI{{-1, 0}, {0, -1}, {0, 1}, {1, 0}}
 
-		cur, nxt = nxt, make(map[JI]any, H*W/3)
+		cur, nxt = nxt, clear(cur) // avoid map allocs
 		if len(cur) == 0 {
 			// no way through, restart later
 			return m.flood(t0+1, dir)
 		}
 
+		// generate paths (moves in time)
 		for x := range cur {
 			if free(t+1, x) {
-				nxt[x] = any(nil)
+				// staying put is a valid next move
+				nxt.add(x)
 			}
 			for _, δ := range Δ {
 				x := x.add(δ)
 				switch {
 				case z.eq(x):
-					return t + 2
+					return t + 2 // goal!
 				case !out(x) && free(t+1, x):
-					nxt[x] = any(nil)
+					nxt.add(x) // en route
 				}
 			}
 		}
@@ -148,10 +163,6 @@ func mkmaze(w *waze) *taze {
 
 var code = []byte{
 	'.': 0, '<': 1, '>': 2, '^': 3, 'v': 4, '#': 5,
-}
-
-var symb = []byte{
-	0: '.', 1: '<', 2: '>', 3: '^', 4: 'v', 5: '#',
 }
 
 func (w *waze) append(r []byte) *waze {
