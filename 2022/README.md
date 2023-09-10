@@ -1,7 +1,7 @@
 
 # Timings
 
-| day | time |
+| day | time (ms) |
 |-----|-----:|
 | 10 | 0.6 |
 | 1 | 0.7 |
@@ -29,6 +29,7 @@
 | 16 | 15.9 |
 | 24 | 51.9 |
 | total | 118.6 |
+
 end-to-end timing for part1&2 in ms - mbair M1/16GB - darwin 22.6.0 - go version go1.20.3 darwin/arm64 - hyperfine 1.17.0 - 2023-09-10
 
 ## Day 1
