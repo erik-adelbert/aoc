@@ -102,19 +102,15 @@ func (m *taze) flood(t0, dir int) int {
 			(*m)[tI][C][x[I]][x[J]] == 0
 	}
 
+	var cur, nxt JISet
+	nxt.add(a)
 	// enter asap
 	for !free(t0, a) {
 		t0++
 	}
-	t := t0
-	// cur := make(JISet, H*W/3)
-	// nxt := make(JISet, H*W/3)
-	var cur, nxt JISet
-	nxt.add(a)
-	for { // t, passing time
+	for t := t0; ; t++ {
 		Δ := []JI{{-1, 0}, {0, -1}, {0, 1}, {1, 0}}
 
-		// cur, nxt = nxt, clear(cur) // avoid map allocs
 		cur, nxt = nxt, clear(cur)
 		if cur.len() == 0 {
 			// no way through, restart later
@@ -122,7 +118,6 @@ func (m *taze) flood(t0, dir int) int {
 		}
 
 		// generate paths (moves in time)
-		// for x := range cur {
 		for _, x := range cur.data {
 			if free(t+1, x) {
 				// staying put is a valid next move
@@ -138,7 +133,6 @@ func (m *taze) flood(t0, dir int) int {
 				}
 			}
 		}
-		t++
 	}
 }
 

@@ -505,7 +505,7 @@ Whenever the goal is `not reachable` (there's no way to get through), the soluti
 
 `<EDIT>` I've reworked this one to reuse `map` storage, alleviating mem allocs and putting all the pressure on `go runtime map assign`. `map` are used here to implement a `set` datatype. As of today (commit), the overall runtime is **118.6ms**.
 
-`<EDIT>` Talking casually with a friend about this problem and coding techniques, he told me about this [video](https://youtu.be/DMQ_HcNSOAI?si=6dBFGZr0_X9Vysp8). This is my problem here: I don't need the garanteed performance and genericity for huge production-level maps given by `Go`: it comes at a cost that exceeds benefits here. So I've dumped the regular Go maps and designed a small adhoc one. As of today (commit), the overall runtime is **95.8ms**.
+`<EDIT>` Talking casually with a friend about this problem and coding techniques, he told me about this [video](https://youtu.be/DMQ_HcNSOAI?si=6dBFGZr0_X9Vysp8). This is my problem here: I don't need the garanteed performance and genericity for huge production-level maps given by `Go`: it comes at a cost that exceeds benefits here. So I got rid of the regular Go maps and designed a (light and fast) adhoc set datatype. As of today (commit), the overall runtime is **95.8ms**.
 
 ## Day 25
 
