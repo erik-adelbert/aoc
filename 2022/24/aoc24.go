@@ -55,18 +55,27 @@ func (a JI) eq(b JI) bool {
 	return a[J] == b[J] && a[I] == b[I]
 }
 
-type JISet map[JI]struct{}
+type JISet struct {
+	bset [4096]byte
+	data []JI
+}
 
-func (s JISet) add(x JI) {
-	s[x] = struct{}{}
+func (s *JISet) add(x JI) {
+	i := x[I]<<5 | x[J]
+	if s.bset[i] == 0 {
+		s.bset[i] = 1
+		s.data = append(s.data, x)
+	}
 }
 
 func clear(s JISet) JISet {
-	// optimized at compile time
-	for k := range s {
-		delete(s, k)
-	}
+	s.bset = [4096]byte{} // zero array
+	s.data = s.data[:0]   // empty slice
 	return s
+}
+
+func (s JISet) len() int {
+	return len(s.data)
 }
 
 const (
@@ -98,20 +107,23 @@ func (m *taze) flood(t0, dir int) int {
 		t0++
 	}
 	t := t0
-	cur := make(JISet, H*W/3)
-	nxt := make(JISet, H*W/3)
+	// cur := make(JISet, H*W/3)
+	// nxt := make(JISet, H*W/3)
+	var cur, nxt JISet
 	nxt.add(a)
 	for { // t, passing time
 		Δ := []JI{{-1, 0}, {0, -1}, {0, 1}, {1, 0}}
 
-		cur, nxt = nxt, clear(cur) // avoid map allocs
-		if len(cur) == 0 {
+		// cur, nxt = nxt, clear(cur) // avoid map allocs
+		cur, nxt = nxt, clear(cur)
+		if cur.len() == 0 {
 			// no way through, restart later
 			return m.flood(t0+1, dir)
 		}
 
 		// generate paths (moves in time)
-		for x := range cur {
+		// for x := range cur {
+		for _, x := range cur.data {
 			if free(t+1, x) {
 				// staying put is a valid next move
 				nxt.add(x)

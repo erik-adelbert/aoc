@@ -1,7 +1,7 @@
 
 # Timings
 
-| day | time (ms) |
+| day | time |
 |-----|-----:|
 | 10 | 0.6 |
 | 1 | 0.7 |
@@ -27,10 +27,10 @@
 | 20 | 7.5 |
 | 23 | 10.8 |
 | 16 | 15.9 |
-| 24 | 51.9 |
-| total | 118.6 |
+| 24 | 29.1 |
+| total | 95.8 |
 
-end-to-end timing for part1&2 in ms - mbair M1/16GB - darwin 22.6.0 - go version go1.20.3 darwin/arm64 - hyperfine 1.17.0 - 2023-09-10
+end-to-end timing for part1&2 in ms - mbair M1/16GB - darwin 22.6.0 - go version go1.20.3 darwin/arm64 - hyperfine 1.17.0 - 2023-09-11
 
 ## Day 1
 
@@ -247,12 +247,12 @@ the filesystem. Here is the today sample directory layout:
 
 As I said, preorder traversal of:
 
-    ```
-    /
-    ├── a
-    │   └── e
-    └── d
-    ```
+```bash
+/
+├── a
+│   └── e
+└── d
+```
 
 This part of the challenge is a classical question about the filesystem graph: I've looked for a recursive solution from the start because it's the easiest to develop and fix in this context.
 
@@ -505,6 +505,8 @@ Whenever the goal is `not reachable` (there's no way to get through), the soluti
 
 `<EDIT>` I've reworked this one to reuse `map` storage, alleviating mem allocs and putting all the pressure on `go runtime map assign`. `map` are used here to implement a `set` datatype. As of today (commit), the overall runtime is **118.6ms**.
 
+`<EDIT>` Talking casually with a friend about this problem and coding techniques, he told me about this [video](https://youtu.be/DMQ_HcNSOAI?si=6dBFGZr0_X9Vysp8). This is my problem here: I don't need the garanteed performance and genericity for huge production-level maps given by `Go`: it comes at a cost that exceeds benefits here. So I've dumped the regular Go maps and designed a small adhoc one. As of today (commit), the overall runtime is **95.8ms**.
+
 ## Day 25
 
 For the last day of this AoC, the program defines a new number type `snafu` alongside the addition. The solution's core is a `digit adder` with `carry propagation` that can operate on `bytes`.
@@ -513,7 +515,7 @@ For the last day of this AoC, the program defines a new number type `snafu` alon
 
 This year, I wanted to compose fast and simple programs every day from the start. I failed for days `16`, `19` and `22.2` because, for me, they required thorough studies. I wasn't sure until the very last moment (day19 rework) I would be able to break my [last year record](https://www.reddit.com/r/adventofcode/comments/rzvsjq/2021_all_daysgo_fast_solutions_under_a_second/) (380ms) and I agree it makes little sense to try: challenges aren't even the same. Anyway, it felt like the right way of [`upping the ante`](https://www.reddit.com/r/adventofcode/comments/zaumkz/whats_up_with_upping_the_ante/) for me.
 
-**Finally, here it is, this year collection runs all parts for all days in less than 126ms!!!**
+**Finally, here it is, this year collection runs all parts for all days in less than 96ms!!!**
 
 I am so happy with this result!
 Feedback is welcome on reddit [u/erikade](https://www.reddit.com/user/erikade/).
