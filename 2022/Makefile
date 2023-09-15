@@ -18,4 +18,4 @@ lines:
 runtime:
 	@./runtime.sh | sort -n -k 4 > runtime.md
 
-.PHONY: all $(TARGETS) $(SUBDIRS) cyclo download lines runtime 
+.PHONY: $(TARGETS) $(SUBDIRS) cyclo download lines runtime 
