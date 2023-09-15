@@ -55,7 +55,7 @@ func (w *world) astar(start string, t0, t1 int) int {
 		time: [2]int{t0, t1},
 	}
 
-	seen := make(map[*state]any, 1024)
+	seen := make(set, 1024)
 
 	heap := make(heap, 0, 1024)
 	heap = heap[:0]
@@ -73,7 +73,7 @@ func (w *world) astar(start string, t0, t1 int) int {
 			continue
 		}
 
-		seen[cur] = any(nil)
+		seen.add(cur)
 		for _, x := range edge[cur.edge[0]] {
 
 			i, flow := cidx[x.to], cave[x.to].flo
@@ -268,6 +268,12 @@ walk:
 		// done walking
 		return prio
 	}
+}
+
+type set map[*state]struct{}
+
+func (s set) add(x *state) {
+	s[x] = struct{}{}
 }
 
 // standard lib binary heap
