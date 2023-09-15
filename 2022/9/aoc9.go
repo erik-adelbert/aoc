@@ -15,14 +15,16 @@ const (
 // XY is 2D point
 type XY [2]int
 
+type set map[XY]struct{}
+
 func main() {
-	visits := [2]map[XY]any{
-		make(map[XY]any),
-		make(map[XY]any),
+	visits := [2]set{
+		make(set),
+		make(set),
 	}
 
-	visits[Part1][XY{0, 0}] = any(nil)
-	visits[Part2][XY{0, 0}] = any(nil)
+	visits[Part1].add(XY{0, 0})
+	visits[Part2].add(XY{0, 0})
 
 	off := map[byte]XY{
 		'U': {+0, +1}, 'L': {-1, +0},
@@ -35,9 +37,9 @@ func main() {
 	for input.Scan() {
 		// input text: ^([U,D,L,R]) (\d)$
 		line := input.Text()
-		θ, n := line[0], atoi(line[2:]) // heading, steps
 
-		for ; n > 0; n-- {
+		θ, n := line[0], atoi(line[2:]) // heading, steps
+		for n > 0 {
 			// move head
 			knots[0].add(off[θ])
 
@@ -53,8 +55,10 @@ func main() {
 				}
 			}
 
-			visits[Part1][knots[1]] = any(nil)
-			visits[Part2][knots[9]] = any(nil)
+			visits[Part1].add(knots[1])
+			visits[Part2].add(knots[9])
+
+			n--
 		}
 	}
 
@@ -89,6 +93,10 @@ func (a XY) dir() XY {
 // square of length
 func (a XY) len2() int {
 	return a[0]*a[0] + a[1]*a[1]
+}
+
+func (s set) add(x XY) {
+	s[x] = struct{}{}
 }
 
 // strconv.Atoi simplified core loop
