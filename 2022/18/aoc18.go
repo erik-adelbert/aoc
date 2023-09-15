@@ -18,7 +18,7 @@ func main() {
 			atoi(line[0]), atoi(line[1]), atoi(line[2]),
 		}
 		b.add(p)
-		w[p] = any(nil)
+		w.add(p)
 	}
 
 	// part1
@@ -29,7 +29,11 @@ func main() {
 	fmt.Println(w.flood(p0, b))
 }
 
-type world map[XYZ]any
+type world map[XYZ]struct{}
+
+func (w world) add(p XYZ) {
+	w[p] = struct{}{}
+}
 
 func (w world) area() int {
 	area := 0
@@ -72,7 +76,7 @@ func (w world) flood(p XYZ, b *AABB) int {
 
 			if _, ok := seen[δx]; !ok && b.contains(δx) {
 				push(δx)
-				seen[δx] = any(nil)
+				seen[δx] = struct{}{}
 			}
 		}
 	}
