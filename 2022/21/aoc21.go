@@ -25,11 +25,11 @@ func main() {
 		load(cmd)
 	}
 
-	fmt.Println(PROG["root"].eval())
+	fmt.Println(eval(PROG["root"]))
 	fmt.Println(solve(PROG["root"], "humn"))
 }
 
-func (v *val) eval() int {
+func eval(v *val) int {
 	if v.op == "VAR" {
 		v = PROG[v.s] // deref var
 	}
@@ -41,13 +41,13 @@ func (v *val) eval() int {
 	a, b := v.a[0], v.a[1]
 	switch v.op {
 	case "+":
-		return a.eval() + b.eval()
+		return eval(a) + eval(b)
 	case "-":
-		return a.eval() - b.eval()
+		return eval(a) - eval(b)
 	case "*":
-		return a.eval() * b.eval()
+		return eval(a) * eval(b)
 	case "/":
-		return a.eval() / b.eval()
+		return eval(a) / eval(b)
 	}
 
 	panic("unreachable")
@@ -66,11 +66,11 @@ func solve(v *val, k string) int {
 	// eval the rest
 	switch d.x {
 	case Left:
-		n := d.a[1].eval()
-		return d.a[0].force(n)
+		n := eval(d.a[1])
+		return force(d.a[0], n)
 	case Right:
-		n := d.a[0].eval()
-		return d.a[1].force(n)
+		n := eval(d.a[0])
+		return force(d.a[1], n)
 	}
 
 	panic("unreachable")
@@ -108,7 +108,7 @@ func mksym(v *val, k string) bool {
 }
 
 // force values along symbolic path
-func (v *val) force(n int) int {
+func force(v *val, n int) int {
 	d := v
 	if d.op == "VAR" {
 		d = PROG[v.s] // deref var
@@ -122,29 +122,29 @@ func (v *val) force(n int) int {
 	switch d.x {
 	case Left:
 		l := d.a[0]
-		r := d.a[1].eval()
+		r := eval(d.a[1])
 		switch d.op {
 		case "+":
-			return l.force(n - r)
+			return force(l, n-r)
 		case "-":
-			return l.force(n + r)
+			return force(l, n+r)
 		case "*":
-			return l.force(n / r)
+			return force(l, n/r)
 		case "/":
-			return l.force(n * r)
+			return force(l, n*r)
 		}
 	case Right:
-		l := d.a[0].eval()
+		l := eval(d.a[0])
 		r := d.a[1]
 		switch d.op {
 		case "+":
-			return r.force(n - l)
+			return force(r, n-l)
 		case "-":
-			return r.force(l - n)
+			return force(r, l-n)
 		case "*":
-			return r.force(n / l)
+			return force(r, n/l)
 		case "/":
-			return r.force(l / n)
+			return force(r, l/n)
 		}
 	}
 
