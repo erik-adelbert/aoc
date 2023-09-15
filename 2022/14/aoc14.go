@@ -7,19 +7,17 @@ import (
 	"strings"
 )
 
-// world map
-var world [256][512]byte
+var world worldmap
 
-// worl facts
+// world facts
 const (
-	// world is contained in 256x512
-	// so 512 is ok for +inf
+	// world is contained in 256x512, 512 is ok for +inf
 	INF = 512
 	// world is uselessly translated too far east
 	XOFF = 300
-	// sand is poured from X=200, Y=0 in our translated world
-	XORG = 500 - XOFF
-	YORG = 0
+	// sand is poured from X0=200, Y0=0 in our translated world
+	X0 = 500 - XOFF
+	Y0 = 0
 )
 
 func main() {
@@ -30,20 +28,20 @@ func main() {
 		box.merge(mkworld(input.Text()))
 	}
 
-	// offset to have sand boundaries
+	// offset to sand boundaries
 	box[Min][X]--
 	box[Max][X]++
 	box[Max][Y]++
 
-	depth := box[1][1]
+	depth := box[Max][Y]
 
 	part1 := fill(depth+1, depth, box)
 	part2 := part1 + 1 + fill(depth+2, 0, box)
 
 	fmt.Println(part1, part2)
 
-	// uncomment for visualization
-	// worldmap()
+	// fmt.Println(world) // uncomment for visualization
+	// !!rise your term resolution!!
 }
 
 func fill(floor int, depth int, box AABB) int {
@@ -54,9 +52,7 @@ func fill(floor int, depth int, box AABB) int {
 	// we don't want to simulate aisles as we can compute them
 	// easily
 	free := func(p XY) bool {
-		return world[p[1]][p[0]] == 0 &&
-			p[1] < floor &&
-			box.contains(p)
+		return world.get(p) == 0 && p[Y] < floor && box.contains(p)
 	}
 
 	stack := make([]XY, 0, 256)
@@ -71,13 +67,13 @@ func fill(floor int, depth int, box AABB) int {
 			stack = stack[:len(stack)-1]
 			return p
 		}
-		return XY{XORG, YORG}
+		return XY{X0, Y0}
 	}
 
 	// dfs iterator
 	next := func() XY {
-		cur, nxt := XY{-1, -1}, pop() // backtrack
-		for !cur.eq(nxt) {
+		cur, nxt := XY{INF, INF}, pop() // backtrack
+		for cur != nxt {
 			cur = nxt
 			// try in turn if stuck: south, sw, se
 			for _, δ := range []XY{{0, 1}, {-1, 1}, {1, 1}} {
@@ -93,13 +89,15 @@ func fill(floor int, depth int, box AABB) int {
 
 	// pour and count sand grains
 	cnt := 0
-	for dst := next(); dst[Y] != depth; dst = next() {
-		world[dst[Y]][dst[X]] = '.'
+	dst := next()
+	for dst[Y] != depth {
+		world.set(dst, '.')
 		cnt++
 		// on world boundaries, bring back sliced parts
 		if dst[X] == box[Min][X] || dst[X] == box[Max][X] {
 			cnt += box[Max][Y] - dst[Y]
 		}
+		dst = next()
 	}
 	return cnt
 }
@@ -121,30 +119,36 @@ func mkworld(s string) AABB {
 		a, b := wall[i], wall[i+1]
 
 		δ := a.cmp(b)
-		for p := a; !p.eq(b); p = p.add(δ) {
-			world[p[1]][p[0]] = '#'
+		for x := a; x != b; x = x.add(δ) {
+			world.set(x, '#')
 		}
-		world[b[1]][b[0]] = '#'
+		world.set(b, '#')
 	}
 	return box
 }
 
-// pretty print worldmap
-// !!rise your term resolution!!
-func worldmap() {
-	var worldmap strings.Builder
-	for _, row := range world {
+type worldmap [256][512]byte
+
+func (w worldmap) String() string {
+	var sb strings.Builder
+	for _, row := range w {
 		for _, b := range row {
-			switch b {
-			case 0:
-				worldmap.WriteByte(' ')
-			default:
-				worldmap.WriteByte(b)
+			if b == 0 {
+				b = ' '
 			}
+			sb.WriteByte(' ')
 		}
-		worldmap.WriteByte('\n')
+		sb.WriteByte('\n')
 	}
-	fmt.Println(worldmap.String())
+	return sb.String()
+}
+
+func (w *worldmap) set(p XY, v byte) {
+	w[p[Y]][p[X]] = v
+}
+
+func (w *worldmap) get(p XY) byte {
+	return w[p[Y]][p[X]]
 }
 
 // indices for XY
@@ -164,10 +168,6 @@ func (a XY) add(b XY) XY {
 
 func (a XY) cmp(b XY) XY {
 	return XY{cmp(b[X], a[X]), cmp(b[Y], a[Y])}
-}
-
-func (a XY) eq(b XY) bool {
-	return a[X] == b[X] && a[Y] == b[Y]
 }
 
 // indices for AABB
