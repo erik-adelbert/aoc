@@ -1,6 +1,5 @@
 GOC = go build
 GOV = go vet
-GOL = golint
 
 BENCH = ../bench.sh
 
@@ -21,7 +20,6 @@ build: input.txt
 
 check:
 	$(GOV) $(SRC)
-	$(GOL) $(SRC)
 
 clean:
 	go clean
