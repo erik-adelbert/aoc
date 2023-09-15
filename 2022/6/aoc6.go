@@ -39,7 +39,7 @@ func main() {
 				first = false
 			case wlen == 14:
 				fmt.Println(i + 1)
-				break
+				break // done!
 			}
 		}
 

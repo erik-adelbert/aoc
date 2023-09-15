@@ -13,10 +13,9 @@ var subdirs []int // subdir sizes
 func main() {
 	var root int // root size
 	input := bufio.NewScanner(os.Stdin)
-	for input.Scan() {
-		_ = input.Text() // discard initial cd /
-		root = tree(input)
-	}
+	input.Scan()
+	_ = input.Text() // discard initial cd /
+	root = tree(input)
 
 	// part1 sum
 	smalls := 0

@@ -22,13 +22,12 @@ func main() {
 		M = append(M, []byte(input.Text()))
 	}
 
-	MM := mirror(M)
-	T := transpose(M)
-	MT := mirror(T)
+	W, T := mirror(M), transpose(M)
+	WT := mirror(T)
 
 	views := func(x, y int) [4][]byte {
-		U := MT[x][len(MT[0])-y:] // up
-		L := MM[y][len(MM[0])-x:] // left
+		U := WT[x][len(WT[0])-y:] // up
+		L := W[y][len(W[0])-x:]   // left
 		R := M[y][x+1:]           // right
 		D := T[x][y+1:]           // down
 
