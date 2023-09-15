@@ -10,15 +10,15 @@ import (
 
 var sensors []sensor = make([]sensor, 0, 64)
 
-// YMAX is world max depth
+// YMAX is the world max depth
 var YMAX int = 4_000_000
 
 func main() {
 	// part2
-	A := make(map[int]any, 64)
-	B := make(map[int]any, 64)
-	C := make(map[int]any, 64)
-	D := make(map[int]any, 64)
+	A := make(set, 64)
+	B := make(set, 64)
+	C := make(set, 64)
+	D := make(set, 64)
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
@@ -38,16 +38,16 @@ func main() {
 		}
 
 		// part2, in between the sensors
-		A[s.O[X]-s.O[Y]+s.R+1] = any(nil)
-		B[s.O[X]-s.O[Y]-s.R-1] = any(nil)
-		C[s.O[X]+s.O[Y]+s.R+1] = any(nil)
-		D[s.O[X]+s.O[Y]-s.R-1] = any(nil)
+		A.add(s.O[X] - s.O[Y] + s.R + 1)
+		B.add(s.O[X] - s.O[Y] - s.R - 1)
+		C.add(s.O[X] + s.O[Y] - s.R - 1)
+		D.add(s.O[X] + s.O[Y] + s.R + 1)
 	}
 	sort.Slice(ranges, func(i, j int) bool {
 		return ranges[i][X] < ranges[j][X]
 	})
 
-	lims, ngaps := ranges[0], 0
+	ngaps, lims := 0, ranges[0]
 	for _, R := range ranges {
 		ngaps, lims[1] = max(0, R[0]-lims[1]-1), max(lims[1], R[1])
 	}
@@ -55,29 +55,35 @@ func main() {
 	// part1
 	fmt.Println(lims[1] - lims[0] - ngaps)
 
-	inter(A, B)
-	inter(C, D)
+	A.inter(B)
+	C.inter(D)
 
-	a := pop(A)
-	b := pop(C)
+	a := A.pop()
+	c := C.pop()
 
 	// part2
-	fmt.Println((a+b)*YMAX/2 + (b-a)/2)
+	fmt.Println((a+c)*YMAX/2 + (c-a)/2)
 }
 
-func inter(A, B map[int]any) {
+type set map[int]struct{}
+
+func (A set) add(i int) {
+	A[i] = struct{}{}
+}
+
+func (A set) pop() int {
+	for i := range A {
+		return i
+	}
+	panic("unreachable")
+}
+
+func (A set) inter(B set) {
 	for i := range A {
 		if _, ok := B[i]; !ok {
 			delete(A, i)
 		}
 	}
-}
-
-func pop(A map[int]any) int {
-	for i := range A {
-		return i
-	}
-	panic("unreachable")
 }
 
 type sensor CIRC
