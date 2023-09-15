@@ -1,36 +1,46 @@
-
 # Timings
 
 | day | time |
 |-----|-----:|
+| 1 | 0.6 |
 | 10 | 0.6 |
-| 1 | 0.7 |
 | 15 | 0.7 |
 | 2 | 0.7 |
 | 3 | 0.7 |
-| 4 | 0.7 |
 | 5 | 0.7 |
-| 6 | 0.7 |
+| 4 | 0.8 |
+| 6 | 0.8 |
 | 7 | 0.8 |
 | 12 | 0.9 |
 | 25 | 0.9 |
+| 8 | 1.0 |
 | 13 | 1.1 |
 | 22 | 1.1 |
-| 8 | 1.1 |
+| 14 | 1.3 |
 | 21 | 1.3 |
-| 14 | 1.4 |
 | 17 | 2.2 |
-| 9 | 2.6 |
+| 9 | 2.5 |
 | 19 | 3.9 |
-| 18 | 4.3 |
+| 18 | 4.2 |
 | 11 | 5.4 |
 | 20 | 7.5 |
 | 23 | 10.8 |
-| 16 | 15.9 |
+| 16 | 15.4 |
 | 24 | 29.1 |
-| total | 95.8 |
+| total | 95.0 |
 
-end-to-end timing for part1&2 in ms - mbair M1/16GB - darwin 22.6.0 - go version go1.20.3 darwin/arm64 - hyperfine 1.17.0 - 2023-09-11
+end-to-end timing for part1&2 in ms - mbair M1/16GB - darwin 22.6.0 - go version go1.21.1 darwin/arm64 - hyperfine 1.17.0 - 2023-09-15
+
+## Installation and benchmark
+
+0. optionnally install [gocyclo](https://github.com/fzipp/gocyclo)
+1. install [hyperfine](https://github.com/sharkdp/hyperfine)
+2. `git clone` this repository
+3. `export` envar `$SESSION` with your AoC `session` value (get it from the cookie stored in your browser)
+4. `$ cd 2022`
+5. `$ make bench`
+6. `$ make runtime && cat runtime.md`
+7. explore the other `Makefile` goals
 
 ## Day 1
 
@@ -172,18 +182,20 @@ There's a fact about 1D segments that translates elegantly in Go: *when one
 segment contains the other one, they also intersect*. It nicely becomes a 
 `fallthrough` in the 2 branches `switch/case` of the main loop.
 
-`<EDIT>` I've even removed the `fallthrough` because it simply means that part2 
+`<EDIT>` I've even removed the `fallthrough` because it simply means that part2
 score is part1 score + something!
 
 ## Day 5
 
-Today I wasn't in the mood for parsing the challenge initial state: I hard-coded 
-it into the program. From there, most of the pain was gone. Part1, is a classical
-stack operations problem while Part2 means slice operations instead. Implementations 
+~~Today I wasn't in the mood for parsing the challenge initial state: I hard-coded
+it into the program. From there, most of the pain was gone.~~ Part1, is a classical
+stack operations problem while Part2 means slice operations instead. Implementations
 of `atoi`, `last`, `push`, `pop`, `move` operations are unsafe and trust inputs.
 
-Finally, to fast build the result string, I use a `bytes.Buffer` while scanning
-crate stacks.
+~~Finally, to fast build the result string, I use a `bytes.Buffer` while scanning
+crate stacks.~~
+
+`<EDIT>`: I've added an input parser and reworked for clarity while preserving runtime.
 
 ## Day 6
 
