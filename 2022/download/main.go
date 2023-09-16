@@ -44,7 +44,7 @@ func main() {
 
 	year, err := strconv.ParseInt(path.Base(path.Dir(pwd)), 10, 0)
 	if err != nil {
-		log.Fatalf("error computing day from pwd: %s", err.Error())
+		log.Fatalf("error computing year from pwd: %s", err.Error())
 	}
 
 	url := fmt.Sprintf(URL, year, day)

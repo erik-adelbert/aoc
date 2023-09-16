@@ -33,8 +33,13 @@ func main() {
 		fd.Close()
 		labels := strings.Split(f, "/")
 		label := labels[len(labels)-2]
-		fmt.Printf("| %s | %.1f |\n", label, times[1]-times[0])
-		runtime += times[1] - times[0]
+
+		time := times[1] - times[0]
+		if time < 0 {
+			time = 0
+		}
+		fmt.Printf("| %s | %.1f |\n", label, time)
+		runtime += time
 	}
 	fmt.Printf("| total | %.1f |\n", runtime)
 }
