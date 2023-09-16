@@ -1,4 +1,47 @@
-* * *
+# Timings
+
+| day | time |
+|-----|-----:|
+| 24 | 0.6 |
+| 6 | 0.6 |
+| 1 | 0.7 |
+| 10 | 0.7 |
+| 4 | 0.7 |
+| 7 | 0.7 |
+| 16 | 0.8 |
+| 2 | 0.8 |
+| 13 | 1.0 |
+| 17 | 1.0 |
+| 9 | 1.0 |
+| 12 | 1.1 |
+| 3 | 1.2 |
+| 8 | 1.2 |
+| 11 | 2.4 |
+| 22 | 3.1 |
+| 14 | 3.7 |
+| 5 | 4.2 |
+| 21 | 11.3 |
+| 18 | 13.9 |
+| 25 | 33.0 |
+| 20 | 33.8 |
+| 15 | 44.6 |
+| 19 | 49.0 |
+| 23 | 78.1 |
+| total | 289.2 |
+
+end-to-end timing for part1&2 in ms - mbair M1/16GB - darwin 22.6.0 - go version go1.21.1 darwin/arm64 - hyperfine 1.17.0 - 2023-09-15
+
+## Installation and benchmark
+
+0. optionnally install [gocyclo](https://github.com/fzipp/gocyclo)
+1. install [hyperfine](https://github.com/sharkdp/hyperfine)
+2. `git clone` this repository
+3. `export` envar `$SESSION` with your AoC `session` value (get it from the cookie stored in your browser)
+4. `$ cd 2022`
+5. `$ make`
+6. `$ make runtime && cat runtime.md`
+7. explore the other `Makefile` goals
+
 ## Day 1
 
 For the first day of `aoc2021`, I've written and submitted the results in less than 5mn but it only got me in the top 3k ranks, wow!
@@ -10,12 +53,10 @@ A word about the variable `old`: here we have a previous and a current value to 
 
 Finally, we can also feel the minimalism of the Go language: I have to define `MaxInt`. I try to do this in the [*idiomatic*](https://dgryski.medium.com/idiomatic-go-resources-966535376dba) way even if it's not: I'm supposed to link to the `math` library only to import this constant. As it feels like a `C` style regression to me, I don't!
 
-* * *
 ## Day 2
 
 In competitive programming, when confronted to simulation problems, we frequently can do something without having to perfectly parse the inputs. Here, input lines are made of a command followed by a single number argument: 1) as first letters of legit commands are all different, it suffices to read `line[0]` (`f`, `u`, `d`) to decode a command. 2) if we split any input `line` on its central space, the number will go to the right.  
 
-* * *
 ## Day 3
 
 I love Go utf8 support, greek γράμματα and *old school* low-level problems: I pleased myself writing this solution. This program only supports 12bits numbers. With a little effort it could support dynamic widths but, again, I aimed for simplicity: the constant width is easy to edit if inputs are ever to change.
@@ -29,11 +70,11 @@ As the computations (`part1`, `part2/[o2, co2]`) are clearly independent, I use 
 
 Finally, [`popcnt`](https://en.wikipedia.org/wiki/SSE4#POPCNT_and_LZCNT) is a `CPU` instruction that counts how many bits are set to one in an integer. H.S. Warren Jr. made the concept famous in [Hacker's Delight](https://en.wikipedia.org/wiki/Hacker%27s_Delight). The underlying concept is the [*Hamming weight*](https://en.wikipedia.org/wiki/Hamming_weight) and I use `popcount` or `popcnt` whenever I have to count a population of some sort.
 
-* * *
 ## Day 4
 
 Here, the solution has to play `loto`: it must keep track of drawn numbers on the cardboards of its deck.
 To model a cardboard, I use a structure that groups:
+
 - 5 *row adders*
 - 5 *column adders* 
 - 1 `map` of numbers and their position on the board
@@ -59,7 +100,6 @@ ie. this board (3x3 instead of 5x5):
   </tr>
 </tbody>
 </table>
-
 
 is represented like this:
 <table>
@@ -98,6 +138,7 @@ is represented like this:
 }  
 
 When `3` is drawn, we have to:
+
 - read `3` row and column in the `map`: `{1, 3}`
 - delete `3` from the `map`
 - update the sum of row `1`: `6-3 = 3`
@@ -151,48 +192,44 @@ I choose to use one because my program is more *general* this way: the stack sto
 On the practical side, there's apparently a problem: In Go resizing a slice while iterating on it is *undefined* (it doesn't work): we can't delete winning boards form our deck, the moment they win... We can overcome this limitation if 1) we don't change the slice size while iterating on it and 2) we update the slice *before* or *on* the current pointer. Here between the lines 88~97, we see, for each drawn number that a winning board goes to the stack while others **go back** to the deck. Whenever we finish a pass on our deck, the slice can be resized to the remaining cards.  
 It works because instead of deleting winning boards, we put the others back in the deck. It's easy to see that `i` from the line 88 will always be lesser or equal than the implicit index of line 89. Finally, the relative order of the boards is preserved (it's usually a good property that comes for free here).
 
-* * *
 ## Day 5
 
 If the lines had other slopes than ±π/4 we could have used [bresenham](https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm)!
 
-* * *
 ## Day 6
 
 It's when I ran the problem by hand that I saw the daily populations rotating toward left with a peculiar addition between day 0 and 6. I find the accompanying python very yummy!
 
-* * *
 ## Day 7
 
 Surely one of the nicest [contributions](https://www.reddit.com/r/adventofcode/comments/rawxad/2021_day_7_part_2_i_wrote_a_paper_on_todays/?utm_source=share&utm_medium=web2x&context=3) on reddit this year!
 
 For the record, when coding `part1` I mistakenly chose the mean instead of the median. When, later, reading `part2` I recognised the mean from before. Sometime, in competitive programming, we have to follow hunches so I wrote the solution full steam and without totally comprehending it. I had my second star by `flooring` the mean but wasn't sure about it (this was *random* computing after all). The next morning, when I read the paper it made my day!
 
-* * *
+## Day 8
+
+Sadly this day log has been lost
+
 ## Day 9
 
 I tackled `part2` with [Hoshen-Kopelman](https://www.ocf.berkeley.edu/~fricke/projects/hoshenkopelman/hoshenkopelman.html) that I've used [previously](https://github.com/erik-adelbert/mcs/blob/master/pkg/chaingame/tag.go) with success. The algorithm exploits the reordering properties of a standard `Union-Find` ([here](https://www.cs.princeton.edu/~rs/AlgsDS07/01UnionFind.pdf) is [sedgewick](https://en.wikipedia.org/wiki/Robert_Sedgewick_(computer_scientist))'s lecture about it). It's able to overcome connected components contouring problems: when [north-west flood filling](https://en.wikipedia.org/wiki/Flood_fill) a grid the result can show concavity and numerous irregularities (corner cases) that are difficult to acccount for. When using `Hoshen-Kopelman` one can achieve the perfect output in *linear time*, just like my solution for this day \o/. 
 
-* * *
 ## Day 10
 
 This problem is so classical that it even has a name: `bracket matching`. It is solved in every `IDE` usually with a [stack](https://www.geeksforgeeks.org/check-for-balanced-parentheses-in-an-expression/).  
 
 Instead of pushing an *opening symbol* to the stack, pushing the corresponding *closing* one simplifies the matching that comes later (ligne 50). 
 
-* * *
 ## Day 11
 
 This is a direct application of [dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming) combined with [multiple buffering](https://en.wikipedia.org/wiki/Multiple_buffering).
 
-* * *
 ## Day 12
 
 This is a direct application of [depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) on a graph. It surely will be given as an exercise of the baccalauréat of code, in the futur.
 
 `<EDIT>` While exploring Go vs. Rust performances, I came to [Tim Visée's work](https://github.com/timvisee/advent-of-code-2021). For this problem, he has gone the extra mile of 1) putting the strings aside to have a full integer problem, 2) building an adjacency matrix and 3) use a stack-based iterative dfs. All in all, these optimizations also work for Go: the runtime of this problem vanished from 44.3ms to 1.7ms. That said, if you don't feel comfortable studying this (expert) version, pull the old one instead...
 
-* * *
 ## Day 13
 
 Between the lines of the story, this problem hides two basic techniques: one from [coding theory](https://en.wikipedia.org/wiki/Coding_theory) and the other from [computer graphics](https://en.wikipedia.org/wiki/Computer_graphics). Some dots are given as vectors. After having transformed (decoded) them, we need to display the result on the screen (rasterise).
@@ -204,7 +241,7 @@ When I'm using [well known abstractions](https://en.wikipedia.org/wiki/Abstracti
 
 I've found this problem really entertaining.
 
-```
+```bash
 ❯ cat input.txt| ./aoc13.2
 �    ���  ����   �� ���    �� ���� �  �
 �    �  � �       � �  �    � �    �  �
@@ -235,9 +272,7 @@ Which brings the sought after formula: $$x_{p_{n+1}} = 2*x_{a} - x_{p_{n}}$$
 
 For problems in which all points are moving, this technique becomes really powerful: usually, it's easy to combine (say multiply) all the transformations into a single matrix before massively applying it (`O(T+N)`) instead of computing each transformation, in turn, for each point (`O(T*N)`)…
 
-* * *
 ## Day 15
-
 
 When using [Dijkstra algorithm](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm) there's not much left to say: it builds a kind of data [*mycelium*](https://en.wikipedia.org/wiki/Mycelium) while decomposing (nibbling) the problem. To guide this *search*, we can use a [*priority queue*](https://en.wikipedia.org/wiki/Priority_queue). Here i'm using the [one](https://pkg.go.dev/container/heap) from the Go standard library.
   
@@ -245,7 +280,6 @@ When using [Dijkstra algorithm](https://en.wikipedia.org/wiki/Dijkstra%27s_algor
   <img src="https://upload.wikimedia.org/wikipedia/commons/2/23/Dijkstras_progress_animation.gif" />
 </div>
 
-* * *
 ## Day 16
 
 To solve this problem, I'm using the really nice `bearmini`'s [`bitstream-go`](https://github.com/bearmini) library combined with the standard Go `math/big`.
@@ -257,14 +291,16 @@ In `part2`, I implement an [accumulator machine](https://en.wikipedia.org/wiki/A
 `Pedantic Note`:  
 I believe the problem mistakenly states BITS [packet](https://en.wikipedia.org/wiki/Network_packet) instead of `datagram`.
 
-* * *
+## Day 17
+
+Sadly this day log has been lost
+
 ## Day 18
 
 The problem deal with a peculiar kind of [binary trees](https://en.wikipedia.org/wiki/Binary_tree#Internal_nodes) which have a pair of operations defined on them: the snailfish numbers.  
 In these trees, *leaves* contain an integer and are linked between them and to the root by *internal nodes*. An internal node contains *solely* a pair of links. This data structure is known to operate a *classification* like in [`k-d trees`](https://en.wikipedia.org/wiki/K-d_tree) or [B-trees](https://en.wikipedia.org/wiki/B-tree).
 
-
-I inject enough spaces in the input line until I can get every bracket and number the first time I tokenise it. `newPair()` is a variadic function.  
+I pump spaces into the input line until I can get every bracket and number the first time I tokenise it. `newPair()` is a variadic function.  
 
 The `explode()` operation uses the [flatten](https://www.geeksforgeeks.org/flatten-a-binary-tree-into-linked-list/) form of the tree to update *neighboring* leaves.
 
@@ -274,13 +310,11 @@ Finally, having profiled my first version, I found `part2` to be waiting for to 
 
 `<EDIT>` Everything said before is true but too complicated. When rethinking this problem I found that maintaining two arrays: one for the integers and one for their depths made everything to fall in place gracefully except for the magnitude computation. Nonetheless, this was  acceptable. I have spent almost 24 hours on this problem only and rewriting it entirely made my collection run in under a second on my mbair M1 \o/.
 
-* * *
 ## Day 19
 
 The problem can be frightening at first sight.  
 I resort to a very mecanical solution. I have precomputed rotations and modelised them in two parts: the axis order and their signs. As usual when doing this kind of stuffs my brain started swelling to the point I used a matchbox and a pen in desperation of getting the precomputation right.
 
-* * *
 ## Day 21
 
 The problem describes a two-player board game.  In `part2` the game is somehow augmented to 27 possible moves at each turn but is still tractable because the winning score is low (21).
@@ -303,16 +337,12 @@ The last born and surely the most amazing realisation to date of this theory is 
   <img src="https://www.ocf.berkeley.edu/~yosenl/extras/alphabeta/alphabeta.jpg" />
 </div>
 
-* * *
-
-
 ## Day 22
 
 I've spend many hours to chose a working data structure and to tune this solution. It's a minimal implementation of [*k-d trees*](https://en.wikipedia.org/wiki/K-d_tree). I guess the fatigue is to blame here. When reading the problem I knew I was supposed to [*BSP*](https://en.wikipedia.org/wiki/Binary_space_partitioning) before intersecting [*aabb*](https://en.wikipedia.org/wiki/Bounding_volume) but I didn't want to comply at first because I knew the task was tedious. I first searched another way of flipping on and off some densed-packed data but I was already too tired to succeed. From this day on I had to make the choice not to drop out the competition every morning (spoiler alert, I didn't!).
 
 `<EDIT>` [Russ Cox](https://github.com/rsc) did easily what I failed to do during the competition. I've added his solution because it's worth studying: [here's a 10x at work](https://www.youtube.com/watch?v=JyrNC74r2SI&list=PLrwpzH1_9ufMLOB6BAdzO08Qx-9jHGfGg&index=25)!
 
-* * *
 ## Day 23
 
 I made a first solution for this but afterward I saw the string representation online and found it so cute I've refactored everything to use it in my solution. Except for this representation, the solution is (again) an application of `Dijkstra` and the slowest of all my programs: it accounts for almost half the global runtime.
@@ -329,7 +359,6 @@ pem's featured version is faster than mine (~90ms) and worth studying (same prin
 The solution presented here runs in around 100ms (GOGC=off) and the total runtime for this collection is 478ms. 
 **\o/ Total runtime of my programs is under half a second \o/** Though, I believe some carefully crafted `rust` could run in the double-digits ms (and some crazy dark magic rust invocations may even run in the single-digit ms on selected hardware).
 
-* * *
 ## Day 24
 
 I've cracked this problem by hand (`txt` files) thanks to the support of a teammate. It was my most difficult day and I almost quit again. The solution shown here is an adaptation of the clever python I've found on line after christmas. 
@@ -339,13 +368,12 @@ On the other hand, the [constraint satisfaction](https://en.wikipedia.org/wiki/C
 
 I've implemented a [fast integer exponentiation](https://en.wikipedia.org/wiki/Exponentiation_by_squaring) in order to have a little fun and no dependency on the `math` library. It's probably slower than the `FPU` but the actual size of inputs makes it impossible to tell for sure.
 
-* * *
 ## Day 25
 
 Phew! It ends well: my program uses `multi-buffering` and follows closely the description of the problem. I've managed to keep memory allocations on the low side. The visualisation is [mesmerizing](https://www.reddit.com/r/adventofcode/comments/ro4c23/2021_day_25_visualization_of_the_sea_cucumbers/).
 
 Feedback is welcome and happy coding!
-* * *
+
 ## Post Scriptum
 
 If you're reading this, I believe you find my programs worth studying. If you take a quick look to the commits I've made to this repository it's obvious that I've turned this `aoc` into an obsessive *exercice de style*.  
