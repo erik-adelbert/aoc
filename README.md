@@ -12,7 +12,7 @@ Happy coding!
 
 0. optionnally install [gocyclo](https://github.com/fzipp/gocyclo)
 1. install [hyperfine](https://github.com/sharkdp/hyperfine)
-2. `git clone` this repository
+2. `git clone` this repository somewhere in your `$GOPATH`
 3. `export` envar `$SESSION` with your AoC `session` value (get it from the cookie stored in your browser)
 4. `$ cd 2022`
 5. `$ make`
