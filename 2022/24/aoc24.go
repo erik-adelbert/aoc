@@ -56,8 +56,8 @@ func (a JI) eq(b JI) bool {
 }
 
 type JISet struct {
-	bset [4096]byte
 	data []JI
+	bset [4096]byte
 }
 
 func (s *JISet) add(x JI) {
