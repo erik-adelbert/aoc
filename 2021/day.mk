@@ -28,6 +28,12 @@ clean:
 input.txt:
 	go run $(DOWNLOAD)
 
+go.mod: 
+	@go mod init 2>/dev/null
+
+gobench: go.mod input.txt
+	go test -bench=. -benchmem
+
 cpuprof: build
 	./$(BIN) -cpuprofile=$(BIN).cpu.prof < $(IN)
 
@@ -41,4 +47,4 @@ sample:
 	go run ./$(SRC) < $(EX)
 
 
-.PHONY: bench build check clean cpuprof exemple memprof run
+.PHONY: bench build check clean cpuprof exemple gobench memprof run sample
