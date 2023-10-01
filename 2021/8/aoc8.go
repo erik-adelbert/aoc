@@ -33,7 +33,7 @@ func (s seg) inter(t seg) int { // common segments
 }
 
 func (s seg) String() string {
-	var sb strings.Builder
+	var sb *strings.Builder
 	for r := range s {
 		sb.WriteRune(r)
 	}

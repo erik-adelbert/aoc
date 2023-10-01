@@ -130,7 +130,7 @@ func mkworld(s string) AABB {
 type worldmap [256][512]byte
 
 func (w worldmap) String() string {
-	var sb strings.Builder
+	var sb *strings.Builder
 	for _, row := range w {
 		for _, b := range row {
 			if b == 0 {

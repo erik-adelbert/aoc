@@ -1,180 +1,484 @@
 package main
 
 import (
+	"bufio"
+	"bytes"
 	hp "container/heap"
 	"fmt"
+	"os"
 	"strings"
-	"sync"
 )
 
-type board [11]string // hhRhRhRhRhh h(allway), R(oom)
-
-func cost(p rune) int {
-	costs := [...]int{1, 10, 100, 1000}
-	return costs[rtoi(p)]
-}
-
-func goal(p rune) int {
-	return 2 + 2*int(rtoi(p)) // 'A': 2, 'B': 4, 'C':6 'D': 8
-}
-
-func room(r int) bool {
-	return 1 < r && r < 9 && r&1 == 0 // true for 2, 4, 6, 8
-}
-
-var (
-	halls = []int{0, 1, 3, 5, 7, 9, 10} // hallway cells
-	rooms = []int{2, 4, 6, 8}
+const (
+	// from challenge
+	RLEN = 7
+	BLEN = 14
 )
 
-// free checks if hallway cells between s,t are free
-func (b board) free(s, t int) bool {
-	l, r := min(s, t), max(s, t)
-	for i := l; i <= r; i++ {
-		if i != s && !room(i) && b[i] != "." {
+type (
+	// a burrow is a flattened, $ delimited, RLENxBLEN
+	// row-major byte matrix: j is row, i is column
+	// https://www.ce.jhu.edu/dalrymple/classes/602/Class12.pdf
+	//
+	// ex:
+	//
+	//	RLEN = 7, BLEN = 14, $ = \n, ε = \0, _ = 0x20 (ASCII space)
+	//
+	//	       part#2                part#1
+	//	j\i|0123456789abcd|   j\i|0123456789abcd|
+	//	0  |#############$|   0  |#############$| ↑
+	//	1  |#...........#$|   1  |#...........#$| |
+	//	2  |###A#B#C#D###$|   2  |###A#B#C#D###$| |
+	//	3  |__#A#B#C#D#__$|   3  |__#A#B#C#D#__$| RLEN
+	//	4  |__#A#B#C#D#__$|   4  |__#########__$| |
+	//	5  |__#A#B#C#D#__$|   5  |εεεεεεεεεεεεε$| |
+	//	6  |__#########__$|   6  |εεεεεεεεεεεεε$| ↓
+	//	    <--- BLEN --->
+	//
+	//	buro memory layout [RLEN * BLEN]byte:
+	//
+	//	      RLEN * BLEN = 0x62
+	//	index|<------------------- RLEN * BLEN -/~/--------------------->| limit
+	//	  j: |0 <- BLEN -> |1            |2     /~/       |6             | RLEN
+	//	raw: [#############$#...........#$###A#B/~/#C#D#  $  #########  $]
+	//	  i: |0123456789abcd0123456789abcd012345/~/6789abcd0123456789abcd| BLEN
+	//	 ii: |0123456789abcdef...               /~/                  ...ω| RLEN * BLEN
+	//	                                                     ω = 0x62 - 1
+	//
+	// 2D burrow from/to buro:  ii = j*BLEN + i  <=> j = ii/BLEN, i = ii%BLEN
+	buro [RLEN * BLEN]byte
+
+	cost int
+
+	// a move represent a game state and its cost
+	//   - it is designed for A* operations: prio(), setprio()
+	//   - it boasts a classical interface: move(), moves()
+	//   - A* is attached to it: solve()
+	move struct {
+		b    *buro
+		c, S cost
+	}
+)
+
+// main entry point
+func main() {
+	input := bufio.NewScanner(os.Stdin)
+
+	// muxed part 1, 2
+	parts := mkburos(input)
+	for p := range parts {
+		fmt.Println(newMove(&parts[p], 0).solve())
+	}
+}
+
+// uncomment and fix for runtime basic metrics
+// var (
+// 	nallocs int
+// 	maxheap int
+// )
+
+// pawn weight scale for cost calculation
+var weights = []cost{'A': 1, 'B': 10, 'C': 100, 'D': 1000}
+
+// buro routines
+
+func (b *buro) String() string {
+	i := 1 + bytes.LastIndex(b[:], []byte{'#'})
+	return string(b[:i])
+}
+
+func (b *buro) get(j, i int) byte {
+	return b[j*BLEN+i]
+}
+
+func (b *buro) set(j, i int, c byte) {
+	b[j*BLEN+i] = c
+}
+
+// home index of home(a) in i space
+func (b *buro) home(a byte) int {
+	switch {
+	case ispawn(a):
+		return int(2*(a-'A') + 3)
+	default:
+		return 0
+	}
+}
+
+// heavy lift peek()/pop()
+func (b *buro) popx(i int, pop bool) (byte, cost) {
+	var j int
+	for j = 1; j < RLEN; j++ {
+		x := b.get(j, i)
+		switch {
+		case ispawn(x):
+			if pop {
+				b.set(j, i, '.')
+			}
+			return x, cost(j - 1)
+		case x == '#': // buro bottom row
+			return '.', 0
+		}
+	}
+
+	panic("unreachable")
+}
+
+// peek at buro.room(i) top element
+func (b *buro) peek(i int) (x byte) {
+	x, _ = b.popx(i, false)
+	return
+}
+
+// pop buro.room(i) top element
+func (b *buro) pop(i int) (byte, cost) {
+	return b.popx(i, true)
+}
+
+// obvious ispawn
+func ispawn(a byte) bool {
+	return ('A' <= a && a <= 'D')
+}
+
+// push pawn a to buro.room(i)
+func (b *buro) push(i int, a byte) cost {
+	var j int
+
+	for j = 1; j < RLEN; j++ {
+		if x := b.get(j, i); ispawn(x) || x == '#' {
+			b.set(j-1, i, a)
+			return cost(j - 2)
+		}
+	}
+
+	panic("unreachable")
+}
+
+// obvious setrow
+func (b *buro) setrow(j int, s string) {
+	const ROWINIT = "             \n" // 13 spaces + '\n'
+	safe := func(raw string) []byte {
+		buf := []byte(ROWINIT)
+		copy(buf, raw)
+		return buf
+	}
+
+	low := j * BLEN
+	max := low + BLEN
+	copy(b[low:max:max], safe(s))
+}
+
+// obvious getrow
+func (b *buro) getrow(j int) string {
+	low := j * BLEN
+	max := low + BLEN
+	return string(b[low:max:max])
+}
+
+// buro maker routine for part 1&2
+func mkburos(input *bufio.Scanner) []buro {
+	var buros [2]buro // part 1&2
+
+	for j := 0; input.Scan(); j++ {
+		buros[0].setrow(j, input.Text())
+	}
+
+	buros[1] = buros[0]
+	buros[1].setrow(3, "  #D#C#B#A#") // /!\ mandatory 2 spaces prefix
+	buros[1].setrow(4, "  #D#B#A#C#")
+	buros[1].setrow(5, buros[0].getrow(3))
+	buros[1].setrow(6, "  #########")
+
+	return buros[:]
+}
+
+// move helpers
+
+// obvious isfull buro.room(i)
+func (b *buro) isfull(i int) bool {
+	j := 1
+	if ishome(i) {
+		j++
+	}
+	return b.get(j, i) != '.'
+}
+
+// isclear checks if hallway cells between s and t are free
+func (b *buro) isclear(t, s int) bool {
+	for i := min(t, s); i <= max(t, s); i++ {
+		if i != s && ishall(i) && b.peek(i) != '.' {
 			return false
 		}
 	}
 	return true
 }
 
-// granted checks if a room is either empty or populated with
-// homies only
-func (b board) granted(r int, p rune) bool { // room, pawn
-	if r != goal(p) {
-		return false
-	}
-	for _, c := range b[r] {
-		if c != '.' && c != p {
-			return false
-		}
-	}
-	return true
-}
-
-func (b board) pawn(r int) rune { // room
-	for _, c := range b[r] {
-		if c != '.' {
-			return c
-		}
-	}
-	return 0
-}
-
-func (b board) rem(r int, p rune) (string, int) { // room, pawn -> board, cost
-	if i := strings.IndexRune(b[r], p); i > -1 {
-		cell := []rune(b[r])
-		cell[i] = '.'
-		return string(cell), i + 1
-	}
-	return b[r], 0
-}
-
-func (b board) add(r int, p rune) (string, int) { // room, pawn -> board, cost
-	if i := strings.Count(b[r], "."); i != 0 { // room has free cells
-		cell := []rune(b[r])
-		cell[i-1] = p // take the deeper one
-		return string(cell), i
-	}
-	return b[r], 0
-}
-
-// https://github.com/pemoreau/advent-of-code-2021/blob/main/go/23/day23.go#L147-L204
-// dead1 detects an interlock in the middle section of the board
-func (b board) dead1() bool {
-	for i := range []int{3, 5, 7} {
-		for j := i + 2; j < 8; j += 2 {
-			x, y := b.pawn(i), b.pawn(j)
-			if x*y*(y-x) != 0 && goal(x) >= j && goal(y) <= i {
+// iscosy checks game rules
+//   - room is cozy for pawn `a` only if it is home to it
+//     and either empty or populated (even crowded) by homies
+//   - an empty hallway is always cozy
+func (b *buro) iscosy(i int, a byte) bool {
+	if ishall(i) || i == b.home(a) {
+		var j int
+	VSCAN: // vertical scan room cells
+		for j = 1; j < RLEN; j++ {
+			x := b.get(j, i)
+			switch {
+			case x == '#': // buro bottom row
 				return true
+			case x != a && x != '.':
+				break VSCAN
 			}
 		}
 	}
 	return false
 }
 
-// dead2 detects an interlock at either edge of the board
-func (b board) dead2() bool {
-	edges := []struct {
-		r   rune
-		off int
-	}{
-		{'D', +1},
-		{'A', -1},
-	}
+// https://tinyurl.com/ycy4jwfm
+//   - dead1 detects a deadlock in the middle section of buro
+//   - dead2 detects a deadlock at either edge of buro
+//   - either way is fatal
+func (b *buro) isdead() bool {
+	dead1 := func() bool {
+		// eqz is true if x == y or x == 0 or y == 0
+		eqz := func(x, y byte) bool {
+			x -= '.'
+			y -= '.'
+			return (x-y)*x*y == 0
+		}
 
-	for _, e := range edges {
-		g := goal(e.r)
-		if b.pawn(g-e.off) == e.r {
-			nspace := 0
-			if b.pawn(g+e.off) == 0 {
-				nspace++
-			}
-			if b.pawn(g+2*e.off) == 0 {
-				nspace++
-			}
-			nalien := 0
-			if !b.granted(g, e.r) {
-				for _, r := range b[g] {
-					if r != e.r {
-						nalien++
-					}
+		// #...D...B...#  D, B deadlock in the hallway
+		// ###.#A#C#.###
+		for i := 4; i < BLEN-5; i += 2 {
+			x := b.peek(i)
+			for ii := i + 2; ii < BLEN-5; ii += 2 {
+				y := b.peek(ii)
+				if !eqz(x, y) && b.home(x) > ii && b.home(y) < i {
+					return true
 				}
 			}
-			if nalien > nspace {
-				return true
+		}
+		return false
+	}
+
+	dead2 := func() bool {
+		type edge struct {
+			x   byte
+			off int
+		}
+
+		// #C..A...D.B.#  C BC A deadlock on the left
+		// ###B#.#.#A###  D AD B deadlock on the right
+		//   #C#.#.#D#
+		//   #########
+		edges := []edge{
+			{'A', -1}, // left
+			{'D', +1}, // right
+		}
+
+		for _, e := range edges {
+			x, off := e.x, e.off
+			hx := b.home(x)
+
+			if b.peek(hx-off) == x {
+				nspace, nalien := 0, 0
+
+			ESCAN: // scan halleway edge rooms
+				for i := 1; i < 3; i++ {
+					x := b.peek(hx + i*off)
+					switch {
+					case x == '.':
+						nspace++
+					case ispawn(x):
+						break ESCAN
+					}
+				}
+
+			VSCAN: // vertical scan home cells
+				for j := 1; j < RLEN; j++ {
+					x := b.get(j, hx)
+					switch {
+					case x != '.' && x != 'x':
+						nalien++
+					case x == '#':
+						break VSCAN
+					}
+				}
+
+				if nalien > nspace {
+					return true
+				}
 			}
 		}
+		return false
 	}
-	return false
+
+	return dead1() || dead2()
 }
 
-type cboard struct {
-	b *board
-	c int
+// A* heuristic cost is entropy S as a disorder value:
+// for a buro, it is the sum  of every misplaced pawn
+// (weighted) distance to home without accounting for
+// collisions.
+//
+// It has features we can profit for A*:
+//  1. it is *admissible* (never overestimates goal cost)
+//  2. it is *consistent* (never overestimates move cost)
+//  3. it is zero (highest piority) for goals by design
+//
+// see properties:
+// https://en.wikipedia.org/wiki/A*_search_algorithm
+func (b *buro) hcost() cost {
+	var S cost             // entropy (disorder)
+	popcnts := [BLEN]int{} // home population counts
+
+	for ii := range b[BLEN:] {
+		if !ispawn(b[ii]) {
+			continue
+		}
+
+		j, s := (ii / BLEN), ii%BLEN // depth, source room
+		t := b.home(b[ii])           // target is home
+		popcnts[t]++                 // account for homecoming
+
+		if s == t { // already home, no cost
+			continue
+		}
+
+		var manh int = abs(t - s) // home dist
+		if ishome(s) {            // hallway dist
+			manh += j - 1
+		}
+		manh += popcnts[t] // home cell dist
+
+		S += cost(manh) * weights[b[ii]] // add weighted total dist
+	}
+	return S
 }
 
-func (b board) moves() []cboard {
-	if b.dead1() || b.dead2() { // prune deadlocked board
-		return []cboard(nil) // no move
+// move type
+
+// newMove is a move constructor
+//
+// it takes a buro (board) and an initial cost and returns a move object
+func newMove(b *buro, c cost) *move {
+	return &move{
+		b: b, c: c,
+		S: 0, // lazy S, computed only if selected by A*
+	}
+}
+
+func (m move) String() string {
+	var sb *strings.Builder
+	sb.WriteString(m.b.String())
+	sb.WriteString(fmt.Sprintf("   @%p c: %d, S: %d", &m, m.c, m.S))
+	return sb.String()
+}
+
+func ishome(i int) bool { return i&1 == 1 && 2 < i && i < BLEN-4 }
+func ishall(i int) bool { return !ishome(i) }
+
+// move a pawn from t to s
+//   - it returns a move and an ok bool
+//   - if inplace, this move is m modified
+//   - otherwise it is a modified clone of m (allocation)
+//   - on success ok is true
+//   - on failure it returns m unmodified and ok is false
+func (m *move) move(t, s int, inplace bool) (*move, bool) {
+	b := m.b
+
+	islegit := func(t, s int) bool {
+		// game rules:
+		//   - x is a pawn, moving from one place to another if the path is clear
+		//   - iff x is not cosy at home and is moving to a spacious and cosy place
+		type rule func(byte) bool
+		rules := []rule{
+			// extra rule: forbid hallway to hallway moves
+			// func(x byte) bool {
+			// 	return !(ishall(t) && ishall(s))
+			// },
+			func(x byte) bool {
+				return ispawn(x) && t != s && b.isclear(t, s)
+			},
+			func(x byte) bool {
+				return !(s == b.home(x) && b.iscosy(s, x)) && (!b.isfull(t) && b.iscosy(t, x))
+			},
+		}
+
+		match := func(x byte) bool {
+			// rules ander
+			for _, r := range rules {
+				if !r(x) {
+					return false // no match for rule r
+				}
+			}
+			return true
+		}
+
+		return match(b.peek(s))
+	}
+
+	if islegit(t, s) {
+		// move!
+
+		nxt := b
+		if !inplace {
+			// nallocs++ // uncomment for basic metrics
+			buf := *b // clone
+			nxt = &buf
+		}
+
+		x, cs := nxt.pop(s)
+		ct := nxt.push(t, x)
+		manh := (cs + cost(abs(t-s)) + ct) * weights[x]
+
+		return newMove(nxt, m.c+manh), true
+	}
+	return m, false
+}
+
+var MBUF [32]*move // static move buffer
+
+// moves generates all legal moves from the current move
+func (m *move) moves() []*move {
+	if m.b.isdead() { // deadlocked board
+		return []*move{} // no move
 	}
 
 	// step1 - go back home
-	nxt := cboard{&b, 0}
-	done := false
-	for !done { // always a good move, make all such moves at once!
+	// always an abolute move, make all such moves at once!
+	var cur *move
+	nxt, done := m, false
+MSCAN: // scan move
+	for !done { // find them all
+		cur = nxt
 		done = true
-		for i := range nxt.b {
-			b := nxt.b
-			p := b.pawn(i)
-			g := goal(p)
-			if p == 0 || (i == g && b.granted(g, p)) { // skip empty & @home
-				continue
-			}
-			if b.free(i, g) && b.granted(g, p) {
-				new, cost := b.move(i, g)
-				nxt.b, nxt.c = new, nxt.c+cost
-				done = false
+
+		for s := 1; s < BLEN-2; s++ {
+			x := m.b.peek(s)
+			if h := m.b.home(x); h != 0 {
+				ok := false
+				if nxt, ok = cur.move(h, s, true); ok { // no alloc
+					// new homecoming, restart scan!!
+					done = false
+					continue MSCAN
+				}
 			}
 		}
 	}
 
-	if nxt.c > 0 { // send back for prioritization
-		return []cboard{nxt}
+	if cur.S == 0 { // entropy is 0, cur is goal!
+		return []*move{cur} // return this absolute winning move
 	}
 
-	// step2 - move out (later)
-	moves := make([]cboard, 0, 28)
-	for _, s := range rooms {
-		b := nxt.b
-		p := b.pawn(s)
-		if p == 0 || b.granted(s, p) { // skip empty & @home
-			continue
-		}
-		for _, t := range halls {
-			if b.free(s, t) {
-				new, cost := b.move(s, t)
-				moves = append(moves, cboard{new, nxt.c + cost})
+	// step2 - move out from other's home to hallway
+	moves, ok := MBUF[:0], false     // reset
+	for s := 3; s < BLEN-4; s += 2 { // home index
+		for t := 1; t < BLEN-2; t++ { // room index
+			if ishall(t) { // filter hallway, move() is slower to reject
+				if nxt, ok = cur.move(t, s, false); ok {
+					moves = append(moves, nxt)
+				}
 			}
 		}
 	}
@@ -182,161 +486,106 @@ func (b board) moves() []cboard {
 	return moves
 }
 
-// move moves the top pawn of s to t, it returns the resulting board and the move cost
-func (b board) move(s, t int) (*board, int) {
-	nxt := b // array copy
-	p := b.pawn(s)
-
-	n, dist := 0, 0
-	nxt[s] = "."
-	if room(s) {
-		nxt[s], n = b.rem(s, p)
-		dist += n
-	}
-	nxt[t] = string(p)
-	if room(t) {
-		nxt[t], n = b.add(t, p)
-		dist += n
-	}
-	dist += abs(s - t)
-	return &nxt, dist * cost(p)
+// set heuristic cost as piority component used by A*
+// see func (*buro).hcost()
+func (m *move) setprio() *move {
+	m.S = m.b.hcost() // compute S when selected by A*
+	return m
 }
 
-// hcost is a heuristic function from:
-// https://github.com/pemoreau/advent-of-code-2021/blob/main/go/23/day23.go#L377-L401
-// see:
-// https://www.reddit.com/r/adventofcode/comments/rzvsjq/comment/hswxkbr/?utm_source=share&utm_medium=web2x&context=3
-func hcost(b *board) int {
-	popcnts := make([]int, len(b))
-	entropy := 0
-
-SCAN:
-	for s := range b { // for all cells as sources
-		var pawns strings.Builder
-		pawns.Grow(len(b[s]))
-		for _, p := range b[s] {
-			if p != '.' {
-				pawns.WriteRune(p)
-			}
-		}
-
-		for j, p := range pawns.String() { // for all pawns in a source cell
-			t := goal(p) // target
-
-			if s == t && b.granted(t, p) { // pawns already @home
-				continue SCAN // discard
-			}
-
-			dist := abs(s - t)             // walk p back home
-			dist += len(b[t]) - popcnts[t] // put it in there
-			popcnts[t]++
-
-			if room(s) { // get it out first
-				dist += len(b[s]) - len(pawns.String())
-				dist += 1 + j
-			}
-
-			entropy += dist * cost(p)
-		}
-	}
-	return entropy
+// A* move priority is the sum of the move cost and
+// the resulting board entropy see func (*buro).hcost()
+func (m *move) prio() cost {
+	return m.c + m.S
 }
 
-type heap []cboard
+// canonical A* algorithm
+// https://en.wikipedia.org/wiki/A*_search_algorithm
+func (m *move) solve() cost {
+	const (
+		// tuned hints, primes have no impact whatsoever
+		// on container/heap performance
+		MAXALLOC = 47_981 // tune here
+		MAXHEAP  = 7_993  // tune here
+	)
 
+	costs := make(map[buro]cost, MAXALLOC)
+	// costs[*m.b] = m.c  // correct but useless
+
+	// uncomment for winning game moves:
+	// start := m
+	// from := make(map[buro]move)
+
+	heap := make(heap, 0, MAXHEAP)
+	hp.Init(&heap)
+	hp.Push(&heap, m.setprio()) // from m as start...
+	for heap.Len() > 0 {
+		// get prioritized move
+		m := hp.Pop(&heap).(*move) // shadow m!
+
+		if m.S == 0 { // entropy is zero, goal!
+
+			// uncomment and fix to print:
+			// basic metrics:
+			// fmt.Println("ncosts =", len(costs))
+			// fmt.Println("nallocs =", nallocs)
+			// fmt.Println("maxheap =", maxheap)
+			// nallocs, maxheap = 0, 0
+
+			// winning game moves:
+			// for x := m; x.b != start.b; x = from[*x.b] {
+			// 	fmt.Println(x)
+			// }
+
+			return m.c // cost is minimal by design
+		}
+
+		// gen moves
+		for _, x := range m.moves() {
+			if known, seen := costs[*x.b]; !seen || known > x.c {
+				// from[*x.b] = m
+				costs[*x.b] = x.c
+				hp.Push(&heap, x.setprio()) // prioritize next move
+			}
+		}
+	}
+
+	panic("unreachable")
+}
+
+// prority queue concrete type and interface
+//
+// https://en.wikipedia.org/wiki/Priority_queue
+// Insert is (heap).Push(), Pull is (heap).Pop()
+//
+// https://pkg.go.dev/container/heap#Interface
+type heap []*move
+
+// sort interface
 func (h heap) Len() int { return len(h) }
 
 func (h heap) Less(i, j int) bool {
-	return h[i].c < h[j].c
+	return h[i].prio() < h[j].prio()
 }
 
 func (h heap) Swap(i, j int) {
 	h[i], h[j] = h[j], h[i]
 }
 
-func (h *heap) Push(x interface{}) {
-	b := x.(cboard)
-	*h = append(*h, b)
-}
-
+// heap interface
 func (h *heap) Pop() interface{} {
 	q, i := *h, len(*h)-1
 	pop := q[i]
-	*h, q[i] = q[:i], cboard{}
+	*h, q[i] = q[:i], nil
 	return pop
 }
 
-func (b board) solve(goal *board, costs map[string]int) int {
-	concat := func(b *board) string {
-		var sb strings.Builder
-		sb.Grow(24)
-		for _, s := range *b {
-			sb.WriteString(s)
-		}
-		return sb.String()
-	}
-
-	heap := make(heap, 0, 5920)
-	hp.Init(&heap)
-
-	hp.Push(&heap, cboard{&b, 0}) // from the start...
-	for heap.Len() > 0 {          // ...play all possible games
-		cur := hp.Pop(&heap).(cboard).b // pop a (sub)game board
-		if *cur == *goal {              // this cut works because heap is kinda sorted by costs
-			return costs[concat(goal)]
-		}
-		for _, move := range cur.moves() {
-			nxt, cost := move.b, move.c
-			cost += costs[concat(cur)]
-
-			nkey := concat(nxt)
-			if known, seen := costs[nkey]; !seen || known > cost {
-				costs[nkey] = cost                // if it's the best move so far...
-				prio := cost + hcost(nxt)         // prioritize by hypercosts (heuristic/entropy)
-				hp.Push(&heap, cboard{nxt, prio}) // ...send subgame to resolution
-			}
-		}
-	}
-	panic("solve() unreachable")
+func (h *heap) Push(x interface{}) {
+	// maxheap = max(maxheap, len(*h)) // uncomment for basic metrics
+	*h = append(*h, x.(*move))
 }
 
-func main() {
-	var wg sync.WaitGroup
-	wg.Add(2)
-
-	go func() {
-		costs := make(map[string]int, 4800)
-		goal := board{
-			".", ".", "AA", ".", "BB", ".", "CC", ".", "DD", ".", ".",
-		}
-		part1 := board{
-			".", ".", "AB", ".", "DC", ".", "BA", ".", "DC", ".", ".",
-		}
-		fmt.Println(part1.solve(&goal, costs)) // part1
-		// fmt.Println(len(costs))
-		wg.Done()
-	}()
-
-	go func() {
-		costs := make(map[string]int, 42200)
-		goal := board{
-			".", ".", "AAAA", ".", "BBBB", ".", "CCCC", ".", "DDDD", ".", ".",
-		}
-		part2 := board{
-			".", ".", "ADDB", ".", "DCBC", ".", "BBAA", ".", "DACC", ".", ".",
-		}
-		fmt.Println(part2.solve(&goal, costs)) // part2
-		// fmt.Println(len(costs))
-		wg.Done()
-	}()
-
-	wg.Wait()
-}
-
-func rtoi(r rune) rune {
-	return r - 'A'
-}
-
+// helpers
 func abs(a int) int {
 	if a < 0 {
 		return -a
@@ -344,16 +593,38 @@ func abs(a int) int {
 	return a
 }
 
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
+// var DEBUG = false
+//
+// func debug(a ...any) {
+// 	if DEBUG {
+// 		fmt.Println(a...)
+// 	}
+// }
+//
+// func debugf(format string, a ...any) {
+// 	if DEBUG {
+// 		fmt.Printf(format, a...)
+// 	}
+// }
 
-func max(a, b int) int {
-	if a > b {
-		return a
+// goodies:
+//
+//	you can see the bench of this non-crypto hashing function, it is efficient,
+//	faster than stdlib and neat but somehow the overall result is slower when
+//	using it
+//
+// https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
+// FNV-1
+func (b *buro) hash() (h uint64) {
+	const (
+		o = 0xcbf29ce484222325 // fnv_offset_basis
+		p = 0x100000001b3      // fnv_prime
+	)
+
+	h = o
+	for ii := range b {
+		h *= p
+		h ^= uint64(b[ii])
 	}
-	return b
+	return
 }

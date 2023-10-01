@@ -112,7 +112,7 @@ func (g *grid) groups() map[int]int {
 }
 
 func (g *grid) String() string {
-	var sb strings.Builder
+	var sb *strings.Builder
 	for j := 1; j <= g.h; j++ {
 		for i := 1; i <= g.w; i++ {
 			b := byte(' ')

@@ -46,7 +46,7 @@ func newGrid() *grid {
 	return g
 }
 
-func (g grid) get(y, x int) int {
+func (g *grid) get(y, x int) int {
 	j, y := y/g.h, y%g.h
 	i, x := x/g.w, x%g.w
 
@@ -62,9 +62,9 @@ func (g *grid) redim(h, w int) {
 }
 
 func (g grid) String() string {
-	var sb strings.Builder
+	var sb *strings.Builder
 	for i := 0; i < g.h; i++ {
-		fmt.Fprintln(&sb, g.d[i][:g.w]) // ignore errors
+		fmt.Fprintln(sb, g.d[i][:g.w]) // ignore errors
 	}
 	return sb.String()
 }

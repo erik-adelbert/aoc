@@ -12,7 +12,7 @@ var h, w int
 type board []byte
 
 func (b board) String() string {
-	var sb strings.Builder
+	var sb *strings.Builder
 	for i := 0; i < h; i++ {
 		sb.WriteString(string(b[i*w : (i+1)*w]))
 		sb.WriteByte('\n')

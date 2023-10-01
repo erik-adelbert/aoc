@@ -3,33 +3,33 @@
 | day | time |
 |-----|-----:|
 | 24 | 0.6 |
-| 6 | 0.6 |
 | 1 | 0.7 |
 | 10 | 0.7 |
-| 4 | 0.7 |
+| 16 | 0.7 |
+| 2 | 0.7 |
+| 6 | 0.7 |
 | 7 | 0.7 |
-| 16 | 0.8 |
-| 2 | 0.8 |
-| 13 | 1.0 |
-| 17 | 1.0 |
+| 13 | 0.9 |
+| 3 | 0.9 |
+| 4 | 1.0 |
 | 9 | 1.0 |
 | 12 | 1.1 |
-| 3 | 1.2 |
+| 17 | 1.1 |
 | 8 | 1.2 |
-| 11 | 2.4 |
-| 22 | 3.1 |
-| 14 | 3.7 |
-| 5 | 4.2 |
-| 21 | 11.3 |
-| 18 | 13.9 |
-| 25 | 33.0 |
-| 20 | 33.8 |
-| 15 | 44.6 |
-| 19 | 49.0 |
-| 23 | 78.1 |
-| total | 289.2 |
+| 11 | 2.3 |
+| 22 | 3.4 |
+| 14 | 3.8 |
+| 5 | 4.4 |
+| 21 | 11.8 |
+| 18 | 14.1 |
+| 20 | 29.0 |
+| 25 | 33.2 |
+| 15 | 43.6 |
+| 19 | 49.6 |
+| 23 | 51.2 |
+| total | 258.4 |
 
-end-to-end timing for part1&2 in ms - mbair M1/16GB - darwin 22.6.0 - go version go1.21.1 darwin/arm64 - hyperfine 1.17.0 - 2023-09-15
+end-to-end timing for part1&2 in ms - mbair M1/16GB - darwin 22.6.0 - go version go1.21.1 darwin/arm64 - hyperfine 1.17.0 - 2023-10-01
 
 ## Installation and benchmark
 
@@ -359,9 +359,19 @@ pem's featured version is faster than mine (~90ms) and worth studying (same prin
 The solution presented here runs in around 100ms (GOGC=off) and the total runtime for this collection is 478ms. 
 **\o/ Total runtime of my programs is under half a second \o/** Though, I believe some carefully crafted `rust` could run in the double-digits ms (and some crazy dark magic rust invocations may even run in the single-digit ms on selected hardware).
 
+`<EDIT>`
+I've reworked this program: not only the input is read dynamically but the new version is copy free
+and thus runs faster than before.
+The presented A* has a minimal form, it uses the input almost directly. I believe it's the fastest Go version published today, it runs in ~50ms. Look at this _awesome_ CPU profile:
+<div style="text-align:center">
+  <img src="./23/pprof001.svg" />
+</div>
+
+**The overall runtime is ~258ms**
+
 ## Day 24
 
-I've cracked this problem by hand (`txt` files) thanks to the support of a teammate. It was my most difficult day and I almost quit again. The solution shown here is an adaptation of the clever python I've found on line after christmas. 
+I've cracked this problem by hand (`txt` files) thanks to the support of a teammate. It was my most difficult day and I almost quit again. The solution shown here is an adaptation of the clever python I've found on line after christmas.
 
 I'm not able to solve this problem generally using a computer (surely not in less than 24 hours). I still thinks that it hasn't a clear general solution: it's about [program comprehension](https://en.wikipedia.org/wiki/Program_comprehension) and I don't know what it really is or even could be.  
 On the other hand, the [constraint satisfaction](https://en.wikipedia.org/wiki/Constraint_satisfaction_problem) part is easy and is what the solution is doing.  

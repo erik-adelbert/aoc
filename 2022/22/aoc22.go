@@ -236,7 +236,7 @@ type (
 )
 
 func (b bmp) String() string {
-	var sb strings.Builder
+	var sb *strings.Builder
 	for _, r := range b {
 		sb.Write(r)
 		sb.WriteByte('\n')

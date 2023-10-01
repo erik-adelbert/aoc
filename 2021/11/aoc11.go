@@ -30,7 +30,7 @@ func (c *cave) inc(ji idx) byte {
 }
 
 func (c *cave) String() string {
-	var sb strings.Builder
+	var sb *strings.Builder
 	for j := 0; j < c.h; j++ {
 		for i := 0; i < c.w; i++ {
 			sb.WriteByte(c.cells[j*c.w+i] + '0')

@@ -42,7 +42,7 @@ func solve(g game) wins {
 
 	if _, seen := cache[g]; !seen { // new game!
 		var count wins
-		for _, r := range rolls { // play all
+		for _, r := range rolls[:] { // play all
 			c1 := (g.c1+r-1)%10 + 1 // one move at a time
 			s1 := g.s1 + c1
 			sub := solve(game{g.c2, g.s2, c1, s1}) // swap players and solve subgame
