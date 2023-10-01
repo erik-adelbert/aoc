@@ -437,7 +437,7 @@ func (m *move) move(t, s int, inplace bool) (*move, bool) {
 	return m, false
 }
 
-var MBUF [32]*move // static move buffer
+var MBUF [32]*move // move static buffer
 
 // moves generates all legal moves from the current move
 func (m *move) moves() []*move {

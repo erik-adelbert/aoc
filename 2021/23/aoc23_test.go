@@ -1,3 +1,6 @@
+// benchmark with:
+// $ go test -bench=. -benchmem
+
 package main
 
 import (
