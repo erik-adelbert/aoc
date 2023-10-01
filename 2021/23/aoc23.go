@@ -38,12 +38,12 @@ type (
 	//	buro memory layout [RLEN * BLEN]byte:
 	//
 	//	      RLEN * BLEN = 0x62
-	//	index|<------------------- RLEN * BLEN -/~/--------------------->| limit
-	//	  j: |0 <- BLEN -> |1            |2     /~/       |6             | RLEN
-	//	raw: [#############$#...........#$###A#B/~/#C#D#  $  #########  $]
-	//	  i: |0123456789abcd0123456789abcd012345/~/6789abcd0123456789abcd| BLEN
+	//	raw: [#############$#...........#$###A#B/~/#C#D#__$__#########__$] part#2
+	//	idx: |<------------------- RLEN * BLEN -/~/--------------------->| limit
 	//	 ii: |0123456789abcdef...               /~/                  ...ω| RLEN * BLEN
-	//	                                                     ω = 0x62 - 1
+	//	  j: |0            |1            |2     /~/       |6             | RLEN
+	//	  i: |0123456789abcd0123456789abcd012345/~/6789abcd0123456789abcd| BLEN
+	//	     |<--- BLEN -->|                                 ω = 0x62 - 1
 	//
 	// 2D burrow from/to buro:  ii = j*BLEN + i  <=> j = ii/BLEN, i = ii%BLEN
 	buro [RLEN * BLEN]byte
@@ -156,11 +156,16 @@ func (b *buro) push(i int, a byte) cost {
 
 // obvious setrow
 func (b *buro) setrow(j int, s string) {
-	const ROWINIT = "             \n" // 13 spaces + '\n'
+	// sanitize input
 	safe := func(raw string) []byte {
-		buf := []byte(ROWINIT)
-		copy(buf, raw)
-		return buf
+		const (
+			SPC = ' '  // default value
+			END = '\n' // delimiter
+		)
+		// fixed size buffer: (BLEN-1) * SPC
+		buf := bytes.Repeat([]byte{SPC}, BLEN-1)
+		copy(buf, raw)          // enforce size but trust content
+		return append(buf, END) // enforce delimiter
 	}
 
 	low := j * BLEN
@@ -184,7 +189,7 @@ func mkburos(input *bufio.Scanner) []buro {
 	}
 
 	buros[1] = buros[0]
-	buros[1].setrow(3, "  #D#C#B#A#") // /!\ mandatory 2 spaces prefix
+	buros[1].setrow(3, "  #D#C#B#A#") // /!\ 2 spaces prefix
 	buros[1].setrow(4, "  #D#B#A#C#")
 	buros[1].setrow(5, buros[0].getrow(3))
 	buros[1].setrow(6, "  #########")
@@ -249,7 +254,7 @@ func (b *buro) isdead() bool {
 
 		// #...D...B...#  D, B deadlock in the hallway
 		// ###.#A#C#.###
-		for i := 4; i < BLEN-5; i += 2 {
+		for i := 4; i < BLEN-5; i += 2 { // middle section indices
 			x := b.peek(i)
 			for ii := i + 2; ii < BLEN-5; ii += 2 {
 				y := b.peek(ii)
@@ -332,13 +337,13 @@ func (b *buro) hcost() cost {
 	var S cost             // entropy (disorder)
 	popcnts := [BLEN]int{} // home population counts
 
-	for ii := range b[BLEN:] {
+	for ii := range b[:] { // flat scan
 		if !ispawn(b[ii]) {
 			continue
 		}
 
-		j, s := (ii / BLEN), ii%BLEN // depth, source room
-		t := b.home(b[ii])           // target is home
+		j, s := (ii / BLEN), ii%BLEN // source room row, col
+		t := b.home(b[ii])           // target is source pawn home
 		popcnts[t]++                 // account for homecoming
 
 		if s == t { // already home, no cost
@@ -349,9 +354,9 @@ func (b *buro) hcost() cost {
 		if ishome(s) {            // hallway dist
 			manh += j - 1
 		}
-		manh += popcnts[t] // home cell dist
+		manh += popcnts[t] // in-home dist
 
-		S += cost(manh) * weights[b[ii]] // add weighted total dist
+		S += cost(manh) * weights[b[ii]] // sum weighted total dist
 	}
 	return S
 }
@@ -494,7 +499,7 @@ func (m *move) setprio() *move {
 }
 
 // A* move priority is the sum of the move cost and
-// the resulting board entropy see func (*buro).hcost()
+// board entropy see func (*buro).hcost()
 func (m *move) prio() cost {
 	return m.c + m.S
 }
@@ -516,36 +521,39 @@ func (m *move) solve() cost {
 	// start := m
 	// from := make(map[buro]move)
 
-	heap := make(heap, 0, MAXHEAP)
+	heap := make(heap, 0, MAXHEAP) // heap is A* frontier
 	hp.Init(&heap)
 	hp.Push(&heap, m.setprio()) // from m as start...
 	for heap.Len() > 0 {
-		// get prioritized move
+		// get most promising move
 		m := hp.Pop(&heap).(*move) // shadow m!
 
 		if m.S == 0 { // entropy is zero, goal!
 
-			// uncomment and fix to print:
-			// basic metrics:
+			// uncomment and fix to print
+			//   winning game moves:
+
+			// for x := m; x.b != start.b; x = from[*x.b] {
+			// 	fmt.Println(x)
+			// }
+
+			//   basic metrics:
+
 			// fmt.Println("ncosts =", len(costs))
 			// fmt.Println("nallocs =", nallocs)
 			// fmt.Println("maxheap =", maxheap)
 			// nallocs, maxheap = 0, 0
 
-			// winning game moves:
-			// for x := m; x.b != start.b; x = from[*x.b] {
-			// 	fmt.Println(x)
-			// }
-
 			return m.c // cost is minimal by design
 		}
 
-		// gen moves
+		// generate new moves
 		for _, x := range m.moves() {
 			if known, seen := costs[*x.b]; !seen || known > x.c {
+				// new or better move
 				// from[*x.b] = m
-				costs[*x.b] = x.c
-				hp.Push(&heap, x.setprio()) // prioritize next move
+				costs[*x.b] = x.c           // best cost so far
+				hp.Push(&heap, x.setprio()) // prioritize move
 			}
 		}
 	}
