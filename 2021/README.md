@@ -364,7 +364,7 @@ I've reworked this program: not only the input is read dynamically but the new v
 and thus runs faster than before.
 The presented A* has a minimal form, it uses the input almost directly. I believe it's the fastest Go version published today, it runs in ~50ms. Look at this _awesome_ CPU profile:
 <div style="text-align:center">
-  <img src="./23/pprof001.svg" />
+  <img src="./23/pprof001.jpg" />
 </div>
 
 **The overall runtime is ~258ms**
