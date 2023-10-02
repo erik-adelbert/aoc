@@ -10,7 +10,7 @@ import (
 type snafu []byte
 
 func (a snafu) String() string {
-	var sb *strings.Builder
+	var sb strings.Builder
 	for i := len(a) - 1; i >= 0; i-- {
 		sb.WriteByte(a[i])
 	}

@@ -62,9 +62,9 @@ func (g *grid) redim(h, w int) {
 }
 
 func (g grid) String() string {
-	var sb *strings.Builder
+	var sb strings.Builder
 	for i := 0; i < g.h; i++ {
-		fmt.Fprintln(sb, g.d[i][:g.w]) // ignore errors
+		fmt.Fprintln(&sb, g.d[i][:g.w]) // ignore errors
 	}
 	return sb.String()
 }

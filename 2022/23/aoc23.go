@@ -184,7 +184,7 @@ func (g *grid) extend() {
 }
 
 func (g *grid) String() string {
-	var sb *strings.Builder
+	var sb strings.Builder
 	for j := 0; j < g.h; j++ {
 		sb.WriteString(g.cell[j].String())
 		sb.WriteByte('\n')

@@ -68,7 +68,7 @@ const (
 )
 
 func (ws worlds) String() string {
-	var sb *strings.Builder
+	var sb strings.Builder
 
 	for i, s := range ws[Part1] {
 		if len(s) > 0 {

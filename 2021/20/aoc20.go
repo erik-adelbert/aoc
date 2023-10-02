@@ -68,7 +68,7 @@ func enhance() {
 }
 
 func (b bitmap) String() string {
-	var sb *strings.Builder
+	var sb strings.Builder
 
 	for y := -1; y < b.h+1; y++ {
 		for x := -1; x < b.w+1; x++ {

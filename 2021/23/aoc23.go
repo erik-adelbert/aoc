@@ -385,7 +385,7 @@ func newMove(b *buro, c cost) *move {
 }
 
 func (m move) String() string {
-	var sb *strings.Builder
+	var sb strings.Builder
 	sb.WriteString(m.b.String())
 	sb.WriteString(fmt.Sprintf("   @%p c: %d, S: %d", &m, m.c, m.S))
 	return sb.String()

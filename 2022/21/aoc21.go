@@ -177,7 +177,7 @@ func (v *val) int() int {
 }
 
 func (v *val) String() string {
-	var sb *strings.Builder
+	var sb strings.Builder
 	sb.WriteString(v.op + "(")
 	switch v.op {
 	default:
