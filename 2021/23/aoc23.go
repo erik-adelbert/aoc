@@ -31,8 +31,8 @@ type (
 	//	2  |###A#B#C#D###$|   2  |###A#B#C#D###$| |
 	//	3  |__#A#B#C#D#__$|   3  |__#A#B#C#D#__$| RLEN
 	//	4  |__#A#B#C#D#__$|   4  |__#########__$| |
-	//	5  |__#A#B#C#D#__$|   5  |εεεεεεεεεεεεε$| |
-	//	6  |__#########__$|   6  |εεεεεεεεεεεεε$| ↓
+	//	5  |__#A#B#C#D#__$|   5  |εεεεεεεεεεεεεε| |
+	//	6  |__#########__$|   6  |εεεεεεεεεεεεεε| ↓
 	//	    <--- BLEN --->
 	//
 	//	buro memory layout [RLEN * BLEN]byte:
@@ -288,7 +288,6 @@ func (b *buro) isdead() bool {
 		// #C..A...D.B.#  C BC A deadlock on the left
 		// ###B#.#.#A###  D AD B deadlock on the right
 		//   #C#.#.#D#
-		//   #########
 		edges := []edge{
 			{'A', -1}, // left
 			{'D', +1}, // right
@@ -376,7 +375,7 @@ func (b *buro) hcost() cost {
 
 // newMove is a move constructor
 //
-// it takes a buro (board) and an initial cost and returns a move object
+// takes a buro (board) and an initial cost and returns a move object
 func newMove(b *buro, c cost) *move {
 	return &move{
 		b: b, c: c,
@@ -485,9 +484,9 @@ MSCAN: // scan m for homecoming moves
 		}
 	}
 
-	// step 1.5 - goal detection
-	if cur.S == 0 { // entropy is 0, cur is goal!
-		return []*move{cur} // winning move
+	// step 1.5 - send back for proritization
+	if cur.S == 0 { // homecomings happened
+		return []*move{cur}
 	}
 
 	// step2 - move out from others home to hallway
