@@ -7,45 +7,61 @@ import (
 	"strings"
 )
 
-type bitmap struct {
-	data   [][]byte
+const MAXLEN = 1 << 8
+
+type (
+	kernel [2 * MAXLEN]byte
+	bitmap [MAXLEN * MAXLEN]byte
+)
+
+type image struct {
+	bmap   *bitmap
 	h, w   int
 	popcnt int
 }
 
 var (
+	kern     kernel    // kernel filter
+	bufs     [2]*image // double buffer
 	cur, nxt = 0, 1    // parity, ^parity
-	kern     []byte    // kern(el filter)
-	bufs     [2]bitmap // double buffering
 )
 
-func init() {
-	N := 200
-	bufs[0].data = make([][]byte, N)
-	bufs[1].data = make([][]byte, N)
-	for j := range bufs[0].data {
-		bufs[0].data[j] = make([]byte, N)
-		bufs[1].data[j] = make([]byte, N)
+func main() {
+	for i := range bufs {
+		bufs[i] = newImage()
 	}
-}
 
-func (b *bitmap) redim(h, w int) {
-	b.h, b.w = h, w
-	b.popcnt = 0
-}
-
-func (b *bitmap) get(y, x int) int {
-	if y < 0 || y >= b.h || x < 0 || x >= b.w { // p is infinite
-		return cur
+	j, i := 0, MAXLEN
+	input := bufio.NewScanner(os.Stdin)
+	for input.Scan() {
+		bit := strings.NewReplacer(".", "\x00", "#", "\x01")
+		switch len(input.Bytes()) {
+		case 0:
+			// continue
+		case len(kern):
+			copy(kern[:], input.Bytes())
+		default:
+			low, max := slice(j, i)
+			i = copy(bufs[cur].bmap[low:max:max], []byte(bit.Replace(input.Text())))
+			j++
+		}
 	}
-	return int(b.data[y][x])
+	bufs[cur].redim(j, i)
+
+	for i := 0; i < 50; i++ {
+		if i == 2 {
+			fmt.Println(bufs[cur].popcnt) // part1
+		}
+		enhance()
+	}
+	fmt.Println(bufs[cur].popcnt) // part2
 }
 
 func enhance() {
 	h, w := bufs[cur].h+2, bufs[cur].w+2
 	bufs[nxt].redim(h, w)
 
-	data := bufs[nxt].data
+	bitmap := bufs[nxt].bmap
 	for y := 0; y < h; y++ {
 		for x := 0; x < w; x++ {
 			δy := []int{-1, -1, -1, +0, 0, 0, +1, 1, 1}
@@ -56,9 +72,9 @@ func enhance() {
 				n = (n << 1) | bufs[cur].get(y-1+δy[i], x-1+δx[i])
 			}
 
-			data[y][x] = 0
+			bitmap[y*MAXLEN+x] = 0
 			if kern[n] == '#' {
-				data[y][x] = 1
+				bitmap[y*MAXLEN+x] = 1
 				bufs[nxt].popcnt++
 			}
 		}
@@ -67,56 +83,39 @@ func enhance() {
 	cur, nxt = nxt, cur // swap buffers (and switch parity)
 }
 
-func (b bitmap) String() string {
-	var sb strings.Builder
-
-	for y := -1; y < b.h+1; y++ {
-		for x := -1; x < b.w+1; x++ {
-			if b.get(y, x) == 1 {
-				sb.WriteByte('@')
-			} else {
-				sb.WriteByte('.')
-			}
-		}
-		if y != b.h+1 {
-			sb.WriteByte('\n')
-		}
-	}
-
-	return sb.String()
+func newBitmap() *bitmap {
+	return new(bitmap)
 }
 
-func main() {
-	var raw []string
-
-	h, w, input := 0, 0, bufio.NewScanner(os.Stdin)
-	for input.Scan() {
-		switch len(input.Bytes()) {
-		case 0: // continue
-		case 512:
-			kern = []byte(input.Text())
-		default:
-			line := input.Text()
-			raw = append(raw, line)
-			h, w = h+1, len(line)
-		}
+func newImage() *image {
+	return &image{
+		newBitmap(), 0, 0, 0,
 	}
+}
 
-	for j := range raw {
-		for i, v := range raw[j] {
-			if v == '#' {
-				bufs[cur].data[j][i] = 1
-				bufs[cur].popcnt++
-			}
-		}
-	}
-	bufs[cur].redim(h, w)
+func (a *image) redim(h, w int) {
+	a.h, a.w, a.popcnt = h, w, 0
+}
 
-	for i := 0; i < 50; i++ {
-		if i == 2 {
-			fmt.Println(bufs[cur].popcnt) // part1
-		}
-		enhance()
+func slice(j, w int) (low, max int) {
+	low = j * MAXLEN
+	max = low + w
+	return
+}
+
+func (a *image) get(y, x int) int {
+	if y < 0 || y >= a.h || x < 0 || x >= a.w { // p is infinite
+		return cur
 	}
-	fmt.Println(bufs[cur].popcnt) // part2
+	return int(a.bmap[y*MAXLEN+x])
+}
+
+func (a *image) String() string {
+	unbit := strings.NewReplacer("\x00", ".", "\x01", "#")
+	var sb strings.Builder
+	for j := 0; j < a.h; j++ {
+		low, max := slice(j, a.w)
+		sb.Write(append(a.bmap[low:max:max], '\n'))
+	}
+	return unbit.Replace(sb.String())
 }
