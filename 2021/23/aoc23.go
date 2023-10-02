@@ -22,7 +22,7 @@ type (
 	//
 	// ex:
 	//
-	//	RLEN = 7, BLEN = 14, $ = \n, ε = \0, _ = 0x20 (ASCII space)
+	//	| RLEN = 7 | BLEN = 14 | $ = \n | ε = \0 | _ = 0x20 (ASCII space) |
 	//
 	//	       part#2                part#1
 	//	j\i|0123456789abcd|   j\i|0123456789abcd|
@@ -64,10 +64,11 @@ type (
 func main() {
 	input := bufio.NewScanner(os.Stdin)
 
-	// muxed part 1, 2
+	// part#1,2
 	parts := mkburos(input)
 	for p := range parts {
-		fmt.Println(newMove(&parts[p], 0).solve())
+		start := newMove(&parts[p], 0)
+		fmt.Println(start.solve())
 	}
 }
 
@@ -95,7 +96,7 @@ func (b *buro) set(j, i int, c byte) {
 	b[j*BLEN+i] = c
 }
 
-// home index of home(a) in i space
+// index home(a) in i space
 func (b *buro) home(a byte) int {
 	switch {
 	case ispawn(a):
@@ -116,7 +117,7 @@ func (b *buro) popx(i int, pop bool) (byte, cost) {
 				b.set(j, i, '.')
 			}
 			return x, cost(j - 1)
-		case x == '#': // buro bottom row
+		case beof(x): // buro bottom row
 			return '.', 0
 		}
 	}
@@ -135,9 +136,17 @@ func (b *buro) pop(i int) (byte, cost) {
 	return b.popx(i, true)
 }
 
-// obvious ispawn
 func ispawn(a byte) bool {
 	return ('A' <= a && a <= 'D')
+}
+
+func isempty(a byte) bool {
+	return a == '.'
+}
+
+// true when a buro room (vertical) scan hits the bottom row
+func beof(a byte) bool {
+	return a == '#'
 }
 
 // push pawn a to buro.room(i)
@@ -145,7 +154,7 @@ func (b *buro) push(i int, a byte) cost {
 	var j int
 
 	for j = 1; j < RLEN; j++ {
-		if x := b.get(j, i); ispawn(x) || x == '#' {
+		if x := b.get(j, i); !isempty(x) || beof(x) {
 			b.set(j-1, i, a)
 			return cost(j - 2)
 		}
@@ -154,7 +163,13 @@ func (b *buro) push(i int, a byte) cost {
 	panic("unreachable")
 }
 
-// obvious setrow
+// low and max slice indices for the jth buro row
+func slice(j int) (low, max int) {
+	low = j * BLEN
+	max = low + BLEN
+	return
+}
+
 func (b *buro) setrow(j int, s string) {
 	// sanitize input
 	safe := func(raw string) []byte {
@@ -162,32 +177,31 @@ func (b *buro) setrow(j int, s string) {
 			SPC = ' '  // default value
 			END = '\n' // delimiter
 		)
-		// fixed size buffer: (BLEN-1) * SPC
+		// fixed size buffer: 'SPC * (BLEN-1)'
 		buf := bytes.Repeat([]byte{SPC}, BLEN-1)
 		copy(buf, raw)          // enforce size but trust content
 		return append(buf, END) // enforce delimiter
 	}
 
-	low := j * BLEN
-	max := low + BLEN
+	low, max := slice(j)
 	copy(b[low:max:max], safe(s))
 }
 
-// obvious getrow
 func (b *buro) getrow(j int) string {
-	low := j * BLEN
-	max := low + BLEN
+	low, max := slice(j)
 	return string(b[low:max:max])
 }
 
-// buro maker routine for part 1&2
+// buro maker routine for part#1,2
 func mkburos(input *bufio.Scanner) []buro {
-	var buros [2]buro // part 1&2
+	var buros [2]buro // part#1,2
 
+	// part#1
 	for j := 0; input.Scan(); j++ {
 		buros[0].setrow(j, input.Text())
 	}
 
+	// part#2
 	buros[1] = buros[0]
 	buros[1].setrow(3, "  #D#C#B#A#") // /!\ 2 spaces prefix
 	buros[1].setrow(4, "  #D#B#A#C#")
@@ -199,39 +213,38 @@ func mkburos(input *bufio.Scanner) []buro {
 
 // move helpers
 
-// obvious isfull buro.room(i)
 func (b *buro) isfull(i int) bool {
 	j := 1
 	if ishome(i) {
 		j++
 	}
-	return b.get(j, i) != '.'
+	return !isempty(b.get(j, i))
 }
 
-// isclear checks if hallway cells between s and t are free
+// true when hallway between s and t is free
 func (b *buro) isclear(t, s int) bool {
 	for i := min(t, s); i <= max(t, s); i++ {
-		if i != s && ishall(i) && b.peek(i) != '.' {
+		if i != s && ishall(i) && !isempty(b.peek(i)) {
 			return false
 		}
 	}
 	return true
 }
 
-// iscosy checks game rules
+// game rule
 //   - room is cozy for pawn `a` only if it is home to it
 //     and either empty or populated (even crowded) by homies
 //   - an empty hallway is always cozy
 func (b *buro) iscosy(i int, a byte) bool {
 	if ishall(i) || i == b.home(a) {
 		var j int
-	VSCAN: // vertical scan room cells
+	VSCAN: // (vertical) scan room cells
 		for j = 1; j < RLEN; j++ {
 			x := b.get(j, i)
 			switch {
-			case x == '#': // buro bottom row
+			case beof(x):
 				return true
-			case x != a && x != '.':
+			case !isempty(x) && x != a:
 				break VSCAN
 			}
 		}
@@ -245,7 +258,7 @@ func (b *buro) iscosy(i int, a byte) bool {
 //   - either way is fatal
 func (b *buro) isdead() bool {
 	dead1 := func() bool {
-		// eqz is true if x == y or x == 0 or y == 0
+		// true when x == y or x == 0 or y == 0
 		eqz := func(x, y byte) bool {
 			x -= '.'
 			y -= '.'
@@ -288,24 +301,22 @@ func (b *buro) isdead() bool {
 			if b.peek(hx-off) == x {
 				nspace, nalien := 0, 0
 
-			ESCAN: // scan halleway edge rooms
+				// scan halleway edge rooms for free space
 				for i := 1; i < 3; i++ {
 					x := b.peek(hx + i*off)
-					switch {
-					case x == '.':
-						nspace++
-					case ispawn(x):
-						break ESCAN
+					if !isempty(x) {
+						break
 					}
+					nspace++
 				}
 
-			VSCAN: // vertical scan home cells
+			VSCAN: // (vertical) scan home cells
 				for j := 1; j < RLEN; j++ {
-					x := b.get(j, hx)
+					xx := b.get(j, hx)
 					switch {
-					case x != '.' && x != 'x':
+					case !isempty(xx) && xx != x:
 						nalien++
-					case x == '#':
+					case beof(xx):
 						break VSCAN
 					}
 				}
@@ -385,10 +396,10 @@ func ishall(i int) bool { return !ishome(i) }
 
 // move a pawn from t to s
 //   - it returns a move and an ok bool
-//   - if inplace, this move is m modified
-//   - otherwise it is a modified clone of m (allocation)
+//   - if inplace, move occurs in m
+//   - otherwise move occurs in a clone of m (allocation)
 //   - on success ok is true
-//   - on failure it returns m unmodified and ok is false
+//   - on failure m is returned unmodified and ok is false
 func (m *move) move(t, s int, inplace bool) (*move, bool) {
 	b := m.b
 
@@ -403,7 +414,7 @@ func (m *move) move(t, s int, inplace bool) (*move, bool) {
 			// 	return !(ishall(t) && ishall(s))
 			// },
 			func(x byte) bool {
-				return ispawn(x) && t != s && b.isclear(t, s)
+				return !isempty(x) && t != s && b.isclear(t, s)
 			},
 			func(x byte) bool {
 				return !(s == b.home(x) && b.iscosy(s, x)) && (!b.isfull(t) && b.iscosy(t, x))
@@ -428,7 +439,9 @@ func (m *move) move(t, s int, inplace bool) (*move, bool) {
 
 		nxt := b
 		if !inplace {
-			// nallocs++ // uncomment for basic metrics
+			// uncomment for basic metrics
+			// nallocs++
+
 			buf := *b // clone
 			nxt = &buf
 		}
@@ -444,17 +457,17 @@ func (m *move) move(t, s int, inplace bool) (*move, bool) {
 
 var MBUF [32]*move // move static buffer
 
-// moves generates all legal moves from the current move
+// moves generates all legal moves from m
 func (m *move) moves() []*move {
 	if m.b.isdead() { // deadlocked board
 		return []*move{} // no move
 	}
 
-	// step1 - go back home
+	// step1 - homecomings
 	// always an abolute move, make all such moves at once!
 	var cur *move
 	nxt, done := m, false
-MSCAN: // scan move
+MSCAN: // scan m for homecoming moves
 	for !done { // find them all
 		cur = nxt
 		done = true
@@ -472,16 +485,19 @@ MSCAN: // scan move
 		}
 	}
 
+	// step 1.5 - goal detection
 	if cur.S == 0 { // entropy is 0, cur is goal!
-		return []*move{cur} // return this absolute winning move
+		return []*move{cur} // winning move
 	}
 
-	// step2 - move out from other's home to hallway
-	moves, ok := MBUF[:0], false     // reset
+	// step2 - move out from others home to hallway
+	moves := MBUF[:0]                // reset move buffer
 	for s := 3; s < BLEN-4; s += 2 { // home index
 		for t := 1; t < BLEN-2; t++ { // room index
-			if ishall(t) { // filter hallway, move() is slower to reject
+			if ishall(t) { // filter hallway
+				var ok bool
 				if nxt, ok = cur.move(t, s, false); ok {
+					// nxt pawn moved from s to t
 					moves = append(moves, nxt)
 				}
 			}
@@ -505,6 +521,7 @@ func (m *move) prio() cost {
 }
 
 // canonical A* algorithm
+//
 // https://en.wikipedia.org/wiki/A*_search_algorithm
 func (m *move) solve() cost {
 	const (
@@ -515,7 +532,6 @@ func (m *move) solve() cost {
 	)
 
 	costs := make(map[buro]cost, MAXALLOC)
-	// costs[*m.b] = m.c  // correct but useless
 
 	// uncomment for winning game moves:
 	// start := m
@@ -530,15 +546,12 @@ func (m *move) solve() cost {
 
 		if m.S == 0 { // entropy is zero, goal!
 
-			// uncomment and fix to print
-			//   winning game moves:
-
+			// uncomment for winning game moves:
 			// for x := m; x.b != start.b; x = from[*x.b] {
 			// 	fmt.Println(x)
 			// }
 
-			//   basic metrics:
-
+			// uncomment for basic metrics:
 			// fmt.Println("ncosts =", len(costs))
 			// fmt.Println("nallocs =", nallocs)
 			// fmt.Println("maxheap =", maxheap)
@@ -551,7 +564,10 @@ func (m *move) solve() cost {
 		for _, x := range m.moves() {
 			if known, seen := costs[*x.b]; !seen || known > x.c {
 				// new or better move
+
+				// uncomment for winning game moves
 				// from[*x.b] = m
+
 				costs[*x.b] = x.c           // best cost so far
 				hp.Push(&heap, x.setprio()) // prioritize move
 			}
@@ -561,7 +577,7 @@ func (m *move) solve() cost {
 	panic("unreachable")
 }
 
-// prority queue concrete type and interface
+// A* prority queue concrete type and interface
 //
 // https://en.wikipedia.org/wiki/Priority_queue
 // Insert is (heap).Push(), Pull is (heap).Pop()
@@ -589,7 +605,9 @@ func (h *heap) Pop() interface{} {
 }
 
 func (h *heap) Push(x interface{}) {
-	// maxheap = max(maxheap, len(*h)) // uncomment for basic metrics
+	// uncomment for basic metrics
+	// maxheap = max(maxheap, len(*h))
+
 	*h = append(*h, x.(*move))
 }
 
