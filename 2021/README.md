@@ -255,6 +255,8 @@ I've found this problem really entertaining.
 
 When solving this problem, one finds that for a moving dot `p(x,y)` during a [symetry](https://en.wikipedia.org/wiki/Reflection_symmetry) of axis `a`, one have:
 
+$$\begin{pmatrix} \end{pmatrix}
+
 $$x_{p_{n+1}} = 2*x_{a} - x_{p_{n}} \parallel y_{p_{n+1}} = 2*y_{a} - y_{p_{n}}$$
 
 or
