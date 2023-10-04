@@ -261,7 +261,8 @@ or
 
 $$y_{p_{n+1}} = 2*y_{a} - y_{p_{n}}$$
 
-We can show how with [*möbius* homogeneous coordinates](https://en.wikipedia.org/wiki/Homogeneous_coordinates). In this system, these [matrices](https://en.wikipedia.org/wiki/Transformation_matrix) represent a *translation* of vector $u(x, y)$, a *symetry* around $x$ axis (horizontal folding) and one around $y$ axis (vertical folding):
+We can show how with [*möbius* homogeneous coordinates](https://en.wikipedia.org/wiki/Homogeneous_coordinates).\
+In this system, the following [matrices](https://en.wikipedia.org/wiki/Transformation_matrix) represent a *translation* of vector $u(x, y)$, a *symetry* around $x$ axis (horizontal folding) and one around $y$ axis (vertical folding):
 
 $$\begin{pmatrix} 1 & 0 & x_{u}\\\0 & 1 & y_{u}\\\0 & 0 & 1\\\ \end{pmatrix}
 \begin{pmatrix} 1 & 0 & 0\\\0 & -1 & 0\\\0 & 0 & 1\\\ \end{pmatrix}
