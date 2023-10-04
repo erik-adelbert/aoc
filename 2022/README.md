@@ -371,7 +371,7 @@ See? This is day 16 already! My last year [`day` `15`](https://github.com/erik-a
 
 ~~The design encloses dijkstra in a loop to set the starting points. This allows the same code to solve `part1` given a singleton and `part2` a list of starting points.~~
 
-There's much to say: we can solve this problem backward. By working out the solution from then end, there's a unique run that brings all the answers efficiently.
+There's much to say: we can solve this problem backward. By working out the solution from the end, there's a unique run that brings all the answers efficiently.
 
 <div style="text-align:center">
   <img src="https://upload.wikimedia.org/wikipedia/commons/2/23/Dijkstras_progress_animation.gif" />
@@ -379,7 +379,7 @@ There's much to say: we can solve this problem backward. By working out the solu
 
 ## Day 13
 
-Today's challenge describes some `packet` numbers. They are somewhat related to `snailfish` numbers from [last year day 18](https://github.com/erik-adelbert/aoc/blob/main/2021/18/aoc18.go). These numbers parsing is the crux of today's challenge, my parser is recursive and pretty straightforward. I had though times putting it together though and the tyniest mistake here is fatal. ~~The `cmp` function is nicely described: it was easy to have the standard Go library sorting the numbers.~~ No need to sort the packets!
+Today's challenge describes some `packet` numbers. They are somewhat related to `snailfish` numbers from [last year day 18](https://github.com/erik-adelbert/aoc/blob/main/2021/18/aoc18.go). These numbers parsing is the crux of today's challenge, my parser is recursive and pretty straightforward. I had tough times putting it together though and the tyniest mistake here is fatal. ~~The `cmp` function is nicely described: it was easy to have the standard Go library sorting the numbers.~~ No need to sort the packets!
 
 I've chosen to represent a `packet` as `struct{ val int, list []packet }`, with the added convention that if `p.val < 0` then the number is a `list`. It's an `integer` otherwise. The following have been modified to display the internal representation of `[1, 1, 3, 1, 1]`:
 

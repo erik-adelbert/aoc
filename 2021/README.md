@@ -252,21 +252,21 @@ I've found this problem really entertaining.
 ```
 
 `Side Note:`  
-When solving this problem, one finds that for a moving dot `p(x,y)` during a [symetry](https://en.wikipedia.org/wiki/Reflection_symmetry) of axis `a`, one have:   
+When solving this problem, one finds that for a moving dot `p(x,y)` during a [symetry](https://en.wikipedia.org/wiki/Reflection_symmetry) of axis `a`, one have:
 $$x_{p_{n+1}} = 2*x_{a} - x_{p_{n}}\ ||\ y_{p_{n+1}} = 2*y_{a} - y_{p_{n}}\\$$
 
 We can show how with *moebius* homogeneous coordinates. In this system, these [matrices](https://en.wikipedia.org/wiki/Transformation_matrix) represent a *translation* of vector `u(x, y)`, a *symetry* around `x` axis (horizontal folding) and one around `y` axis (vertical folding):
 
-$$\begin{pmatrix}1 & 0 & x_{u}\\0 & 1 & y_{u}\\0 & 0 & 1\\\end{pmatrix}
-\begin{pmatrix}1 & 0 & 0\\0 & -1 & 0\\0 & 0 & 1\\\end{pmatrix}
-\begin{pmatrix}-1 & 0 & 0\\0 & 1 & 0\\0 & 0 & 1\\\end{pmatrix}$$
+$$\begin{pmatrix} 1 & 0 & x_{u}\\0 & 1 & y_{u}\\0 & 0 & 1\\ \end{pmatrix}
+\begin{pmatrix} 1 & 0 & 0\\0 & -1 & 0\\0 & 0 & 1\\ \end{pmatrix}
+\begin{pmatrix} -1 & 0 & 0\\0 & 1 & 0\\0 & 0 & 1\\ \end{pmatrix}$$
 
 Folding the sheet in two around axis `x=a` amounts to 1) translate some dots with `(-a, 0)` (to have them in a self-centered system), 2) obviously, move them symetrically around the `y` axis and 3) translate them back with `(a, 0)` (to have them back in their original system): $$Tr_{a}(x).S_{y}(x).Tr_{-a}(x)$$ 
 It is read from right to left and we can't change the order of these transformations. To transform a point one writes:
-$$\begin{pmatrix}1 & 0 & x_{a}\\0 & 1 & 0\\0 & 0 & 1\\\end{pmatrix} . 
-\begin{pmatrix}-1 & 0 & 0\\0 & 1 & 0\\0 & 0 & 1\\\end{pmatrix} .
-\begin{pmatrix}1 & 0 & -x_{a}\\0 & 1 & 0\\0 & 0 & 1\\\end{pmatrix} .
-\begin{pmatrix}x_{p}\\y_{p}\\z_{p}\end{pmatrix}$$
+$$\begin{pmatrix} 1 & 0 & x_{a}\\0 & 1 & 0\\0 & 0 & 1\\ \end{pmatrix} .
+\begin{pmatrix} -1 & 0 & 0\\0 & 1 & 0\\0 & 0 & 1\\ \end{pmatrix} .
+\begin{pmatrix} 1 & 0 & -x_{a}\\0 & 1 & 0\\0 & 0 & 1\\ \end{pmatrix} .
+\begin{pmatrix} x_{p}\\y_{p}\\z_{p} \end{pmatrix}$$
 
 Which brings the sought after formula: $$x_{p_{n+1}} = 2*x_{a} - x_{p_{n}}$$
 
@@ -286,7 +286,7 @@ To solve this problem, I'm using the really nice `bearmini`'s [`bitstream-go`](h
 
 These libraries implement standard [interfaces](https://jordanorelli.com/post/32665860244/how-to-use-interfaces-in-go) like [`Reader`](https://go.dev/tour/methods/21) and [`Writer`](https://www.grant.pizza/blog/the-beauty-of-io-writer/). Thanks to these interfaces, filters (functions) share the same prototypes as the low-level functions in front of which they're laid. This enables us to build [data pipelines](https://en.wikipedia.org/wiki/Pipeline_(computing)) like the one on line 161.
 
-In `part2`, I implement an [accumulator machine](https://en.wikipedia.org/wiki/Accumulator_(computing)) that [evaluates](https://en.wikipedia.org/wiki/Eval) commands encoded in a `BITS` [datagram](https://en.wikipedia.org/wiki/Datagram#Examples). 
+In `part2`, I implement an [accumulator machine](https://en.wikipedia.org/wiki/Accumulator_(computing)) that [evaluates](https://en.wikipedia.org/wiki/Eval) commands encoded in a `BITS` [datagram](https://en.wikipedia.org/wiki/Datagram#Examples).
 
 `Pedantic Note`:  
 I believe the problem mistakenly states BITS [packet](https://en.wikipedia.org/wiki/Network_packet) instead of `datagram`.
