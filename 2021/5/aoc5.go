@@ -1,3 +1,13 @@
+// aoc5.go --
+// advent of code 2021 day 5
+//
+// https://adventofcode.com/2021/day/5
+// https://github.com/erik-adelbert/aoc
+//
+// (ɔ) Erik Adelbert - erik_AT_adelbert_DOT_fr
+// -------------------------------------------
+// 2021-12-5: initial commit
+
 package main
 
 import (

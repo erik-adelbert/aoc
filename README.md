@@ -1,9 +1,9 @@
 
 # aoc
 
-My advent of code programs
+My advent of code solutions
 
-All programs have been carefully composed and run collectively in around 95ms(2022) and 254ms(2021).
+All programs have been carefully composed and run collectively in around 95ms(2022) and 258ms(2021).
 Coding notes have proven useful for others on reddit.
 
 Happy coding!

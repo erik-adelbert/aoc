@@ -1,9 +1,9 @@
 GO = go build 
 
-TARGETS := bench build check clean run
+TARGETS := bench build check clean header run
 
 SUBDIRS := $(wildcard */.)
-SUBDIRS := $(filter-out download/. runtime/., $(SUBDIRS))
+SUBDIRS := $(filter-out download/. header/. runtime/., $(SUBDIRS))
 
 $(TARGETS): $(SUBDIRS)
 $(SUBDIRS):

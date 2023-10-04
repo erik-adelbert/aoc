@@ -1,3 +1,13 @@
+// aoc23.go --
+// advent of code 2021 day 23
+//
+// https://adventofcode.com/2021/day/23
+// https://github.com/erik-adelbert/aoc
+//
+// (ɔ) Erik Adelbert - erik_AT_adelbert_DOT_fr
+// -------------------------------------------
+// 2021-12-23: initial commit
+
 package main
 
 import (
@@ -112,13 +122,13 @@ func (b *buro) popx(i int, pop bool) (byte, cost) {
 	for j = 1; j < RLEN; j++ {
 		x := b.get(j, i)
 		switch {
+		case beof(x): // buro bottom row
+			return '.', 0
 		case ispawn(x):
 			if pop {
 				b.set(j, i, '.')
 			}
 			return x, cost(j - 1)
-		case beof(x): // buro bottom row
-			return '.', 0
 		}
 	}
 

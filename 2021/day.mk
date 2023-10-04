@@ -4,6 +4,7 @@ GOV = go vet
 BENCH = ../bench.sh
 
 DOWNLOAD = ../download/main.go
+HEADER = ../header/main.go
 
 EX = sample.txt
 IN = input.txt
@@ -25,8 +26,11 @@ clean:
 	go clean
 	rm -f $(BIN)
 
+header:
+	@go run $(HEADER)
+
 input.txt:
-	go run $(DOWNLOAD)
+	@go run $(DOWNLOAD)
 
 go.mod: 
 	@go mod init 2>/dev/null
@@ -47,4 +51,4 @@ sample:
 	go run ./$(SRC) < $(EX)
 
 
-.PHONY: bench build check clean cpuprof exemple gobench memprof run sample
+.PHONY: bench build check clean cpuprof exemple gobench header memprof run sample

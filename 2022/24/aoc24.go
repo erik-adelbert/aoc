@@ -1,3 +1,13 @@
+// aoc24.go --
+// advent of code 2022 day 24
+//
+// https://adventofcode.com/2022/day/24
+// https://github.com/erik-adelbert/aoc
+//
+// (ɔ) Erik Adelbert - erik_AT_adelbert_DOT_fr
+// -------------------------------------------
+// 2022-12-24: initial commit
+
 package main
 
 import (
