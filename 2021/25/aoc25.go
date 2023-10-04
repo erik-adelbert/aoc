@@ -1,3 +1,13 @@
+// aoc25.go --
+// advent of code 2021 day 25
+//
+// https://adventofcode.com/2021/day/25
+// https://github.com/erik-adelbert/aoc
+//
+// (ɔ) Erik Adelbert - erik_AT_adelbert_DOT_fr
+// -------------------------------------------
+// 2021-12-25: initial commit
+
 package main
 
 import (
@@ -7,60 +17,79 @@ import (
 	"strings"
 )
 
-var h, w int
+const (
+	w = 139
+	h = 137
+)
 
-type board []byte
-
-func (b board) String() string {
-	var sb strings.Builder
-	for i := 0; i < h; i++ {
-		sb.WriteString(string(b[i*w : (i+1)*w]))
-		sb.WriteByte('\n')
-	}
-	sb.WriteString(string(b[(h-2)*w : (h-1)*w]))
-
-	return sb.String()
-}
-
-func clone(b board) board {
-	return append(b[:0:0], b...)
-}
+type board [w * h]byte
 
 func main() {
-	var cur board
+	var nxt board
 
-	nxt := make(board, 0, 32768)
 	input := bufio.NewScanner(os.Stdin)
-	for input.Scan() {
-		bytes := input.Bytes()
-		nxt = append(nxt, bytes...)
-		h, w = h+1, len(bytes)
+	for j := 0; input.Scan(); j++ {
+		low, max := slice(j)
+		copy(nxt[low:max:max], input.Bytes())
 	}
 
-	s, n := 0, 1 // step, change counts
+	s, n := 0, 1 // step, change count
 	for n > 0 {
-		s++
-		n = 0            // reset
-		cur = clone(nxt) // east scan
+		s, n = s+1, 0 // advance step, reset change count
+
+		cur := nxt
+		// east scan
 		for j := 0; j < h; j++ {
+			crow := cur.row(j)
+			nrow := nxt.row(j)
 			for i := 0; i < w; i++ {
-				x := (i + 1) % w
-				if cur[j*w+i] == '>' && cur[j*w+x] == '.' {
-					nxt[j*w+i], nxt[j*w+x] = nxt[j*w+x], nxt[j*w+i] // swap!
+				ii := (i + 1) % w
+				if crow[i] == '>' && crow[ii] == '.' {
+					nrow[i], nrow[ii] = nrow[ii], nrow[i] // swap!
 					n++
 				}
 			}
 		}
-		cur = clone(nxt) // south scan
+
+		cur = nxt
+		// south scan
 		for j := 0; j < h; j++ {
-			y := (j + 1) % h
+			jj := (j + 1) % h
+			chead, ctail := cur.row(j), cur.row(jj)
+			nhead, ntail := nxt.row(j), nxt.row(jj)
 			for i := 0; i < w; i++ {
-				if cur[j*w+i] == 'v' && cur[y*w+i] == '.' {
-					nxt[j*w+i], nxt[y*w+i] = nxt[y*w+i], nxt[j*w+i] // swap!
+				if chead[i] == 'v' && ctail[i] == '.' {
+					nhead[i], ntail[i] = ntail[i], nhead[i] // swap!
 					n++
 				}
 			}
 		}
 	}
 	fmt.Println(s)
+}
+
+func at(j, i int) int {
+	return j*w + i
+}
+
+func slice(j int) (low, max int) {
+	low = j * w
+	max = low + w
+	return
+}
+
+func (b *board) row(j int) []byte {
+	low, max := slice(j)
+	return b[low:max:max]
+}
+
+func (b *board) String() string {
+	var sb strings.Builder
+	for j := 0; j < h; j++ {
+		low, max := slice(j)
+		sb.Write(b[low:max:max])
+		sb.WriteByte('\n')
+	}
+
+	return sb.String()
 }
