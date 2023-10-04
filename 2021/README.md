@@ -251,7 +251,7 @@ I've found this problem really entertaining.
 ���� �  � �     ��  ���   ��  ���� �  �
 ```
 
-`Side Note:`
+### Side Note
 
 When solving this problem, one finds that for a moving dot `p(x,y)` during a [symetry](https://en.wikipedia.org/wiki/Reflection_symmetry) of axis `a`, one have:
 
