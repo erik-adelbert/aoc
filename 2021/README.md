@@ -282,7 +282,7 @@ It is read from right to left and we can't change the order of these transformat
 $$\begin{pmatrix} 1 & 0 & x_{a}\\\0 & 1 & 0\\\0 & 0 & 1\\\ \end{pmatrix} .
 \begin{pmatrix} -1 & 0 & 0\\\0 & 1 & 0\\\0 & 0 & 1\\\ \end{pmatrix} .
 \begin{pmatrix} 1 & 0 & -x_{a}\\\0 & 1 & 0\\\0 & 0 & 1\\\ \end{pmatrix} .
-\begin{pmatrix} x_{p}\\\y_{p}\\\z_{p} \end{pmatrix}$$
+\begin{pmatrix} x_{p}\\\y_{p}\\\0 \end{pmatrix}$$
 
 Which brings the sought after formula:
 
