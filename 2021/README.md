@@ -374,16 +374,48 @@ When using Go, `strings` are immutable and every transformation on a string indu
 
 pem's featured version is faster than mine (~90ms) and worth studying (same principle/clean code).
 
-The solution presented here runs in around 100ms (GOGC=off) and the total runtime for this collection is 478ms. 
+The solution presented here runs in around 100ms (GOGC=off) and the total runtime for this collection is 478ms.
 **\o/ Total runtime of my programs is under half a second \o/** Though, I believe some carefully crafted `rust` could run in the double-digits ms (and some crazy dark magic rust invocations may even run in the single-digit ms on selected hardware).
 
 `<EDIT>`
 I've reworked this program: not only the input is read dynamically but the new version is copy free
 and thus runs faster than before.
-The presented A* has a minimal form, it uses the input almost directly. I believe it's the fastest Go version published today, it runs in ~50ms. Look at this _awesome_ CPU profile:
+The presented A* has a minimal form, it uses the input almost directly. I believe it's the fastest day23 Go version published today, it runs in ~47ms. Look at this _awesome_ CPU profile:
 <div style="text-align:center">
   <img src="./23/pprof001.jpg" />
 </div>
+
+Along with its satisfying Go benchmarks:
+
+```bash
+❯ make gobench
+go test -bench=. -benchmem
+goos: darwin
+goarch: arm64
+pkg: github.com/erik-adelbert/aoc/2021/23
+BenchmarkMkBuros-8                       1278229               890.9 ns/op          4768 B/op         21 allocs/op
+BenchmarkBuroString-8                   30614197                38.82 ns/op            0 B/op          0 allocs/op
+BenchmarkBuroGet-8                      1000000000               0.3130 ns/op          0 B/op          0 allocs/op
+BenchmarkBuroSet-8                      1000000000               0.3131 ns/op          0 B/op          0 allocs/op
+BenchmarkBuroHome-8                     1000000000               0.3133 ns/op          0 B/op          0 allocs/op
+BenchmarkBuroPart1Hcost-8               16081874                74.16 ns/op            0 B/op          0 allocs/op
+BenchmarkBuroPart2Hcost-8               13972828                85.48 ns/op            0 B/op          0 allocs/op
+BenchmarkBuroPeek-8                     382037193                3.140 ns/op           0 B/op          0 allocs/op
+BenchmarkBuroPop-8                      182283752                6.580 ns/op           0 B/op          0 allocs/op
+BenchmarkBuroPush-8                     1000000000               1.064 ns/op           0 B/op          0 allocs/op
+BenchmarkBuroIsDead-8                   42184574                28.19 ns/op            0 B/op          0 allocs/op
+BenchmarkStateMoveInplaceOk-8           100000000               11.35 ns/op            0 B/op          0 allocs/op
+BenchmarkStateMoveAllocOk-8             100000000               11.41 ns/op            0 B/op          0 allocs/op
+BenchmarkStateMoveInplaceNotOk-8        169744543                7.065 ns/op           0 B/op          0 allocs/op
+BenchmarkStateMoveAllocNotOk-8          169837947                7.099 ns/op           0 B/op          0 allocs/op
+BenchmarkStateMoves-8                    7202716               166.0 ns/op             8 B/op          1 allocs/op
+BenchmarkStateSolvePart1-8                  1738            640303 ns/op         7752457 B/op       2506 allocs/op
+BenchmarkStateSolvePart2-8                    24          46333365 ns/op        18715008 B/op     162511 allocs/op
+BenchmarkStdHashmapRoundTrip-8          45152602                25.46 ns/op            0 B/op          0 allocs/op
+BenchmarkFNV1HashmapRoundTrip-8         126051969                9.576 ns/op           0 B/op          0 allocs/op
+PASS
+ok      github.com/erik-adelbert/aoc/2021/23    25.680s
+```
 
 **The overall runtime is ~258ms**
 

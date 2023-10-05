@@ -148,10 +148,10 @@ func BenchmarkBuroIsDead(b *testing.B) {
 	result = dead
 }
 
-func benchmarkMove(t, s int, inplace bool, b *testing.B) {
+func benchmarkStateMove(t, s int, inplace bool, b *testing.B) {
 	x := loadBuro(input)
 
-	m := newMove(&x[1], 0)
+	m := newState(&x[1], 0)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -161,27 +161,27 @@ func benchmarkMove(t, s int, inplace bool, b *testing.B) {
 	result = m
 }
 
-func BenchmarkMoveInplaceMoveOk(b *testing.B) {
-	benchmarkMove(1, 3, true, b)
+func BenchmarkStateMoveInplaceOk(b *testing.B) {
+	benchmarkStateMove(1, 3, true, b)
 }
 
-func BenchmarkMoveAllocMoveOk(b *testing.B) {
-	benchmarkMove(1, 3, false, b)
+func BenchmarkStateMoveAllocOk(b *testing.B) {
+	benchmarkStateMove(1, 3, false, b)
 }
 
-func BenchmarkMoveInplaceMoveNotOk(b *testing.B) {
-	benchmarkMove(3, 1, true, b)
+func BenchmarkStateMoveInplaceNotOk(b *testing.B) {
+	benchmarkStateMove(3, 1, true, b)
 }
 
-func BenchmarkMoveAllocMoveNotOk(b *testing.B) {
-	benchmarkMove(3, 1, false, b)
+func BenchmarkStateMoveAllocNotOk(b *testing.B) {
+	benchmarkStateMove(3, 1, false, b)
 }
 
-func BenchmarkMoveMoves(b *testing.B) {
+func BenchmarkStateMoves(b *testing.B) {
 	x := loadBuro(input)
 
-	var moves []*move
-	m := newMove(&x[1], 0)
+	var moves []*state
+	m := newState(&x[1], 0)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -191,9 +191,9 @@ func BenchmarkMoveMoves(b *testing.B) {
 	result = moves
 }
 
-func benchmarkMoveSolve(part int, b *testing.B) {
+func benchmarkStateSolve(part int, b *testing.B) {
 	x := loadBuro(input)
-	m := newMove(&x[part], 0)
+	m := newState(&x[part], 0)
 
 	var r cost
 
@@ -205,12 +205,12 @@ func benchmarkMoveSolve(part int, b *testing.B) {
 	result = r
 }
 
-func BenchmarkMoveSolvePart1(b *testing.B) {
-	benchmarkMoveSolve(0, b)
+func BenchmarkStateSolvePart1(b *testing.B) {
+	benchmarkStateSolve(0, b)
 }
 
-func BenchmarkMoveSolvePart2(b *testing.B) {
-	benchmarkMoveSolve(1, b)
+func BenchmarkStateSolvePart2(b *testing.B) {
+	benchmarkStateSolve(1, b)
 }
 
 func BenchmarkStdHashmapRoundTrip(b *testing.B) {

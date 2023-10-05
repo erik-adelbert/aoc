@@ -60,11 +60,11 @@ type (
 
 	cost int
 
-	// a move represent a game state and its cost
+	// a state represent a game state and its cost
 	//   - it is designed for A* operations: prio(), setprio()
 	//   - it boasts a classical interface: move(), moves()
 	//   - A* is attached to it: solve()
-	move struct {
+	state struct {
 		b    *buro
 		c, S cost
 	}
@@ -77,7 +77,7 @@ func main() {
 	// part#1,2
 	parts := mkburos(input)
 	for p := range parts {
-		start := newMove(&parts[p], 0)
+		start := newState(&parts[p], 0)
 		fmt.Println(start.solve())
 	}
 }
@@ -381,19 +381,19 @@ func (b *buro) hcost() cost {
 	return S
 }
 
-// move type
+// game state type
 
-// newMove is a move constructor
+// newState is a state constructor
 //
-// takes a buro (board) and an initial cost and returns a move object
-func newMove(b *buro, c cost) *move {
-	return &move{
+// takes a buro (board) and an initial cost and returns a state object
+func newState(b *buro, c cost) *state {
+	return &state{
 		b: b, c: c,
 		S: 0, // lazy S, computed only if selected by A*
 	}
 }
 
-func (m move) String() string {
+func (m state) String() string {
 	var sb strings.Builder
 	sb.WriteString(m.b.String())
 	sb.WriteString(fmt.Sprintf("   @%p c: %d, S: %d", &m, m.c, m.S))
@@ -404,12 +404,12 @@ func ishome(i int) bool { return i&1 == 1 && 2 < i && i < BLEN-4 }
 func ishall(i int) bool { return !ishome(i) }
 
 // move a pawn from t to s
-//   - it returns a move and an ok bool
+//   - it returns a state and an ok bool
 //   - if inplace, move occurs in m
 //   - otherwise move occurs in a clone of m (allocation)
 //   - on success ok is true
 //   - on failure m is returned unmodified and ok is false
-func (m *move) move(t, s int, inplace bool) (*move, bool) {
+func (m *state) move(t, s int, inplace bool) (*state, bool) {
 	b := m.b
 
 	islegit := func(t, s int) bool {
@@ -459,22 +459,22 @@ func (m *move) move(t, s int, inplace bool) (*move, bool) {
 		ct := nxt.push(t, x)
 		manh := (cs + cost(abs(t-s)) + ct) * weights[x]
 
-		return newMove(nxt, m.c+manh), true
+		return newState(nxt, m.c+manh), true
 	}
 	return m, false
 }
 
-var MBUF [32]*move // move static buffer
+var MBUF [32]*state // move static buffer
 
 // moves generates all legal moves from m
-func (m *move) moves() []*move {
+func (m *state) moves() []*state {
 	if m.b.isdead() { // deadlocked board
-		return []*move{} // no move
+		return []*state{} // no move
 	}
 
 	// step1 - homecomings
 	// always an abolute move, make all such moves at once!
-	var cur *move
+	var cur *state
 	nxt, done := m, false
 MSCAN: // scan m for homecoming moves
 	for !done { // find them all
@@ -496,7 +496,7 @@ MSCAN: // scan m for homecoming moves
 
 	// step 1.5 - send back for proritization
 	if cur.S == 0 { // homecomings happened
-		return []*move{cur}
+		return []*state{cur}
 	}
 
 	// step2 - move out from others home to hallway
@@ -518,21 +518,21 @@ MSCAN: // scan m for homecoming moves
 
 // set heuristic cost as piority component used by A*
 // see func (*buro).hcost()
-func (m *move) setprio() *move {
+func (m *state) setprio() *state {
 	m.S = m.b.hcost() // compute S when selected by A*
 	return m
 }
 
 // A* move priority is the sum of the move cost and
 // board entropy see func (*buro).hcost()
-func (m *move) prio() cost {
+func (m *state) prio() cost {
 	return m.c + m.S
 }
 
 // canonical A* algorithm
 //
 // https://en.wikipedia.org/wiki/A*_search_algorithm
-func (m *move) solve() cost {
+func (m *state) solve() cost {
 	const (
 		// tuned hints, primes have no impact whatsoever
 		// on container/heap performance
@@ -551,7 +551,7 @@ func (m *move) solve() cost {
 	hp.Push(&heap, m.setprio()) // from m as start...
 	for heap.Len() > 0 {
 		// get most promising move
-		m := hp.Pop(&heap).(*move) // shadow m!
+		m := hp.Pop(&heap).(*state) // shadow m!
 
 		if m.S == 0 { // entropy is zero, goal!
 
@@ -592,7 +592,7 @@ func (m *move) solve() cost {
 // Insert is (heap).Push(), Pull is (heap).Pop()
 //
 // https://pkg.go.dev/container/heap#Interface
-type heap []*move
+type heap []*state
 
 // sort interface
 func (h heap) Len() int { return len(h) }
@@ -617,7 +617,7 @@ func (h *heap) Push(x interface{}) {
 	// uncomment for basic metrics
 	// maxheap = max(maxheap, len(*h))
 
-	*h = append(*h, x.(*move))
+	*h = append(*h, x.(*state))
 }
 
 // helpers
