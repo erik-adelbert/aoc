@@ -19,12 +19,18 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 )
+
+type safeVecMap struct {
+	mu sync.Mutex
+	m  map[vec]bool
+}
 
 var (
 	reads []reading
 	scans reading
-	fixed map[vec]bool
+	fixed = new(safeVecMap)
 )
 
 // niladic init
@@ -33,7 +39,7 @@ var (
 func init() {
 	reads = make([]reading, 0, 32)
 	scans = append(make([]vec, 0, 27), vec{0, 0, 0}) // origin
-	fixed = make(map[vec]bool, 337)
+	fixed.m = make(map[vec]bool, 337)
 }
 
 func main() {
@@ -68,7 +74,7 @@ func main() {
 	})
 
 	for _, p := range reads[0] { // origin
-		fixed[p] = true
+		fixed.m[p] = true
 	}
 	reads = reads[1:] // shift
 
@@ -83,7 +89,7 @@ func main() {
 		}
 		reads = reads[:i] // retry with pushed back
 	}
-	fmt.Println(len(fixed)) // part1
+	fmt.Println(len(fixed.m)) // part1
 
 	diam := 0
 	for i, v0 := range scans {
@@ -124,69 +130,61 @@ func clone(points []vec) reading {
 	return buf
 }
 
-type rotator func() reading // rotations iterator
+func (r reading) π2rots() <-chan reading {
+	out := make(chan reading, 24)
+	defer close(out)
 
-func (r reading) π2rots() rotator {
-	rots := []struct {
-		s, a vec // sign, axis order
-	}{
-		{vec{-1, -1, +1}, vec{X, Y, Z}},
-		{vec{-1, +1, -1}, vec{X, Y, Z}},
-		{vec{+1, -1, -1}, vec{X, Y, Z}},
-		{vec{+1, +1, +1}, vec{X, Y, Z}},
-
-		{vec{-1, -1, -1}, vec{X, Z, Y}},
-		{vec{-1, +1, +1}, vec{X, Z, Y}},
-		{vec{+1, -1, +1}, vec{X, Z, Y}},
-		{vec{+1, +1, -1}, vec{X, Z, Y}},
-
-		{vec{-1, -1, -1}, vec{Y, X, Z}},
-		{vec{-1, +1, +1}, vec{Y, X, Z}},
-		{vec{+1, -1, +1}, vec{Y, X, Z}},
-		{vec{+1, +1, -1}, vec{Y, X, Z}},
-
-		{vec{-1, -1, +1}, vec{Y, Z, X}},
-		{vec{-1, +1, -1}, vec{Y, Z, X}},
-		{vec{+1, -1, -1}, vec{Y, Z, X}},
-		{vec{+1, +1, +1}, vec{Y, Z, X}},
-
-		{vec{-1, -1, +1}, vec{Z, X, Y}},
-		{vec{-1, +1, -1}, vec{Z, X, Y}},
-		{vec{+1, -1, -1}, vec{Z, X, Y}},
-		{vec{+1, +1, +1}, vec{Z, X, Y}},
-
-		{vec{-1, -1, -1}, vec{Z, Y, X}},
-		{vec{-1, +1, +1}, vec{Z, Y, X}},
-		{vec{+1, -1, +1}, vec{Z, Y, X}},
-		{vec{+1, +1, -1}, vec{Z, Y, X}},
+	roll := func(r reading) reading {
+		for i := range r {
+			r[i] = vec{r[i][X], r[i][Z], -r[i][Y]}
+		}
+		return r
 	}
 
-	i, turned := 0, make(reading, len(r))
-
-	return func() reading { // rotator
-		if i >= len(rots) { // capture i
-			return nil
+	turn := func(r reading) reading {
+		for i := range r {
+			r[i] = vec{-r[i][Y], r[i][X], r[i][Z]}
 		}
+		return r
+	}
 
-		rot := rots[i]
-		for j, v := range r {
-			// π/2 rotation
-			// shuffle X, Y, Z according to sign and axis order
-			s, a := &rot.s, &rot.a
-			turned[j] = vec{ // capture turned
-				s[0] * v[a[0]], s[1] * v[a[1]], s[2] * v[a[2]],
+	//    _________
+	//   /  top   /| t
+	//  /_______ / |s  half: top, near, east
+	// |        | a|   roll (R): near -> top
+	// |  near  |e /   turn (T): near <- east
+	// |        | /
+	// |________|/
+	//
+	// RTTTRTTTRTTT -> first half 12 rotations
+	// RTR          -> switch half
+	// RTTTRTTTRTTT -> second half 12 rotations
+	//
+	// https://tinyurl.com/yckc8c5b (SO discussion)
+
+	for half := 0; half < 2; half++ {
+		for top := 0; top < 3; top++ {
+			// 3xRTTT
+			r = roll(r) // R
+			out <- clone(r)
+			for near := 0; near < 3; near++ {
+				r = turn(r) // T
+				out <- clone(r)
 			}
 		}
-		i++
-		return turned // leak turned
+		r = roll(turn(roll(r))) // RTR
 	}
+
+	return out
 }
 
-func list(m map[vec]bool) reading {
-	list := make(reading, len(m))
+func list(vmap *safeVecMap) reading {
+	vmap.mu.Lock()
+	defer vmap.mu.Unlock()
 
+	list := make(reading, len(vmap.m))
 	i := 0
-	for v := range m {
+	for v := range vmap.m {
 		list[i] = v
 		i++
 	}
@@ -230,72 +228,113 @@ func rebase(r reading, o vec) reading {
 	}
 	return r
 }
+
+func merge(done <-chan struct{}, cs ...<-chan bool) <-chan bool {
+	var wg sync.WaitGroup
+	out := make(chan bool)
+
+	// start an output goroutine for each input channel in cs.  output
+	// copies values from c to out until c is closed, then calls wg.Done.
+	output := func(c <-chan bool) {
+		defer wg.Done()
+		for n := range c {
+			select {
+			case out <- n:
+			case <-done:
+				return
+			}
+		}
+	}
+	wg.Add(len(cs))
+	for _, c := range cs {
+		go output(c)
+	}
+
+	// start a goroutine to close out once all the output goroutines are
+	// done.  This must start after the wg.Add call.
+	go func() {
+		wg.Wait()
+		close(out)
+	}()
+	return out
 }
 
 func ralign(r reading) bool {
-	next := r.π2rots()
+	done := make(chan struct{})
+	defer close(done) // cancellation channel
 
-	rot := next()
-	for rot != nil {
-		if align(rot) {
-			return true
+	a1 := align(done, r.π2rots()) // rotate-align pipeline
+	a2 := align(done, r.π2rots())
+
+	for match := range merge(done, a1, a2) {
+		if match {
+			return true // and cancel
 		}
-		rot = next()
 	}
-	return false
+	return false // and cancel
 }
 
-func align(r reading) bool {
-
-	// index := func(r reading, x vec) int {  // older Go
-	// 	for i, v := range r {
-	// 		if x == v {
-	// 			return i
-	// 		}
-	// 	}
-	// 	return len(r)
-	// }
+func align(done <-chan struct{}, in <-chan reading) <-chan bool {
+	out := make(chan bool)
 
 	index := func(r reading, x vec) int { // Go 1.21
 		return slices.Index(r, x)
 	}
 
-	const TRESH = 12 // from challenge
+	go func() {
+		defer close(out)
+	ALIGN:
+		for r := range in {
+			const TRESH = 12 // from challenge
 
-	known := list(fixed)
-	for a := X; a <= Z; a++ { // X, Y, Z
-		sort.Slice(r, func(i, j int) bool {
-			return r[i][a] <= r[j][a]
-		})
+			known := list(fixed)
+			for a := range []int{X, Y, Z} {
+				sort.Slice(r, func(i, j int) bool {
+					return r[i][a] < r[j][a]
+				})
 
-		sort.Slice(known, func(i, j int) bool {
-			return known[i][a] <= known[j][a]
-		})
+				sort.Slice(known, func(i, j int) bool {
+					return known[i][a] < known[j][a]
+				})
 
-		rdifs, kdifs := difs(r), difs(known)
+				rdifs, kdifs := difs(r), difs(known)
 
-		const (
-			ALL   = false
-			FIRST = !ALL
-		)
+				const (
+					ALL   = false
+					FIRST = !ALL
+				)
 
-		if matches := inter(rdifs, kdifs, FIRST); len(matches) == 1 {
-			pivot := matches[0]
-			i := index(rdifs, pivot)
-			j := index(kdifs, pivot)
-			o := r[i].sub(known[j])
-			rebased := rebase(r, o)
+				if matches := inter(rdifs, kdifs, FIRST); len(matches) == 1 {
+					pivot := matches[0]
+					i := index(rdifs, pivot)
+					j := index(kdifs, pivot)
+					o := r[i].sub(known[j])
+					rebased := rebase(r, o)
 
-			if len(inter(known, rebased, ALL)) >= TRESH {
-				for _, v := range rebased {
-					fixed[v] = true
+					if len(inter(known, rebased, ALL)) >= TRESH {
+						fixed.mu.Lock()
+						for _, v := range rebased {
+							fixed.m[v] = true
+						}
+						fixed.mu.Unlock()
+						scans = append(scans, o)
+						select {
+						case out <- true:
+						case <-done:
+							return
+						}
+						continue ALIGN
+					}
 				}
-				scans = append(scans, o)
-				return true
+			}
+			select {
+			case out <- false:
+			case <-done:
+				return
 			}
 		}
-	}
-	return false
+	}()
+	return out
 }
 
 func abs(a int) int {
