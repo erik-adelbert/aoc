@@ -285,7 +285,7 @@ func align(done <-chan struct{}, in <-chan reading) <-chan bool {
 		defer close(out)
 	ALIGN:
 		for r := range in {
-			const TRESH = 12 // from challenge
+			const TRESH = 3 // from challenge
 
 			known := list(fixed)
 			for a := range []int{X, Y, Z} {
