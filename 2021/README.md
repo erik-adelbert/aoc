@@ -25,11 +25,11 @@
 | 20 | 23.8 |
 | 25 | 30.8 |
 | 15 | 43.6 |
+| 19 | 48.6 |
 | 23 | 51.5 |
-| 19 | 56.5 |
-| total | 258.0 |
+| total | 250.1 |
 
-end-to-end timing for part1&2 in ms - mbair M1/16GB - darwin 23.0.0 - go version go1.21.1 darwin/arm64 - hyperfine 1.17.0 - 2023-10-04
+end-to-end timing for part1&2 in ms - mbair M1/16GB - darwin 23.0.0 - go version go1.21.3 darwin/arm64 - hyperfine 1.17.0 - 2023-10-16
 
 ## Installation and benchmark
 

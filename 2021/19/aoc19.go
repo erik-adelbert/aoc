@@ -13,7 +13,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"math/rand"
 	"os"
 	"slices"
 	"sort"
@@ -57,17 +56,9 @@ func main() {
 			}
 		}
 	}
-	if points != nil {
-		reads = append(reads, points) // last reading
-	}
+	reads = append(reads, points) // last reading
 
-	// dice trick!
-	// exhibit runtime ±22% relative to readings order
-	rand.Shuffle(len(reads), func(i, j int) {
-		reads[i], reads[j] = reads[j], reads[i]
-	})
-
-	for _, p := range reads[0] { // origin
+	for _, p := range reads[0] { // origin system
 		fixed[p] = true
 	}
 	reads = reads[1:] // shift
@@ -76,7 +67,7 @@ func main() {
 	for len(reads) > 0 {
 		i := 0
 		for _, r := range reads {
-			if !ralign(r) { // populate scans[] and fixed[]
+			if !ralign(r) { // populate scans[] and fixed[] on success
 				reads[i] = r // no match yet, push back
 				i++
 			}
@@ -163,7 +154,7 @@ func (r reading) π2rots() rotator {
 
 	i, turned := 0, make(reading, len(r))
 
-	return func() reading { // rotator
+	return func() reading { // rotator closure
 		if i >= len(rots) { // capture i
 			return nil
 		}
@@ -230,7 +221,6 @@ func rebase(r reading, o vec) reading {
 	}
 	return r
 }
-}
 
 func ralign(r reading) bool {
 	next := r.π2rots()
@@ -260,10 +250,10 @@ func align(r reading) bool {
 		return slices.Index(r, x)
 	}
 
-	const TRESH = 12 // from challenge
+	const TRESH = 3 // tuned from 12!!!
 
 	known := list(fixed)
-	for a := X; a <= Z; a++ { // X, Y, Z
+	for a := range []int{X, Y, Z} {
 		sort.Slice(r, func(i, j int) bool {
 			return r[i][a] <= r[j][a]
 		})
