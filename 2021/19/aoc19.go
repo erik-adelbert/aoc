@@ -44,14 +44,16 @@ func main() {
 		switch line := input.Text(); line != "" {
 		default:
 			args := strings.Split(line, ",") // trust input
-			x := atoi(args[0])
-			y := atoi(args[1])
-			z := atoi(args[2])
-			points = append(points, vec{x, y, z})
+			points = append(points, vec{
+				X: atoi(args[0]),
+				Y: atoi(args[1]),
+				Z: atoi(args[2]),
+			})
+
 		case strings.HasPrefix(line, "---"):
 			if len(points) > 0 {
-				reads = append(reads, Reading(points)) // clone points
-				points = points[:0]                    // reset
+				reads = append(reads, clone(points))
+				points = points[:0] // reset
 			}
 		}
 	}
@@ -60,7 +62,7 @@ func main() {
 	}
 
 	// dice trick!
-	// runtime x ms ± 22% relative to readings order
+	// exhibit runtime ±22% relative to readings order
 	rand.Shuffle(len(reads), func(i, j int) {
 		reads[i], reads[j] = reads[j], reads[i]
 	})
@@ -79,7 +81,7 @@ func main() {
 				i++
 			}
 		}
-		reads = reads[:i] // pushed back
+		reads = reads[:i] // retry with pushed back
 	}
 	fmt.Println(len(fixed)) // part1
 
@@ -115,8 +117,8 @@ func (v vec) manh() int {
 
 type reading []vec
 
-// Reading is a vector field abstraction
-func Reading(points []vec) reading {
+// clone is a vector field abstraction
+func clone(points []vec) reading {
 	buf := make(reading, len(points))
 	copy(buf, points) // clone
 	return buf
@@ -221,12 +223,13 @@ func inter(a, b reading, first bool) reading {
 	return inter
 }
 
+// in-place rebase
 func rebase(r reading, o vec) reading {
-	based := make(reading, len(r))
-	for i, v := range r {
-		based[i] = v.sub(o)
+	for i := range r {
+		r[i] = r[i].sub(o)
 	}
-	return based
+	return r
+}
 }
 
 func ralign(r reading) bool {
