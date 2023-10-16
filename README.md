@@ -3,7 +3,7 @@
 
 My advent of code solutions
 
-All programs have been carefully composed and run collectively in around 95ms(2022) and 250ms(2021).
+All programs have been carefully composed and run collectively in around 95ms(2022) and 249ms(2021).
 Coding notes have proven useful for others on reddit.
 
 Happy coding!
