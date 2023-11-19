@@ -30,7 +30,7 @@ func main() {
 	m, n := 1, 0
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
-		m = lcm(m, ctx1[n].load(input))
+		m *= ctx1[n].load(input)
 		n++
 	}
 
@@ -182,30 +182,11 @@ func (a arit) eval(f func(int) int, n int) int {
 	return f(x)
 }
 
-func abs(n int) int {
-	if n < 0 {
-		return -n
-	}
-	return n
-}
-
 // strconv.Atoi simplified core loop
 // s is ^\d+$
-func atoi(s string) int {
-	var n int
-	for _, c := range s {
-		n = 10*n + int(c-'0')
+func atoi(s string) (n int) {
+	for i := range s {
+		n = 10*n + int(s[i]-'0')
 	}
-	return n
-}
-
-func gcd(a, b int) int {
-	for b != 0 {
-		a, b = b, a%b
-	}
-	return a
-}
-
-func lcm(a, b int) int {
-	return a * b / gcd(a, b)
+	return
 }

@@ -285,29 +285,13 @@ func (a XYZ) cross(b XYZ) XYZ {
 	return a
 }
 
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
 // strconv.Atoi simplified core loop
 // s is ^\d+$
-func atoi(s string) int {
-	var n int
-
-	for _, c := range s {
-		n = 10*n + int(c-'0')
+func atoi(s string) (n int) {
+	for i := range s {
+		n = 10*n + int(s[i]-'0')
 	}
-	return n
+	return
 }
 
 var tab64 = [64]uint64{

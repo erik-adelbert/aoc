@@ -65,6 +65,7 @@ func rate(nums []string, g gas) (int64, error) {
 
 func main() {
 	nums := make([]string, 0, 1024)
+
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
 		line := input.Text()

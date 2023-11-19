@@ -7,6 +7,7 @@
 // (ɔ) Erik Adelbert - erik_AT_adelbert_DOT_fr
 // -------------------------------------------
 // 2022-12-13: initial commit
+// 2023-11-19: adapt https://github.com/maneatingape/advent-of-code-rust beautiful analysis
 
 package main
 
@@ -14,23 +15,79 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 )
 
 type packet struct {
-	list []packet
-	val  int
+	data  []byte
+	index int
+	extra []byte
+}
+
+func newPacket(s string) *packet {
+	p := new(packet)
+	p.data = []byte(s)
+	p.extra = make([]byte, 16)
+	return p
+}
+
+func (p *packet) next() byte {
+	if i := len(p.extra); i > 0 {
+		pop := p.extra[i-1]
+		p.extra = p.extra[:i-1]
+		return pop
+	}
+	data, i := p.data, p.index
+	if data[i] == '1' && data[i+1] == '0' {
+		p.index += 2
+		return 'X' // single-digit 10
+	}
+	p.index++
+	return data[i]
+}
+
+func (p *packet) String() string {
+	var sb strings.Builder
+	fmt.Fprintf(&sb, "{ s: %s, i: %d, x: '%s' }", p.data, p.index, string(p.extra))
+	return sb.String()
+}
+
+func cmp(a, b string) int {
+	left, right := newPacket(a), newPacket(b)
+	for {
+		a, b := left.next(), right.next()
+		switch {
+		case a == b:
+			continue
+		case a == ']':
+			return -1
+		case b == ']':
+			return 1
+		case a == '[':
+			right.extra = append(right.extra, ']')
+			right.extra = append(right.extra, b)
+		case b == '[':
+			left.extra = append(left.extra, ']')
+			left.extra = append(left.extra, a)
+		case a < b:
+			return -1
+		default:
+			return 1
+		}
+	}
 }
 
 func main() {
 	popcnt := 0
-	packets := []packet{}
+	packets := make([]string, 0)
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
-		bytes := input.Bytes()
+		packet := input.Text()
 
 		// part1
-		if len(bytes) == 0 {
+		if len(packet) == 0 {
+			// last two fifo packets
 			a := packets[len(packets)-2]
 			b := packets[len(packets)-1]
 
@@ -40,8 +97,8 @@ func main() {
 			continue
 		}
 
-		// part2
-		packets = append(packets, mkpacket(bytes))
+		// memoize for part2
+		packets = append(packets, packet)
 	}
 
 	// part1
@@ -49,116 +106,14 @@ func main() {
 
 	// part2
 	keys := []int{1, 2}
-	markers := []packet{
-		// from u/Elavid on reddit
-		mkint(2),
-		mkint(6),
-		// mkpacket([]byte("[[2]]")),
-		// mkpacket([]byte("[[6]]")),
-	}
-
 	for i := range packets {
-		if cmp(packets[i], markers[0]) <= 0 {
+		switch {
+		case cmp(packets[i], "[[2]]") < 1:
 			keys[0]++
-		}
-		if cmp(packets[i], markers[1]) <= 0 {
+			keys[1]++
+		case cmp(packets[i], "[[6]]") < 1:
 			keys[1]++
 		}
 	}
 	fmt.Println(keys[0] * (keys[1]))
-}
-
-func (p packet) isint() bool {
-	return p.val != -1
-}
-
-// If both values are integers, the lower integer should come first.
-// If the left integer is lower, the inputs are right.
-// If the left integer is higher,the inputs are not right.
-// Otherwise, the inputs are the same integer; continue
-//
-// If both values are lists, compare the first value of each list, then the second value, and so on.
-// If the left list runs out of items first, the inputs are right.
-// If the right list runs out of items first, the inputs are not right.
-// If the lists are the same length and no comparison makes a decision about the order, continue.
-//
-// If exactly one value is an integer, convert the integer to a list, then retry.
-func cmp(a, b packet) int {
-	switch {
-	case a.isint() && b.isint():
-		switch {
-		case a.val < b.val:
-			return -1
-		case a.val > b.val:
-			return 1
-		}
-	case !(a.isint() || b.isint()):
-		for i := range a.list {
-			if i >= len(b.list) {
-				return 1
-			}
-			if r := cmp(a.list[i], b.list[i]); r != 0 {
-				return r
-			}
-		}
-		if len(b.list) > len(a.list) {
-			return -1
-		}
-	case a.isint():
-		return cmp(mklist([]packet{a}), b)
-	case b.isint():
-		return cmp(a, mklist([]packet{b}))
-	}
-	return 0
-}
-
-func mkint(v int) packet {
-	return packet{val: v}
-}
-
-func mklist(l []packet) packet {
-	return packet{l, -1}
-}
-
-func mkpacket(s []byte) packet {
-	var rec func(int) (packet, int)
-
-	rec = func(i int) (packet, int) {
-		a := packet{val: -1}
-
-		for ; i < len(s); i++ {
-			switch s[i] {
-			case '[':
-				var b packet
-				b, i = rec(i + 1)
-				a.list = append(a.list, b)
-				fallthrough
-			case ',':
-				continue
-			case ']':
-				return a, i
-			}
-
-			a.list = append(
-				a.list, mkint(atoi(s[i:])))
-		}
-		return a, i
-	}
-
-	a, _ := rec(0)
-	return a
-}
-
-// strconv.Atoi modified core loop
-// s is ^\d+.*
-// capture breaks at first non digit
-func atoi(s []byte) int {
-	var n int
-	for _, c := range s {
-		if c < '0' || c > '9' {
-			break
-		}
-		n = 10*n + int(c-'0')
-	}
-	return n
 }

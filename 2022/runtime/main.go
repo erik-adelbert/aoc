@@ -25,7 +25,7 @@ func main() {
 			line := input.Text()
 			line = strings.Replace(line, "\\|", "", 1)
 			if strings.Contains(line, "input.txt") {
-				args := strings.Fields(strings.Split(line, "|")[2])
+				args := strings.Fields(strings.Split(line, "|")[3])
 				f, _ := strconv.ParseFloat(args[0], 64)
 				times = append(times, f)
 			}

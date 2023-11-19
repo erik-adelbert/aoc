@@ -32,14 +32,14 @@ func main() {
 		M = append(M, []byte(input.Text()))
 	}
 
-	W, T := mirror(M), transpose(M)
-	WT := mirror(T)
+	W, Σ := mirror(M), transpose(M)
+	Ͽ := mirror(Σ)
 
 	views := func(x, y int) [4][]byte {
-		U := WT[x][len(WT[0])-y:] // up
-		L := W[y][len(W[0])-x:]   // left
-		R := M[y][x+1:]           // right
-		D := T[x][y+1:]           // down
+		U := Ͽ[x][len(Ͽ[0])-y:] // up
+		L := W[y][len(W[0])-x:] // left
+		R := M[y][x+1:]         // right
+		D := Σ[x][y+1:]         // down
 
 		return [4][]byte{U, L, R, D}
 	}
@@ -78,13 +78,11 @@ func main() {
 			}
 
 			// part2
-			if counts[Part2] < count {
-				counts[Part2] = count
-			}
+			counts[Part2] = max(counts[Part2], count)
 		}
 	}
 
-	fmt.Println(counts)
+	fmt.Println(counts[Part1], counts[Part2])
 }
 
 func transpose(m [][]byte) [][]byte {

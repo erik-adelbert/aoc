@@ -25,18 +25,13 @@ const (
 // XY is 2D point
 type XY [2]int
 
-type set map[XY]struct{}
-
 func main() {
-	visits := [2]set{
-		make(set),
-		make(set),
-	}
+	visits := [2]set{}
 
 	visits[Part1].add(XY{0, 0})
 	visits[Part2].add(XY{0, 0})
 
-	off := map[byte]XY{
+	off := [128]XY{ // 0-hashing map
 		'U': {+0, +1}, 'L': {-1, +0},
 		'D': {+0, -1}, 'R': {+1, +0},
 	}
@@ -72,7 +67,7 @@ func main() {
 		}
 	}
 
-	fmt.Println(len(visits[Part1]), len(visits[Part2]))
+	fmt.Println(visits[Part1].len(), visits[Part2].len())
 }
 
 func (a *XY) add(b XY) {
@@ -105,16 +100,37 @@ func (a XY) len2() int {
 	return a[0]*a[0] + a[1]*a[1]
 }
 
-func (s set) add(x XY) {
-	s[x] = struct{}{}
+// faster adhoc set than map[XY]struct{}
+const MAXN = 512
+
+type set struct {
+	data  [MAXN * MAXN / 2]bool
+	count int
+}
+
+func (s set) len() int {
+	return s.count
+}
+
+func (s *set) add(x XY) {
+	hash := func() int {
+		// offset XY by XY{MAXN/2, MAXN/2} to make it positive
+		// and map to a flatten (MAXN/2) x MAXN 2D grid
+		// x in [0..MAXN/2] and y in [0..MAXN]
+		m := (MAXN >> 1)
+		return m*(x[0]+m+1) + x[1]
+	}
+	if i := hash(); !s.data[i] {
+		s.data[i] = true
+		s.count++
+	}
 }
 
 // strconv.Atoi simplified core loop
 // s is ^\d+$
-func atoi(s string) int {
-	var n int
-	for _, c := range s {
-		n = 10*n + int(c-'0')
+func atoi(s string) (n int) {
+	for i := range s {
+		n = 10*n + int(s[i]-'0')
 	}
-	return n
+	return
 }

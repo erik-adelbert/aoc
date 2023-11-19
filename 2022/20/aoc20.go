@@ -183,7 +183,7 @@ func main() {
 	seq := make([]int, 0, 8192)
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
-		seq = append(seq, atoi(input.Bytes()))
+		seq = append(seq, atoi(input.Text()))
 	}
 
 	// part 1
@@ -196,16 +196,15 @@ func main() {
 
 // strconv.Atoi simplified core loop
 // s is ^-?\d+$
-func atoi(b []byte) int {
-	n, s := 0, 1
-	if b[0] == '-' {
-		s = -1
-		b = b[1:]
+func atoi(s string) (n int) {
+	neg := 1
+	if s[0] == '-' {
+		neg, s = -1, s[1:]
 	}
-	for _, c := range b {
-		n = 10*n + int(c-'0')
+	for i := range s {
+		n = 10*n + int(s[i]-'0')
 	}
-	return s * n
+	return neg * n
 }
 
 func mod(a, b int) int {

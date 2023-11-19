@@ -24,7 +24,7 @@ type grid struct {
 }
 
 func main() {
-	area := newGrid()
+	world := newGrid()
 	var one, all []*cell
 	var end *cell
 
@@ -32,30 +32,30 @@ func main() {
 	for input.Scan() {
 		line := input.Bytes()
 		for i, b := range input.Bytes() {
-			area.d[h][i] = int(b)
+			world.d[h][i] = int(b)
 
 			switch b {
 			case 'S':
 				// part1
-				area.d[h][i] = int('a')
+				world.d[h][i] = int('a')
 				one = append(one, &cell{h, i, 0})
 			case 'a':
 				// part2
-				area.d[h][i] = int('a')
+				world.d[h][i] = int('a')
 				all = append(all, &cell{h, i, 0})
 			case 'E':
-				area.d[h][i] = int('z')
+				world.d[h][i] = int('z')
 				end = &cell{h, i, 0}
 			}
 		}
 		w = len(line)
 		h++
 	}
-	area.redim(h, w)
+	world.redim(h, w)
 
 	all = append(one, all...)
 
-	fmt.Println(area.shortest(all, end)) // part 1&2
+	fmt.Println(world.shortest(all, end)) // part 1&2
 }
 
 // solve computes the shortest distance between e and all

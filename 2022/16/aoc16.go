@@ -49,7 +49,7 @@ type world struct {
 	cidx index
 	dist []int
 	edge [][]edge
-	best [][]vedge
+	best [][]wedge
 }
 
 func (w *world) astar(start string, t0, t1 int) int {
@@ -200,8 +200,8 @@ func (w *world) mkedge() {
 	w.edge = edges
 }
 
-// valued edge for heuristic search
-type vedge struct {
+// weighted edge for heuristic search
+type wedge struct {
 	i, δt, v int // index, weight, value
 }
 
@@ -209,7 +209,7 @@ func (w *world) mkbest() {
 	cave, cidx, dist := w.cave, w.cidx, w.dist
 	N := len(cave)
 
-	best := make([][]vedge, 31)
+	best := make([][]wedge, 31)
 	for t := range best {
 		var (
 			a, b string
@@ -224,7 +224,7 @@ func (w *world) mkbest() {
 				w = min(w, dist[j*N+i]+1)
 			}
 			if w < t {
-				best[t] = append(best[t], vedge{i, w, cave[a].flo})
+				best[t] = append(best[t], wedge{i, w, cave[a].flo})
 			}
 		}
 		sort.Slice(best[t], func(i, j int) bool {
@@ -329,29 +329,11 @@ var r = strings.NewReplacer(
 
 // strconv.Atoi modified core loop
 // s is ^\d+.*$
-func atoi(s string) int {
-	var n int
-	for _, c := range s {
-		if c < '0' || '9' < c {
-			break
-		}
-		n = 10*n + int(c-'0')
+func atoi(s string) (n int) {
+	for i := range s {
+		n = 10*n + int(s[i]-'0')
 	}
-	return n
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
+	return
 }
 
 var DEBUG = false

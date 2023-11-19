@@ -50,8 +50,9 @@ func main() {
 
 	fmt.Println(part1, part2)
 
-	// fmt.Println(world) // uncomment for visualization
 	// !!rise your term resolution!!
+	// uncomment next line for visualization
+	// fmt.Println(world)
 }
 
 func fill(floor int, depth int, box AABB) int {
@@ -115,7 +116,7 @@ func fill(floor int, depth int, box AABB) int {
 func mkworld(s string) AABB {
 	wall := make([]XY, 0, 128)
 	box := AABB{{INF, INF}, {0, 0}}
-	for _, segs := range strings.Split(s, "->") {
+	for _, segs := range strings.Split(s, " -> ") {
 		var seg XY
 		for i, s := range strings.Split(segs, ",") {
 			seg[i] = atoi(s)
@@ -211,17 +212,12 @@ func (a *AABB) merge(b AABB) {
 }
 
 // strconv.Atoi modified core loop
-// s is ^\s+\d+.*
-// front spaces are trimmed
-func atoi(s string) int {
-	var n int
-	for _, c := range s {
-		if c == ' ' {
-			continue
-		}
-		n = 10*n + int(c-'0')
+// s is ^\d+$
+func atoi(s string) (n int) {
+	for i := range s {
+		n = 10*n + int(s[i]-'0')
 	}
-	return n
+	return
 }
 
 func cmp(a, b int) int {

@@ -27,8 +27,7 @@ type grid struct {
 }
 
 func main() {
-	g := new(grid)
-	g.init(bufio.NewScanner(os.Stdin))
+	g := newGrid(bufio.NewScanner(os.Stdin))
 
 	var i int
 	for i = 0; g.life; i++ {
@@ -41,8 +40,25 @@ func main() {
 	}
 
 	// part 2
-	g.crop()
 	fmt.Println(i)
+}
+
+func newGrid(input *bufio.Scanner) (g *grid) {
+	g = new(grid)
+	g.dseq = []byte{'N', 'S', 'W', 'E'}
+
+	g.cell = make([]uint256, NROWS)
+	for j := 0; input.Scan(); j++ {
+		for i, c := range input.Bytes() {
+			if c == '#' {
+				g.cell[j] = g.cell[j].set(i)
+				g.h, g.w = max(g.h, j+1), max(g.w, i+1)
+			}
+		}
+	}
+
+	g.life = true
+	return
 }
 
 func (g *grid) evolve() {
@@ -196,8 +212,7 @@ func (g *grid) extend() {
 func (g *grid) String() string {
 	var sb strings.Builder
 	for j := 0; j < g.h; j++ {
-		sb.WriteString(g.cell[j].String())
-		sb.WriteByte('\n')
+		fmt.Fprintln(&sb, g.cell[j])
 	}
 	return sb.String()
 }
@@ -205,22 +220,6 @@ func (g *grid) String() string {
 const (
 	NROWS = 256
 )
-
-func (g *grid) init(input *bufio.Scanner) {
-	g.dseq = []byte{'N', 'S', 'W', 'E'}
-
-	g.cell = make([]uint256, NROWS)
-	for j := 0; input.Scan(); j++ {
-		for i, c := range input.Bytes() {
-			if c == '#' {
-				g.cell[j] = g.cell[j].set(i)
-				g.h, g.w = max(g.h, j+1), max(g.w, i+1)
-			}
-		}
-	}
-
-	g.life = true
-}
 
 func (g *grid) popcnt() int {
 	pop := 0
@@ -241,166 +240,83 @@ var (
 	one128  = uint128{0, 1}
 )
 
-func (a uint128) iszero() bool {
-	return a == uint128{}
+func (u uint128) iszero() bool {
+	return u.hi|u.lo == 0
 }
 
-// func (a uint128) add(b uint128) uint128 {
-// 	c, lo := bits.Add64(a.lo, b.lo, 0)
-// 	return uint128{a.hi + b.hi + c, lo}
-// }
-
-// func (a uint128) sub(b uint128) uint128 {
-// 	c, hi := bits.Sub64(a.hi, b.hi, 0)
-// 	return uint128{hi, a.lo - b.lo - c}
-// }
-
-func (a uint128) popcnt() int {
-	return bits.OnesCount64(a.hi) + bits.OnesCount64(a.lo)
+func (u uint128) popcnt() int {
+	count := bits.OnesCount64
+	return count(u.hi) + count(u.lo)
 }
 
-func (a uint128) lead0() int {
-	n := bits.LeadingZeros64(a.hi)
+func (u uint128) lead0() int {
+	lead0 := bits.LeadingZeros64
+	n := lead0(u.hi)
 	if n < 64 {
 		return n
 	}
-	return n + bits.LeadingZeros64(a.lo)
+	return n + lead0(u.lo)
 }
 
-func (a uint128) trail0() int {
-	n := bits.TrailingZeros64(a.lo)
+func (u uint128) trail0() int {
+	trail0 := bits.TrailingZeros64
+	n := trail0(u.lo)
 	if n < 64 {
 		return n
 	}
-	return n + bits.TrailingZeros64(a.hi)
+	return n + trail0(u.hi)
 }
 
-func (a uint128) lsh(i int) uint128 {
-	if i >= 64 {
-		return uint128{
-			a.lo << (i - 64),
-			0,
-		}
+func (u uint128) lsh(n int) uint128 {
+	if n >= 64 {
+		return uint128{u.lo << (n - 64), 0}
 	}
-	return uint128{
-		a.hi<<i | a.lo>>(64-i),
-		a.lo << i,
-	}
+	return uint128{u.hi<<n | u.lo>>(64-n), u.lo << n}
 }
 
-func (a uint128) rsh(i int) uint128 {
-	if i >= 64 {
-		return uint128{
-			0,
-			a.hi >> (i - 64),
-		}
+func (u uint128) rsh(n int) uint128 {
+	if n >= 64 {
+		return uint128{0, u.hi >> (n - 64)}
 	}
-	return uint128{
-		a.hi >> i,
-		a.lo>>i | a.hi<<(64-i),
-	}
+	return uint128{u.hi >> n, u.lo>>n | u.hi<<(64-n)}
 }
 
-func (a uint128) not() uint128 {
-	return uint128{
-		^a.hi,
-		^a.lo,
-	}
+func (u uint128) not() uint128 { return uint128{^u.hi, ^u.lo} }
+
+func (u uint128) and(m uint128) uint128 {
+	return uint128{u.hi & m.hi, u.lo & m.lo}
 }
 
-func (a uint128) and(b uint128) uint128 {
-	return uint128{
-		a.hi & b.hi,
-		a.lo & b.lo,
-	}
+func (u uint128) or(m uint128) uint128 {
+	return uint128{u.hi | m.hi, u.lo | m.lo}
 }
 
-func (a uint128) or(b uint128) uint128 {
-	return uint128{
-		a.hi | b.hi,
-		a.lo | b.lo,
+func (u uint128) get(n int) bool {
+	if n >= 64 {
+		x := uint64(1 << (n - 64))
+		return u.hi&x == x
 	}
+	x := uint64(1 << n)
+	return u.lo&x == x
 }
 
-// func (a uint128) xor(b uint128) uint128 {
-// 	return uint128{
-// 		a.hi ^ b.hi,
-// 		a.lo ^ b.lo,
-// 	}
-// }
-
-func (a uint128) get(i int) bool {
-	if i >= 64 {
-		x := uint64(1 << (i - 64))
-		return a.hi&x == x
+func (u uint128) set(n int) uint128 {
+	if n >= 64 {
+		u.hi |= 1 << (n - 64)
+		return u
 	}
-	x := uint64(1 << i)
-	return a.lo&x == x
+	u.lo |= (1 << n)
+	return u
 }
 
-func (a uint128) set(i int) uint128 {
-	if i >= 64 {
-		a.hi |= 1 << (i - 64)
-		return a
+func (u uint128) String() string {
+	var sb strings.Builder
+	if u.hi != 0 {
+		fmt.Fprintf(&sb, "%x%016x", u.hi, u.lo)
+	} else {
+		fmt.Fprintf(&sb, "%x", u.lo)
 	}
-	a.lo |= (1 << i)
-	return a
-}
-
-// func (a uint128) clr(i int) uint128 {
-// 	if i >= 64 {
-// 		a.hi &= ^(1 << (i - 64))
-// 		return a
-// 	}
-// 	a.lo &= ^(1 << i)
-// 	return a
-// }
-
-// func (a uint128) flp(i int) uint128 {
-// 	if i >= 64 {
-// 		a.hi ^= (1 << (i - 64))
-// 		return a
-// 	}
-// 	a.lo ^= 1 << i
-// 	return a
-// }
-
-var u128print func(uint128) string = func(a uint128) string {
-	if a.hi != 0 {
-		return fmt.Sprintf("%x%016x", a.hi, a.lo)
-	}
-	return fmt.Sprintf("%x", a.lo)
-}
-
-func fmtu128(v string) {
-	switch v {
-	case "x":
-		u128print = func(a uint128) string {
-			if a.hi != 0 {
-				return fmt.Sprintf("%x%016x", a.hi, a.lo)
-			}
-			return fmt.Sprintf("%x", a.lo)
-		}
-	case "0x":
-		u128print = func(a uint128) string {
-			return fmt.Sprintf("%016x%016x", a.hi, a.lo)
-		}
-	case "b":
-		u128print = func(a uint128) string {
-			if a.hi != 0 {
-				return fmt.Sprintf("%b%064b", a.hi, a.lo)
-			}
-			return fmt.Sprintf("%064b", a.lo)
-		}
-	case "0b":
-		u128print = func(a uint128) string {
-			return fmt.Sprintf("%064b%064b", a.hi, a.lo)
-		}
-	}
-}
-
-func (a uint128) String() string {
-	return u128print(a)
+	return sb.String()
 }
 
 const uint256size = 256
@@ -414,124 +330,88 @@ var (
 	one256  = uint256{zero128, one128}
 )
 
-func (a uint256) iszero() bool {
-	return a == uint256{}
+func (u uint256) iszero() bool {
+	return u.hi.or(u.lo).iszero()
 }
 
-func (a uint256) get(i int) bool {
-	if i >= 128 {
-		return a.hi.get(i - 128)
+func (u uint256) get(n int) bool {
+	if n >= 128 {
+		return u.hi.get(n - 128)
 	}
-	return a.lo.get(i)
+	return u.lo.get(n)
 }
 
-func (a uint256) set(i int) uint256 {
-	if i >= 128 {
-		a.hi = a.hi.set(i - 128)
-		return a
+func (u uint256) set(n int) uint256 {
+	if n >= 128 {
+		u.hi = u.hi.set(n - 128)
+		return u
 	}
-	a.lo = a.lo.set(i)
-	return a
+	u.lo = u.lo.set(n)
+	return u
 }
 
-// func (a uint256) clr(i int) uint256 {
-// 	if i >= 128 {
-// 		a.hi = a.hi.clr(i - 128)
-// 		return a
-// 	}
-// 	a.lo = a.lo.clr(i)
-// 	return a
-// }
-
-// func (a uint256) flp(i int) uint256 {
-// 	if i >= 128 {
-// 		a.hi = a.hi.flp(i - 128)
-// 		return a
-// 	}
-// 	a.lo = a.lo.flp(i)
-// 	return a
-// }
-
-func (a uint256) popcnt() int {
-	return a.hi.popcnt() + a.lo.popcnt()
+func (u uint256) popcnt() int {
+	return u.hi.popcnt() + u.lo.popcnt()
 }
 
-func (a uint256) lead0() int {
-	n := a.hi.lead0()
+func (u uint256) lead0() int {
+	n := u.hi.lead0()
 	if n < 128 {
 		return n
 	}
-	return n + a.lo.lead0()
+	return n + u.lo.lead0()
 }
 
-func (a uint256) trail0() int {
-	n := a.lo.trail0()
+func (u uint256) trail0() int {
+	n := u.lo.trail0()
 	if n < 128 {
 		return n
 	}
-	return n + a.hi.trail0()
+	return n + u.hi.trail0()
 }
 
-func (a uint256) lsh(i int) uint256 {
-	if i >= 128 {
-		return uint256{
-			a.lo.lsh(i - 128),
-			uint128{},
-		}
+func (u uint256) lsh(n int) uint256 {
+	if n >= 128 {
+		return uint256{u.lo.lsh(n - 128), zero128}
 	}
-	return uint256{
-		a.hi.lsh(i).or(a.lo.rsh(128 - i)),
-		a.lo.lsh(i),
-	}
+	return uint256{u.hi.lsh(n).or(u.lo.rsh(128 - n)), u.lo.lsh(n)}
 }
 
-func (a uint256) rsh(i int) uint256 {
-	if i >= 128 {
-		return uint256{
-			uint128{},
-			a.hi.rsh(i - 128),
-		}
+func (a uint256) rsh(n int) uint256 {
+	if n >= 128 {
+		return uint256{zero128, a.hi.rsh(n - 128)}
 	}
-	return uint256{
-		a.hi.rsh(i),
-		a.lo.rsh(i).or(a.hi.lsh(128 - i)),
-	}
+	return uint256{a.hi.rsh(n), a.lo.rsh(n).or(a.hi.lsh(128 - n))}
 }
 
-func (a uint256) not() uint256 {
-	return uint256{
-		a.hi.not(),
-		a.lo.not(),
-	}
+func (u uint256) not() uint256 {
+	return uint256{u.hi.not(), u.lo.not()}
 }
 
-func (a uint256) and(b uint256) uint256 {
-	return uint256{
-		a.hi.and(b.hi),
-		a.lo.and(b.lo),
-	}
+func (u uint256) and(m uint256) uint256 {
+	return uint256{u.hi.and(m.hi), u.lo.and(m.lo)}
 }
 
-func (a uint256) or(b uint256) uint256 {
-	return uint256{
-		a.hi.or(b.hi),
-		a.lo.or(b.lo),
-	}
+func (u uint256) or(m uint256) uint256 {
+	return uint256{u.hi.or(m.hi), u.lo.or(m.lo)}
 }
 
 func (a uint256) String() string {
+	var sb strings.Builder
 	if a.hi.iszero() {
-		return u128print(a.lo)
+		fmt.Fprint(&sb, a.lo)
+	} else {
+		fmt.Fprintf(&sb, "%v%v", a.hi, a.lo)
 	}
-	return u128print(a.hi) + u128print(a.lo)
+	return sb.String()
 }
 
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
+// func max(a, b int) int {
+// 	if a > b {
+// 		return a
+// 	}
+// 	return b
+// }
 
 func rot[V uint256 | byte](a []V, n int) {
 	n = n % len(a)

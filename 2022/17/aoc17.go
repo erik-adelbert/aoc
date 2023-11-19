@@ -211,11 +211,3 @@ var tetros = [][][]byte{
 		[]byte{1, 1},
 	},
 }
-
-// classical min of two integers
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}

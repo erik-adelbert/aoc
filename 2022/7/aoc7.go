@@ -14,6 +14,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"slices"
 	"sort"
 	"strings"
 )
@@ -56,7 +57,7 @@ func tree(input *bufio.Scanner) int {
 				default:
 					subdir := tree(input)
 					root += subdir
-					record(subdir)
+					subdirs = append(subdirs, subdir)
 				}
 			}
 			// discard ls
@@ -64,15 +65,8 @@ func tree(input *bufio.Scanner) int {
 			root += file(line)
 		}
 	}
+	slices.Sort(subdirs)
 	return root
-}
-
-// sort insert
-func record(s int) {
-	i := sort.SearchInts(subdirs, s)
-	subdirs = append(subdirs, 0)
-	copy(subdirs[i+1:], subdirs[i:])
-	subdirs[i] = s
 }
 
 func file(line string) int {
@@ -82,10 +76,9 @@ func file(line string) int {
 
 // strconv.Atoi simplified core loop
 // s is ^\d+$
-func atoi(s string) int {
-	var n int
-	for _, c := range []byte(s) {
-		n = 10*n + int(c-'0')
+func atoi(s string) (n int) {
+	for i := range s {
+		n = 10*n + int(s[i]-'0')
 	}
-	return n
+	return
 }

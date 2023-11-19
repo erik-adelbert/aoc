@@ -131,19 +131,17 @@ func abs(n int) int {
 	return n
 }
 
-// strconv.Atoi modified core loop
+// strconv.Atoi modified loop
 // s is ^-?\d+.*$
-func atoi(s string) int {
-	var n int
+// the suffix part .* is ditched
+func atoi(s string) (n int) {
 	neg := 1
 	if s[0] == '-' {
 		neg, s = -1, s[1:]
 	}
-	for _, c := range s {
-		if c < '0' || '9' < c {
-			break
-		}
-		n = 10*n + int(c-'0')
+
+	for i := 0; i < len(s) && s[i]-'0' < 10; i++ {
+		n = 10*n + int(s[i]-'0')
 	}
 	return n * neg
 }

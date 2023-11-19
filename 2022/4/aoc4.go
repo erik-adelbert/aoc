@@ -12,9 +12,9 @@ package main
 
 import (
 	"bufio"
-	"bytes"
 	"fmt"
 	"os"
+	"strings"
 )
 
 // part indices
@@ -31,8 +31,8 @@ func main() {
 		// input text: ^(\d+)-(\d+),(\d+)-(\d+)$
 		// fields:        0     1     2     3
 		// varname:       l1    r1    l2    r2
-		fields := bytes.FieldsFunc(
-			input.Bytes(),
+		fields := strings.FieldsFunc(
+			input.Text(),
 			func(r rune) bool {
 				return r == '-' || r == ','
 			},
@@ -62,10 +62,9 @@ func main() {
 
 // strconv.Atoi simplified core loop
 // s is ^\d+$
-func atoi(s []byte) int {
-	var n int
-	for _, c := range s {
-		n = 10*n + int(c-'0')
+func atoi(s string) (n int) {
+	for i := range s {
+		n = 10*n + int(s[i]-'0')
 	}
-	return n
+	return
 }

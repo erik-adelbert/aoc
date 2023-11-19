@@ -2,34 +2,34 @@
 
 | day | time |
 |-----|-----:|
+| 6 | 0.5 |
 | 1 | 0.6 |
 | 10 | 0.6 |
-| 15 | 0.7 |
+| 15 | 0.6 |
+| 4 | 0.6 |
+| 13 | 0.7 |
 | 2 | 0.7 |
 | 3 | 0.7 |
 | 5 | 0.7 |
-| 4 | 0.8 |
-| 6 | 0.8 |
-| 7 | 0.8 |
+| 7 | 0.7 |
 | 12 | 0.9 |
 | 25 | 0.9 |
+| 22 | 1.0 |
 | 8 | 1.0 |
-| 13 | 1.1 |
-| 22 | 1.1 |
-| 14 | 1.3 |
-| 21 | 1.3 |
+| 21 | 1.2 |
+| 14 | 1.4 |
+| 9 | 1.5 |
 | 17 | 2.2 |
-| 9 | 2.5 |
-| 19 | 3.9 |
-| 18 | 4.2 |
-| 11 | 5.4 |
-| 20 | 7.5 |
-| 23 | 10.8 |
-| 16 | 15.4 |
-| 24 | 29.1 |
-| total | 95.0 |
+| 19 | 3.7 |
+| 18 | 4.1 |
+| 11 | 5.3 |
+| 20 | 7.4 |
+| 23 | 10.7 |
+| 16 | 15.1 |
+| 24 | 28.9 |
+| total | 91.7 |
 
-end-to-end timing for part1&2 in ms - mbair M1/16GB - darwin 22.6.0 - go version go1.21.1 darwin/arm64 - hyperfine 1.17.0 - 2023-09-15
+fastest timing of 100 runs for part1&2 in ms - mbair M1/16GB - darwin 23.0.0 - go version go1.21.3 darwin/arm64 - hyperfine 1.18.0 - 2023-11-19
 
 ## Installation and benchmark
 
@@ -388,6 +388,8 @@ I've chosen to represent a `packet` as `struct{ val int, list []packet }`, with 
     {-1 [{-1 [{1 []} {1 []} {3 []} {1 []} {1 []}]}]}
     13
     140
+
+`<EDIT>` After having studied [this beautiful design](https://github.com/maneatingape/advent-of-code-rust/blob/main/src/year2022/day13.rs) I've adapted it.
 
 ## Day 14
 

@@ -38,3 +38,8 @@ func main() {
 	fmt.Println(n1) // part1
 	fmt.Println(n2) // part2
 }
+
+func atoi(s string) (n int) {
+	n, _ = strconv.Atoi(s)
+	return
+}

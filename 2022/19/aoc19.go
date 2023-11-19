@@ -202,21 +202,10 @@ func (w world) isnull() bool {
 // s is ^\d+.*$
 func atoi(s []byte) (int, int) {
 	var n, i int
-	for i = 0; i < len(s); i++ {
-		if s[i] < '0' || '9' < s[i] {
-			break
-		}
+	for i = 0; i < len(s) && s[i]-'0' < 10; i++ {
 		n = 10*n + int(s[i]-'0')
 	}
 	return n, i
-}
-
-// maximum of two ints
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
 }
 
 const DEBUG = true

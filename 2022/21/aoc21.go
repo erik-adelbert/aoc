@@ -220,11 +220,9 @@ var r = strings.NewReplacer(
 
 // strconv.Atoi simplified core loop
 // s is ^\d+$
-func atoi(s string) int {
-	var n int
-
-	for _, c := range s {
-		n = 10*n + int(c-'0')
+func atoi(s string) (n int) {
+	for i := range s {
+		n = 10*n + int(s[i]-'0')
 	}
-	return n
+	return
 }

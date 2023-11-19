@@ -12,7 +12,6 @@ package main
 
 import (
 	"bufio"
-	"bytes"
 	"fmt"
 	"os"
 	"strings"
@@ -28,7 +27,7 @@ func main() {
 	for input.Scan() {
 		// input text: ^move (\d+) from (\d+) to (\d+)$
 		// args:          0    1     2    3    4   5
-		args := bytes.Fields(input.Bytes())
+		args := strings.Fields(input.Text())
 		ws.move(args[5], args[3], args[1])
 	}
 
@@ -105,7 +104,8 @@ func (ws *worlds) load(input *bufio.Scanner) {
 	// [W] [N] [H] [M] [L] [B] [R] [T] [Q]
 	// [L] [T] [C] [R] [R] [J] [W] [Z] [L]
 	// [S] [J] [S] [T] [T] [M] [D] [B] [H]
-	//  1   2   3   4   5   6   7   8   9
+	//  1   2   3   4   5   6   7   8   9   stack number
+	// 01234567890123456789012345678901234  char index
 
 	lines := make([][]byte, 0, 8)
 	for input.Scan() {
@@ -117,7 +117,7 @@ func (ws *worlds) load(input *bufio.Scanner) {
 
 		line := make([]byte, 0, 16)
 		// copy letters only
-		// see ex. input above
+		// see char indices in example input above
 		for i := 1; i < len(raw); i += 4 {
 			line = append(line, raw[i])
 		}
@@ -130,7 +130,7 @@ func (ws *worlds) load(input *bufio.Scanner) {
 		ws[Part2] = append(ws[Part2], make([]byte, 0, 16))
 	}
 
-	// rotate lines to bstacks
+	// transpose lines into byte stacks
 	for i := len(lines) - 2; i >= 0; i-- { // discard last line
 		for j, c := range lines[i] {
 			if c != ' ' {
@@ -143,7 +143,7 @@ func (ws *worlds) load(input *bufio.Scanner) {
 }
 
 // muxed move for part1&2 worlds
-func (ws worlds) move(dst, src, size []byte) {
+func (ws worlds) move(dst, src, size string) {
 	d, s, n := atoi(dst), atoi(src), atoi(size)
 
 	// demux
@@ -153,10 +153,9 @@ func (ws worlds) move(dst, src, size []byte) {
 
 // strconv.Atoi simplified core loop
 // s is ^(\d+)$
-func atoi(s []byte) int {
-	var n int
-	for _, c := range s {
-		n = 10*n + int(c-'0')
+func atoi(s string) (n int) {
+	for i := range s {
+		n = 10*n + int(s[i]-'0')
 	}
-	return n
+	return
 }

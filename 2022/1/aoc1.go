@@ -32,7 +32,7 @@ func main() {
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
-		line := input.Bytes()
+		line := input.Text()
 		if len(line) > 1 {
 			sum += atoi(line)
 		} else {
@@ -47,10 +47,9 @@ func main() {
 
 // strconv.Atoi simplified core loop
 // s is ^\d+$
-func atoi(s []byte) int {
-	var n int
-	for _, c := range s {
-		n = 10*n + int(c-'0')
+func atoi(s string) (n int) {
+	for i := range s {
+		n = 10*n + int(s[i]-'0')
 	}
-	return n
+	return
 }

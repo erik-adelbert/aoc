@@ -20,10 +20,11 @@ import (
 
 func main() {
 	x, y, aim := 0, 0, 0
+
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
 		line := input.Text()
-		arg, _ := strconv.Atoi(strings.Fields(line)[1])
+		arg := atoi(strings.Fields(line)[1])
 		switch line[0] {
 		case 'f': // forward
 			x += arg
@@ -36,4 +37,9 @@ func main() {
 	}
 	fmt.Println(x * aim) // part1
 	fmt.Println(x * y)   // part2
+}
+
+func atoi(s string) (n int) {
+	n, _ = strconv.Atoi(s)
+	return
 }
