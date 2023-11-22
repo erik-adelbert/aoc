@@ -33,12 +33,14 @@ func main() {
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
 		line := input.Text()
-		if len(line) > 1 {
+
+		if len(line) > 0 {
 			sum += atoi(line)
-		} else {
-			max3()
-			sum = 0
+			continue
 		}
+
+		max3()
+		sum = 0
 	}
 	max3()
 

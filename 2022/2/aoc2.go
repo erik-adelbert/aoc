@@ -28,7 +28,7 @@ func main() {
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
-		line := input.Bytes()
+		line := input.Text()
 
 		r := int(line[0] - 'A') // opponent move
 		c := int(line[2] - 'X') // our move or goal

@@ -5,10 +5,11 @@
 | 6 | 0.5 |
 | 1 | 0.6 |
 | 10 | 0.6 |
+| 13 | 0.6 |
 | 15 | 0.6 |
+| 2 | 0.6 |
 | 4 | 0.6 |
-| 13 | 0.7 |
-| 2 | 0.7 |
+| 24 | 0.7 |
 | 3 | 0.7 |
 | 5 | 0.7 |
 | 7 | 0.7 |
@@ -20,16 +21,15 @@
 | 14 | 1.4 |
 | 9 | 1.5 |
 | 17 | 2.2 |
+| 16 | 2.4 |
 | 19 | 3.7 |
 | 18 | 4.1 |
-| 11 | 5.3 |
+| 11 | 5.4 |
 | 20 | 7.4 |
 | 23 | 10.7 |
-| 16 | 15.1 |
-| 24 | 28.9 |
-| total | 91.7 |
+| total | 50.7 |
 
-fastest timing of 100 runs for part1&2 in ms - mbair M1/16GB - darwin 23.0.0 - go version go1.21.3 darwin/arm64 - hyperfine 1.18.0 - 2023-11-19
+fastest timing of 100 runs for part1&2 in ms - mbair M1/16GB - darwin 23.0.0 - go version go1.21.3 darwin/arm64 - hyperfine 1.18.0 - 2023-11-12
 
 ## Installation and benchmark
 

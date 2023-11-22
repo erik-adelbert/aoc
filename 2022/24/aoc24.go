@@ -7,6 +7,7 @@
 // (ɔ) Erik Adelbert - erik_AT_adelbert_DOT_fr
 // -------------------------------------------
 // 2022-12-24: initial commit
+// 2023-11-22: use u128 as maneatingape does
 
 package main
 
@@ -14,259 +15,177 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 )
 
-// windy maze
-type waze [2][]rc
-
-// timed waze
-type taze []waze
-
 func main() {
-	w := new(waze)
+	w := make(waze, 0, 32)
 
 	input := bufio.NewScanner(os.Stdin)
 
-	row := make([]byte, 0, 128)
+	var row string
 	input.Scan() // discard first row
 	for input.Scan() {
 		if len(row) > 0 {
 			// discard first and last col
 			w = w.append(row[1 : len(row)-1])
 		}
-		row = input.Bytes()
+		row = input.Text()
 	}
 	// discard last row
 
 	// build maze over time
-	m := mkmaze(w)
+	m := newTaze(w)
 
-	t0 := 0
-	t1 := m.flood(t0, Fwd) // part 1
-	t2 := m.flood(t1, Bck) // part 1.5
-	t3 := m.flood(t2, Fwd) // part 2
+	const (
+		FWD = true
+		BCK = !FWD
+	)
 
-	// part 1 & 2
-	fmt.Println(t1, t3)
+	lap1 := m.solve(0, FWD)
+	lap2 := m.solve(lap1, BCK)
+	lap3 := m.solve(lap2, FWD)
+
+	fmt.Println(lap1, lap3)
 }
 
-const (
-	J = iota
-	I
-)
-
-type JI [2]int
-
-func (a JI) add(b JI) JI {
-	return JI{a[J] + b[J], a[I] + b[I]}
+// timed waze
+type taze struct {
+	H, W       int
+	rows, cols []uint128
 }
 
-func (a JI) eq(b JI) bool {
-	return a[J] == b[J] && a[I] == b[I]
-}
+func newTaze(m waze) *taze {
+	H, W := len(m), len(m[0])
 
-type JISet struct {
-	data []JI
-	bset [4096]byte
-}
+	encode := func(b byte) []uint128 {
+		pack := func(s string) uint128 {
+			var acc uint128
 
-func (s *JISet) add(x JI) {
-	i := x[I]<<5 | x[J]
-	if s.bset[i] == 0 {
-		s.bset[i] = 1
-		s.data = append(s.data, x)
-	}
-}
-
-func clear(s JISet) JISet {
-	s.bset = [4096]byte{} // zero array
-	s.data = s.data[:0]   // empty slice
-	return s
-}
-
-func (s JISet) len() int {
-	return len(s.data)
-}
-
-const (
-	Fwd = iota
-	Bck
-)
-
-func (m *taze) flood(t0, dir int) int {
-	w0 := (*m)[0]
-	H, W := len(w0[R]), len(w0[C])
-
-	a, z := JI{0, 0}, JI{H - 1, W - 1}
-	if dir == Bck {
-		a, z = z, a
-	}
-
-	out := func(p JI) bool {
-		return p[J] < 0 || p[J] >= H || p[I] < 0 || p[I] >= W
-	}
-
-	free := func(t int, x JI) bool {
-		tJ, tI := t%W, t%H
-		return (*m)[tJ][R][x[J]][x[I]] == 0 &&
-			(*m)[tI][C][x[I]][x[J]] == 0
-	}
-
-	var cur, nxt JISet
-	nxt.add(a)
-	// enter asap
-	for !free(t0, a) {
-		t0++
-	}
-	for t := t0; ; t++ {
-		Δ := []JI{{-1, 0}, {0, -1}, {0, 1}, {1, 0}}
-
-		cur, nxt = nxt, clear(cur)
-		if cur.len() == 0 {
-			// no way through, restart later
-			return m.flood(t0+1, dir)
-		}
-
-		// generate paths (moves in time)
-		for _, x := range cur.data {
-			if free(t+1, x) {
-				// staying put is a valid next move
-				nxt.add(x)
-			}
-			for _, δ := range Δ {
-				x := x.add(δ)
-				switch {
-				case z.eq(x):
-					return t + 2 // goal!
-				case !out(x) && free(t+1, x):
-					nxt.add(x) // en route
+			for i := range s {
+				acc = acc.lsh(1)
+				if s[i] != b {
+					acc = acc.or(one)
 				}
 			}
+			return acc
+		}
+
+		rows := make([]uint128, H)
+		for i := range m {
+			rows[i] = pack(m[i])
+		}
+		return rows
+	}
+
+	// Left, Right, Up, Down
+	L, R, U, D := encode('<'), encode('>'), encode('^'), encode('v')
+
+	rows := make([]uint128, 0, H*W)
+	for t := 0; t < W; t++ {
+		for j := 0; j < H; j++ {
+			l := (L[j].lsh(t)).or(L[j].rsh(W - t))
+			r := (R[j].rsh(t)).or(R[j].lsh(W - t))
+			rows = append(rows, l.and(r))
 		}
 	}
+
+	cols := make([]uint128, 0, W*H)
+	for t := 0; t < H; t++ {
+		for i := 0; i < W; i++ {
+			u := U[mod(i+t, H)]
+			d := D[mod(i-t, H)]
+			cols = append(cols, u.and(d))
+		}
+	}
+
+	return &taze{H, W, rows, cols}
 }
 
-func mkmaze(w *waze) *taze {
-	w.split()
+func (m *taze) solve(t0 int, fwd bool) int {
+	H, W, rows, cols := m.H, m.W, m.rows, m.cols
+	state := make([]uint128, H+1)
+	for t := t0; ; {
+		var old, cur, nxt uint128
 
-	m := make(taze, len(w[C]))
-	// m := make(taze, max(len(w[R]), len(w[C])))
-
-	H := len(w[R])
-	rows, cols := w[R], w[C]
-	for t := range m {
-
-		// gen row
-		m[t][R] = make([]rc, len(rows))
-		copy(m[t][R], rows)
-		for i := range rows {
-			rows[i] = rows[i].next(R)
+		t++
+		nxt = state[0]
+		for i := 0; i < H; i++ {
+			old, cur, nxt = cur, nxt, state[i+1]
+			state[i] = cur.or(cur.rsh(1)).or(cur.lsh(1).or(old).or(nxt))
+			state[i] = state[i].and(rows[H*mod(t, W)+i])
+			state[i] = state[i].and(cols[W*mod(t, H)+i])
 		}
 
-		// gen col
-		if t < H {
-			m[t][C] = make([]rc, len(cols))
-			copy(m[t][C], cols)
-
-			for i := range cols {
-				cols[i] = cols[i].next(C)
+		if fwd {
+			state[0] = state[0].or(one.lsh(W - 1))
+			if state[H-1].and(one) != zero {
+				return t + 1
 			}
-		}
-	}
-
-	return &m
-}
-
-var code = []byte{
-	'.': 0, '<': 1, '>': 2, '^': 3, 'v': 4, '#': 5,
-}
-
-func (w *waze) append(r []byte) *waze {
-	row := make(rc, len(r))
-	for i, b := range r {
-		row[i] = code[b]
-	}
-	w[R] = append(w[R], row)
-
-	return w
-}
-
-func (w *waze) split() {
-	w[C] = make([]rc, len(w[R][0]))
-	for i := range w[C] {
-		w[C][i] = make(rc, len(w[R]))
-	}
-	for j := range w[R] {
-		for i, b := range w[R][j] {
-			switch b {
-			case 1, 2:
-				w[C][i][j] = 0
-			case 3, 4:
-				w[R][j][i] = 0
-				fallthrough
-			default:
-				w[C][i][j] = b
+		} else {
+			state[H-1] = state[H-1].or(one)
+			if state[0].and(one.lsh(W-1)) != zero {
+				return t + 1
 			}
 		}
 	}
 }
 
-// row/col indices
-const (
-	R = iota
-	C
+// windy maze
+type waze []string
+
+func (w waze) append(elems ...string) waze {
+	return waze(append([]string(w), elems...))
+}
+
+const uint128size = 128
+
+type uint128 struct {
+	hi, lo uint64
+}
+
+var (
+	zero = uint128{0, 0}
+	one  = uint128{0, 1}
 )
 
-// row or column
-type rc []byte
-
-// rc multi-values are encoded base 8
-// here are base 10 for the principle
-//   |  . |  < |  > |  ^ |  v
-// . |    | 01 | 02 | 03 | 04
-// < | 10 |    | 12 | 13 | 14
-// > | 20 | 21 |    | 23 | 24
-// ^ | 30 | 31 | 32 |    | 34
-// v | 40 | 41 | 42 | 43 |
-
-func (x rc) next(d int) rc {
-	w := len(x)
-	nxt := make(rc, w)
-
-	l, r := code['<'], code['>']
-	if d == C {
-		l, r = code['^'], code['v']
+func (u uint128) lsh(n int) uint128 {
+	if n >= 64 {
+		return uint128{u.lo << (n - 64), 0}
 	}
-
-	for i, c := range x {
-		for ; c > 0; c >>= 3 {
-			switch c & 0x7 {
-			case l:
-				i := mod(i-1, w)
-				nxt[i] = nxt[i]<<3 + c&0x7
-			case r:
-				i := mod(i+1, w)
-				nxt[i] = nxt[i]<<3 + c&0x7
-			default:
-				nxt[i] = nxt[i]<<3 + c
-			}
-		}
-	}
-	return nxt
+	return uint128{u.hi<<n | u.lo>>(64-n), u.lo << n}
 }
 
-func max(a, b int) int {
-	if a > b {
-		return a
+func (u uint128) rsh(n int) uint128 {
+	if n >= 64 {
+		return uint128{0, u.hi >> (n - 64)}
 	}
-	return b
+	return uint128{u.hi >> n, u.lo>>n | u.hi<<(64-n)}
+}
+
+func (u uint128) and(m uint128) uint128 {
+	return uint128{u.hi & m.hi, u.lo & m.lo}
+}
+
+func (u uint128) or(m uint128) uint128 {
+	return uint128{u.hi | m.hi, u.lo | m.lo}
+}
+
+func (u uint128) String() string {
+	var sb strings.Builder
+	if u.hi != 0 {
+		fmt.Fprintf(&sb, "%x%016x", u.hi, u.lo)
+	} else {
+		fmt.Fprintf(&sb, "%x", u.lo)
+	}
+	return sb.String()
 }
 
 func mod(a, b int) int {
 	return ((a % b) + b) % b
 }
 
-var DEBUG = true
+var DEBUG = false
 
 func debug(a ...any) (int, error) {
 	if DEBUG {

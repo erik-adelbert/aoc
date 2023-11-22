@@ -7,325 +7,312 @@
 // (ɔ) Erik Adelbert - erik_AT_adelbert_DOT_fr
 // -------------------------------------------
 // 2022-12-16: initial commit
+// 2023-11-22: adapt from:
+//   https://github.com/maneatingape/advent-of-code-rust/blob/11750514bb00915bf23fcee22c00fcaeb6a64a5c/src/year2022/day16.rs
 
 package main
 
 import (
 	"bufio"
-	hp "container/heap"
+	"cmp"
 	"fmt"
+	"math/bits"
 	"os"
+	"slices"
 	"sort"
 	"strings"
 )
 
-// Inf is max int
-const Inf = int(^uint(0) >> 1)
-
 func main() {
-	w := mkworld()
-
-	input := bufio.NewScanner(os.Stdin)
-	for input.Scan() {
-		w.add(
-			mknode(strings.Fields(r.Replace(input.Text()))),
-		)
-	}
-	w.mkdist()
-	w.mkedge()
-	w.mkbest()
-
-	fmt.Println(w.astar("AA", 0, 30))
-	fmt.Println(w.astar("AA", 26, 26))
+	w := readWorld(bufio.NewScanner(os.Stdin))
+	part1(w)
+	part2(w)
 }
 
-type (
-	graph map[string]*node
-	index map[string]int
+func part1(w *world) {
+	score := 0
+	highscore := func(_, flow int) int {
+		score = max(score, flow) // capture score
+		return score
+	}
+	part1 := &state{todo: w.state, from: w.from, time: 30, flow: 0}
+	w.bbsolve(part1, highscore) // update score via highscore() closure
+
+	fmt.Println(score)
+}
+
+func part2(w *world) {
+
+	step1 := &state{todo: w.state, from: w.from, time: 26, flow: 0}
+	score1, closed := 0, 0
+	highscore := func(todo, flow int) int {
+		if flow > score1 {
+			score1 = max(score1, flow) // capture score1
+			closed = todo              // capture left
+		}
+		return score1
+	}
+	w.bbsolve(step1, highscore) // update score1 & left via highscore() closure
+
+	step2 := &state{todo: closed, from: w.from, time: 26, flow: 0}
+	score2 := 0
+	highscore = func(_, flow int) int {
+		score2 = max(score2, flow) // capture score
+		return score2
+	}
+	w.bbsolve(step2, highscore) // update score2 via highscore() closure
+
+	step3 := &state{todo: w.state, from: w.from, time: 26, flow: 0}
+	scores3 := make([]int, w.state+1)
+	highscore = func(todo, flow int) int {
+		done := w.state ^ todo
+		scores3[done] = max(scores3[done], flow) // capture scores3
+		return score2                            // use score2 as heuristic baseline
+	}
+	w.bbsolve(step3, highscore) // update scores3 via highscore() closure
+
+	// sanitize and prepare scores3
+	scores := make([]struct{ i, v int }, 0, len(scores3)/2)
+	for i, v := range scores3 {
+		if v > 0 {
+			scores = append(scores, struct{ i, v int }{i, v})
+		}
+	}
+	slices.SortFunc(scores, func(a, b struct{ i, v int }) int {
+		return -cmp.Compare(a.v, b.v)
+	})
+
+	// maxout best score
+	best := score1 + score2
+	for i := range scores[:len(scores)-1] {
+		mask1, score1 := scores[i].i, scores[i].v
+
+		if 2*score1 <= best {
+			break
+		}
+
+		for j := range scores[i+1:] {
+			mask2, score2 := scores[j].i, scores[j].v
+
+			if mask1&mask2 == 0 {
+				// score1&2 are for disjoint movesets
+				best = max(best, score1+score2)
+				break
+			}
+		}
+
+	}
+
+	fmt.Println(best)
+}
+
+const (
+	MaxInt = int(^uint(0) >> 1)
+	Inf    = MaxInt
 )
 
 type world struct {
-	cave graph
-	cidx index
-	dist []int
-	edge [][]edge
-	best [][]wedge
+	size  int
+	from  int
+	state int
+	flows []int
+	dists []int
+	nears []int
 }
 
-func (w *world) astar(start string, t0, t1 int) int {
-	best := 0
-	cave, cidx, edge := w.cave, w.cidx, w.edge
+type valve struct {
+	name  string
+	flow  int
+	links []string
+}
 
-	// initial state
-	i := w.cidx[start]
-	s0 := &state{
-		prio: Inf,
-		bmap: bmp(1 << i), // add start
-		edge: [2]int{i, i},
-		time: [2]int{t0, t1},
+func readWorld(input *bufio.Scanner) *world {
+	valves := make([]valve, 0, 60)
+
+	var r = strings.NewReplacer(
+		"=", " ",
+		";", "",
+		",", "",
+	)
+
+	for input.Scan() {
+		// input line is:
+		// ^\w+\s([A-Z]{2})(\s\w+){3}=(\d+);(\s\w+){4}\s([A-Z]{2})(,\s([A-Z]{2}))*$
+		// ex.
+		// Valve GO has flow rate=0; tunnels lead to valves HO, DO
+		//
+		// replace '=' with ' ' and remove extraneous cars ';' and ',':
+		// ^\w+\s([A-Z]{2})(\s\w+){3}\s(\d+)(\s\w+){4}(\s([A-Z]{2}))+$
+		// split on space:
+		//  0    1                        5                        10:
+		// [\w+, [A-Z]{2}, \w+, \w+, \w+, \d+, \w+, \w+, \w+, \w+, ([A-Z]{2}))+ ]
+		//       name                     flow                     links...
+		args := strings.Fields(r.Replace(input.Text()))
+		valves = append(valves, valve{
+			name: args[1], flow: atoi(args[5]), links: args[10:],
+		})
 	}
 
-	seen := make(set, 1024)
+	sort.Sort(byDescendingFlow(valves))
 
-	heap := make(heap, 0, 1024)
-	heap = heap[:0]
-	hp.Init(&heap)
-
-	// push initial state
-	hp.Push(&heap, s0)
-	for heap.Len() > 0 {
-		cur := hp.Pop(&heap).(*state)
-		if cur.prio <= best {
-			return best
+	// size is non-zero flow valve count plus 1 for "AA"
+	size := 1
+	for i := range valves {
+		if valves[i].flow == 0 {
+			break
 		}
+		size++
+	}
 
-		if _, ok := seen[cur]; ok {
-			continue
+	// valve name to index map
+	vids := make(map[string]int, len(valves))
+	for i, v := range valves {
+		vids[v.name] = i
+	}
+
+	// distance between 2 given valves flatten index
+	idx := func(from, to int) int {
+		return from*size + to
+	}
+
+	// flatten valve distance matrix
+	dists := mkIntSlice(Inf, size*size)
+	for from, valve := range valves[:size] {
+		dists[idx(from, from)] = 0
+
+		for _, link := range valve.links {
+			pre, cur := valve.name, link
+			to := vids[cur]
+			dist := 1
+
+			for to >= size {
+				for _, nxt := range valves[to].links {
+					if nxt != pre {
+						pre, cur, to, dist = cur, nxt, vids[nxt], dist+1
+						break
+					}
+				}
+			}
+			dists[idx(from, to)] = dist
 		}
+	}
 
-		seen.add(cur)
-		for _, x := range edge[cur.edge[0]] {
-
-			i, flow := cidx[x.to], cave[x.to].flo
-			if cur.time[1] > x.δt && !cur.bmap.get(i) {
-				tn := cur.time[1] - x.δt
-				nxt := &state{
-					flow: cur.flow + flow*tn,
-					bmap: cur.bmap.set(i),
-					edge: [2]int{i, cur.edge[1]},
-					time: [2]int{cur.time[0], tn},
-				}
-
-				if nxt.time[0] > nxt.time[1] {
-					nxt.edge[0], nxt.edge[1] = nxt.edge[1], nxt.edge[0]
-					nxt.time[0], nxt.time[1] = nxt.time[1], nxt.time[0]
-				}
-
-				best = max(best, nxt.flow)
-				if prio := nxt.hprio(w); prio > best {
-					nxt.prio = prio
-					hp.Push(&heap, nxt)
+	// find all-pairs shortest distances
+	// symetric floyd-warshall flooding
+	for k := 0; k < size; k++ {
+		for i := 0; i < size; i++ {
+			for j := 0; j < i; j++ {
+				if v := dists[idx(i, k)] + dists[idx(k, j)]; v > 0 {
+					dists[idx(i, j)] = min(dists[idx(i, j)], v)
+					dists[idx(j, i)] = dists[idx(i, j)]
 				}
 			}
 		}
 	}
+	for i := range dists {
+		dists[i]++ // offset 1mn for valve opening
+	}
 
-	return best
-}
-
-func mkworld() *world {
 	w := new(world)
-	w.cave = make(graph, 64)
-	w.cidx = make(index, 64)
+	w.size = size
+	w.from = vids["AA"]
+	w.state = 1<<(size-1) - 1
+	w.dists = dists
+
+	w.flows = make([]int, size)
+	w.nears = make([]int, size)
+	for i := range valves[:size] {
+		w.flows[i] = valves[i].flow
+
+		min := struct{ d, i int }{Inf, 0}
+
+		lo, hi := idx(i, 0), idx(i, size)
+		for i, d := range dists[lo:hi:hi] {
+			if 1 < d && d < min.d {
+				min.i, min.d = i, d
+			}
+		}
+
+		w.nears[i] = min.d
+	}
+
 	return w
 }
 
-func (w *world) add(s string, n *node) {
-	w.cidx[s] = len(w.cave)
-	w.cave[s] = n
+func (w *world) dist(from, to int) int {
+	return w.dists[from*w.size+to]
 }
 
-type node struct {
-	nxt []string
-	flo int
-}
-
-func mknode(line []string) (string, *node) {
-	x := new(node)
-	x.flo = atoi(line[5])
-	x.nxt = make([]string, len(line[10:]))
-	copy(x.nxt, line[10:])
-	return line[1], x
-}
-
-// compute all pairs travel times
-// floyd-warshall flooding
-func (w *world) mkdist() {
-	N := len(w.cave)
-
-	dist := make([]int, N*N)
-	for j := 0; j < N; j++ {
-		for i := 0; i < N; i++ {
-			dist[j*N+i] = Inf
-		}
-	}
-
-	cave, cidx := w.cave, w.cidx
-	for x, i := range cidx {
-		dist[i*N+i] = 0
-		for _, y := range cave[x].nxt {
-			dist[cidx[y]*N+i] = 1
-		}
-	}
-	for k := 0; k < N; k++ {
-		for j := 0; j < N; j++ {
-			for i := 0; i < N; i++ {
-				if v := dist[k*N+i] + dist[j*N+k]; v > 0 {
-					dist[j*N+i] = min(dist[j*N+i], v)
-				}
-			}
-		}
-	}
-
-	w.dist = dist
-}
-
-type edge struct {
-	to string
-	δt int
-}
-
-func (w *world) mkedge() {
-	cave, cidx, dist := w.cave, w.cidx, w.dist
-	N := len(cave)
-
-	edges := make([][]edge, N)
-	for a, i := range cidx {
-		edges[i] = make([]edge, 0, N)
-		for b, j := range cidx {
-			d := dist[j*N+i]
-			if a == "AA" || dist[j*N+i] != Inf &&
-				cave[a].flo*cave[b].flo > 0 {
-				edges[i] = append(edges[i], edge{b, d + 1})
-			}
-		}
-		sort.Slice(edges[i], func(x, y int) bool {
-			f := func(x int) int {
-				return cave[edges[i][x].to].flo
-			}
-			return f(x) > f(y)
-		})
-	}
-
-	w.edge = edges
-}
-
-// weighted edge for heuristic search
-type wedge struct {
-	i, δt, v int // index, weight, value
-}
-
-func (w *world) mkbest() {
-	cave, cidx, dist := w.cave, w.cidx, w.dist
-	N := len(cave)
-
-	best := make([][]wedge, 31)
-	for t := range best {
-		var (
-			a, b string
-			i, j int
-		)
-		for a, i = range cidx {
-			w := Inf
-			for b, j = range cidx {
-				if i == j || cave[b].flo == 0 {
-					continue
-				}
-				w = min(w, dist[j*N+i]+1)
-			}
-			if w < t {
-				best[t] = append(best[t], wedge{i, w, cave[a].flo})
-			}
-		}
-		sort.Slice(best[t], func(i, j int) bool {
-			f := func(i int) int {
-				return best[t][i].v * (t - best[t][i].δt)
-			}
-			return f(i) > f(j)
-		})
-	}
-	w.best = best
-}
-
-// path head
 type state struct {
-	prio int
-
-	bmap bmp
+	todo int
+	from int
+	time int
 	flow int
-	// time range
-	time [2]int
-	edge [2]int
 }
 
-// estimate maxflow
-// heuristic is to go all the way down to clock = 0
-// no matter if nodes are available or not
-func (x *state) hprio(w *world) int {
-	// unpack namespace
-	bmap := x.bmap
-	prio := x.flow
-	best := w.best
+func (w *world) bbsolve(s *state, fscore func(int, int) int) {
+	todo, from, time, flow := s.todo, s.from, s.time, s.flow
+	score := fscore(todo, flow)
 
-	t0, t1 := x.time[0], x.time[1]
+	valves := todo
+	for valves > 0 {
+		to := bits.TrailingZeros(uint(valves))
+		mask := 1 << to
+		valves ^= mask
 
-walk:
-	for {
-		edges := best[t1]
-		for _, edge := range edges {
-			// walk biggest value node at t1
-			if !bmap.get(edge.i) {
-				// update flow path and elapsed time
-				t1 -= edge.δt
-				prio += edge.v * t1
-				if t0 > t1 {
-					t0, t1 = t1, t0
-				}
-				bmap = bmap.set(edge.i)
-				continue walk
-			}
+		trip := w.dist(from, to)
+		if trip >= time {
+			continue
 		}
-		// done walking
-		return prio
+
+		time := time - trip
+		todo := todo ^ mask
+		flow := flow + time*w.flows[to]
+
+		heuristic := func() int {
+			valves, time, flow := todo, time, flow
+
+			for valves > 0 && time > 3 {
+				to := bits.TrailingZeros(uint(valves))
+				valves ^= 1 << to
+				time -= w.nears[to]
+				flow += time * w.flows[to]
+			}
+
+			return flow
+		}
+
+		if heuristic() > score {
+			next := &state{todo, to, time, flow}
+			w.bbsolve(next, fscore)
+		}
 	}
 }
 
-type set map[*state]struct{}
+// sort interface by descending flow then ascending name
+type byDescendingFlow []valve
 
-func (s set) add(x *state) {
-	s[x] = struct{}{}
+func (a byDescendingFlow) Len() int { return len(a) }
+
+// sort by descending flow then ascending name
+func (a byDescendingFlow) Less(i, j int) bool {
+	if a[i].flow == a[j].flow {
+		return a[i].name < a[j].name
+	}
+	return a[i].flow > a[j].flow
+}
+func (a byDescendingFlow) Swap(i, j int) {
+	a[i], a[j] = a[j], a[i]
 }
 
-// standard lib binary heap
-type heap []*state
-
-func (h heap) Len() int           { return len(h) }
-func (h heap) Less(i, j int) bool { return h[i].prio < h[j].prio }
-func (h heap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
-
-func (h *heap) Push(x any) {
-	c := x.(*state)
-	*h = append(*h, c)
+// make an initialized int slice
+func mkIntSlice(value int, size int) []int {
+	s := make([]int, size)
+	for i := range s {
+		s[i] = value
+	}
+	return s
 }
-
-func (h *heap) Pop() any {
-	q, i := *h, len(*h)-1
-	pop := q[i]
-	*h, q[i] = q[:i], nil
-	return pop
-}
-
-// node setup bitmap for heuristics
-type bmp uint64
-
-func (b bmp) get(i int) bool {
-	x := bmp(1) << i
-	return b&x == x
-}
-
-func (b bmp) set(i int) bmp {
-	return b | bmp(1)<<i
-}
-
-func (b bmp) clr(i int) bmp {
-	return b & ^(bmp(1) << i)
-}
-
-var r = strings.NewReplacer(
-	"=", " ",
-	";", "",
-	",", "",
-)
 
 // strconv.Atoi modified core loop
 // s is ^\d+.*$
@@ -341,5 +328,11 @@ var DEBUG = false
 func debug(a ...any) {
 	if DEBUG {
 		fmt.Println(a...)
+	}
+}
+
+func debugf(format string, a ...any) {
+	if DEBUG {
+		fmt.Printf(format, a...)
 	}
 }

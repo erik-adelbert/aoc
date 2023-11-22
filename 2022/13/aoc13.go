@@ -18,6 +18,54 @@ import (
 	"strings"
 )
 
+func main() {
+	// parity, pair index, ordered pair count
+	par, idx, popcnt := 0, 0, 0
+
+	// part2 subkeys indices
+	subkeys := []int{1, 2}
+
+	// last 2 packets buffer
+	packets := [2]string{}
+
+	input := bufio.NewScanner(os.Stdin)
+	for input.Scan() {
+		packet := input.Text()
+
+		// part1
+		if len(packet) == 0 {
+			idx++
+
+			// last two packets
+			a := packets[0]
+			b := packets[1]
+
+			if cmp(a, b) < 1 {
+				// packets are ordered
+				popcnt += idx
+			}
+			continue // process next pair
+		}
+
+		// part2
+		switch {
+		case cmp(packet, "2") < 1:
+			// packet goes before subkeys
+			subkeys[0]++
+			subkeys[1]++
+		case cmp(packet, "6") < 1:
+			// packet goes between subkeys
+			subkeys[1]++
+		}
+
+		// memoize for part1 according to parity
+		packets[par], par = packet, 1-par
+	}
+
+	// part 1&2
+	fmt.Println(popcnt, subkeys[0]*subkeys[1])
+}
+
 type packet struct {
 	data  []byte
 	index int
@@ -75,45 +123,4 @@ func cmp(a, b string) int {
 			return 1
 		}
 	}
-}
-
-func main() {
-	popcnt := 0
-	packets := make([]string, 0)
-
-	input := bufio.NewScanner(os.Stdin)
-	for input.Scan() {
-		packet := input.Text()
-
-		// part1
-		if len(packet) == 0 {
-			// last two fifo packets
-			a := packets[len(packets)-2]
-			b := packets[len(packets)-1]
-
-			if cmp(a, b) < 1 {
-				popcnt += len(packets) / 2
-			}
-			continue
-		}
-
-		// memoize for part2
-		packets = append(packets, packet)
-	}
-
-	// part1
-	fmt.Println(popcnt)
-
-	// part2
-	keys := []int{1, 2}
-	for i := range packets {
-		switch {
-		case cmp(packets[i], "[[2]]") < 1:
-			keys[0]++
-			keys[1]++
-		case cmp(packets[i], "[[6]]") < 1:
-			keys[1]++
-		}
-	}
-	fmt.Println(keys[0] * (keys[1]))
 }
