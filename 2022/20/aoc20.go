@@ -16,6 +16,21 @@ import (
 	"os"
 )
 
+func main() {
+	seq := make([]int, 0, 8192)
+	input := bufio.NewScanner(os.Stdin)
+	for input.Scan() {
+		seq = append(seq, atoi(input.Text()))
+	}
+
+	// part 1
+	fmt.Println(key(shuffle(seq, 1, 1)))
+
+	// part 2
+	const salt = 811_589_153
+	fmt.Println(key(shuffle(seq, salt, 10)))
+}
+
 func shuffle(input []int, salt, nround int) ([]int, int) {
 	const (
 		// 256*32 = 2^13 > 5000 items
@@ -177,21 +192,6 @@ func key(a []int, o int) int {
 
 	// forge & return key
 	return a[k1] + a[k2] + a[k3]
-}
-
-func main() {
-	seq := make([]int, 0, 8192)
-	input := bufio.NewScanner(os.Stdin)
-	for input.Scan() {
-		seq = append(seq, atoi(input.Text()))
-	}
-
-	// part 1
-	fmt.Println(key(shuffle(seq, 1, 1)))
-
-	// part 2
-	const salt = 811_589_153
-	fmt.Println(key(shuffle(seq, salt, 10)))
 }
 
 // strconv.Atoi simplified core loop

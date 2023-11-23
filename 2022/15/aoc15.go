@@ -145,10 +145,3 @@ func atoi(s string) (n int) {
 	}
 	return n * neg
 }
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}

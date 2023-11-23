@@ -101,10 +101,3 @@ func main() {
 	stats := solve(game{c[p1], 0, c[p2], 0}) // solve all games
 	fmt.Println(max(stats[p1], stats[p2]))   // part2
 }
-
-func max(a, b uint64) uint64 {
-	if a > b {
-		return a
-	}
-	return b
-}

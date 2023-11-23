@@ -16,6 +16,9 @@ bench: build
 	$(BENCH) $(BIN)
 	@$(MAKE) clean
 
+binrun: input.txt
+	./$(BIN) < $(IN)
+
 build: input.txt
 	$(GOC) $(SRC)
 
@@ -51,4 +54,4 @@ sample:
 	go run ./$(SRC) < $(EX)
 
 
-.PHONY: bench build check clean cpuprof exemple gobench header memprof run sample
+.PHONY: bench binrun build check clean cpuprof exemple gobench header memprof run sample
