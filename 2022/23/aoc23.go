@@ -185,7 +185,9 @@ func (g *golife) plan(north, cur, south uint256) plan {
 
 	var n, s, w, e uint256
 
-	N := north.or(north.lsh(1), north.rsh(1))
+	N := north.or(
+		north.lsh(1), north.rsh(1),
+	)
 	S := south.or(south.lsh(1), south.rsh(1))
 	W, E := cur.lsh(1), cur.rsh(1)
 
@@ -201,10 +203,14 @@ func (g *golife) plan(north, cur, south uint256) plan {
 			s = nok.andnot(S)
 			nok = nok.andnot(s)
 		case 'W':
-			w = not(nok).or(W, north.lsh(1), south.lsh(1))
+			w = not(nok).or(
+				W, north.lsh(1), south.lsh(1),
+			)
 			nok, w = nok.and(w), not(w).rsh(1)
 		case 'E':
-			e = not(nok).or(E, north.rsh(1), south.rsh(1))
+			e = not(nok).or(
+				E, north.rsh(1), south.rsh(1),
+			)
 			nok, e = nok.and(e), not(e).lsh(1)
 		}
 	}

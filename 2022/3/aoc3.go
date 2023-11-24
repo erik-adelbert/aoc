@@ -40,10 +40,10 @@ func main() {
 	}
 
 	nline := 0
-	chunk := [2][128]int{}
+	chunk := [2][]int{}
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
-		seen := [128]int{}
+		seen := make([]int, 128)
 
 		line := input.Text()
 
@@ -81,5 +81,5 @@ func main() {
 		nline++ // input is 300 lines
 	}
 
-	fmt.Println(prios)
+	fmt.Println(prios[Part1], prios[Part2])
 }

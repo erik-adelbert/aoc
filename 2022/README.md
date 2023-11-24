@@ -3,33 +3,33 @@
 | day | time |
 |-----|-----:|
 | 6 | 0.5 |
-| 1 | 0.6 |
-| 10 | 0.6 |
-| 13 | 0.6 |
-| 15 | 0.6 |
 | 2 | 0.6 |
-| 4 | 0.6 |
+| 3 | 0.6 |
+| 1 | 0.7 |
+| 10 | 0.7 |
+| 13 | 0.7 |
+| 15 | 0.7 |
 | 24 | 0.7 |
-| 3 | 0.7 |
 | 5 | 0.7 |
 | 7 | 0.7 |
+| 4 | 0.8 |
 | 12 | 0.9 |
 | 25 | 0.9 |
-| 22 | 1.0 |
-| 8 | 1.0 |
+| 22 | 1.1 |
+| 8 | 1.1 |
 | 21 | 1.2 |
+| 9 | 1.3 |
 | 14 | 1.4 |
-| 9 | 1.5 |
-| 17 | 2.2 |
-| 16 | 2.4 |
-| 19 | 3.7 |
-| 18 | 4.1 |
-| 11 | 5.4 |
-| 20 | 7.4 |
-| 23 | 10.7 |
-| total | 50.7 |
+| 17 | 2.1 |
+| 16 | 2.3 |
+| 19 | 3.8 |
+| 18 | 4.0 |
+| 11 | 5.3 |
+| 20 | 7.2 |
+| 23 | 10.6 |
+| total | 50.6 |
 
-fastest timing of 100 runs for part1&2 in ms - mbair M1/16GB - darwin 23.0.0 - go version go1.21.3 darwin/arm64 - hyperfine 1.18.0 - 2023-11-12
+fastest timing of 100 runs for part1&2 in ms - mbair M1/16GB - darwin 23.0.0 - go version go1.21.3 darwin/arm64 - hyperfine 1.18.0 - 2023-11-24
 
 ## Installation and benchmark
 
@@ -240,6 +240,9 @@ Last but not least the internal memory size is fixed, the solution also has `O(1
 *It is one of the best to solve the task at hand*.
 
 `<EDIT>` I have an [ongoing discussion](https://www.reddit.com/r/adventofcode/comments/zdw0u6/comment/iz6e67e/?utm_source=share&utm_medium=web2x&context=3) about the space complexity that I may have not gotten right on this... ~more to come~!
+
+`<EDIT>` I have simplified the external loop (which isn't a loop by the way as input is a single line) and
+emphasized the [state machine design](https://en.wikipedia.org/wiki/Finite-state_machine) of this solution. Namely, I've used a state of the art dynamic design pattern that is mentioned by [rob pike](https://go.dev/talks/2011/lex.slide) and [russ cox](https://research.swtch.com/coro) from the Go Team. That is states are better represented by functions that dynamically chain together instead of the (static) signature core [switch/case](https://stackoverflow.com/questions/68634470/role-of-else-if-state-out-in-c-word-count) we are all used to.
 
 ## Day 7
 
