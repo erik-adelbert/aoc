@@ -20,226 +20,185 @@ import (
 )
 
 func main() {
-	gol := newGame(bufio.NewScanner(os.Stdin))
+	clock, gol := 1, newGame(bufio.NewScanner(os.Stdin))
+	//fmt.Println(gol)
 
-	var clock int
+	// part 1
+	for clock < 11 {
+		clock++
+		gol.tick()
+	}
+	area, popcnt := gol.poparea()
+	fmt.Println(area - popcnt)
+
+	// part 2
 	for gol.tick() {
 		clock++
-
-		// part 1
-		if clock == 10 {
-			fmt.Println(gol.crop() - gol.popcnt())
-		}
 	}
-	// part 2
 	fmt.Println(clock)
 }
 
-const NROWS = 150
-
 type golife struct {
-	cells []uint256
-	heads []byte // round-robin heading order "NSWE"
-	H     int    // height
+	cells, n, s, w, e []uint256
+	head              int // heading
 }
 
 func newGame(input *bufio.Scanner) (g *golife) {
-	var (
-		H, i int
-		c    rune
+	const (
+		off    = 74
+		heigth = 222
 	)
 
-	cells := make([]uint256, NROWS)
-	for H = 0; input.Scan(); H++ {
-		for i, c = range input.Text() {
+	n := make([]uint256, heigth)
+	s := make([]uint256, heigth)
+	w := make([]uint256, heigth)
+	e := make([]uint256, heigth)
+
+	cells := make([]uint256, heigth)
+	for j := 0; input.Scan(); j++ {
+		for i, c := range input.Text() {
 			if c == '#' {
-				cells[H].setbit(i) // cells[H][i] is alive
+				cells[j+off].setbit(i + off) // cells[j][i] is alive
 			}
 		}
 	}
-	return &golife{cells, []byte("NSWE"), H}
+
+	return &golife{cells, n, s, w, e, 0}
 }
 
-func (g *golife) crop() int {
-	H, cells := g.H, g.cells
-
-	var min int
-	for min = range cells[:H] {
-		if !cells[min].isZero() {
-			break
-		}
-	}
-
-	for H = range cells[min:] {
-		if cells[H].isZero() {
-			break
-		}
-	}
-	g.H = H
-
-	rot(cells, NROWS-min)
-
-	mask := zero256.or(cells[:H]...)
-
-	lead0, trail0 := mask.lead0(), mask.trail0()
-	for j := range cells[:H] {
-		cells[j] = cells[j].rsh(trail0)
-	}
-	W := uint256size - (trail0 + lead0)
-
-	return W * H
+func (g *golife) poparea() (area int, popcnt int) {
+	b, popcnt := g.bbox()
+	return b.area(), popcnt
 }
 
-func (g *golife) extend() {
-	H, cells := g.H, g.cells
+type AABB struct {
+	ymin, ymax, xmin, xmax int
+}
 
-	// ensure empty first column
-	for j := range cells[:H] {
-		if cells[j].trail0() == 0 { // little-endian
-			for j := range cells[:H] {
-				cells[j] = cells[j].lsh(1)
-			}
-			break
+func (a AABB) area() int {
+	return (a.ymax - a.ymin) * (a.xmax - a.xmin)
+}
+
+func (g *golife) bbox() (box AABB, popcnt int) {
+	var mask uint256
+
+	cells := g.cells
+	box.ymin = len(cells)
+
+	for j := range cells {
+		if n := cells[j].popcnt(); n > 0 {
+			box.ymin = min(box.ymin, j)
+			box.ymax = max(box.ymax, j)
+			mask = mask.or(cells[j])
+			popcnt += n
 		}
 	}
+	box.ymax++
 
-	// ensure empty first row
-	if !cells[0].isZero() {
-		rot(cells, 1)
-		H++
-	}
-
-	// ensure empty last two rows
-	for !cells[H-2].or(cells[H-1]).isZero() {
-		H++
-	}
-
-	g.H = H
+	box.xmin, box.xmax = mask.trail0(), uint256size-mask.lead0()
 	return
 }
 
-func (g *golife) tick() bool {
-	g.extend()
+func (g *golife) tick() (alive bool) {
+	// sugars
+	cells, head := g.cells, g.head
+	n, s, w, e := g.n, g.s, g.w, g.e
 
-	var old, cur, nxt plan
+	b, _ := g.bbox()
+	min, max := b.ymin-1, b.ymax+2
+	alive = false
 
-	H, cells := g.H, g.cells
-	alive := false
+	var old, cur, nxt uint256
 
-	cur = g.plan(cells[0], cells[1], cells[2])
+	cur, nxt = not(cur), not(nxt)
+	for j := min; j < max; j++ {
+		// roll 3 lines window
+		old, cur = cur, nxt
+		nxt = not(cells[j+1].or(cells[j+1].lsh(1), cells[j+1].rsh(1)))
 
-	const (
-		Left  = -1
-		None  = +0
-		Right = +1
-	)
+		// plan moves
+		v := not(zero256.or(cells[j-1 : j+2]...)) // vertical
 
-	untie := func(tied uint256, planned, unmoved *uint256, shift int) {
-		still := tied.and(*planned)
-		*planned = planned.andnot(still)
-		switch shift {
-		case Left:
-			still = still.lsh(1)
-		case Right:
-			still = still.rsh(1)
-		}
-		*unmoved = unmoved.or(still)
-	}
+		u, d := old, nxt                         // up, down
+		l, r := v.lsh(1), v.rsh(1)               // left, right
+		still := cells[j].andnot(u.and(d, l, r)) // mask not moving baseline
 
-	cells[0] = cur.n
-	for i := range cells[:H-3] {
-		// i:old, j:cur, k:nxt
-		j, k := i+1, i+2
-
-		nxt = g.plan(cells[k-1], cells[k], cells[k+1])
-		tied := old.s.and(nxt.n)
-		untie(tied, &old.s, &cells[i], None)
-		untie(tied, &nxt.n, &nxt.o, None)
-
-		tied = cur.w.and(cur.e)
-		untie(tied, &cur.w, &cur.o, Left)
-		untie(tied, &cur.e, &cur.o, Right)
-
-		moved := old.s.or(cur.w, cur.e, nxt.n)
-		if !moved.isZero() {
-			alive = true
+		heading := []*uint256{&u, &d, &l, &r}
+		for i := range "NSWE" {
+			x := heading[(head+i)&0x3] // left rotate N,S,W,E and select u,d,l,r accordingly
+			*x = x.and(still)
+			still = still.andnot(*x)
 		}
 
-		cells[j] = cur.o.or(moved)
-		old.s, cur = cur.s, nxt
+		// store planned moves
+		n[j-1] = u
+		s[j+1] = d
+		w[j] = l.rsh(1)
+		e[j] = r.lsh(1)
 	}
-	cells[H-2] = cells[H-2].or(old.s)
-	rot(g.heads, 3)
+
+	// cancel moves ending up in the same cell
+	for j := min; j < max; j++ {
+		// alias nswe to up, down, left, right
+		u, d, l, r := n[j], s[j], w[j], e[j]
+
+		// cancel vertical moves
+		n[j] = n[j].andnot(d)
+		s[j] = s[j].andnot(u)
+
+		// cancel horizontal moves
+		w[j] = w[j].andnot(r)
+		e[j] = e[j].andnot(l)
+	}
+
+	// make all moves
+	for j := min; j < max; j++ {
+		// not moving
+		still := cells[j].andnot(
+			n[j-1].or(s[j+1], w[j].lsh(1), e[j].rsh(1)),
+		)
+		// moving
+		moved := n[j].or(s[j], w[j], e[j])
+
+		// move!
+		cells[j] = still.or(moved)
+		alive = alive || !moved.isZero()
+	}
+	g.head++
 
 	return alive
 }
 
-type plan struct {
-	o, n, s, w, e uint256
-}
-
-func (g *golife) plan(north, cur, south uint256) plan {
-	if cur.isZero() {
-		return plan{}
-	}
-
-	var n, s, w, e uint256
-
-	N := north.or(
-		north.lsh(1), north.rsh(1),
-	)
-	S := south.or(south.lsh(1), south.rsh(1))
-	W, E := cur.lsh(1), cur.rsh(1)
-
-	ok := not(not(cur).or(N, S, W, E))
-	nok := cur.andnot(ok)
-
-	for _, d := range g.heads {
-		switch d {
-		case 'N':
-			n = nok.andnot(N)
-			nok = nok.andnot(n)
-		case 'S':
-			s = nok.andnot(S)
-			nok = nok.andnot(s)
-		case 'W':
-			w = not(nok).or(
-				W, north.lsh(1), south.lsh(1),
-			)
-			nok, w = nok.and(w), not(w).rsh(1)
-		case 'E':
-			e = not(nok).or(
-				E, north.rsh(1), south.rsh(1),
-			)
-			nok, e = nok.and(e), not(e).lsh(1)
-		}
-	}
-	return plan{ok.or(nok), n, s, w, e}
-}
-
-func (g *golife) popcnt() int {
-	count, cells, H := 0, g.cells, g.H
-	for j := range cells[:H] {
-		count += cells[j].popcnt()
-	}
-	return count
-}
-
 func (g *golife) String() string {
 	var sb strings.Builder
-	for j := range g.cells[:g.H] {
-		fmt.Fprintln(&sb, g.cells[j])
+
+	cells := g.cells
+	b, popcnt := g.bbox()
+
+	fmt.Fprintf(
+		&sb, "head: %d, box: %v, pop:%d\n", g.head, b, popcnt)
+	for j := range cells[b.ymin:b.ymax] {
+		fmt.Fprintf(&sb, "%03d: ", j)
+
+		x := cells[b.ymin+j].rsh(b.xmin)
+		for i := b.xmin; i < b.xmax; i++ {
+			sb.WriteByte(".#"[x.w0&1])
+			x = x.rsh(1)
+		}
+
+		sb.WriteString("\n")
 	}
+
 	return sb.String()
 }
 
 const uint256size = 256
 
+var zero256 uint256
+
 type uint256 struct {
 	w0, w1, w2, w3 uint64
 }
-
-var zero256 = uint256{0, 0, 0, 0}
 
 // setbit sets bit n-th n = 0 is LSB.
 // n must be <= 255.
@@ -256,7 +215,7 @@ func (u *uint256) setbit(n int) {
 	}
 }
 
-func (u uint256) popcnt() (n int) {
+func (u *uint256) popcnt() (n int) {
 	n += bits.OnesCount64(u.w3)
 	n += bits.OnesCount64(u.w2)
 	n += bits.OnesCount64(u.w1)
@@ -264,7 +223,7 @@ func (u uint256) popcnt() (n int) {
 	return
 }
 
-func (u uint256) lead0() (n int) {
+func (u *uint256) lead0() (n int) {
 	if n = bits.LeadingZeros64(u.w3); n != 64 {
 		return
 	}
@@ -372,11 +331,13 @@ sh192:
 	return u
 }
 
-func (u uint256) and(m uint256) uint256 {
-	u.w3 &= m.w3
-	u.w2 &= m.w2
-	u.w1 &= m.w1
-	u.w0 &= m.w0
+func (u uint256) and(m ...uint256) uint256 {
+	for i := range m {
+		u.w3 &= m[i].w3
+		u.w2 &= m[i].w2
+		u.w1 &= m[i].w1
+		u.w0 &= m[i].w0
+	}
 	return u
 }
 
@@ -406,13 +367,19 @@ func (u uint256) or(m ...uint256) uint256 {
 	return u
 }
 
-func rot[V uint256 | byte](a []V, n int) {
+func (u uint256) String() string {
+	var sb strings.Builder
+	fmt.Fprintf(&sb, "%016x%016x%016x%016x", u.w3, u.w2, u.w1, u.w0)
+	return sb.String()
+}
+
+func rot(a []uint256, n int) {
 	if n = n % len(a); n != 0 {
 		copy(a, append(a[len(a)-n:], a[:len(a)-n]...))
 	}
 }
 
-const DEBUG = false
+const DEBUG = true
 
 func debug(a ...any) {
 	if DEBUG {

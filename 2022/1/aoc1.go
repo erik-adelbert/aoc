@@ -32,9 +32,7 @@ func main() {
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
-		line := input.Text()
-
-		if len(line) > 0 {
+		if line := input.Text(); len(line) > 0 {
 			sum += atoi(line)
 			continue
 		}

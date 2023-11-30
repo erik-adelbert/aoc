@@ -64,8 +64,6 @@ func main() {
 func (g *grid) shortest(start []*cell, end *cell) (int, int) {
 	const MaxInt = int(^uint(0) >> 1)
 
-	// paths := []int{}
-
 	dist := make([][]int, g.h)
 	for j := range dist {
 		dist[j] = make([]int, g.w)

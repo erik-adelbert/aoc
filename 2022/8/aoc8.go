@@ -33,10 +33,10 @@ func main() {
 	}
 
 	W, Σ := mirror(M), transpose(M)
-	Ͽ := mirror(Σ) // Ͽ reads reverse (dotted lunate) Σ
+	Ͻ := mirror(Σ) // Ͻ reads reverse (lunate) Σ
 
 	views := func(x, y int) [4][]byte {
-		U := Ͽ[x][len(Ͽ[0])-y:] // up
+		U := Ͻ[x][len(Ͻ[0])-y:] // up
 		L := W[y][len(W[0])-x:] // left
 		R := M[y][x+1:]         // right
 		D := Σ[x][y+1:]         // down

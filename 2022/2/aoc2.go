@@ -18,10 +18,10 @@ import (
 
 // see day2 notes
 func main() {
-	scale := [][]int{
-		{1, 2, 0},
-		{0, 1, 2},
-		{2, 0, 1},
+	scale := []int{
+		1, 2, 0,
+		0, 1, 2,
+		2, 0, 1,
 	}
 
 	scores := 0
@@ -34,7 +34,7 @@ func main() {
 		c := int(line[2] - 'X') // our move or goal
 
 		// pack parts 1&2 scores
-		scores += pack(1+c+3*scale[r][c], 1+scale[2-c][r]+3*c) // apply symmetry
+		scores += pack(1+c+3*scale[3*r+c], 1+scale[3*(2-c)+r]+3*c) // apply symmetry
 	}
 
 	fmt.Println(unpack(scores))

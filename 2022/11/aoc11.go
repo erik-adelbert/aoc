@@ -65,10 +65,10 @@ func (p part) solve() int {
 
 	max := [2]int{0, 0}
 
-	// maintain 2 highest
+	// maintain 2 highests
 	max2 := func(n int) {
 		switch {
-		case n >= max[0]: // accept duplicate
+		case n >= max[0]: // accept duplicates
 			max[1], max[0] = max[0], n
 		case n > max[1]:
 			max[1] = n
@@ -86,7 +86,7 @@ type context [8]state
 func (c context) clone() *context {
 	new := c
 	for i := range c {
-		new[i].items = make([]int, len(c[i].items))
+		new[i].items = make([]int, len(c[i].items), cap(c[i].items))
 		copy(new[i].items, c[i].items)
 	}
 	return &new
@@ -102,6 +102,7 @@ type state struct {
 }
 
 func (s *state) load(input *bufio.Scanner) int {
+
 	for input.Scan() {
 		var line string
 		if line = strings.Trim(input.Text(), " "); len(line) == 0 {
@@ -113,6 +114,7 @@ func (s *state) load(input *bufio.Scanner) int {
 			// discard name
 		case 'S':
 			items := strings.Split(line[16:], ", ")
+
 			for _, v := range items {
 				s.items = append(s.items, atoi(v))
 			}

@@ -13,8 +13,8 @@
 | 5 | 0.7 |
 | 7 | 0.7 |
 | 4 | 0.8 |
-| 12 | 0.9 |
 | 25 | 0.9 |
+| 12 | 1.0 |
 | 22 | 1.1 |
 | 8 | 1.1 |
 | 21 | 1.2 |
@@ -26,10 +26,10 @@
 | 18 | 4.0 |
 | 11 | 5.3 |
 | 20 | 7.2 |
-| 23 | 10.6 |
-| total | 50.6 |
+| 23 | 9.2 |
+| total | 49.3 |
 
-fastest timing of 100 runs for part1&2 in ms - mbair M1/16GB - darwin 23.0.0 - go version go1.21.3 darwin/arm64 - hyperfine 1.18.0 - 2023-11-24
+fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.0.0 - go version go1.21.4 darwin/arm64 - hyperfine 1.18.0 - 2023-11-24
 
 ## Installation and benchmark
 
@@ -512,7 +512,7 @@ Let's see what's coming!
 
 ## Day 23
 
-It's a multi-valued GoL, I've got the stars by writting a straight forward `python` script because my Go design for it will sureley takes a lot of time but runs really fast ~~(compared to naïve solutions, even the packed ones)~~. My solution is a packed simulation built upon a `u256` custom type derived from a `u128` custom type. It is akin to [u/SLiV9's](https://www.reddit.com/r/adventofcode/comments/zt6xz5/comment/j1f9cz2/?utm_source=share&utm_medium=web2x&context=3) but faster.
+It's a multi-valued GoL, I've got the stars by writting a straight forward `python` script because my Go design for it will sureley takes a lot of time but runs really fast ~~(compared to naïve solutions, even the packed ones)~~. My solution is a packed simulation built upon a `u256` custom type ~~derived from a `u128` custom type~~. It is akin to [u/SLiV9's](https://www.reddit.com/r/adventofcode/comments/zt6xz5/comment/j1f9cz2/?utm_source=share&utm_medium=web2x&context=3) and [maneatingape](https://github.com/maneatingape/advent-of-code-rust/blob/11750514bb00915bf23fcee22c00fcaeb6a64a5c/src/year2022/day23.rs) but faster.
 
 ## Day 24
 
@@ -532,7 +532,7 @@ For the last day of this AoC, the program defines a new number type `snafu` alon
 
 This year, I wanted to compose fast and simple programs every day from the start. I failed for days `16`, `19` and `22.2` because, for me, they required thorough studies. I wasn't sure until the very last moment (day19 rework) I would be able to break my [last year record](https://www.reddit.com/r/adventofcode/comments/rzvsjq/2021_all_daysgo_fast_solutions_under_a_second/) (380ms) and I agree it makes little sense to try: challenges aren't even the same. Anyway, it felt like the right way of [`upping the ante`](https://www.reddit.com/r/adventofcode/comments/zaumkz/whats_up_with_upping_the_ante/) for me.
 
-**Finally, here it is, this year collection runs all parts for all days in less than 96ms!!!**
+**Finally, here it is, this year collection runs all parts for all days in less than 50ms!!!**
 
 I am so happy with this result!
 Feedback is welcome on reddit [u/erikade](https://www.reddit.com/user/erikade/).
