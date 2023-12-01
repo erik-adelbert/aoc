@@ -176,7 +176,8 @@ func (g *golife) String() string {
 	b, popcnt := g.bbox()
 
 	fmt.Fprintf(
-		&sb, "head: %d, box: %v, pop:%d\n", g.head, b, popcnt)
+		&sb, "head: %d, box: %v, pop:%d\n", g.head, b, popcnt,
+	)
 	for j := range cells[b.ymin:b.ymax] {
 		fmt.Fprintf(&sb, "%03d: ", j)
 
