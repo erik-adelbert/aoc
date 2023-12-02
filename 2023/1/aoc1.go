@@ -11,8 +11,9 @@ func main() {
 	sum1, sum2 := 0, 0
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
-		sum1 += stoi(input.Text(), DigitsOnly)    // part1
-		sum2 += stoi(input.Text(), TextAndDigits) // part2
+		input := input.Text()
+		sum1 += stoi(input, DigitsOnly)    // part1
+		sum2 += stoi(input, TextAndDigits) // part2
 	}
 	fmt.Println(sum1, sum2) // part 1 & 2
 }
@@ -23,20 +24,19 @@ const (
 )
 
 func stoi(s string, mode bool) int {
-	src := digits
+	trie := digits
 	if mode == TextAndDigits {
-		src = numbers
+		trie = texts
 	}
 	l, r := 0, 0 // left, right
 	for i := range s {
 		// factorizing both scans into a closure is consistently slower
 
 		// LR scan
-		if pats := src[s[i]]; l == 0 && len(pats) > 0 { // once for l
-			// get number
-			for k := range pats {
-				if strings.HasPrefix(s[i+1:], pats[k].s) {
-					l = pats[k].v
+		if nodes := trie[s[i]]; l == 0 && len(nodes) > 0 { // once for l
+			for k := range nodes {
+				if nodes[k].match(s[i+1:], LR) {
+					l = nodes[k].atoi() // get leftmost number
 					break
 				}
 			}
@@ -44,21 +44,18 @@ func stoi(s string, mode bool) int {
 
 		// RL scan
 		j := (len(s) - 1) - i
-		if pats := src[s[j]]; r == 0 && len(pats) > 0 { // once for r
-			// get number
-			for k := range pats {
-				if strings.HasSuffix(s[:j], pats[k].s) {
-					r = pats[k].v
+		if nodes := trie[s[j]]; r == 0 && len(nodes) > 0 { // once for r
+			for k := range nodes {
+				if nodes[k].match(s[:j], RL) {
+					r = nodes[k].atoi() // get rightmost number
 					break
 				}
 			}
 		}
 
 		// eventually terminate with:
-		//  l == r if there's a single number in s
-		//  l != r if there's at least two
-		//
-		// done when caught both numbers
+		//  l == r when there is a single number in s
+		//  l != r when there are at least two
 		if l*r > 0 {
 			return 10*l + r
 		}
@@ -71,10 +68,27 @@ func stoi(s string, mode bool) int {
 // https://web.stanford.edu/class/archive/cs/cs166/cs166.1146/lectures/09/Small09.pdf
 type trie [][]node
 
+const (
+	LR = false
+	RL = !LR
+)
+
 // node is a trie node
 type node struct {
-	s string // transition
-	v int    // terminal state
+	trans string // transition
+	state int    // terminal state ex. "three" or "3" -> 3
+}
+
+func (n node) match(s string, dir bool) bool {
+	match := strings.HasPrefix
+	if dir == RL {
+		match = strings.HasSuffix
+	}
+	return match(s, n.trans)
+}
+
+func (n node) atoi() int {
+	return n.state
 }
 
 // ε is inconditional transition (ie. any follow-up char is ok)
@@ -86,16 +100,16 @@ var digits = trie{
 	'6': {{ε, 6}}, '7': {{ε, 7}}, '8': {{ε, 8}}, '9': {{ε, 9}}, 'z': {},
 }
 
-// digits and text numbers trie
+// digits and text texts trie
 //
-// Wether in digits or numbers trie there is no proper suffix to link back to
+// Wether in digits or texts trie there is no proper suffix to link back to
 // because there is no common suffix at all.
 // Hence walking a trie branch is searching for a full (pre|suf)fix at a time
 // and iterating (~backtracking) to the next (pre|suf)fix on failure.
-// This is why transitions are fused in numbers trie:
+// This is why transitions are merged in texts trie:
 //
 //	ex. o -> n -> e -> 1 => o -> ne -> 1
-var numbers = trie{
+var texts = trie{
 	'1': {{ε, 1}}, '2': {{ε, 2}}, '3': {{ε, 3}}, '4': {{ε, 4}}, '5': {{ε, 5}},
 	'6': {{ε, 6}}, '7': {{ε, 7}}, '8': {{ε, 8}}, '9': {{ε, 9}}, 'z': {},
 

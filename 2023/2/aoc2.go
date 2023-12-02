@@ -18,18 +18,17 @@ func main() {
 		input := input.Text()
 		draws := Split(input[Index(input, ": ")+2:], "; ") // ditch "^Game X: " prefix, split tail
 		for j := range draws {
-			draws := Split(draws[j], ", ") // split game draws
-			for jj := range draws {
-				datas := Fields(draws[jj])                   // split RGB component and count
-				count, color := atoi(datas[0]), datas[1][:1] // get values, single letter color r, g, b
-
-				colid := Index("bgr", color) // R, G, B
+			draws := Split(draws[j], ", ") // split game drawings
+			for i := range draws {
+				datas := Fields(draws[i])           // split RGB component and count
+				color := Index("bgr", datas[1][:1]) // single char 'r', 'g' or 'b' -> R, G, B
+				count := atoi(datas[0])
 
 				// check for validity, part1
-				valid = valid && count <= 14-colid
+				valid = valid && count <= 14-color
 
-				// record power RGB component, part2
-				power[colid] = max(power[colid], count)
+				// record max power RGB, part2
+				power[color] = max(power[color], count)
 			}
 		}
 		if valid {
@@ -40,7 +39,7 @@ func main() {
 	fmt.Println(idsum, pwsum)
 }
 
-// sugars
+// package strings wrappers/sugars
 var Index, Fields, Split = strings.Index, strings.Fields, strings.Split
 
 const (
