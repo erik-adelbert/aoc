@@ -4,10 +4,11 @@
 
 | day | time |
 |-----|-----:|
-| 1 | 0.7 |
-| total | 0.7 |
+| 2 | 0.7 |
+| 1 | 0.9 |
+| total | 1.6 |
 
-fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.0.0 - go version go1.21.4 darwin/arm64 - hyperfine 1.18.0 - 2023-11-24
+fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.0.0 - go version go1.21.4 darwin/arm64 - hyperfine 1.18.0 - 2023-12
 
 ## Installation and benchmark
 
@@ -33,4 +34,9 @@ sync LR and RL (ie. in a single core loop).
 
 There's one last trick, LR and RL scans use the same trie at the cost of ~2 extraneous failed comparison on each number.
 
-PS. Another way is to use [`strings.Replacer`](https://pkg.go.dev/strings#Replacer) and iterating replacement of ie. `two` by `2o` (or `eight` by `8t`) until the string is fixed and then matching only for digits is also ok but more slower. Anyway, I guess two successive replacements could do the trick for a vast majority of inputs (3 should kill them all) and the resulting code is pretty neat.
+PS. Another way is to use [`strings.Replacer`](https://pkg.go.dev/strings#Replacer) and iterating replacement of ie. `two` by `2o` (or `eight` by `8t`) until the string is fixed and then matching only for digits. It is also ok but really slower. Anyway, I guess two successive replacements could do the trick for a vast majority of inputs (3 should kill them all) and the code is pretty neat.
+
+## Day 2
+
+Today, it is all about parsing. There's not much to say except that today's challenge is more like a day1 challenge than actual day1 was.
+My program uses [`strings`](https://pkg.go.dev/strings) functions, allmost all variable names are 5 letters long and last but not least, allocations are kept on the low side because input memoization is not needed.
