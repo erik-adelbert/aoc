@@ -25,9 +25,7 @@ func main() {
 
 	input := bufio.NewScanner(os.Stdin)
 	for j := 1; input.Scan(); j++ {
-		input := input.Bytes()
-		eng.setrow(j, input)
-
+		eng.setrow(j, input.Bytes())
 	}
 	fmt.Println(eng.analyze())
 }
