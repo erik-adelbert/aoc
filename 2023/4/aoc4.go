@@ -1,3 +1,13 @@
+// aoc4.go --
+// advent of code 2023 day 4
+//
+// https://adventofcode.com/2023/day/4
+// https://github.com/erik-adelbert/aoc
+//
+// (ɔ) Erik Adelbert - erik_AT_adelbert_DOT_fr
+// -------------------------------------------
+// 2023-12-4: initial commit
+
 package main
 
 import (
@@ -8,38 +18,47 @@ import (
 )
 
 func main() {
-	stock := make([]int, 256)
-	score, ncard := 0, 0 // part 1 & 2
+	deck := make([]int, 256) // deck[i] is the count of card #i+1
+	score, ncard := 0, 0     // part 1 & 2 results
 
 	input := bufio.NewScanner(os.Stdin)
-	var i int
-	for i = 0; input.Scan(); i++ {
+	for i := 0; input.Scan(); i++ {
 		input := input.Text()
-		row := Split(input[Index(input, ":")+1:], " | ")
-		w, deck := Fields(row[0]), Fields(row[1])
+		// input is: ^Game\s(\s|\d)\d:\s(\d+\s)+|\s(\d+\s)+$
+		// ditch '^Game \d+:\s' prefix, split winning and cards numbers
+		raw := Split(input[Index(input, ":")+1:], " | ")
+		w, card := Fields(raw[0]), Fields(raw[1])
 
-		wins := make([]bool, 100)
+		// map winning numbers into a set
+		wins := make([]bool, 100) // fast adhoc set
 		for i := range w {
 			wins[atoi(w[i])] = true
 		}
 
+		// match card numbers again winning ones
 		nmatch := 0
-		for i := range deck {
-			if wins[atoi(deck[i])] {
+		for i := range card {
+			if wins[atoi(card[i])] {
 				nmatch++
 			}
 		}
-		score += (1 << nmatch) >> 1
 
-		stock[i] += 1
-		for ii := i + 1; ii <= i+nmatch; ii++ {
-			stock[ii] += stock[i]
+		// compute part1
+		score += (1 << nmatch) >> 1 // 2^(i-1) | 0 if nmatch == 0
+
+		// update deck and fwd duplicate cards
+		deck[i] += 1
+		for ii := i + 1; ii < (i+1)+nmatch; ii++ {
+			deck[ii] += deck[i]
 		}
-		ncard += stock[i]
+
+		// compute part2
+		ncard += deck[i]
 	}
-	fmt.Println(score, ncard)
+	fmt.Println(score, ncard) // parts 1 & 2
 }
 
+// package strings wrappers/sugars
 var Fields, Index, Split = strings.Fields, strings.Index, strings.Split
 
 // strconv.Atoi simplified core loop

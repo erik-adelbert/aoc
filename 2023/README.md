@@ -3,10 +3,10 @@
 | day | time |
 |-----|-----:|
 | 2 | 0.7 |
-| 4 | 0.8 |
+| 4 | 0.7 |
 | 1 | 0.9 |
 | 3 | 1.2 |
-| total | 3.6 |
+| total | 3.5 |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.0.0 - go version go1.21.4 darwin/arm64 - hyperfine 1.18.0 - 2023-12
 
@@ -43,9 +43,10 @@ My program uses [`strings`](https://pkg.go.dev/strings) functions, allmost all v
 
 ## Day3
 
-Challenge is like [Aoc2022/day23](https://github.com/erik-adelbert/aoc/blob/2576e62f51f3bf653bf95084bca1815c534bf6e2/2022/23/aoc23.go), I'm using multiple bit arrays supported by a custom `u192` type.
-This solution is fast.
+Challenge is like [Aoc2022/day23](https://github.com/erik-adelbert/aoc/blob/2576e62f51f3bf653bf95084bca1815c534bf6e2/2022/23/aoc23.go), I'm using multiple bit arrays supported by a custom `u192` type. This solution is amazingly fast mainly because it is cache and CPU friendly.
 
 ## Day4
 
-Finally, day1 has come! Today's challenge is about typing speed with a few pauses here and there to actually think through the needed ops.
+Finally, day1 has come! Today's challenge is about typing speed with a few pauses here and there to actually think through the needed ops. As standard Go package `strings` has already proven usefull to tokenize inputs, I'm once again using it here.
+
+The solution is totally linear, that is it follows closely the challenge tale and it runtime complexity is bounded by `O(n)` with `n` the input (deck) size. Given the small size of today's input (~200 lines), it is very fast.
