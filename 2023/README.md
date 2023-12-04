@@ -5,8 +5,8 @@
 | 2 | 0.7 |
 | 4 | 0.7 |
 | 1 | 0.9 |
-| 3 | 1.2 |
-| total | 3.5 |
+| 3 | 1.0 |
+| total | 3.3 |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.0.0 - go version go1.21.4 darwin/arm64 - hyperfine 1.18.0 - 2023-12
 
@@ -43,10 +43,16 @@ My program uses [`strings`](https://pkg.go.dev/strings) functions, allmost all v
 
 ## Day3
 
-Challenge is like [Aoc2022/day23](https://github.com/erik-adelbert/aoc/blob/2576e62f51f3bf653bf95084bca1815c534bf6e2/2022/23/aoc23.go), I'm using multiple bit arrays supported by a custom `u192` type. This solution is amazingly fast mainly because it is cache and CPU friendly.
+Challenge is related to [Aoc2022/day23](https://adventofcode.com/2022/day/23), I'm using multiple bit arrays supported by a custom `u192` type. This solution is amazingly fast mainly because it is cache and CPU friendly. Almost all 2D ops are separated in 1D vector ops (think [`SIMD`](https://en.wikipedia.org/wiki/Single_instruction,_multiple_data)) and occur in a rolling window of 3 input lines.
+
+Anyway, the challenge is akin to a [*static analysis*](https://en.wikipedia.org/wiki/Static_program_analysis) of a [*multi-valued game of life*](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life) that's why it shares some of the techniques I used [last year](https://github.com/erik-adelbert/aoc/blob/2576e62f51f3bf653bf95084bca1815c534bf6e2/2022/23/aoc23.go).
+
+I prize of E. Wastl continuous work on delivering such neat subjects every year. Here the challenge story is about a complex machinery with many cogwheels precisely timed and sized for the task: that is a fair description of what the program feels like, a complex yet efficient machine with many simple parts that intricately fall in place.
+
+PS. To young coders that might read this: don't be afraid, it's not a common day3 solution and certainly not the easiest way to solve it (but one of the fastest). The point is this year I was warming up during last november and happened to refactor/improve AoC22/23. So the bitpacking technique was still vivid in my memory. If it wasn't I may have not succeded in conjuring, factorizing and finally getting right all the corner cases and details of this solution in a fair time frame.
 
 ## Day4
 
 Finally, day1 has come! Today's challenge is about typing speed with a few pauses here and there to actually think through the needed ops. As standard Go package `strings` has already proven usefull to tokenize inputs, I'm once again using it here.
 
-The solution is totally linear, that is it follows closely the challenge tale and it runtime complexity is bounded by `O(n)` with `n` the input (deck) size. Given the small size of today's input (~200 lines), it is very fast.
+The solution is totally linear, that is it follows closely the challenge tale and its runtime complexity is bounded by `O(n)` with `n` the input (deck) size. Given the small size of today's input (~200 lines), it is very fast.

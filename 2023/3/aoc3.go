@@ -21,64 +21,75 @@ import (
 const MAXN = 142
 
 func main() {
-	var g grid
+	eng := newSchema()
 
 	input := bufio.NewScanner(os.Stdin)
 	for j := 1; input.Scan(); j++ {
 		input := input.Bytes()
-		g.H, g.W = j, len(input)
-		g.setrow(j, input)
+		eng.setrow(j, input)
+
 	}
-	fmt.Println(g.decode())
+	fmt.Println(eng.analyze())
 }
 
-type grid struct {
+type schema struct {
 	data  [MAXN * MAXN]byte
 	gears [MAXN * MAXN]gear
 	W, H  int
 
+	// number, symbol and star bitmaps
 	nums [MAXN]uint192
 	syms [MAXN]uint192
 	cogs [MAXN]uint192
 }
 
-func (g *grid) idx(j, i int) int {
-	return j*(g.W+2) + i // 1-based surrounded by empty cells
+func newSchema() (sc *schema) {
+	sc = new(schema)
+
+	for i := range sc.gears {
+		sc.gears[i].ratio = 1
+	}
+
+	return
 }
 
-func (g *grid) setrow(j int, row []byte) {
-	idx := g.idx
+func (sc *schema) idx(j, i int) int {
+	return j*(sc.W+2) + i // 1-based surrounded by empty cells
+}
 
-	copy(g.data[idx(j, 1):], row)
+func (sc *schema) setrow(j int, row []byte) {
+	sc.H, sc.W = j, len(row)
+	idx := sc.idx
+
+	copy(sc.data[idx(j, 1):], row)
 
 	pre, cur, nxt := j-1, j, j+1
 	for i, c := range row {
 		i++ // 1-based
-		g.gears[idx(j, i)].ratio = 1
 
 		mask := one192.lsh(i)
 		mask = mask.or(mask.lsh(1), mask.rsh(1))
 
+		// make bitmap
 		switch {
 		case isdigit(c):
-			g.nums[j].setbit(i)
+			sc.nums[j].setbit(i)
 		case c == '*':
-			g.cogs[pre] = g.cogs[pre].or(mask)
-			g.cogs[nxt] = g.cogs[nxt].or(mask)
-
-			mask := mask.xor(one192.lsh(i))
-			g.cogs[cur] = g.cogs[cur].or(mask)
-			fallthrough
+			sc.cogs[pre] = sc.cogs[pre].or(mask)
+			sc.cogs[nxt] = sc.cogs[nxt].or(mask)
+			// do not count "*" itself
+			sc.cogs[cur] = sc.cogs[cur].or(mask.xor(one192.lsh(i)))
+			fallthrough // star is also a symbol
 		case issymbol(c):
-			g.syms[pre] = g.syms[pre].or(mask)
-			g.syms[cur] = g.syms[cur].or(mask)
-			g.syms[nxt] = g.syms[nxt].or(mask)
+			sc.syms[pre] = sc.syms[pre].or(mask)
+			sc.syms[nxt] = sc.syms[nxt].or(mask)
+			sc.syms[cur] = sc.syms[cur].or(mask)
 		}
 	}
 }
 
-func (g *grid) decode() (sum, ratio int) {
-	data, nums, syms, cogs, idx, H, W := g.data, g.nums, g.syms, g.cogs, g.idx, g.H, g.W
+func (sc *schema) analyze() (sum, ratio int) {
+	data, nums, syms, cogs, idx, H, W := sc.data, sc.nums, sc.syms, sc.cogs, sc.idx, sc.H, sc.W
 	buf := make([]byte, 0, 4)
 
 	for j := 1; j <= H; j++ {
@@ -86,15 +97,29 @@ func (g *grid) decode() (sum, ratio int) {
 		parts := nums[j].and(syms[j])
 		gears := nums[j].and(cogs[j])
 
+		getpart := func() {
+			n := atoi(buf)
+
+			sum += n // part1
+			read = false
+
+			if gear > 0 {
+				// also a gear
+				sc.gears[gear].count++
+				sc.gears[gear].ratio *= n
+				gear = 0
+			}
+		}
+
 		for i := 1; i <= W; i++ {
 			c := data[idx(j, i)]
 			switch {
 			case isdigit(c):
 				buf = append(buf, c)
 
-				read = read || parts.getbit(i) > 0
+				read = read || parts.getbit(i) > 0 // permanent flag once set
 
-				if gear == 0 && gears.getbit(i) > 0 {
+				if gear == 0 && gears.getbit(i) > 0 { // set once per number
 					gear = idx(j, i)
 				}
 			case c == '*':
@@ -103,83 +128,67 @@ func (g *grid) decode() (sum, ratio int) {
 
 				pre := nums[j-1].and(cogs[j-1], mask)
 				nxt := nums[j+1].and(cogs[j+1], mask)
+				// do not count "*" itself
+				cur := gears.and(mask.xor(one192.lsh(i)))
 
-				mask.xor(one192.lsh(i))
-				cur := gears.and(mask)
-
-				// compute neighboring population
-				pop := func(u uint192) int {
+				// compute row part count
+				pop := func(row uint192) int {
 					// merge adjacent digits
-					if u.popcnt()+u.lead0()+u.trail0() == uint192size {
+					if row.popcnt()+row.lead0()+row.trail0() == uint192size {
 						// adjacent!
 						return 1
 					}
-					return u.popcnt()
+					return row.popcnt()
 				}
 
+				// sum neigboring part counts (3x3 window)
 				for _, u := range []uint192{pre, cur, nxt} {
-					g.gears[idx(j, i)].count += pop(u)
+					sc.gears[idx(j, i)].count += pop(u)
 				}
 
 				if !read {
 					continue
 				}
-				fallthrough
+				fallthrough // part is next to '*'
 			case read:
-				n := atoi(buf)
-
-				sum += n
-				read = false
-
-				if gear > 0 {
-					g.gears[gear].count++
-					g.gears[gear].ratio *= n
-					gear = 0
-				}
+				getpart()
 				fallthrough
 			default:
+				// consume buffer
 				buf = buf[:0]
 			}
 		}
+		// number ends on row boundary
 		if len(buf) > 0 && read {
-			n := atoi(buf)
-
-			sum += n
-			read = false
-
-			if gear > 0 {
-				g.gears[gear].count++
-				g.gears[gear].ratio *= n
-				gear = 0
-			}
+			getpart()
 			buf = buf[:0]
 		}
 	}
 
-	gears := g.gears
+	gears := sc.gears
 	for i := range gears[0 : (H+2)*(W+2)] {
 		if g := gears[i]; g.count == 2 {
 			n := 1
 
-			for voff := -(W + 2); voff <= (W + 2); voff += (W + 2) {
-				for hoff := -1; hoff <= +1; hoff++ {
-					if r := gears[i-voff+hoff].ratio; r > 0 {
-						n *= r
-					}
+			// 3x3 window is garanteed to get only two numbers
+			// grid is surrounded by empty cells: no boundary check
+			for jj := -1; jj < 2; jj++ {
+				for ii := i - 1; ii < i+2; ii++ {
+					n *= gears[idx(jj, ii)].ratio
 				}
 			}
 
-			ratio += n
+			ratio += n // part2
 		}
 	}
 	return
 }
 
-func (g *grid) String() string {
-	idx := g.idx
+func (sc *schema) String() string {
+	idx := sc.idx
 	var sb strings.Builder
 
-	data, H := g.data, g.H
+	data, H := sc.data, sc.H
 	for j := 0; j < H; j++ {
 		fmt.Fprintln(&sb, string(data[idx(j, 0):idx(j+1, 0)]))
 	}
@@ -187,8 +196,7 @@ func (g *grid) String() string {
 }
 
 type gear struct {
-	count int
-	ratio int
+	count, ratio int
 }
 
 func isdigit(c byte) bool {
@@ -211,7 +219,7 @@ type uint192 struct {
 }
 
 // setbit sets bit n-th n = 0 is LSB.
-// n must be <= 255.
+// n must be <= 191.
 func (u *uint192) setbit(n int) {
 	switch n >> 6 {
 	case 2:
