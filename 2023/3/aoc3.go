@@ -32,9 +32,13 @@ func main() {
 	fmt.Println(eng.analyze())
 }
 
+type gear struct {
+	count, ratio int
+}
+
 type schema struct {
-	data  [MAXN * MAXN]byte
-	gears [MAXN * MAXN]gear
+	schem [MAXN * MAXN]byte // original schematic
+	gears [MAXN * MAXN]gear // static gear map
 	W, H  int
 
 	// number, symbol and star bitmaps
@@ -59,9 +63,10 @@ func (sc *schema) idx(j, i int) int {
 
 func (sc *schema) setrow(j int, row []byte) {
 	sc.H, sc.W = j, len(row)
-	idx := sc.idx
+	// sugars
+	idx, nums, syms, cogs := sc.idx, &sc.nums, &sc.syms, &sc.cogs
 
-	copy(sc.data[idx(j, 1):], row)
+	copy(sc.schem[idx(j, 1):], row)
 
 	pre, cur, nxt := j-1, j, j+1
 	for i, c := range row {
@@ -73,27 +78,31 @@ func (sc *schema) setrow(j int, row []byte) {
 		// make bitmap
 		switch {
 		case isdigit(c):
-			sc.nums[j].setbit(i)
+			nums[j].setbit(i)
 		case c == '*':
-			sc.cogs[pre] = sc.cogs[pre].or(mask)
-			sc.cogs[nxt] = sc.cogs[nxt].or(mask)
+			cogs[pre] = cogs[pre].or(mask)
+			cogs[nxt] = cogs[nxt].or(mask)
 			// do not count "*" itself
-			sc.cogs[cur] = sc.cogs[cur].or(mask.xor(one192.lsh(i)))
+			cogs[cur] = cogs[cur].or(mask.xor(one192.lsh(i)))
 			fallthrough // star is also a symbol
 		case issymbol(c):
-			sc.syms[pre] = sc.syms[pre].or(mask)
-			sc.syms[nxt] = sc.syms[nxt].or(mask)
-			sc.syms[cur] = sc.syms[cur].or(mask)
+			syms[pre] = syms[pre].or(mask)
+			syms[nxt] = syms[nxt].or(mask)
+			syms[cur] = syms[cur].or(mask)
 		}
 	}
 }
 
 func (sc *schema) analyze() (sum, ratio int) {
-	data, nums, syms, cogs, idx, H, W := sc.data, sc.nums, sc.syms, sc.cogs, sc.idx, sc.H, sc.W
+	// sugars
+	schem, idx, H, W := &sc.schem, sc.idx, sc.H, sc.W
+	nums, syms, cogs := &sc.nums, &sc.syms, &sc.cogs
+
 	buf := make([]byte, 0, 4)
 
+	// vscan
 	for j := 1; j <= H; j++ {
-		read, gear := false, 0
+		part, gear := false, 0
 		parts := nums[j].and(syms[j])
 		gears := nums[j].and(cogs[j])
 
@@ -101,7 +110,7 @@ func (sc *schema) analyze() (sum, ratio int) {
 			n := atoi(buf)
 
 			sum += n // part1
-			read = false
+			part = false
 
 			if gear > 0 {
 				// also a gear
@@ -111,32 +120,34 @@ func (sc *schema) analyze() (sum, ratio int) {
 			}
 		}
 
+		// hscan
 		for i := 1; i <= W; i++ {
-			c := data[idx(j, i)]
+			c := schem[idx(j, i)]
 			switch {
-			case isdigit(c):
+			case isdigit(c): // candidate part number digit
 				buf = append(buf, c)
 
-				read = read || parts.getbit(i) > 0 // permanent flag once set
+				part = part || parts.getbit(i) > 0 // permanent flag once set
 
-				if gear == 0 && gears.getbit(i) > 0 { // set once per number
+				if gear == 0 && gears.getbit(i) > 0 { // set once per part number
 					gear = idx(j, i)
 				}
-			case c == '*':
+			case c == '*': // candidate gear
 				mask := one192.lsh(i)
 				mask = mask.or(mask.lsh(1), mask.rsh(1))
 
+				// no boundary check because it is neutral to ops by design
 				pre := nums[j-1].and(cogs[j-1], mask)
 				nxt := nums[j+1].and(cogs[j+1], mask)
-				// do not count "*" itself
+				// do not include '*' itself
 				cur := gears.and(mask.xor(one192.lsh(i)))
 
-				// compute row part count
+				// compute surrounding part count
 				pop := func(row uint192) int {
-					// merge adjacent digits
-					if row.popcnt()+row.lead0()+row.trail0() == uint192size {
+					// fuse adjacent digits
+					if row.lead0()+row.popcnt()+row.trail0() == uint192size {
 						// adjacent!
-						return 1
+						return 1 // fuse!
 					}
 					return row.popcnt()
 				}
@@ -146,20 +157,19 @@ func (sc *schema) analyze() (sum, ratio int) {
 					sc.gears[idx(j, i)].count += pop(u)
 				}
 
-				if !read {
-					continue
+				if !part {
+					continue // hscan
 				}
 				fallthrough // part is next to '*'
-			case read:
+			case part:
 				getpart()
 				fallthrough
 			default:
-				// consume buffer
-				buf = buf[:0]
+				buf = buf[:0] // consume buffer
 			}
 		}
-		// number ends on row boundary
-		if len(buf) > 0 && read {
+		// part ends on schematic row boundary, get it now
+		if part {
 			getpart()
 			buf = buf[:0]
 		}
@@ -188,15 +198,11 @@ func (sc *schema) String() string {
 	idx := sc.idx
 	var sb strings.Builder
 
-	data, H := sc.data, sc.H
+	schem, H := sc.schem, sc.H
 	for j := 0; j < H; j++ {
-		fmt.Fprintln(&sb, string(data[idx(j, 0):idx(j+1, 0)]))
+		fmt.Fprintln(&sb, string(schem[idx(j, 0):idx(j+1, 0)]))
 	}
 	return sb.String()
-}
-
-type gear struct {
-	count, ratio int
 }
 
 func isdigit(c byte) bool {
