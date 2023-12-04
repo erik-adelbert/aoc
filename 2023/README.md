@@ -56,3 +56,9 @@ PS. To young coders that might read this: don't be afraid, it's not a common day
 Finally, day1 has come! Today's challenge is about typing speed with a few pauses here and there to actually think through the needed ops. As standard Go package `strings` has already proven usefull to tokenize inputs, I'm once again using it here.
 
 The solution is totally linear, that is it follows closely the challenge tale and its runtime complexity is bounded by `O(n)` with `n` the input (deck) size. Given the small size of today's input (~200 lines), it is very fast.
+
+PS. Isn't this awesome that at the heart of today's score calculation lies this beautiful gem:
+
+```C
+score += 1 << nmatch >> 1
+```

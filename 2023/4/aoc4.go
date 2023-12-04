@@ -35,7 +35,7 @@ func main() {
 			wins[atoi(w[i])] = true
 		}
 
-		// match card numbers again winning ones
+		// match card numbers against winning ones
 		nmatch := 0
 		for i := range card {
 			if wins[atoi(card[i])] {
@@ -44,7 +44,8 @@ func main() {
 		}
 
 		// compute part1
-		score += (1 << nmatch) >> 1 // 2^(i-1) | 0 if nmatch == 0
+		// 2^(nmatch-1) | 0 if nmatch == 0
+		score += 1 << nmatch >> 1
 
 		// update deck and fwd duplicate cards
 		deck[i] += 1
