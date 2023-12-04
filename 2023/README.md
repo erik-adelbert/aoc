@@ -47,9 +47,10 @@ Challenge is related to [Aoc2022/day23](https://adventofcode.com/2022/day/23), I
 
 Anyway, the challenge is akin to a [*static analysis*](https://en.wikipedia.org/wiki/Static_program_analysis) of a [*multi-valued game of life*](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life) that's why it shares some of the techniques I used [last year](https://github.com/erik-adelbert/aoc/blob/2576e62f51f3bf653bf95084bca1815c534bf6e2/2022/23/aoc23.go).
 
-I prize E. Wastl continuous work on delivering such neat subjects every year. Here the challenge story is about a complex machinery with many cogwheels precisely timed and sized for the task: that is a fair description of what the program feels like, a complex yet efficient machine with many simple parts that intricately fall in place.
+I prize E. Wastl continuous effort on delivering such neat subjects every year. Here the challenge story is about a complex machinery with many cogwheels precisely timed and sized for the task: this is a fair description of what today's program feels like, a complex yet efficient machine with many simple parts that intricately but gracefully fall in place.
 
-PS. To young coders that might read this: don't be afraid, it's not a common day3 solution and certainly not the easiest way to solve it (but one of the fastest). The point is this year I was warming up during last november and happened to refactor/improve AoC22/23. So the bitpacking technique was still vivid in my memory. If it wasn't I may have not succeded in conjuring, factorizing and finally getting right all the corner cases and details of this solution in a fair time frame.
+PS. To the young coders that might read this: don't be afraid! It's *not* a common day3 solution and certainly not the easiest way to solve it (but one of the fastest). The thing is, last november when warming up, I happened to refactor/improve AoC22/23.
+So the bitpacking technique is still vivid in my memory. If it wasn't I may not have succeded in conjuring, factorizing and finally getting right all the corner cases and details of this solution in a fair amount of time.
 
 ## Day4
 
