@@ -62,3 +62,5 @@ PS. Isn't this awesome that at the heart of today's score calculation lies this 
 ```C
 score += 1 << nmatch >> 1
 ```
+
+`<EDIT>` following [`u/masklinn`](https://www.reddit.com/r/adventofcode/comments/18actmy/comment/kbzqx3e/?utm_source=share&utm_medium=web2x&context=3) advice, I went the extra mile consisting of replacing the winning number map by a [bitmap](https://en.wikipedia.org/wiki/Bitmap). I've also replaced the static 200+ deck by a [ring buffer](https://en.wikipedia.org/wiki/Circular_buffer). The resulting improvement is not measurable with hyperfine though.
