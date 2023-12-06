@@ -78,11 +78,12 @@ func main() {
 }
 
 func locate(seeds spans) (minloc int) {
-	cur := mkSpans()
+	// spans double buffer
+	cur, nxt := mkSpans(), mkSpans()
 
 	// cur has a stack interface
 	// it is convenient to add arbitray split intervals for the ones
-	// that could match many ranges in a single mapping
+	// that could match many ranges in a single mapping step
 	push := func(s span) {
 		cur = append(cur, s)
 	}
@@ -101,7 +102,6 @@ func locate(seeds spans) (minloc int) {
 
 		// remap seed ranges iteratively
 		for _, maps := range world {
-			nxt := mkSpans() // mapped span stack
 
 		SPLITMAP:
 			for len(cur) > 0 {
@@ -116,13 +116,14 @@ func locate(seeds spans) (minloc int) {
 						mapped := span{x.src + off, x.end + off, 0}
 						nxt = append(nxt, mapped)
 
-						// conditional LR split
 						if br.src < x.src {
+							// split left
 							left := span{br.src, x.src, 0}
 							push(left)
 						}
 
 						if x.end < br.end {
+							// split right
 							right := span{x.end, br.end, 0}
 							push(right)
 						}
@@ -130,12 +131,12 @@ func locate(seeds spans) (minloc int) {
 						continue SPLITMAP // deal with new split ranges
 					}
 				}
-				nxt = append(nxt, br) // no match yet, keep unchanged for next step
+				nxt = append(nxt, br) // no remap yet, keep unchanged for next step
 			}
-			cur = nxt // prepare next mapping step
+			cur, nxt = nxt, cur // swap stack
 		}
 
-		// get the lowest location from the last mappimg step
+		// get the lowest location from the last mapping step
 		for i := range cur {
 			minloc = min(minloc, cur[i].src)
 		}
