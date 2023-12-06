@@ -88,6 +88,6 @@ Today is a direct application of solving this [`quadratic formula`](https://en.w
     (x - t)*t - d = 0
 ```
 
-For a very long time [`FPU`](https://en.wikipedia.org/wiki/Floating-point_unit) were slow but at the turn of y2k, `OS` and users alike were putting so much pressure on `CPU` that actually, `FPU` pipeline was usually free (and faster than before anyway) making it usable for a variety of computing (the lore of General Purpose FPU was born) that were previously carried on by `CPU`. I remember the astonishment around me when one day I decided to benchmark the `FPU` against the `CPU` and showed that it won hands down in almost all situations. 
+For a very long time [`FPU`](https://en.wikipedia.org/wiki/Floating-point_unit) was slow but at the turn of y2k, `OS` and users alike were putting so much pressure on `CPU` that actually, `FPU` pipeline was usually free (and faster than before anyway) making it usable for a variety of computing (the lore of General Purpose FPU was born) that were previously carried on by `CPU`. I remember the astonishment around me when one day I decided to benchmark the `FPU` against the `CPU` and showed that it won hands down in almost all situations.
 
 But, for the sake of remembering those old days, I still don't want to switch to `FPU` when computing a square-root in an otherwise integer problem. I usually use a (fast) [`integer square root`](https://en.wikipedia.org/wiki/Integer_square_root) computation. In this very case, there's no reasonnable way to see the difference.
