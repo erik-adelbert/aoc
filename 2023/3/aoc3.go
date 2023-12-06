@@ -21,13 +21,13 @@ import (
 const MAXN = 142
 
 func main() {
-	eng := newSchema()
+	engine := newSchema()
 
 	input := bufio.NewScanner(os.Stdin)
 	for j := 1; input.Scan(); j++ {
-		eng.setrow(j, input.Bytes())
+		engine.setrow(j, input.Bytes())
 	}
-	fmt.Println(eng.analyze())
+	fmt.Println(engine.inventory())
 }
 
 type gear struct {
@@ -39,7 +39,7 @@ type schema struct {
 	gears [MAXN * MAXN]gear // static gear map
 	W, H  int
 
-	// number, symbol and star bitmaps
+	// number, symbol and gear bitmaps
 	nums [MAXN]uint192
 	syms [MAXN]uint192
 	cogs [MAXN]uint192
@@ -60,18 +60,18 @@ func (sc *schema) idx(j, i int) int {
 }
 
 func (sc *schema) setrow(j int, row []byte) {
-	sc.H, sc.W = j, len(row)
+	sc.H, sc.W = max(sc.H, j), len(row)
 	// sugars
 	idx, nums, syms, cogs := sc.idx, &sc.nums, &sc.syms, &sc.cogs
 
-	copy(sc.schem[idx(j, 1):], row)
+	copy(sc.schem[idx(j, 1):], row) // 1-based
 
 	pre, cur, nxt := j-1, j, j+1
 	for i, c := range row {
 		i++ // 1-based
 
-		mask := one192.lsh(i)
-		mask = mask.or(mask.lsh(1), mask.rsh(1))
+		base := one192.lsh(i)
+		mask := base.or(base.lsh(1), base.rsh(1))
 
 		// make bitmap
 		switch {
@@ -80,9 +80,7 @@ func (sc *schema) setrow(j int, row []byte) {
 		case c == '*':
 			cogs[pre] = cogs[pre].or(mask)
 			cogs[nxt] = cogs[nxt].or(mask)
-			// do not count "*" itself
-			cogs[cur] = cogs[cur].or(mask.xor(one192.lsh(i)))
-			fallthrough // star is also a symbol
+			cogs[cur] = cogs[cur].or(mask.xor(base)) // do not count "*" itself
 		case issymbol(c):
 			syms[pre] = syms[pre].or(mask)
 			syms[nxt] = syms[nxt].or(mask)
@@ -91,7 +89,7 @@ func (sc *schema) setrow(j int, row []byte) {
 	}
 }
 
-func (sc *schema) analyze() (sum, ratio int) {
+func (sc *schema) inventory() (sum, ratio int) {
 	// sugars
 	schem, idx, H, W := &sc.schem, sc.idx, sc.H, sc.W
 	nums, syms, cogs := &sc.nums, &sc.syms, &sc.cogs
@@ -101,7 +99,7 @@ func (sc *schema) analyze() (sum, ratio int) {
 	// vscan
 	for j := 1; j <= H; j++ {
 		part, gear := false, 0
-		parts := nums[j].and(syms[j])
+		parts := nums[j].and(syms[j].or(cogs[j])) // gear is also a symbol
 		gears := nums[j].and(cogs[j])
 
 		getpart := func() {
@@ -131,29 +129,30 @@ func (sc *schema) analyze() (sum, ratio int) {
 					gear = idx(j, i)
 				}
 			case c == '*': // candidate gear
-				mask := one192.lsh(i)
-				mask = mask.or(mask.lsh(1), mask.rsh(1))
+				base := one192.lsh(i)
+				mask := base.or(base.lsh(1), base.rsh(1))
 
 				// no boundary check because it is neutral to ops by design
 				pre := nums[j-1].and(cogs[j-1], mask)
 				nxt := nums[j+1].and(cogs[j+1], mask)
 				// do not include '*' itself
-				cur := gears.and(mask.xor(one192.lsh(i)))
+				cur := gears.and(mask.xor(base))
 
 				// compute surrounding part count
 				pop := func(row uint192) int {
+					pop := row.popcnt()
 					// fuse adjacent digits
-					if row.lead0()+row.popcnt()+row.trail0() == uint192size {
+					if row.lead0()+row.trail0() == uint192size-pop {
 						// adjacent!
 						return 1 // fuse!
 					}
-					return row.popcnt()
+					return pop
 				}
 
-				// sum neigboring part counts (3x3 window)
-				for _, u := range []uint192{pre, cur, nxt} {
-					sc.gears[idx(j, i)].count += pop(u)
-				}
+				// sum surrounding part counts (3x3 window)
+				sc.gears[idx(j, i)].count += pop(pre)
+				sc.gears[idx(j, i)].count += pop(cur)
+				sc.gears[idx(j, i)].count += pop(nxt)
 
 				if !part {
 					continue // hscan
@@ -173,19 +172,19 @@ func (sc *schema) analyze() (sum, ratio int) {
 		}
 	}
 
+	// sum gears ratios
 	gears := sc.gears
 	for i := range gears[0 : (H+2)*(W+2)] {
 		if g := gears[i]; g.count == 2 {
-			n := 1
 
 			// 3x3 window is garanteed to get only two numbers
 			// grid is surrounded by empty cells: no boundary check
+			n := 1
 			for jj := -1; jj < 2; jj++ {
 				for ii := i - 1; ii < i+2; ii++ {
 					n *= gears[idx(jj, ii)].ratio
 				}
 			}
-
 			ratio += n // part2
 		}
 	}
