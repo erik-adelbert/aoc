@@ -43,19 +43,20 @@ func main() {
 		case state == SEED:
 			fields := Fields(input)[1:]
 			for i := range fields {
-				// tricks locate() by making a small interval for part1
-				// no need to deal with 0 length intervals this way
+
+				// build part1 seeds by making right open intervals of 0 length
+				// see https://tinyurl.com/msaewr9b (wikipedia)
 				n := atoi(fields[i])
 				seeds1 = append(seeds1,
-					span{n, n + 1, 0}, // len == 1, slightly incorrect but ok
+					span{n, n + 1, 0}, // right open, len == 0
 				)
 
-				// build part2 every 2nd line
+				// build part2 seeds every 2nd line
 				if isodd(i) {
 					seeds2 = append(seeds2,
 						span{
 							seeds1[i-1].src,
-							seeds1[i-1].src + seeds1[i].src,
+							seeds1[i-1].src + n,
 							0,
 						},
 					)
@@ -109,23 +110,20 @@ func locate(seeds spans) (minloc int) {
 				for _, cm := range maps { // current map
 					// match by intersecting
 					x := (span{max(cm.src, br.src), min(cm.end, br.end), 0})
-					if x.src < x.end { // valid intersection
+					if x.src < x.end { // valid intersection (right open)
 
-						// remap range for next step
+						// remap intersection for next step
 						off := cm.dst - cm.src
-						mapped := span{x.src + off, x.end + off, 0}
-						nxt = append(nxt, mapped)
+						nxt = append(nxt, span{x.src + off, x.end + off, 0})
 
+						// split left
 						if br.src < x.src {
-							// split left
-							left := span{br.src, x.src, 0}
-							push(left)
+							push(span{br.src, x.src, 0})
 						}
 
+						// split right
 						if x.end < br.end {
-							// split right
-							right := span{x.end, br.end, 0}
-							push(right)
+							push(span{x.end, br.end, 0})
 						}
 
 						continue SPLITMAP // deal with new split ranges
@@ -177,7 +175,7 @@ const MaxInt = int(^uint(0) >> 1)
 var Contains, Fields = strings.Contains, strings.Fields
 
 func isodd(n int) bool {
-	return n*(n&1) > 0
+	return n&1 > 0
 }
 
 // strconv.Atoi simplified core loop

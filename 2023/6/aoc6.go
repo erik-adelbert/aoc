@@ -20,24 +20,28 @@ import (
 func main() {
 	input := bufio.NewScanner(os.Stdin)
 
-	// parse multiple (part1) and single (part2) races data
+	// parse multiple (part1) and single (part2) race data
 	times, T := parse(input) // first line
 	dists, D := parse(input) // second line
 
-	// solve quadratic formula (x - t)*t - d = 0
+	// solve V.x = d with V = (t - x) <=> (x - t) * x - d = 0
+	// this quadratic formula leads to
+	// Δ = √(t² + 4d) / 2
+	// x = t - √(t² + 4d) / 2
 	quad := func(t, d int) int {
-		Δ := (t - isqrt(t*t-4*d)) / 2
-		x := t - Δ
+		Δ := isqrt(t*t - 4*d)
+		x := (t - Δ) / 2
 
-		if Δ*(t-Δ) <= d {
-			Δ++
+		V := t - x
+		if V*x <= d {
+			x++
 		}
 
-		if x*(t-x) <= d {
-			x--
+		if V*(t-V) <= d {
+			V--
 		}
 
-		return x - Δ + 1
+		return V - x + 1
 	}
 
 	Π := 1

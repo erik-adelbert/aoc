@@ -132,7 +132,7 @@ func (sc *schema) inventory() (sum, ratio int) {
 				base := one192.lsh(i)
 				mask := base.or(base.lsh(1), base.rsh(1))
 
-				// no boundary check because it is neutral to ops by design
+				// no boundary check because boundary is neutral to ops by design
 				pre := nums[j-1].and(cogs[j-1], mask)
 				nxt := nums[j+1].and(cogs[j+1], mask)
 				// do not include '*' itself

@@ -73,21 +73,25 @@ score += 1 << nmatch >> 1
 [Intervals!](https://en.wikipedia.org/wiki/Interval_(mathematics)) 
 
 Given that it is only day5 (and the input size), I'm *not* going to talk about [`Interval Trees`](https://en.wikipedia.org/wiki/Interval_tree). I am going to [`brute-force`](https://en.wikipedia.org/wiki/Brute-force_search) the thing!
-`<Spoiler>` Well brute-forcing it, doesn't mean testing billions of points! It rather means to brute-force the interval *boundaries* checking and by the way to turn `part1` into a peculiar `part2` problem in order to use the *same* code for the two. `</Spoiler>`.
+`<Spoiler>` Well brute-forcing it, doesn't mean testing millions of points! It rather means to brute-force the interval *boundaries* checking.`</Spoiler>`.
+I don't keep the challenge data format: it's not a so classical interval representation and therefore *will* get in the way. Today
+program representation is: `{[α, ω), α'}` where `α'` is the destination category from the challenge.
+By the way, the *same* code can be used for part 1 & 2, the trick is to output `part1` as `intervals` of length 0 instead of say, points.
 
 PS. `Interval Trees` can also be found in the [big book](https://en.wikipedia.org/wiki/Introduction_to_Algorithms) 3rd ed. from pp. 348-353.
 
 PS2. Look how fast the solution is \o/
-
 
 ## Day6
 
 Today is a direct application of solving this [`quadratic formula`](https://en.wikipedia.org/wiki/Quadratic_formula):
 
 ```C
-    (x - t)*t - d = 0
+    V.x = d <=> (x - t)*x - d = 0
 ```
 
-For a very long time [`FPU`](https://en.wikipedia.org/wiki/Floating-point_unit) was slow but at the turn of y2k, `OS` and users alike were putting so much pressure on `CPU` that actually, `FPU` pipeline was usually free (and faster than before anyway) making it usable for a variety of computing (the lore of General Purpose FPU was born) that were previously carried on by `CPU`. I remember the astonishment around me when one day I decided to benchmark the `FPU` against the `CPU` and showed that it won hands down in almost all situations.
+And then adjusting for speed and time to exceed d.
+
+For a very long time [`FPU`](https://en.wikipedia.org/wiki/Floating-point_unit) was slow but at the turn of y2k, `OS` and users alike were putting so much pressure on `CPU` that actually, `FPU` pipeline was usually free (and faster than before anyway) making it usable for a variety of computing that were previously carried on by `CPU` (the lore of General Purpose FPU was born). I remember the astonishment around me when one day I decided to benchmark the `FPU` against the `CPU` and showed that it won hands down in almost all situations.
 
 But, for the sake of remembering those old days, I still don't want to switch to `FPU` when computing a square-root in an otherwise integer problem. I usually use a (fast) [`integer square root`](https://en.wikipedia.org/wiki/Integer_square_root) computation. In this very case, there's no reasonnable way to see the difference.
