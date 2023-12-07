@@ -27,29 +27,31 @@ func main() {
 	// solve V.x = d with V = (t - x) <=> (x - t) * x - d = 0
 	// this quadratic formula leads to
 	// Δ = √(t² + 4d) / 2
-	// x = t - √(t² + 4d) / 2
-	quad := func(t, d int) int {
+	// x₀₁ = t ± √(t² + 4d) / 2
+	// solution r = | ⌈x₀⌉ - ⌊x₁⌋ | + 1
+	solve := func(t, d int) int {
 		Δ := isqrt(t*t - 4*d)
-		x := (t - Δ) / 2
 
-		V := t - x
-		if V*x <= d {
-			x++
+		x0 := (t - Δ) / 2
+		x1 := t - x0
+
+		if x0*(t-x0) <= d {
+			x0++ // ceil
 		}
 
-		if V*(t-V) <= d {
-			V--
+		if x1*(t-x1) <= d {
+			x1-- // floor
 		}
 
-		return V - x + 1
+		return x1 - x0 + 1
 	}
 
 	Π := 1
 	for i := range times {
-		Π *= quad(times[i], dists[i])
+		Π *= solve(times[i], dists[i])
 	}
 
-	fmt.Println(Π, quad(T, D))
+	fmt.Println(Π, solve(T, D))
 }
 
 func parse(input *bufio.Scanner) ([]int, int) {
