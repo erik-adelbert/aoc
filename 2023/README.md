@@ -7,8 +7,9 @@
 | 5 | 0.7 |
 | 4 | 0.8 |
 | 1 | 0.9 |
+| 7 | 1.0 |
 | 3 | 1.1 |
-| total | 4.8 |
+| total | 5.8 |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.0.0 - go version go1.21.4 darwin/arm64 - hyperfine 1.18.0 - 2023-12
 
@@ -49,7 +50,7 @@ Challenge is related to [Aoc2022/day23](https://adventofcode.com/2022/day/23), I
 
 Anyway, the challenge is akin to a [*static analysis*](https://en.wikipedia.org/wiki/Static_program_analysis) of a [*multi-valued game of life*](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life) that's why it shares some of the techniques I used [last year](https://github.com/erik-adelbert/aoc/blob/2576e62f51f3bf653bf95084bca1815c534bf6e2/2022/23/aoc23.go).
 
-I prize E. Wastl continuous effort on delivering such neat subjects every year. Here the challenge story is about a complex machinery with many cogwheels precisely timed and sized for the task: this is a fair description of what today's program feels like, a complex yet efficient machine with many simple parts that intricately but gracefully fall in place.
+I prize E. Wastl continuous effort on delivering such neat subjects every year. Here the challenge story is about a complex machinery with many cogwheels precisely timed and sized for the task: this is a fair description of what today's program feels like, a complex yet efficient machine with many simple parts that intricately but gracefully fall into place.
 
 PS. To the young coders that might read this: don't be afraid! It's *not* a common day3 solution and certainly not the easiest way to solve it (but one of the fastest). The thing is, last november when warming up, I happened to refactor/improve AoC22/23.
 So the bitpacking technique is still vivid in my memory. If it wasn't I may not have succeded in conjuring, factorizing and finally getting right all the corner cases and details of this solution in a fair amount of time.
@@ -95,3 +96,70 @@ And then adjusting for speed and time to exceed d.
 For a very long time [`FPU`](https://en.wikipedia.org/wiki/Floating-point_unit) was slow but at the turn of y2k, `OS` and users alike were putting so much pressure on `CPU` that actually, `FPU` pipeline was usually free (and faster than before anyway) making it usable for a variety of computing that were previously carried on by `CPU` (the lore of General Purpose FPU was born). I remember the astonishment around me when one day I decided to benchmark the `FPU` against the `CPU` and showed that it won hands down in almost all situations.
 
 But, for the sake of remembering those old days, I still don't want to switch to `FPU` when computing a square-root in an otherwise integer problem. I usually use a (fast) [`integer square root`](https://en.wikipedia.org/wiki/Integer_square_root) computation. In this very case, there's no reasonnable way to see the difference.
+
+## Day7
+
+Now we have to [rank some hands](https://en.wikipedia.org/wiki/List_of_poker_hands#Hand-ranking_categories) akin to Poker but with slight variations. To this end and for maximum speed, we'd like to build the smallest representation of a hand that would:
+
+1. fit a machine word
+2. store the initial input as it's needed for comparison
+3. lexographically sortable with standard integer sorting methods
+
+Here we go, first of all there are 13 cards, namely `123456789TJQKA` so we need `4bits` per card and we have `5 cards` in a hand. That is `20bits` which is good because we could put the remainings `12bits` to good work. We know from our `wish #3` that we will compare all hands lexicographically, here it means that the we have to *reverse* the endianess of our hands. We can already bitmap the thing for more clarity:
+
+<pre>
+|0123456789abcdef|0123456789abcdef|
+|_C5__C4__C3__C2_|_C1_............|
+|1101010110010001|1110............| QJT98 actual hand: 89TJQ
+
+_Cn_ are the 4 bits representing the nth card from 0 to 13
+</pre>
+
+One good thing with this mapping is that cards are aligned on word boundaries!
+
+Now, that we have fullfilled almost all of our wishes, all we have left to do is to rank a hand in a [*monotonic*](https://en.wikipedia.org/wiki/Monotonic_function) way. That is we want a rank function `r` with `r(High card) < r(One pair) < ... r(Four of a kind) < r(Five of a kind)`. The naïve way would be to map from 1 to 6 all hand type types:
+
+```bash
+{
+    1: High Card, 2: One Pair, 3: Two Pairs, 4: Three of a kind, 5: Full house, 6: Four of a kind, 7: Five of kind
+}
+```
+
+But we can already see that it would add some difficulties because there's no connection whatsoever with the *structure* of a hand.
+I mean what are we doing when we're ranking a hand? Actually we are first grouping the card as in `A23A3 -> AA233` and now we clearly see two pairs: `{A: 2}, {2: 1}, {3: 2}`. This last representation is easy to build and we know that it's an [*histogram*](https://en.wikipedia.org/wiki/Histogram). Building it will instantly provides a *base* value for our hand which is the highest number of the same card:
+
+```bash
+{
+    1: High, 2: One, 2: Two, 3: Three, 3: Full, 4: Four, 4: Five,
+}
+```
+
+As you can see I've written `{4: Five of kind}` but why? The main reason is that we're still trying to fit in the smallest representation possible and for `4` states, we only need `3bits` instead of `4bits`. The second reason is that with this remaining bit we can do something
+better: afterall, we could consider that a `Full` is a special (stronger) case of a `Three` and the same goes for `Five` and `Four`. So now if we use our bit as `X` flag for thoses special cases, it comes:
+
+```bash
+{
+    (0,1): High, (0,1): One, (0,2): Two, (0,3): Three, (1,3): Full, (0,4): Four, (1,4): Five,
+}
+```
+
+and the resulting bitmapping:
+
+<pre>
+|0123456789abcdef|0123456789abcdef|
+|_C5__C4__C3__C2_|_C1_XKKK........|
+|1101010110010001|11100100........| QJT98 actual hand: 89TJQ High
+
+r(JKKK2) = 6999233
+r(QQQQ2) = 9157553
+</pre>
+
+\o/ and that's it upon enconding, the resulting data structure is an integer and thus a sorting key.
+
+```C
+func (h *hand) cmp(u *hand) int {
+	return int(*h - *u)
+}
+```
+
+`part2` has it's own pitfalls and the details including a change in card scale are fun to study. If you look at it you will find a very good reason to use the `X` flag in regard to what is a `Joker` and what it does to a special hand. But this write-up is already too long.

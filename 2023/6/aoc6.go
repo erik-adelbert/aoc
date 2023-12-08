@@ -32,7 +32,7 @@ func main() {
 	solve := func(t, d int) int {
 		Δ := isqrt(t*t - 4*d)
 
-		x0 := (t - Δ) / 2
+		x0 := (t - Δ) / 2 // divide by two now
 		x1 := t - x0
 
 		if x0*(t-x0) <= d {
