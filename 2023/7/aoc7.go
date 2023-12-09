@@ -60,60 +60,62 @@ const (
 )
 
 func newHand(s string, mode bool) (h *hand) {
-	var buf [14]int
+	var counts [14]int // hand card counts ex: "A23AA" -> [3, 1, 1 ..., 0]
 
 	h = new(hand)
-	h.setk(1)
+	h.set(K, 1)
 	for i := range s {
 		n := ctoi(s[i], mode)
-		h.set(field{16 - (i << 2), 0x7}, n) // store reversed see write-uo
-		buf[n]++
+		h.set(field{16 - (i << 2), 0x7}, n) // store reversed, see write-uo
+		counts[n]++
 	}
 
 	nread, J := 0, ctoi('J', mode)
-	for i := range buf {
+	for i := range counts {
 		if mode == Joker && i == J {
 			continue
 		}
 
-		nread += buf[i]
+		nread += counts[i]
 
-		switch buf[i] {
-		case 5:
-			h.setx()
+		// rank hand
+		switch counts[i] {
+		// default to Hand
+		case 5: // Five
+			h.set(X, 1)
 			fallthrough
-		case 4:
-			h.setk(4)
-		case 3:
-			if h.getk() == 2 {
-				h.setx()
+		case 4: // Four
+			h.set(K, 4)
+		case 3: // Three
+			if h.get(K) == 2 { // Full
+				h.set(X, 1)
 			}
-			h.setk(3)
-		case 2:
+			h.set(K, 3)
+		case 2: // One
 			switch {
-			case h.getk() >= 2:
-				h.setx()
+			case h.get(K) >= 2: // Two or Full
+				h.set(X, 1)
 			default:
-				h.setk(2)
+				h.set(K, 2)
 			}
 		}
 
-		if nread == 5 || (mode == Joker && nread == 5-buf[J]) {
+		if nread == 5 || (mode == Joker && nread == 5-counts[J]) {
 			break
 		}
 	}
 
 	if mode == Joker {
-		k := h.getk() + buf[J]
+		k := h.get(K) + counts[J]
 		switch {
-		case buf[J] == 0:
+		case counts[J] == 0:
 			// no joker nothing to do
 		case k == 6 || k == 5:
 			// JJJJJ or XXXXJ
-			h.setk(4)
-			h.setx()
+			h.set(K, 4)
+			h.set(X, 1)
 		default:
-			h.setk(k)
+			h.set(K, k)
 		}
 	}
 
@@ -143,26 +145,6 @@ func (h *hand) set(f field, k int) {
 	n, mask := f.n, f.mask
 	*h &= hand(^(mask << n))
 	*h |= hand(k << n)
-}
-
-func (h *hand) getk() int {
-	return h.get(K)
-}
-
-func (h *hand) setk(k int) {
-	h.set(K, k)
-}
-
-func (h *hand) clrx() {
-	h.clr(X)
-}
-
-func (h *hand) getx() int {
-	return h.get(X)
-}
-
-func (h *hand) setx() {
-	h.set(X, 1)
 }
 
 func ctoi(c byte, mode bool) int {
