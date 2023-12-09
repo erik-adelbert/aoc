@@ -36,6 +36,7 @@ func main() {
 			// read from ring buffer
 			return cmds[i%len(cmds)]
 		}
+
 		step := func() int {
 			i++
 			return i

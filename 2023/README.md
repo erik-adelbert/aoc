@@ -182,4 +182,4 @@ PS. There's a port of [binary gcd](https://en.wikipedia.org/wiki/Binary_GCD_algo
 
 ## Day9
 
-I don't understand the (lack of) difficulty today. The solution is totally described in the challenge, it is [recursive](https://en.wikipedia.org/wiki/Recursion) by design. Let's call it a day!
+I don't understand the (lack of) difficulty today. The solution is totally described in the challenge, it is [recursive](https://en.wikipedia.org/wiki/Recursion) by design. This is the [method of differences](https://en.wikipedia.org/wiki/Telescoping_series). Let's call it a day!

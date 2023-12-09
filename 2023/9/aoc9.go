@@ -7,9 +7,11 @@ import (
 	"strings"
 )
 
+const NELEM = 21
+
 func main() {
 	sumL, sumR := 0, 0
-	history := make([]int, 21)
+	history := make([]int, NELEM)
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
@@ -17,6 +19,7 @@ func main() {
 		for i := range fields {
 			history[i] = atoi(fields[i])
 		}
+		history = history[:len(fields)]
 		L, R := next(history)
 
 		sumL += L // part2
