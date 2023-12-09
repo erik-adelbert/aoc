@@ -188,16 +188,14 @@ func atoi(s string) (n int) {
 type asString int
 
 func (x asString) String() string {
-	n := int(x)
 
-	if n == 0 {
+	if x == 0 {
 		return "AAA"
 	}
 
 	var sb strings.Builder
-	for n > 0 {
+	for n := int(x); n > 0; n >>= 5 {
 		sb.WriteByte('A' + byte(n&0x1f))
-		n >>= 5
 	}
 
 	return sb.String()
