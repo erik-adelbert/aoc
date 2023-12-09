@@ -46,8 +46,6 @@ func cmp(a, b game) int {
 	return int(a.hand - b.hand)
 }
 
-// hand
-//
 // see day write-up:
 //
 //	5   4   3   2   1   XRRR  fields X: special RRR: base rank
@@ -71,13 +69,15 @@ func mkHand(s string, mode bool) (h hand) {
 		Five
 	)
 
-	const On = 1 // X field sugar
+	// card to bit field
+	card := func(i int) field {
+		return field{16 - (i << 2), 0x7} // reverse
+	}
 
-	h = h.set(R, High)
-	h.set(R, High) // default
+	h = h.set(R, High) // default rank
 	for i := range s {
 		n := ctoi(s[i], mode)
-		h = h.set(field{16 - (i << 2), 0x7}, n) // store reversed, see write-uo
+		h = h.set(card(i), n) // store reversed, see write-uo
 		counts[n]++
 	}
 
@@ -131,15 +131,12 @@ type field struct {
 	n, mask int
 }
 
+const On = 1 // X field sugar
+
 var (
 	R = field{0x15, 0x7}
 	X = field{0x14, 0x1}
 )
-
-// func (h *hand) clr(f field) {
-// 	n, mask := f.n, f.mask
-// 	*h &= hand(^(mask << n))
-// }
 
 func (h hand) get(f field) int {
 	n, mask := f.n, f.mask
