@@ -9,6 +9,11 @@ import (
 )
 
 func main() {
+	const (
+		Hand = iota
+		Bid
+	)
+
 	games1 := make([]game, 0, 1024)
 	games2 := make([]game, 0, 1024)
 
@@ -21,8 +26,8 @@ func main() {
 		games2 = append(games2, game{hand: newHand(h, Joker), bid: b})
 	}
 
-	slices.SortFunc(games1, func(a, b game) int { return cmp(a, b) })
-	slices.SortFunc(games2, func(a, b game) int { return cmp(a, b) })
+	slices.SortFunc(games1, cmp)
+	slices.SortFunc(games2, cmp)
 
 	sum1, sum2 := 0, 0
 	for i := range games1 {
@@ -31,11 +36,6 @@ func main() {
 	}
 	fmt.Println(sum1, sum2)
 }
-
-const (
-	Hand = iota
-	Bid
-)
 
 type game struct {
 	*hand
@@ -47,69 +47,12 @@ func cmp(a, b game) int {
 }
 
 // hand
-// see day write-up
-// 5   4   3   2   1   XKKK
-// 0123456789abcdef01234567
+//
+// see day write-up:
+//
+//	5   4   3   2   1   XKKK  fields
+//	0123456789abcdef01234567  bit index (24bits)
 type hand int
-
-type field struct {
-	n, mask int
-}
-
-var (
-	K = field{0x15, 0x7}
-	X = field{0x14, 0x1}
-)
-
-func (h *hand) clr(f field) {
-	n, mask := f.n, f.mask
-	*h &= hand(^(mask << n))
-}
-
-func (h *hand) get(f field) int {
-	n, mask := f.n, f.mask
-	return int(*h>>n) & mask
-}
-
-func (h *hand) set(f field, k int) {
-	n, mask := f.n, f.mask
-	*h &= hand(^(mask << n))
-	*h |= hand(k << n)
-}
-
-func (h *hand) setk(k int) {
-	h.set(K, k)
-}
-
-func (h *hand) getk() int {
-	return h.get(K)
-}
-
-func (h *hand) clrx() {
-	h.clr(X)
-}
-
-func (h *hand) getx() int {
-	return h.get(X)
-}
-
-func (h *hand) setx() {
-	h.set(X, 1)
-}
-
-func ctoi(c byte, mode bool) int {
-	s := "?23456789TJQKA"
-	if mode == Joker {
-		s = "J23456789T?QKA"
-	}
-
-	for i := range s {
-		if s[i] == c {
-			return i
-		}
-	}
-	return -1
-}
 
 const (
 	Jack  = false
@@ -175,6 +118,65 @@ func newHand(s string, mode bool) (h *hand) {
 	}
 
 	return
+}
+
+type field struct {
+	n, mask int
+}
+
+var (
+	K = field{0x15, 0x7}
+	X = field{0x14, 0x1}
+)
+
+func (h *hand) clr(f field) {
+	n, mask := f.n, f.mask
+	*h &= hand(^(mask << n))
+}
+
+func (h *hand) get(f field) int {
+	n, mask := f.n, f.mask
+	return int(*h>>n) & mask
+}
+
+func (h *hand) set(f field, k int) {
+	n, mask := f.n, f.mask
+	*h &= hand(^(mask << n))
+	*h |= hand(k << n)
+}
+
+func (h *hand) getk() int {
+	return h.get(K)
+}
+
+func (h *hand) setk(k int) {
+	h.set(K, k)
+}
+
+func (h *hand) clrx() {
+	h.clr(X)
+}
+
+func (h *hand) getx() int {
+	return h.get(X)
+}
+
+func (h *hand) setx() {
+	h.set(X, 1)
+}
+
+func ctoi(c byte, mode bool) int {
+	s := "?23456789TJQKA"
+	if mode == Joker {
+		s = "J23456789T?QKA"
+	}
+
+	for i := range s {
+		if s[i] == c {
+			return i
+		}
+	}
+	return -1
 }
 
 var Fields = strings.Fields
