@@ -159,8 +159,8 @@ r(QQQQ2) = 9157553
 \o/ and that's it upon enconding, the resulting data structure is an integer and thus a sorting key.
 
 ```C
-func (h *hand) cmp(u *hand) int {
-    return int(*h - *u)
+func cmp(a, b game) int {
+    return int(a.hand - b.hand)
 }
 ```
 

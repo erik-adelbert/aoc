@@ -22,8 +22,8 @@ func main() {
 		input := Fields(input.Text())
 		h, b := input[Hand], atoi(input[Bid])
 
-		games1 = append(games1, game{hand: newHand(h, Jack), bid: b})
-		games2 = append(games2, game{hand: newHand(h, Joker), bid: b})
+		games1 = append(games1, game{hand: mkHand(h, Jack), bid: b})
+		games2 = append(games2, game{hand: mkHand(h, Joker), bid: b})
 	}
 
 	slices.SortFunc(games1, cmp)
@@ -38,12 +38,12 @@ func main() {
 }
 
 type game struct {
-	*hand
+	hand
 	bid int
 }
 
 func cmp(a, b game) int {
-	return int(*a.hand - *b.hand)
+	return int(a.hand - b.hand)
 }
 
 // hand
@@ -59,7 +59,7 @@ const (
 	Joker = !Jack
 )
 
-func newHand(s string, mode bool) (h *hand) {
+func mkHand(s string, mode bool) (h hand) {
 	var counts [14]int // hand card counts ex: "A23AA" -> [3, 1, 1 ..., 0]
 
 	// rank sugars
@@ -73,18 +73,18 @@ func newHand(s string, mode bool) (h *hand) {
 
 	const On = 1 // X field sugar
 
-	h = new(hand)
+	h = h.set(R, High)
 	h.set(R, High) // default
 	for i := range s {
 		n := ctoi(s[i], mode)
-		h.set(field{16 - (i << 2), 0x7}, n) // store reversed, see write-uo
+		h = h.set(field{16 - (i << 2), 0x7}, n) // store reversed, see write-uo
 		counts[n]++
 	}
 
 	nread, J := 0, ctoi('J', mode)
 	for i := range counts {
-		// Only One and more contribute to rank
-		// If in Joker mode, do not rank jokers
+		// only One and more contribute to rank
+		// if in Joker mode, do not rank jokers
 		if counts[i] < One || (mode == Joker && i == J) {
 			continue
 		}
@@ -95,15 +95,15 @@ func newHand(s string, mode bool) (h *hand) {
 		switch counts[i] {
 		case Five: // Four special case
 			counts[i] = Four
-			h.set(X, On)
+			h = h.set(X, On)
 		case One, Three:
 			if h.get(R) >= One { // Two or Full
 				counts[i] = max(counts[i], h.get(R))
-				h.set(X, On)
+				h = h.set(X, On)
 			}
 		}
 		// set base rank
-		h.set(R, counts[i])
+		h = h.set(R, counts[i])
 
 		if nread == 5 || (mode == Joker && nread == 5-counts[J]) {
 			break
@@ -117,10 +117,10 @@ func newHand(s string, mode bool) (h *hand) {
 		switch {
 		case rank >= Five: // JJJJJ or ????J
 			// Four special case
-			h.set(R, Four)
-			h.set(X, On)
+			h = h.set(R, Four)
+			h = h.set(X, On)
 		default:
-			h.set(R, rank)
+			h = h.set(R, rank)
 		}
 	}
 
@@ -136,20 +136,21 @@ var (
 	X = field{0x14, 0x1}
 )
 
-func (h *hand) clr(f field) {
+// func (h *hand) clr(f field) {
+// 	n, mask := f.n, f.mask
+// 	*h &= hand(^(mask << n))
+// }
+
+func (h hand) get(f field) int {
 	n, mask := f.n, f.mask
-	*h &= hand(^(mask << n))
+	return int(h>>n) & mask
 }
 
-func (h *hand) get(f field) int {
+func (h hand) set(f field, k int) hand {
 	n, mask := f.n, f.mask
-	return int(*h>>n) & mask
-}
-
-func (h *hand) set(f field, k int) {
-	n, mask := f.n, f.mask
-	*h &= hand(^(mask << n))
-	*h |= hand(k << n)
+	h &= hand(^(mask << n))
+	h |= hand(k << n)
+	return h
 }
 
 func ctoi(c byte, mode bool) int {
