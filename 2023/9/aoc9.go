@@ -7,6 +7,25 @@ import (
 	"strings"
 )
 
+func main() {
+	sumL, sumR := 0, 0
+	history := make([]int, 21)
+
+	input := bufio.NewScanner(os.Stdin)
+	for input.Scan() {
+		fields := Fields(input.Text())
+		for i := range fields {
+			history[i] = atoi(fields[i])
+		}
+		L, R := next(history)
+
+		sumL += L
+		sumR += R
+	}
+
+	fmt.Println(sumL, sumR)
+}
+
 func isZero(a []int) bool {
 	sum := 0
 	for i := range a {
@@ -30,31 +49,8 @@ func next(a []int) (int, int) {
 	return a[0] - L, a[len(a)-1] + R
 }
 
-func main() {
-	sumL, sumR := 0, 0
-	history := make([]int, 0, 21)
-
-	input := bufio.NewScanner(os.Stdin)
-	for input.Scan() {
-		fields := Fields(input.Text())
-		for i := range fields {
-			history = append(history, atoi(fields[i]))
-		}
-		L, R := next(history)
-
-		sumL += L
-		sumR += R
-
-		history = history[:0] // reset
-	}
-
-	fmt.Println(sumL, sumR)
-}
-
 var Fields = strings.Fields
 
-// strconv.Atoi simplified core loop
-// s is ^\d+$
 // strconv.Atoi simplified core loop
 // s is ^-?\d+$
 func atoi(s string) (n int) {
