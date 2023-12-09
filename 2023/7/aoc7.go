@@ -23,7 +23,7 @@ func main() {
 		h, b := input[Hand], atoi(input[Bid])
 
 		games1 = append(games1, game{hand: mkHand(h, Jack), bid: b})
-		games2 = append(games2, game{hand: mkHand(h, Joker), bid: b})
+		games2 = append(games2, game{hand: mkHand(h, Wild), bid: b})
 	}
 
 	slices.SortFunc(games1, cmp)
@@ -53,8 +53,8 @@ func cmp(a, b game) int {
 type hand int
 
 const (
-	Jack  = false
-	Joker = !Jack
+	Jack = false
+	Wild = !Jack
 )
 
 func mkHand(s string, mode bool) (h hand) {
@@ -84,8 +84,8 @@ func mkHand(s string, mode bool) (h hand) {
 	nread, J := 0, ctoi('J', mode)
 	for i := range counts {
 		// only One and more contribute to rank
-		// if in Joker mode, do not rank jokers
-		if counts[i] < One || (mode == Joker && i == J) {
+		// if in wild card mode, do not rank jokers
+		if counts[i] < One || (mode == Wild && i == J) {
 			continue
 		}
 
@@ -105,12 +105,12 @@ func mkHand(s string, mode bool) (h hand) {
 		// set base rank
 		h = h.set(R, counts[i])
 
-		if nread == 5 || (mode == Joker && nread == 5-counts[J]) {
+		if nread == 5 || (mode == Wild && nread == 5-counts[J]) {
 			break
 		}
 	}
 
-	if mode == Joker {
+	if mode == Wild {
 		// maxout rank
 		rank := h.get(R) + counts[J]
 
@@ -152,7 +152,7 @@ func (h hand) set(f field, k int) hand {
 
 func ctoi(c byte, mode bool) int {
 	s := "?23456789TJQKA"
-	if mode == Joker {
+	if mode == Wild {
 		s = "J23456789T?QKA"
 	}
 
