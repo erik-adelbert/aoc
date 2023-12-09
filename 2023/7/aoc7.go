@@ -69,11 +69,12 @@ func mkHand(s string, mode bool) (h hand) {
 		Five
 	)
 
-	// card to bit field
+	// card# to bit field
 	card := func(i int) field {
 		return field{16 - (i << 2), 0x7} // reverse
 	}
 
+	// encode and count hand cards
 	h = h.set(R, High) // default rank
 	for i := range s {
 		n := ctoi(s[i], mode)
@@ -81,29 +82,24 @@ func mkHand(s string, mode bool) (h hand) {
 		counts[n]++
 	}
 
+	// rank hand
 	nread, J := 0, ctoi('J', mode)
 	for i := range counts {
 		// only One and more contribute to rank
-		// if in wild card mode, do not rank jokers
+		// if in wild card mode, do not rank jacks
 		if counts[i] < One || (mode == Wild && i == J) {
 			continue
 		}
 
 		nread += counts[i]
 
-		// rank special hand
-		switch counts[i] {
-		case Five: // Four special case
-			counts[i] = Four
-			h = h.set(X, On)
-		case One, Three:
-			if h.get(R) >= One { // Two or Full
-				counts[i] = max(counts[i], h.get(R))
-				h = h.set(X, On)
-			}
+		if counts[i] > High && h.get(R) > High {
+			// special hand
+			h = h.set(R, max(h.get(R), counts[i])).set(X, On)
+		} else {
+			// base rank
+			h = h.set(R, counts[i])
 		}
-		// set base rank
-		h = h.set(R, counts[i])
 
 		if nread == 5 || (mode == Wild && nread == 5-counts[J]) {
 			break
@@ -111,16 +107,11 @@ func mkHand(s string, mode bool) (h hand) {
 	}
 
 	if mode == Wild {
-		// maxout rank
-		rank := h.get(R) + counts[J]
-
-		switch {
-		case rank >= Five: // JJJJJ or ????J
-			// Four special case
-			h = h.set(R, Four)
-			h = h.set(X, On)
-		default:
-			h = h.set(R, rank)
+		// max out base rank
+		h = h.set(R, h.get(R)+counts[J])
+		if counts[J] == Five {
+			// JJJJJ
+			h = h.set(R, Four).set(X, On)
 		}
 	}
 

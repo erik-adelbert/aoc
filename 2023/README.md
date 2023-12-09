@@ -119,7 +119,7 @@ _Cn_ are the 4 bits representing the nth card from 0 to 13
 
 One good thing with this mapping is that cards are aligned on word boundaries!
 
-Now, that we have fullfilled almost all of our wishes, all we have left to do is to rank a hand in a [*monotonic*](https://en.wikipedia.org/wiki/Monotonic_function) way. That is we want a rank function `r` with `r(High card) < r(One pair) < ... r(Four of a kind) < r(Five of a kind)`. The naïve way would be to map from 1 to 6 all hand type types:
+Now, that we have fullfilled almost all of our wishes, all we have left to do is to rank a hand in a [*monotonic*](https://en.wikipedia.org/wiki/Monotonic_function) way. That is we want a rank function `r` with `r(High card) < r(One pair) < ... r(Four of a kind) < r(Five of a kind)`. The naïve way would be to map from 1 to 6 all hand types:
 
 ```bash
 {
@@ -127,8 +127,8 @@ Now, that we have fullfilled almost all of our wishes, all we have left to do is
 }
 ```
 
-But we can already see that it would add some difficulties because there's no connection whatsoever with the *structure* of a hand.
-I mean what are we doing when we're ranking a hand? Actually we are first grouping the card as in `A23A3 -> AA233` and now we clearly see two pairs: `{A: 2}, {2: 1}, {3: 2}`. This last representation is easy to build and we know that it's an [*histogram*](https://en.wikipedia.org/wiki/Histogram). Building it will instantly provides a *base* value for our hand which is the highest number of the same card:
+But we can already see that it would add some difficulties because it has no connection whatsoever with the *structure* of the hand.
+I mean what is it to rank a hand? First, it is grouping and counting the card as in `A23A3 -> AA233` to make the rank obvious: `{A: 2}, {2: 1}, {3: 2}`. This last representation is easy to build and we know that it's the hand [*histogram*](https://en.wikipedia.org/wiki/Histogram). Building it will instantly provides a *base* value for our hand which is the highest card frequency:
 
 ```bash
 {
@@ -136,8 +136,8 @@ I mean what are we doing when we're ranking a hand? Actually we are first groupi
 }
 ```
 
-As you can see I've written `{4: Five of kind}` but why? The main reason is that we're still trying to fit in the smallest representation possible and for `4` states, we only need `3bits` instead of `4bits`. The second reason is that with this remaining bit we can do something
-better: afterall, we could consider that a `Full` is a special (stronger) case of a `Three` and the same goes for `Five` and `Four` or `Two` and `One`. So now if we use our bit as `X` flag for thoses special cases, it comes:
+As you can see I've written `{4: Five of kind}` but why? The main reason is that we're still trying to build the smallest representation  and while `4` states is `3bits`, `5` is `4bits`. The second reason is that with this left over bit we can do something
+better: we could consider that a `Full` is a special (stronger) case of a `Three` and the same goes for `Five` and `Four` or `Two` and `One`. This as the desirable effect to naturally insert the special hands in between the regular ones. So now if we use our bit as `X` flag for thoses special cases, it comes:
 
 ```bash
 {
@@ -145,7 +145,7 @@ better: afterall, we could consider that a `Full` is a special (stronger) case o
 }
 ```
 
-and the resulting bitmapping:
+and the resulting bit mapping:
 
 <pre>
 |0123456789abcdef|0123456789abcdef|
@@ -156,7 +156,7 @@ r(JKKK2) = 6999233
 r(QQQQ2) = 9157553
 </pre>
 
-\o/ and that's it upon enconding, the resulting data structure is an integer and thus a sorting key.
+\o/ and that's it! Upon enconding a hand its unique `24bits` code is in lexicographic order.
 
 ```C
 func cmp(a, b game) int {
@@ -164,7 +164,7 @@ func cmp(a, b game) int {
 }
 ```
 
-`part2` has it's own pitfalls and the details including a change in card scale are fun to study. If you look at it you will find a very good reason to use the `X` flag in regard to what is a `Joker` and what it does to a special hand. But this write-up is already too long.
+`part2` has it's own pitfalls and the details including a change in card scale are fun to study. If you look at it you will find a very good reason to use the `X` flag in regard to what is a `wildcard` and what it does to a special hand. But this write-up is already too long.
 
 ## Day8
 
