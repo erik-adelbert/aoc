@@ -9,13 +9,13 @@ import (
 )
 
 var (
-	links    []node
 	AAA, ZZZ int
+	links    []node
 )
 
 func init() {
-	links = make([]node, ZZZ+1)
 	AAA, ZZZ = hash("AAA"), hash("ZZZ")
+	links = make([]node, ZZZ+1)
 }
 
 func main() {
@@ -196,6 +196,7 @@ func (x asString) String() string {
 	var sb strings.Builder
 	for n := int(x); n > 0; n >>= 5 {
 		sb.WriteByte('A' + byte(n&0x1f))
+
 	}
 
 	return sb.String()
