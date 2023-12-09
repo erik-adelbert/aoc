@@ -90,9 +90,7 @@ func main() {
 		cycles := make([]int, len(roots))
 
 		for i := range roots {
-			cycles[i] = browse(roots[i], func(node int) bool {
-				return isgoal(node)
-			})
+			cycles[i] = browse(roots[i], isgoal)
 		}
 		return lcm(cycles)
 	}
