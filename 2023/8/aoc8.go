@@ -21,7 +21,7 @@ func init() {
 func main() {
 	var input *bufio.Scanner
 
-	var cmds string
+	var cmds string // ring buffer
 
 	getcmds := func() {
 		input.Scan()        // advance scanner
@@ -33,13 +33,13 @@ func main() {
 		i := 0
 
 		cmd := func() byte {
-			// read from ring buffer
+			// read current cmd from ring buffer
 			return cmds[i%len(cmds)]
 		}
 
 		step := func() int {
 			i++
-			return i
+			return i // return current step count
 		}
 
 		return cmd, step
@@ -57,10 +57,10 @@ func main() {
 		links[h] = mknode(left, right)
 	}
 
-	browse := func(start int, isgoal func(int) bool) int {
+	browse := func(start int, end func(int) bool) int {
 		cmd, step := cmdstepper()
 
-		for node := start; !isgoal(node); step() {
+		for node := start; !end(node); step() {
 			switch cmd() {
 			case 'R':
 				node = right(node)
@@ -112,12 +112,14 @@ func right(h int) int {
 	return int((links[h] >> 15) & 0x7fff)
 }
 
+// last car is 'A'
 func isroot(h int) bool {
-	return (h>>10)&0x1f == 0 // last car is 'A'
+	return (h>>10)&0x1f == 0
 }
 
+// last car is 'Z'
 func isgoal(h int) bool {
-	return (h>>10)&0x1f == 25 // last car is 'Z'
+	return (h>>10)&0x1f == 25
 }
 
 func hash(s string) int {
