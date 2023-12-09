@@ -19,11 +19,11 @@ func main() {
 		}
 		L, R := next(history)
 
-		sumL += L
-		sumR += R
+		sumL += L // part2
+		sumR += R // part1
 	}
 
-	fmt.Println(sumL, sumR)
+	fmt.Println(sumR, sumL)
 }
 
 func isZero(a []int) bool {
