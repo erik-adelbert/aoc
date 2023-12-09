@@ -85,21 +85,19 @@ func mkHand(s string, mode bool) (h hand) {
 	// rank hand
 	nread, J := 0, ctoi('J', mode)
 	for i := range counts {
+		nread += counts[i]
+
 		// only One and more contribute to rank
-		// if in wild card mode, do not rank jacks
+		// in wildcard mode, do not rank jacks
 		if counts[i] < One || (mode == Wild && i == J) {
 			continue
 		}
 
-		nread += counts[i]
-
-		if counts[i] > High && h.get(R) > High {
+		if h.get(R) > High { // One + One, One + Three, Three + One
 			// special hand
-			h = h.set(R, max(h.get(R), counts[i])).set(X, On)
-		} else {
-			// base rank
-			h = h.set(R, counts[i])
+			h = h.set(X, On)
 		}
+		h = h.set(R, max(h.get(R), counts[i])) // update rank
 
 		if nread == 5 || (mode == Wild && nread == 5-counts[J]) {
 			break
