@@ -159,7 +159,7 @@ r(QQQQ2) = 9157553
 
 ```C
 func (h *hand) cmp(u *hand) int {
-	return int(*h - *u)
+    return int(*h - *u)
 }
 ```
 
@@ -168,13 +168,13 @@ func (h *hand) cmp(u *hand) int {
 ## Day8
 
 The crux of this challenge is to correctly encode the input. I mean obviously we could go for `type node struct{name, left, right str}` arranged in a `map[string]node` and it would fit. But do we really want to hash a million or so 3-letters strings?
-Can we spare the hashing time? I tend to see programming as balancing time vs. space, so if we want to gain time we have to give space, but how much at most? There are `26x26x26 = 26^3 = 17576` unique node names with repetition. If we build a full storage of say 2 words (left, right) indexed by node names it would be `17576 * 8bytes = 137KB`, what a great deal!
+Can we spare the hashing time? I tend to see programming as balancing time vs. space, so if we want to gain time we have to give space, but how much at most? A letter is `5bits` long: `A == 0, Z == 26 == 11010b`. Thus a node name is `15bits` long. There are `26x26x26 = 26^3 = 17576` unique node names with repetition. If we build a full storage of say 1 word (left, right) indexed by `15bits` node names it would be `17576 * 4bytes ≈ 68KB`, what a great deal!
 
-So the idea here is to *base26 encode the nodes* and everything becomes natural (hence handy). The command iterator is a light weight closure that returns 2 functions: one to get the current command and one to step the iterator. And last but not least:
+So the idea here is to *encode the nodes on 3x5bits* and everything becomes natural. The command iterator is a light weight closure that returns 2 functions: one to get the current command and one to step the iterator. And last but not least:
 
 ```C
-    hash%26 ==  0 <=> hash is ??A last letter is A
-    hash%26 == 25 <=> hash is ??Z last letter is Z
+    hash&0x1f ==  0 <=> hash is ??A last letter is A <=> hash is root
+    hash%0x1f == 25 <=> hash is ??Z last letter is Z <=> hash is goal
 ```
 
 PS. In `part2` look at the code step only once at the begining of a new cycle discovery!

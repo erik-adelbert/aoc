@@ -9,13 +9,13 @@ import (
 )
 
 var (
-	graph    []node
+	links    []node
 	AAA, ZZZ int
 )
 
 func init() {
 	AAA, ZZZ = hash("AAA"), hash("ZZZ")
-	graph = make([]node, ZZZ+1)
+	links = make([]node, ZZZ+1)
 }
 
 func main() {
@@ -38,7 +38,7 @@ func main() {
 		if isroot(h) {
 			roots = append(roots, h)
 		}
-		graph[h] = node{left, right}
+		links[h] = mknode(left, right)
 	}
 
 	cmdstepper := func() (func() byte, func() int) {
@@ -62,10 +62,10 @@ func main() {
 
 		for node := AAA; node != ZZZ; step() {
 			switch cmd() {
-			case 'L':
-				node = left(node)
-			default:
+			case 'R':
 				node = right(node)
+			default:
+				node = left(node)
 			}
 		}
 		return step() - 1
@@ -76,18 +76,18 @@ func main() {
 		cmd, step := cmdstepper()
 		cycles := make([]int, len(roots))
 
-		nstep, nroot := 0, 0
+		nstep, nroot := 0, 0 // step and discovered root cycle counts
 		for nroot < len(roots) {
 			for i := range roots {
-				if cycles[i] != 0 {
+				if cycles[i] > 0 {
 					continue
 				}
 
 				switch cmd() {
-				case 'L':
-					roots[i] = left(roots[i])
-				default:
+				case 'R':
 					roots[i] = right(roots[i])
+				default:
+					roots[i] = left(roots[i])
 				}
 				if isgoal(roots[i]) { // first only
 					cycles[i] = nstep + 1
@@ -110,34 +110,34 @@ func main() {
 	fmt.Println(browseAAA(), browseAll())
 }
 
-type node struct {
-	left, right int
+type node int
+
+func mknode(left, right int) node {
+	return node(right<<15 | left)
 }
 
 func left(h int) int {
-	return graph[h].left
+	return int(links[h] & 0x7fff)
 }
 
 func right(h int) int {
-	return graph[h].right
+	return int((links[h] >> 15) & 0x7fff)
 }
 
 func isroot(h int) bool {
-	return h%26 == 0 // last car is 'A'
+	return (h>>10)&0x1f == 0 // last car is 'A'
 }
 
 func isgoal(h int) bool {
-	return h%26 == 25 // last car is 'Z'
+	return (h>>10)&0x1f == 25 // last car is 'Z'
 }
 
-func hash(s string) (h int) {
+func hash(s string) int {
 	ctoi := func(b byte) int {
 		return int(b - 'A')
 	}
 
-	// encode s base 26
-	h = (ctoi(s[0])*26+ctoi(s[1]))*26 + ctoi(s[2])
-	return
+	return ctoi(s[2])<<10 + ctoi(s[1])<<5 + ctoi(s[0])
 }
 
 func lcm(nums []int) (Π int) {
@@ -160,9 +160,9 @@ func gcd(a, b int) int {
 		return a
 	}
 
-	// `|` is bitwise OR. `trailing_zeros` quickly counts a binary number's
+	// `|` is bitwise OR. `TrailingZeros` quickly counts a binary number's
 	// trailing zeros, giving its prime factorization's exponent on two.
-	exp2 := bits.TrailingZeros(u | v)
+	log2 := bits.TrailingZeros(u | v)
 
 	// `>>=` divides the left by two to the power of the right, storing that in
 	// the left variable. `u` divided by its prime factorization's power of two
@@ -179,7 +179,7 @@ func gcd(a, b int) int {
 	}
 
 	// `<<` multiplies the left by two to the power of the right.
-	return int(u << exp2)
+	return int(u << log2)
 }
 
 // strconv.Atoi simplified core loop
@@ -199,17 +199,17 @@ func atoi(s string) (n int) {
 type asString int
 
 func (x asString) String() string {
-	var sb strings.Builder
-
-	buf := make([]byte, 0, 3)
-
 	n := int(x)
-	for n > 0 {
-		buf = append(buf, byte(n%26)+'A')
-		n /= 26
+
+	if n == 0 {
+		return "AAA"
 	}
-	sb.WriteByte(buf[2])
-	sb.WriteByte(buf[1])
-	sb.WriteByte(buf[0])
+
+	var sb strings.Builder
+	for n > 0 {
+		sb.WriteByte('A' + byte(n&0x1f))
+		n >>= 5
+	}
+
 	return sb.String()
 }
