@@ -9,7 +9,8 @@
 | 1 | 0.9 |
 | 7 | 1.0 |
 | 3 | 1.1 |
-| total | 5.8 |
+| 8 | 1.1 |
+| total | 6.9 |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.0.0 - go version go1.21.4 darwin/arm64 - hyperfine 1.18.0 - 2023-12
 
@@ -163,3 +164,17 @@ func (h *hand) cmp(u *hand) int {
 ```
 
 `part2` has it's own pitfalls and the details including a change in card scale are fun to study. If you look at it you will find a very good reason to use the `X` flag in regard to what is a `Joker` and what it does to a special hand. But this write-up is already too long.
+
+## Day8
+
+The crux of this challenge is to correctly encode the input. I mean obviously we could go for `type node struct{name, left, right str}` arranged in a `map[string]node` and it would fit. But do we really want to hash a million or so 3-letters strings?
+Can we spare the hashing time? I tend to see programming as balancing time vs. space, so if we want to gain time we have to give space, but how much at most? There are `26x26x26 = 26^3 = 17576` unique node names with repetition. If we build a full storage of say 2 words (left, right) indexed by node names it would be `17576 * 8bytes = 137KB`, what a great deal!
+
+So the idea here is to *base26 encode the nodes* and everything becomes natural (hence handy). The command iterator is a light weight closure that returns 2 functions: one to get the current command and one to step the iterator. And last but not least:
+
+```C
+    hash%26 ==  0 <=> hash is ??A last letter is A
+    hash%26 == 25 <=> hash is ??Z last letter is Z
+```
+
+PS. In `part2` look at the code step only once at the begining of a new cycle discovery!

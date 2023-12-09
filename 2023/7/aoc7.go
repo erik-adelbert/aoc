@@ -15,9 +15,6 @@ func main() {
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
 		input := Fields(input.Text())
-		if input[0][0] == '#' {
-			continue
-		}
 		bids1 = append(bids1, bid{newHand(input[0], Jack), atoi(input[1])})
 		bids2 = append(bids2, bid{newHand(input[0], Joker), atoi(input[1])})
 	}
