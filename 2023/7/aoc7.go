@@ -9,29 +9,41 @@ import (
 )
 
 func main() {
-	bids1 := make([]bid, 0, 1024)
-	bids2 := make([]bid, 0, 1024)
+	games1 := make([]game, 0, 1024)
+	games2 := make([]game, 0, 1024)
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
 		input := Fields(input.Text())
-		bids1 = append(bids1, bid{newHand(input[0], Jack), atoi(input[1])})
-		bids2 = append(bids2, bid{newHand(input[0], Joker), atoi(input[1])})
+		h, b := input[Hand], atoi(input[Bid])
+
+		games1 = append(games1, game{hand: newHand(h, Jack), bid: b})
+		games2 = append(games2, game{hand: newHand(h, Joker), bid: b})
 	}
 
-	slices.SortFunc(bids1, func(a, b bid) int { return a.h.cmp(b.h) })
-	slices.SortFunc(bids2, func(a, b bid) int { return a.h.cmp(b.h) })
+	slices.SortFunc(games1, func(a, b game) int { return cmp(a, b) })
+	slices.SortFunc(games2, func(a, b game) int { return cmp(a, b) })
+
 	sum1, sum2 := 0, 0
-	for i := range bids1 {
-		sum1 += (i + 1) * bids1[i].v
-		sum2 += (i + 1) * bids2[i].v
+	for i := range games1 {
+		sum1 += (i + 1) * games1[i].bid
+		sum2 += (i + 1) * games2[i].bid
 	}
 	fmt.Println(sum1, sum2)
 }
 
-type bid struct {
-	h *hand
-	v int
+const (
+	Hand = iota
+	Bid
+)
+
+type game struct {
+	*hand
+	bid int
+}
+
+func cmp(a, b game) int {
+	return int(*a.hand - *b.hand)
 }
 
 // hand
@@ -85,15 +97,12 @@ func (h *hand) setx() {
 	h.set(X, 1)
 }
 
-func (h *hand) cmp(u *hand) int {
-	return int(*h - *u)
-}
-
 func ctoi(c byte, mode bool) int {
 	s := "?23456789TJQKA"
 	if mode == Joker {
 		s = "J23456789T?QKA"
 	}
+
 	for i := range s {
 		if s[i] == c {
 			return i
@@ -114,7 +123,7 @@ func newHand(s string, mode bool) (h *hand) {
 	h.setk(1)
 	for i := range s {
 		n := ctoi(s[i], mode)
-		h.set(field{16 - (i << 2), 0x7}, n)
+		h.set(field{16 - (i << 2), 0x7}, n) // store reversed see write-uo
 		buf[n]++
 	}
 
