@@ -177,4 +177,4 @@ So the idea here is to *encode the nodes on 3x5bits* and everything becomes natu
     hash%0x1f == 25 <=> hash is ??Z last letter is Z <=> hash is goal
 ```
 
-PS. In `part2` look at the code step only once at the begining of a new cycle discovery!
+PS. There's a port of [binary gcd](https://en.wikipedia.org/wiki/Binary_GCD_algorithm) in this solution.

@@ -14,8 +14,8 @@ var (
 )
 
 func init() {
-	AAA, ZZZ = hash("AAA"), hash("ZZZ")
 	links = make([]node, ZZZ+1)
+	AAA, ZZZ = hash("AAA"), hash("ZZZ")
 }
 
 func main() {
@@ -23,22 +23,10 @@ func main() {
 
 	var cmds string
 
-	roots := make([]int, 0, 8)
-
 	getcmds := func() {
-		input.Scan()
-		cmds = input.Text()
-		input.Scan()
-	}
-
-	addnode := func() {
-		input := input.Text()
-
-		h, left, right := hash(input[0:3]), hash(input[7:10]), hash(input[12:15])
-		if isroot(h) {
-			roots = append(roots, h)
-		}
-		links[h] = mknode(left, right)
+		input.Scan()        // advance scanner
+		cmds = input.Text() // first line
+		input.Scan()        // consume empty line
 	}
 
 	cmdstepper := func() (func() byte, func() int) {
@@ -56,11 +44,22 @@ func main() {
 		return cmd, step
 	}
 
-	// part1
-	browseAAA := func() int {
+	roots := make([]int, 0, 8)
+
+	addnode := func() {
+		input := input.Text()
+
+		h, left, right := hash(input[0:3]), hash(input[7:10]), hash(input[12:15])
+		if isroot(h) {
+			roots = append(roots, h)
+		}
+		links[h] = mknode(left, right)
+	}
+
+	browse := func(start int, isgoal func(int) bool) int {
 		cmd, step := cmdstepper()
 
-		for node := AAA; node != ZZZ; step() {
+		for node := start; !isgoal(node); step() {
 			switch cmd() {
 			case 'R':
 				node = right(node)
@@ -71,40 +70,30 @@ func main() {
 		return step() - 1
 	}
 
-	// part2
-	browseAll := func() int {
-		cmd, step := cmdstepper()
-		cycles := make([]int, len(roots))
-
-		nstep, nroot := 0, 0 // step and discovered root cycle counts
-		for nroot < len(roots) {
-			for i := range roots {
-				if cycles[i] > 0 {
-					continue
-				}
-
-				switch cmd() {
-				case 'R':
-					roots[i] = right(roots[i])
-				default:
-					roots[i] = left(roots[i])
-				}
-				if isgoal(roots[i]) { // first only
-					cycles[i] = nstep + 1
-					nroot++
-				}
-
-			}
-			nstep = step()
-		}
-		return lcm(cycles)
-	}
-
 	// read input
 	input = bufio.NewScanner(os.Stdin)
 	getcmds()
 	for input.Scan() {
 		addnode()
+	}
+
+	// part1
+	browseAAA := func() int {
+		return browse(AAA, func(node int) bool {
+			return node == ZZZ
+		})
+	}
+
+	// part2
+	browseAll := func() int {
+		cycles := make([]int, len(roots))
+
+		for i := range roots {
+			cycles[i] = browse(roots[i], func(node int) bool {
+				return isgoal(node)
+			})
+		}
+		return lcm(cycles)
 	}
 
 	fmt.Println(browseAAA(), browseAll())
