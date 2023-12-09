@@ -137,11 +137,11 @@ I mean what are we doing when we're ranking a hand? Actually we are first groupi
 ```
 
 As you can see I've written `{4: Five of kind}` but why? The main reason is that we're still trying to fit in the smallest representation possible and for `4` states, we only need `3bits` instead of `4bits`. The second reason is that with this remaining bit we can do something
-better: afterall, we could consider that a `Full` is a special (stronger) case of a `Three` and the same goes for `Five` and `Four`. So now if we use our bit as `X` flag for thoses special cases, it comes:
+better: afterall, we could consider that a `Full` is a special (stronger) case of a `Three` and the same goes for `Five` and `Four` or `Two` and `One`. So now if we use our bit as `X` flag for thoses special cases, it comes:
 
 ```bash
 {
-    (0,1): High, (0,1): One, (0,2): Two, (0,3): Three, (1,3): Full, (0,4): Four, (1,4): Five,
+    (0,1): High, (0,1): One, (1,2): Two, (0,3): Three, (1,3): Full, (0,4): Four, (1,4): Five,
 }
 ```
 
@@ -149,7 +149,7 @@ and the resulting bitmapping:
 
 <pre>
 |0123456789abcdef|0123456789abcdef|
-|_C5__C4__C3__C2_|_C1_XKKK........|
+|_C5__C4__C3__C2_|_C1_XRRR........| X: special bit, R: rank bit
 |1101010110010001|11100100........| QJT98 actual hand: 89TJQ High
 
 r(JKKK2) = 6999233

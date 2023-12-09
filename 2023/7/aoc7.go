@@ -50,7 +50,7 @@ func cmp(a, b game) int {
 //
 // see day write-up:
 //
-//	5   4   3   2   1   XKKK  fields
+//	5   4   3   2   1   XRRR  fields X: special RRR: base rank
 //	0123456789abcdef01234567  bit index (24bits)
 type hand int
 
@@ -62,8 +62,19 @@ const (
 func newHand(s string, mode bool) (h *hand) {
 	var counts [14]int // hand card counts ex: "A23AA" -> [3, 1, 1 ..., 0]
 
+	// rank sugars
+	const (
+		High  = iota + 1
+		One   // special One is Two
+		Three // special Three is Full
+		Four  // special Four is Five
+		Five
+	)
+
+	const On = 1 // X field sugar
+
 	h = new(hand)
-	h.set(K, 1)
+	h.set(R, High) // default
 	for i := range s {
 		n := ctoi(s[i], mode)
 		h.set(field{16 - (i << 2), 0x7}, n) // store reversed, see write-uo
@@ -72,33 +83,27 @@ func newHand(s string, mode bool) (h *hand) {
 
 	nread, J := 0, ctoi('J', mode)
 	for i := range counts {
-		if mode == Joker && i == J {
+		// Only One and more contribute to rank
+		// If in Joker mode, do not rank jokers
+		if counts[i] < One || (mode == Joker && i == J) {
 			continue
 		}
 
 		nread += counts[i]
 
-		// rank hand
+		// rank special hand
 		switch counts[i] {
-		// default to Hand
-		case 5: // Five
-			h.set(X, 1)
-			fallthrough
-		case 4: // Four
-			h.set(K, 4)
-		case 3: // Three
-			if h.get(K) == 2 { // Full
-				h.set(X, 1)
-			}
-			h.set(K, 3)
-		case 2: // One
-			switch {
-			case h.get(K) >= 2: // Two or Full
-				h.set(X, 1)
-			default:
-				h.set(K, 2)
+		case Five: // Four special case
+			counts[i] = Four
+			h.set(X, On)
+		case One, Three:
+			if h.get(R) >= One { // Two or Full
+				counts[i] = max(counts[i], h.get(R))
+				h.set(X, On)
 			}
 		}
+		// set base rank
+		h.set(R, counts[i])
 
 		if nread == 5 || (mode == Joker && nread == 5-counts[J]) {
 			break
@@ -106,16 +111,16 @@ func newHand(s string, mode bool) (h *hand) {
 	}
 
 	if mode == Joker {
-		k := h.get(K) + counts[J]
+		// maxout rank
+		rank := h.get(R) + counts[J]
+
 		switch {
-		case counts[J] == 0:
-			// no joker nothing to do
-		case k == 6 || k == 5:
-			// JJJJJ or XXXXJ
-			h.set(K, 4)
-			h.set(X, 1)
+		case rank >= Five: // JJJJJ or ????J
+			// Four special case
+			h.set(R, Four)
+			h.set(X, On)
 		default:
-			h.set(K, k)
+			h.set(R, rank)
 		}
 	}
 
@@ -127,7 +132,7 @@ type field struct {
 }
 
 var (
-	K = field{0x15, 0x7}
+	R = field{0x15, 0x7}
 	X = field{0x14, 0x1}
 )
 
