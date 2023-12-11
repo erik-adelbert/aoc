@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	w := newWorld()
+	w := new(world)
 
 	input := bufio.NewScanner(os.Stdin)
 	for j := 0; input.Scan(); j++ {
@@ -28,55 +28,6 @@ type world struct {
 	maze    [MAXN * MAXN]byte
 }
 
-func φ(j, i int) int {
-	return j*MAXN + i
-}
-
-func ji(i int) (int, int) {
-	return i / MAXN, i % MAXN
-}
-
-func north(i int) int {
-	return i - MAXN
-}
-
-func south(i int) int {
-	return i + MAXN
-}
-
-func east(i int) int {
-	return i + 1
-}
-
-func west(i int) int {
-	return i - 1
-}
-
-func newWorld() *world {
-	w := new(world)
-	return w
-}
-
-func (w *world) String() string {
-	var sb strings.Builder
-
-	const (
-		NS = "│" // pipe connecting north and south
-		EW = "─" // pipe connecting east and west
-		NE = "╰" // 90-degree connecting north and east
-		NW = "╯" // 90-degree connecting north and west
-		SW = "╮" // 90-degree connecting south and west
-		SE = "╭" // 90-degree connecting south and east
-	)
-	r := strings.NewReplacer("-", EW, "|", NS, "L", NE, "J", NW, "7", SW, "F", SE)
-
-	for j := 0; j < w.H; j++ {
-		fmt.Fprintln(&sb, r.Replace(string(w.maze[φ(j, 0):φ(j, w.W)])))
-	}
-
-	return sb.String()
-}
-
 func (w *world) readline(j int, line string) {
 
 	w.H = max(w.H, j+1)
@@ -93,6 +44,7 @@ func (w *world) readline(j int, line string) {
 func (w *world) path() ([]int, int) {
 	area := 0
 	path := make([]int, 0, 1<<13)
+
 	old, cur, nxt := 0, 0, w.O
 	for {
 		choose := func(p, q int) int {
@@ -148,14 +100,51 @@ func (w *world) path() ([]int, int) {
 		}
 	}
 
-	area = 1 + (abs(area)-len(path))/2
+	area = 1 + (area-len(path))/2
 
 	return path, area
 }
 
-func abs(n int) int {
-	if n < 0 {
-		return -n
+func (w *world) String() string {
+	var sb strings.Builder
+
+	const (
+		NS = "│" // pipe connecting north and south
+		EW = "─" // pipe connecting east and west
+		NE = "╰" // 90-degree connecting north and east
+		NW = "╯" // 90-degree connecting north and west
+		SW = "╮" // 90-degree connecting south and west
+		SE = "╭" // 90-degree connecting south and east
+	)
+	r := strings.NewReplacer("-", EW, "|", NS, "L", NE, "J", NW, "7", SW, "F", SE)
+
+	for j := 0; j < w.H; j++ {
+		fmt.Fprintln(&sb, r.Replace(string(w.maze[φ(j, 0):φ(j, w.W)])))
 	}
-	return n
+
+	return sb.String()
+}
+
+func φ(j, i int) int {
+	return j*MAXN + i
+}
+
+func ji(i int) (int, int) {
+	return i / MAXN, i % MAXN
+}
+
+func north(i int) int {
+	return i - MAXN
+}
+
+func south(i int) int {
+	return i + MAXN
+}
+
+func east(i int) int {
+	return i + 1
+}
+
+func west(i int) int {
+	return i - 1
 }
