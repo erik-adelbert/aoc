@@ -47,8 +47,9 @@ func (w *world) path() ([]int, int) {
 
 	old, cur, nxt := 0, 0, w.O
 	for {
-		choose := func(p, q int) int {
-			if p != old {
+		fwd := func(x int, a, b func(int) int) int {
+			p, q := a(x), b(x)
+			if p != old { // prevent turning back
 				return p
 			}
 			return q
@@ -58,37 +59,42 @@ func (w *world) path() ([]int, int) {
 		path = append(path, cur)
 		switch w.maze[cur] {
 		case 'S':
-			branch := func(x int, s string) bool {
-				for i := range s {
-					if w.maze[x] == s[i] {
-						return true
-					}
-				}
-				return false
+			type matcher struct {
+				fun func(int) int
+				pat string
 			}
 
-			switch {
-			case branch(north(cur), "7|F"):
-				nxt = north(cur)
-			case branch(west(cur), "L-F"):
-				nxt = west(cur)
-			case branch(south(cur), "J|L"):
-				nxt = south(cur)
-			default:
-				nxt = east(cur)
+			align := func(x int) int {
+				var ms = []matcher{
+					{north, "7|F"},
+					{west, "L-F"},
+					{south, "J|L"},
+				}
+
+				// ex. go north if north(cur) == '7' or '|' or 'F'
+				for _, m := range ms {
+					for i := range m.pat {
+						if w.maze[m.fun(x)] == m.pat[i] {
+							return m.fun(x)
+						}
+					}
+				}
+				return east(x) // default to east
 			}
-		case 'F':
-			nxt = choose(east(cur), south(cur))
-		case '|':
-			nxt = choose(north(cur), south(cur))
-		case 'L':
-			nxt = choose(north(cur), east(cur))
-		case '-':
-			nxt = choose(west(cur), east(cur))
+
+			nxt = align(cur)
 		case 'J':
-			nxt = choose(west(cur), north(cur))
+			nxt = fwd(cur, north, west)
+		case 'L':
+			nxt = fwd(cur, north, east)
+		case '|':
+			nxt = fwd(cur, north, south)
+		case '-':
+			nxt = fwd(cur, east, west)
 		case '7':
-			nxt = choose(west(cur), south(cur))
+			nxt = fwd(cur, south, west)
+		case 'F':
+			nxt = fwd(cur, south, east)
 		}
 
 		cj, ci := ji(cur)
