@@ -5,13 +5,14 @@
 | 6 | 0.6 |
 | 2 | 0.7 |
 | 5 | 0.7 |
+| 10 | 0.8 |
 | 4 | 0.8 |
 | 9 | 0.8 |
 | 1 | 0.9 |
 | 7 | 0.9 |
 | 3 | 1.1 |
 | 8 | 1.2 |
-| total | 7.7 |
+| total | 8.5 |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.0.0 - go version go1.21.4 darwin/arm64 - hyperfine 1.18.0 - 2023-12
 
@@ -183,3 +184,8 @@ PS. There's a port of [binary gcd](https://en.wikipedia.org/wiki/Binary_GCD_algo
 ## Day9
 
 I don't understand the (lack of) difficulty today. The solution is totally described in the challenge, it is [recursive](https://en.wikipedia.org/wiki/Recursion) by design. This is the [method of differences](https://en.wikipedia.org/wiki/Telescoping_series). Let's call it a day!
+
+## Day10
+
+This one is tricky because we can easily commit ourselves to tasks that were never needed. Look at this, the challenge occurs in a manhattan space and all the speech about counting dots and tiles are just obfuscating the crux of this problem: we just want to compute the loop area!
+I've included a nice vizualisation in this one!

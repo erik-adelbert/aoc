@@ -74,7 +74,7 @@ const (
 )
 
 func mkHand(s string, mode bool) (h hand) {
-	var counts [14]int // hand card counts ex: "A23AA" -> [3, 1, 1 ..., 0]
+	var counts [14]int // card counts ex: "A23AA" -> [0, 1, 1, ..., 3]
 
 	// encode and count hand cards
 	h = h.set(R, High) // default rank
