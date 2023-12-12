@@ -45,7 +45,7 @@ func (w *world) path() ([]int, int) {
 	area := 0
 	path := make([]int, 0, 1<<13)
 
-	old, cur, nxt := 0, 0, w.O
+	old, cur, nxt := 0, 0, w.O // 3 window
 	for {
 		fwd := func(x int, a, b func(int) int) int {
 			p, q := a(x), b(x)
@@ -66,12 +66,11 @@ func (w *world) path() ([]int, int) {
 
 			align := func(x int) int {
 				var ms = []matcher{
-					{north, "7|F"},
+					{north, "7|F"}, // go north if north == ('7' | '|' | 'F' )
 					{west, "L-F"},
 					{south, "J|L"},
 				}
 
-				// ex. go north if north(cur) == '7' or '|' or 'F'
 				for _, m := range ms {
 					for i := range m.pat {
 						if w.maze[m.fun(x)] == m.pat[i] {
@@ -84,7 +83,7 @@ func (w *world) path() ([]int, int) {
 
 			nxt = align(cur)
 		case 'J':
-			nxt = fwd(cur, north, west)
+			nxt = fwd(cur, north, west) // select between north and west
 		case 'L':
 			nxt = fwd(cur, north, east)
 		case '|':

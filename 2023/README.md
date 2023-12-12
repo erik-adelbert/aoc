@@ -75,7 +75,7 @@ score += 1 << nmatch >> 1
 
 ## Day5
 
-[Intervals!](https://en.wikipedia.org/wiki/Interval_(mathematics)) 
+[Intervals!](https://en.wikipedia.org/wiki/Interval_(mathematics))
 
 Given that it is only day5 (and the input size), I'm *not* going to talk about [`Interval Trees`](https://en.wikipedia.org/wiki/Interval_tree). I am going to [`brute-force`](https://en.wikipedia.org/wiki/Brute-force_search) the thing!
 `<Spoiler>` Well brute-forcing it, doesn't mean testing millions of points! It rather means to brute-force the interval *boundaries* checking.`</Spoiler>`.
