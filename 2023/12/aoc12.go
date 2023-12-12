@@ -30,18 +30,15 @@ func main() {
 			copy(blocks2[i:], blocks1)
 		}
 
-		pretrim := func(s string) string {
-			return "." + strings.TrimRight(s, ".")
-		}
-
-		sum1 += solve(pretrim(springs1), blocks1)
-		sum2 += solve(pretrim(springs2), blocks2)
+		sum1 += solve(springs1, blocks1)
+		sum2 += solve(springs2, blocks2)
 
 	}
 	fmt.Println(sum1, sum2)
 }
 
 func solve(springs string, blocks []int) int {
+	springs = "." + strings.TrimRight(springs, ".")
 	// rolling block arrangement counts
 	// ie. dp table last 2 rows
 	cur := make([]int, len(springs)+1)
