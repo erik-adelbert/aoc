@@ -205,6 +205,8 @@ PS. there's a minimal Python3 `Counter` port that was fun to compose in my solut
 
 ## Day 12
 
+Today's challenge is about one liner [nonograms](https://en.wikipedia.org/wiki/Nonogram)!
+
 I believe there's no other way than [dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming) to solve today's challenge. This is why we may well find very fast `py3` cached recursive functions in the subreddit. My point was to make the fastest iterative *arranger* possible and to store directly the result instead of say caching the function call.
 And I did!
 

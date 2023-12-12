@@ -39,6 +39,7 @@ func main() {
 
 func solve(springs string, blocks []int) int {
 	springs = "." + strings.TrimRight(springs, ".")
+
 	// rolling block arrangement counts
 	// ie. dp table last 2 rows
 	cur := make([]int, len(springs)+1)
@@ -73,7 +74,7 @@ func solve(springs string, blocks []int) int {
 			}
 		}
 
-		// backup base counts for next block
+		// current is base counts for next block
 		cur, nxt = nxt, cur
 		clear(nxt)
 	}
