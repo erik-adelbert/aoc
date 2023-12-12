@@ -14,27 +14,24 @@ func main() {
 	for input.Scan() {
 		input := Fields(input.Text())
 
-		springs1 := input[0]
-		springs2 := Join([]string{
-			springs1, springs1, springs1, springs1, springs1,
-		}, "?")
-
 		blocks := Split(input[1], ",")
+
+		springs1 := input[0]
 		blocks1 := make([]int, len(blocks))
 		for i := range blocks {
 			blocks1[i] = atoi(blocks[i])
 		}
 
+		springs2 := Join([]string{
+			springs1, springs1, springs1, springs1, springs1,
+		}, "?")
 		blocks2 := make([]int, 5*len(blocks1))
 		for i := 0; i < len(blocks2); i += len(blocks1) {
 			copy(blocks2[i:], blocks1)
 		}
 
 		pretrim := func(s string) string {
-			var sb strings.Builder
-			sb.WriteByte('.')
-			sb.WriteString(strings.TrimRight(s, "."))
-			return sb.String()
+			return "." + strings.TrimRight(s, ".")
 		}
 
 		sum1 += solve(pretrim(springs1), blocks1)
