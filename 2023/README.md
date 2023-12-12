@@ -208,6 +208,6 @@ PS. there's a minimal Python3 `Counter` port that was fun to compose in my solut
 I believe there's no other way than [dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming) to solve today's challenge. This is why we may well find very fast `py3` cached recursive functions in the subreddit. My point was to make the fastest iterative *arranger* possible and to store directly the result instead of say caching the function call.
 And I did!
 
-Later on, I saw [this](https://www.reddit.com/r/adventofcode/comments/18ge41g/comment/kd0ohrj/?utm_source=share&utm_medium=web2x&context=3) idea about trimming and implemented it, resulting in the same result (but mine published later).
+Later on, I saw [this](https://www.reddit.com/r/adventofcode/comments/18ge41g/comment/kd0ohrj/?utm_source=share&utm_medium=web2x&context=3) idea about trimming and rolling the dp table and implemented it, resulting in the same result (but mine published later).
 
 Every year, around day 12 to 15, there's a steep increase in AoC challenge runtimes, this could be it and surely `Dijkstra` is coming soon now.
