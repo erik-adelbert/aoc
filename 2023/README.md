@@ -2,18 +2,19 @@
 
 | day | time |
 |-----|-----:|
+| 5 | 0.5 |
+| 1 | 0.6 |
 | 6 | 0.6 |
-| 11 | 0.7 |
+| 10 | 0.7 |
 | 2 | 0.7 |
-| 5 | 0.7 |
-| 10 | 0.8 |
+| 11 | 0.8 |
 | 4 | 0.8 |
 | 9 | 0.8 |
-| 1 | 0.9 |
-| 7 | 0.9 |
-| 3 | 1.1 |
-| 8 | 1.2 |
-| total | 9.2 |
+| 3 | 1.0 |
+| 7 | 1.1 |
+| 8 | 1.1 |
+| 12 | 5.7 |
+| total | 14.4 |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.0.0 - go version go1.21.4 darwin/arm64 - hyperfine 1.18.0 - 2023-12
 
@@ -48,7 +49,7 @@ PS. Another way is to use [`strings.Replacer`](https://pkg.go.dev/strings#Replac
 Today, it is all about parsing. There's not much to say except that today's challenge is more like a day1 challenge than actual day1 was.
 My program uses [`strings`](https://pkg.go.dev/strings) functions, allmost all variable names are 5 letters long and last but not least, allocations are kept on the low side because input memoization is not needed.
 
-## Day3
+## Day 3
 
 Challenge is related to [Aoc2022/day23](https://adventofcode.com/2022/day/23), I'm using multiple bit arrays supported by a custom `u192` type. This solution is amazingly fast mainly because it is cache and CPU friendly. Almost all 2D ops are separated in 1D vector ops (think [`SIMD`](https://en.wikipedia.org/wiki/Single_instruction,_multiple_data)) and occur in a rolling window of 3 input lines.
 
@@ -59,7 +60,7 @@ I prize E. Wastl continuous effort on delivering such neat subjects every year. 
 PS. To the young coders that might read this: don't be afraid! It's *not* a common day3 solution and certainly not the easiest way to solve it (but one of the fastest). The thing is, last november when warming up, I happened to refactor/improve AoC22/23.
 So the bitpacking technique is still vivid in my memory. If it wasn't I may not have succeded in conjuring, factorizing and finally getting right all the corner cases and details of this solution in a fair amount of time.
 
-## Day4
+## Day 4
 
 Finally, day1 has come! Today's challenge is about typing speed with a few pauses here and there to actually think through the needed ops. As standard Go package `strings` has already proven usefull to tokenize inputs, I'm once again using it here.
 
@@ -73,7 +74,7 @@ score += 1 << nmatch >> 1
 
 `<EDIT>` following [`u/masklinn`](https://www.reddit.com/r/adventofcode/comments/18actmy/comment/kbzqx3e/?utm_source=share&utm_medium=web2x&context=3) advice, I went the extra mile consisting of replacing the winning number map by a [bitmap](https://en.wikipedia.org/wiki/Bitmap). I've also replaced the static 200+ deck by a [ring buffer](https://en.wikipedia.org/wiki/Circular_buffer). The resulting improvement is not measurable with hyperfine though.
 
-## Day5
+## Day 5
 
 [Intervals!](https://en.wikipedia.org/wiki/Interval_(mathematics))
 
@@ -87,7 +88,7 @@ PS. `Interval Trees` can also be found in the [big book](https://en.wikipedia.or
 
 PS2. Look how fast the solution is \o/
 
-## Day6
+## Day 6
 
 Today is a direct application of solving this [`quadratic formula`](https://en.wikipedia.org/wiki/Quadratic_formula):
 
@@ -101,7 +102,7 @@ For a very long time [`FPU`](https://en.wikipedia.org/wiki/Floating-point_unit) 
 
 But, for the sake of remembering those old days, I still don't want to switch to `FPU` when computing a square-root in an otherwise integer problem. I usually use a (fast) [`integer square root`](https://en.wikipedia.org/wiki/Integer_square_root) computation. In this very case, there's no reasonnable way to see the difference.
 
-## Day7
+## Day 7
 
 Now we have to [rank some hands](https://en.wikipedia.org/wiki/List_of_poker_hands#Hand-ranking_categories) akin to Poker but with slight variations. To this end and for maximum speed, we'd like to build the smallest representation of a hand that would:
 
@@ -168,7 +169,7 @@ func cmp(a, b game) int {
 
 `part2` has it's own pitfalls and the details including a change in card scale are fun to study. If you look at it you will find a very good reason to use the `X` flag in regard to what is a `wildcard` and what it does to a special hand. But this write-up is already too long.
 
-## Day8
+## Day 8
 
 The crux of this challenge is to correctly encode the input. I mean obviously we could go for `type node struct{name, left, right str}` arranged in a `map[string]node` and it would fit. But do we really want to hash a million or so 3-letters strings?
 Can we spare the hashing time? I tend to see programming as balancing time vs. space, so if we want to gain time we have to give space, but how much at most? A letter is `5bits` long: `A == 0, Z == 26 == 11010b`. Thus a node name is `15bits` long. There are `26x26x26 = 26^3 = 17576` unique node names with repetition. If we build a full storage of say 1 word (left, right) indexed by `15bits` node names it would be `17576 * 4bytes ≈ 68KB`, what a great deal!
@@ -182,17 +183,17 @@ So the idea here is to *encode the nodes on 3x5bits* and everything becomes natu
 
 PS. There's a port of [binary gcd](https://en.wikipedia.org/wiki/Binary_GCD_algorithm) in this solution.
 
-## Day9
+## Day 9
 
 I don't understand the (lack of) difficulty today. The solution is totally described in the challenge, it is [recursive](https://en.wikipedia.org/wiki/Recursion) by design. This is the [method of differences](https://en.wikipedia.org/wiki/Telescoping_series). Let's call it a day!
 
-## Day10
+## Day 10
 
 This one is tricky because we can easily commit ourselves to tasks that were never needed. Look at this, the challenge occurs in a manhattan space and all the speeches about counting dots and tiles are just obfuscating the crux of this problem: we just want to compute the loop area!
 
 PS. I've included a nice `utf8` vizualisation in this one!
 
-## Day11
+## Day 11
 
 One thing I like so much with AoC is that comes december and suddenly I'm like a witch invited to a month long sabbath. I mean, every day I have to go for the challenge and then I can browse the subreddit to see what others have been up to. But from time to time one can learn much there: This morning I coded a boring `O(N²)` solution and it was ok fast (`~1ms`) but it felt like off to me. Long after, golfing and benchmarking, my mind was still wandering looking for something else to think about today's *universe*.
 
@@ -201,3 +202,12 @@ And finally, I found `u/edoannunziata`! Look at his [amazing solution](https://g
 So I decided to study it by porting it, and the result is rewarding: It is so neat and fast! The point was to separate the 2D problem into independant 2x1D problems. When this technique exists (and around), the problem is dimmed [*separable*](https://en.wikipedia.org/wiki/Separable_filter).
 
 PS. there's a minimal Python3 `Counter` port that was fun to compose in my solution.
+
+## Day 12
+
+I believe there's no other way than [dynamic programming](https://en.wikipedia.org/wiki/Dynamic_programming) to solve today challenge. This is why we may well find very fast `py3` cached recursive functions today. My point was to make the fastest iterative *arranger* possible and to store directly the result instead of say caching the function call.
+And I did!
+
+Later on, I saw [this](https://www.reddit.com/r/adventofcode/comments/18ge41g/comment/kd0ohrj/?utm_source=share&utm_medium=web2x&context=3) idea about trimming and implemented it, resulting in the same result (but mine published later).
+
+Every year, around day 12 to 15, there's a steep increase in AoC challenge runtimes, this could be it and surely `Dijkstra` is coming soon now.
