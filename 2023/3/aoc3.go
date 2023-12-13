@@ -55,16 +55,17 @@ func newSchema() (sc *schema) {
 	return
 }
 
-func (sc *schema) idx(j, i int) int {
+// 2D (j, i) -> 1D φ
+func (sc *schema) φ(j, i int) int {
 	return j*(sc.W+2) + i // 1-based surrounded by empty cells
 }
 
 func (sc *schema) setrow(j int, row []byte) {
 	sc.H, sc.W = max(sc.H, j), len(row)
 	// sugars
-	idx, nums, syms, cogs := sc.idx, &sc.nums, &sc.syms, &sc.cogs
+	φ, nums, syms, cogs := sc.φ, &sc.nums, &sc.syms, &sc.cogs
 
-	copy(sc.schem[idx(j, 1):], row) // 1-based
+	copy(sc.schem[φ(j, 1):], row) // 1-based
 
 	pre, cur, nxt := j-1, j, j+1
 	for i, c := range row {
@@ -91,7 +92,7 @@ func (sc *schema) setrow(j int, row []byte) {
 
 func (sc *schema) inventory() (sum, ratio int) {
 	// sugars
-	schem, idx, H, W := &sc.schem, sc.idx, sc.H, sc.W
+	schem, φ, H, W := &sc.schem, sc.φ, sc.H, sc.W
 	nums, syms, cogs := &sc.nums, &sc.syms, &sc.cogs
 
 	buf := make([]byte, 0, 4)
@@ -118,7 +119,7 @@ func (sc *schema) inventory() (sum, ratio int) {
 
 		// hscan
 		for i := 1; i <= W; i++ {
-			c := schem[idx(j, i)]
+			c := schem[φ(j, i)]
 			switch {
 			case isdigit(c): // candidate part number digit
 				buf = append(buf, c)
@@ -126,7 +127,7 @@ func (sc *schema) inventory() (sum, ratio int) {
 				part = part || parts.getbit(i) > 0 // permanent flag once set
 
 				if gear == 0 && gears.getbit(i) > 0 { // set once per part number
-					gear = idx(j, i)
+					gear = φ(j, i)
 				}
 			case c == '*': // candidate gear
 				base := one192.lsh(i)
@@ -150,9 +151,9 @@ func (sc *schema) inventory() (sum, ratio int) {
 				}
 
 				// sum surrounding part counts (3x3 window)
-				sc.gears[idx(j, i)].count += pop(pre)
-				sc.gears[idx(j, i)].count += pop(cur)
-				sc.gears[idx(j, i)].count += pop(nxt)
+				sc.gears[φ(j, i)].count += pop(pre)
+				sc.gears[φ(j, i)].count += pop(cur)
+				sc.gears[φ(j, i)].count += pop(nxt)
 
 				if !part {
 					continue // hscan
@@ -182,7 +183,7 @@ func (sc *schema) inventory() (sum, ratio int) {
 			n := 1
 			for jj := -1; jj < 2; jj++ {
 				for ii := i - 1; ii < i+2; ii++ {
-					n *= gears[idx(jj, ii)].ratio
+					n *= gears[φ(jj, ii)].ratio
 				}
 			}
 			ratio += n // part2
@@ -192,12 +193,12 @@ func (sc *schema) inventory() (sum, ratio int) {
 }
 
 func (sc *schema) String() string {
-	idx := sc.idx
+	φ := sc.φ
 	var sb strings.Builder
 
 	schem, H := sc.schem, sc.H
 	for j := 0; j < H; j++ {
-		fmt.Fprintln(&sb, string(schem[idx(j, 0):idx(j+1, 0)]))
+		fmt.Fprintln(&sb, string(schem[φ(j, 0):φ(j+1, 0)]))
 	}
 	return sb.String()
 }

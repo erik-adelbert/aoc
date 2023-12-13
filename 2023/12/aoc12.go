@@ -69,7 +69,7 @@ func solve(springs string, blocks []int) int {
 
 			if build >= block && springs[i-block] != '#' {
 				// current block is buildable in nxt[i+1] ways
-				// total i springs into all blocks up to current
+				// accumulate arrangements of i springs into all blocks up to current
 				nxt[i+1] += cur[i-block]
 			}
 		}
@@ -79,6 +79,7 @@ func solve(springs string, blocks []int) int {
 		clear(nxt)
 	}
 
+	// arrangements of all springs into all blocks
 	return cur[len(cur)-1]
 }
 
