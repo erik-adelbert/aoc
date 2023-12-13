@@ -29,7 +29,6 @@ type world struct {
 }
 
 func (w *world) readline(j int, line string) {
-
 	w.H = max(w.H, j+1)
 	w.W = max(w.W, len(line))
 
@@ -130,10 +129,19 @@ func (w *world) String() string {
 		SW = "╮" // 90-degree connecting south and west
 		SE = "╭" // 90-degree connecting south and east
 	)
-	r := strings.NewReplacer("-", EW, "|", NS, "L", NE, "J", NW, "7", SW, "F", SE)
+	r := strings.NewReplacer(
+		string(byte(0)), ".",
+		"-", EW, "|", NS, "L", NE, "J", NW, "7", SW, "F", SE,
+	)
+
+	buf := make([]byte, MAXN*MAXN)
+	path, _ := w.findpath()
+	for i := range path {
+		buf[path[i]] = w.maze[path[i]]
+	}
 
 	for j := 0; j < w.H; j++ {
-		fmt.Fprintln(&sb, r.Replace(string(w.maze[φ(j, 0):φ(j, w.W)])))
+		fmt.Fprintln(&sb, r.Replace(string(buf[φ(j, 0):φ(j, w.W)])))
 	}
 
 	return sb.String()
