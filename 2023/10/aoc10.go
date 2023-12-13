@@ -17,7 +17,7 @@ func main() {
 
 	//fmt.Println(w)
 
-	path, area := w.path()
+	path, area := w.findpath()
 	fmt.Println(len(path)/2, area)
 }
 
@@ -41,61 +41,70 @@ func (w *world) readline(j int, line string) {
 	}
 }
 
-func (w *world) path() ([]int, int) {
-	area := 0
-	path := make([]int, 0, 1<<13)
+func (w *world) findpath() ([]int, int) {
+	var old, cur, nxt int
 
-	old, cur, nxt := 0, 0, w.O // 3 window
-	for {
-		fwd := func(x int, a, b func(int) int) int {
-			p, q := a(x), b(x)
-			if p != old { // prevent turning back
-				return p
-			}
-			return q
+	area := 0
+	path := make([]int, 0, 8192)
+
+	// match S with its next pipe
+	align := func(x int) int {
+		var matchers = []struct {
+			dir func(int) int // north | west | south | east
+			pat string
+		}{
+			// ex. go north if north == ('7' | '|' | 'F' )
+			{north, "7|F"}, {west, "L-F"}, {south, "J|L"},
 		}
 
+		for _, m := range matchers {
+			for i := range m.pat {
+				if m.pat[i] == w.maze[m.dir(x)] {
+					return m.dir(x)
+				}
+			}
+		}
+		return east(x) // default to east
+	}
+
+	// go fwd without turning around
+	fwd := func(x int) int {
+		var a, b func(int) int
+		switch w.maze[x] {
+		case 'J':
+			a, b = north, west
+		case 'L':
+			a, b = north, east
+		case '|':
+			a, b = north, south
+		case '-':
+			a, b = east, west
+		case '7':
+			a, b = south, west
+		case 'F':
+			a, b = south, east
+		}
+
+		// select between a and b
+		// prevent turning around
+		if a(x) != old {
+			return a(x)
+		}
+		return b(x)
+	}
+
+	old, cur, nxt = 0, 0, w.O // 3 window
+	for {
 		old, cur = cur, nxt
 		path = append(path, cur)
-		switch w.maze[cur] {
-		case 'S':
-			type matcher struct {
-				fun func(int) int
-				pat string
-			}
 
-			align := func(x int) int {
-				var ms = []matcher{
-					{north, "7|F"}, // go north if north == ('7' | '|' | 'F' )
-					{west, "L-F"},
-					{south, "J|L"},
-				}
-
-				for _, m := range ms {
-					for i := range m.pat {
-						if w.maze[m.fun(x)] == m.pat[i] {
-							return m.fun(x)
-						}
-					}
-				}
-				return east(x) // default to east
-			}
-
+		if cur == w.O {
 			nxt = align(cur)
-		case 'J':
-			nxt = fwd(cur, north, west) // select between north and west
-		case 'L':
-			nxt = fwd(cur, north, east)
-		case '|':
-			nxt = fwd(cur, north, south)
-		case '-':
-			nxt = fwd(cur, east, west)
-		case '7':
-			nxt = fwd(cur, south, west)
-		case 'F':
-			nxt = fwd(cur, south, east)
+		} else {
+			nxt = fwd(cur)
 		}
 
+		// shoelace formula
 		cj, ci := ji(cur)
 		nj, ni := ji(nxt)
 		area += ci*nj - cj*ni

@@ -73,7 +73,7 @@ func (sc *schema) setrow(j int, row []byte) {
 		base := one192.lsh(i)
 		mask := base.or(base.lsh(1), base.rsh(1))
 
-		// make bitmap
+		// bitmap
 		switch {
 		case isdigit(c):
 			nums[j].setbit(i)
@@ -105,8 +105,8 @@ func (sc *schema) inventory() (sum, ratio int) {
 		getpart := func() {
 			n := atoi(buf)
 
-			sum += n // part1
-			part = false
+			sum += n     // part1
+			part = false // unset flag
 
 			if gear > 0 {
 				// also a gear
@@ -162,7 +162,7 @@ func (sc *schema) inventory() (sum, ratio int) {
 				getpart()
 				fallthrough
 			default:
-				buf = buf[:0] // consume buffer
+				buf = buf[:0]
 			}
 		}
 		// part ends on schematic row boundary, get it now

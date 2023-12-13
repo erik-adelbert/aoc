@@ -32,6 +32,7 @@ func main() {
 
 		input := input.Text()
 		// input is: ^Game\s(\s|\d)\d:\s((\s|\d)\d+\s)+|\s((\s|\d)\d\s)+(\s|\d)\d$
+
 		// ditch '^Game \d+:\s' prefix, split winning and cards numbers
 		raw := Split(input[Index(input, ":")+1:], " | ")
 		w, card := Fields(raw[0]), Fields(raw[1])

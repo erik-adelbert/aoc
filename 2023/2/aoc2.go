@@ -26,18 +26,20 @@ func main() {
 
 		// input is ^Game \d+:\s(.*;\s)+(.*)$
 		input := input.Text()
+
 		draws := Split(input[Index(input, ": ")+2:], "; ") // ditch "^Game X: " prefix, split tail
 		for j := range draws {
-			draws := Split(draws[j], ", ") // split game drawings
-			for i := range draws {
-				datas := Fields(draws[i])           // split RGB component and count
-				color := Index("bgr", datas[1][:1]) // single char 'r', 'g' or 'b' -> R, G, B
-				count := atoi(datas[0])
 
-				// check for validity, part1
+			rgb := Split(draws[j], ", ") // split game drawings
+			for i := range rgb {
+				fields := Fields(rgb[i])             // split RGB component and count
+				color := Index("bgr", fields[1][:1]) // single char 'r', 'g' or 'b' -> R, G, B
+				count := atoi(fields[0])
+
+				// check validity, part1
 				valid = valid && count <= 14-color
 
-				// record max power RGB, part2
+				// record max RGB power, part2
 				power[color] = max(power[color], count)
 			}
 		}

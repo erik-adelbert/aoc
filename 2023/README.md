@@ -16,7 +16,7 @@
 | 12 | 5.7 |
 | total | 14.4 |
 
-fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.0.0 - go version go1.21.4 darwin/arm64 - hyperfine 1.18.0 - 2023-12
+fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.2.0 - go version go1.21.4 darwin/arm64 - hyperfine 1.18.0 - 2023-12
 
 ## Installation and benchmark
 
@@ -189,7 +189,7 @@ I don't understand the (lack of) difficulty today. The solution is totally descr
 
 ## Day 10
 
-This one is tricky because we can easily commit ourselves to tasks that were never needed. Look at this, the challenge occurs in a manhattan space and all the speeches about counting dots and tiles are just obfuscating the crux of this problem: we just want to compute the loop area!
+This one is tricky because we can easily commit ourselves to tasks that were never needed. Look at this, the challenge occurs in a manhattan space and all the speeches about counting dots and tiles are just obfuscating the crux of this problem: we just want to compute the loop [area](https://en.wikipedia.org/wiki/Shoelace_formula)!
 
 PS. I've included a nice `utf8` vizualisation in this one!
 
