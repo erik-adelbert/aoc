@@ -5,16 +5,19 @@
 | 5 | 0.5 |
 | 1 | 0.6 |
 | 6 | 0.6 |
-| 10 | 0.7 |
 | 2 | 0.7 |
 | 11 | 0.8 |
 | 4 | 0.8 |
 | 9 | 0.8 |
+| 10 | 0.9 |
 | 3 | 1.0 |
+| 15 | 1.1 |
 | 7 | 1.1 |
 | 8 | 1.1 |
+| 13 | 4.2 |
 | 12 | 5.7 |
-| total | 14.4 |
+| 14 | 15.2 |
+| total | 35.1 |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.2.0 - go version go1.21.4 darwin/arm64 - hyperfine 1.18.0 - 2023-12
 
@@ -213,3 +216,31 @@ And I did!
 Later on, I saw [this](https://www.reddit.com/r/adventofcode/comments/18ge41g/comment/kd0ohrj/?utm_source=share&utm_medium=web2x&context=3) idea about trimming and rolling the dp table and implemented it, resulting in the same result (but mine published later).
 
 Every year, around day 12 to 15, there's a steep increase in AoC challenge runtimes, this could be it and surely `Dijkstra` is coming soon now.
+
+## Day 13
+
+Due to family commitments, I'm lagging a bit behind right now.
+
+Nevermind, today's challenge is about finding the longuest [palindrome](https://en.wikipedia.org/wiki/Palindrome) and I've found a very fast (linear) way to find one but the program is not ready yet for release. I expect a runtime in the low `~4ms`.
+
+## Day 14
+
+This challenge is a beast! I went for the simulation but needed to be faster than fast: I built a custom `bitarray128` with *fast transpose*, *fast rotate* and *fast hash* built upon a custom `uint128` type with almost all the bells and whistles. And here it is, solving this challenge in `15ms`! The hashing speed enables a standard [`hash map`](https://en.wikipedia.org/wiki/Hash_table#:~:text=In%20computing%2C%20a%20hash%20table,that%20maps%20keys%20to%20values.) to support the cycle detection.
+
+A fast `bitarray128` transpose and hashing is not easily available and the performances of this bitarray implementation could be worth publishing separately.
+
+## Day 15
+
+I don't like to fiddle with arrays and slices: Inserting/deleting from arrays is inefficient by nature and usually the sign of a poor design. Creating/Updating and then removing `lens` from `slots` is the perfect example:
+
+- First of all, the problem is almost a *pure* byte one and the (hopefully small) `lens` names can be hashed efficiently. 
+
+- The challenge really describes some kind of [buckets](https://en.wikipedia.org/wiki/Bucket_sort) that support *ops* in *time* this is exactly what [`queues`](https://en.wikipedia.org/wiki/Queue_(abstract_data_type)) are made for, not [arrays](https://en.wikipedia.org/wiki/Array_(data_structure))! We could say `arrays` are linked to `space` while `queues` are more linked to `time`.
+
+- Actually [this](https://en.wikipedia.org/wiki/Bucket_queue) is the serious version of today's story.
+
+So my idea from the start was to shuffle input commands to the various `queues` (boxes in the challenge) without doing anything more. A queue is built from a `hashmap` that record when a `lens` was removed for the last time, and an array of all the other bucketted commands. Once done, it was easy to built the slots without removing any `lens`: to this end it suffices to see if the candidate `lens` is in the delete list and if yes at what time it did enter there. If the current `lens` was allowed or arrived after the last `delete` command it was ok to add it, and voilà!
+
+## Day 16
+
+Is not ready yet.
