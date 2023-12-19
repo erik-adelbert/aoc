@@ -274,7 +274,7 @@ So my idea from the start was to shuffle input commands to the various `queues` 
 
 ## Day 16
 
-Is not ready yet.
+Is not ready yet. It's `Dijkstra` as expected from las day 12.
 
 ## Day 17
 
