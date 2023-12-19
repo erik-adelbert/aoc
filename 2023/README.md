@@ -270,7 +270,7 @@ I don't like to fiddle with arrays and slices: Inserting/deleting from arrays is
 
 - Actually [this](https://en.wikipedia.org/wiki/Bucket_queue) is the serious version of today's story.
 
-So my idea from the start was to shuffle input commands to the various `queues` (boxes in the challenge) without doing anything more. A queue is built from a `hashmap` that record when a `lens` was removed for the last time, and an array of all the other bucketted commands. Once done, it was easy to built the slots without removing any `lens`: to this end it suffices to see if the candidate `lens` is in the delete list and if yes at what time it did enter there. If the current `lens` was allowed or arrived after the last `delete` command it was ok to add it, and voilà!
+So my idea from the start was to shuffle input commands to the various `queues` (boxes in the challenge) and then, for each queue, to batch process them. A queue is built from a `hashmap` that records when a `lens` was removed for the last time, and an array of all the other bucketted commands. Once loaded, it is easy to built the slots without removing any `lens`: it suffices to see if the candidate `lens` is in the delete list and if yes at what time did it enter there. If the current `lens` is allowed or arrives after the last `delete` command it is ok to add it, and voilà!
 
 ## Day 16
 
@@ -278,7 +278,7 @@ Is not ready yet.
 
 ## Day 17
 
-Is not ready yet.
+Is not ready yet. It shares a lot with last year [day 12](https://github.com/erik-adelbert/aoc/tree/main/2022/12) and I'm expecting a runtime in the low ms for my solution.
 
 ## Day 18
 
