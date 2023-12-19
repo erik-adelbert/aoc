@@ -5,19 +5,20 @@
 | 5 | 0.5 |
 | 1 | 0.6 |
 | 6 | 0.6 |
+| 18 | 0.7 |
 | 2 | 0.7 |
 | 11 | 0.8 |
 | 4 | 0.8 |
 | 9 | 0.8 |
 | 10 | 0.9 |
+| 13 | 0.9 |
 | 3 | 1.0 |
 | 15 | 1.1 |
 | 7 | 1.1 |
 | 8 | 1.1 |
-| 13 | 4.2 |
 | 12 | 5.7 |
 | 14 | 15.2 |
-| total | 35.1 |
+| total | 32.5 |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.2.0 - go version go1.21.4 darwin/arm64 - hyperfine 1.18.0 - 2023-12
 
@@ -221,7 +222,37 @@ Every year, around day 12 to 15, there's a steep increase in AoC challenge runti
 
 Due to family commitments, I'm lagging a bit behind right now.
 
-Nevermind, today's challenge is about finding the longuest [palindrome](https://en.wikipedia.org/wiki/Palindrome) and I've found a very fast (linear) way to find one but the program is not ready yet for release. I expect a runtime in the low `~4ms`.
+Nevermind, today's challenge is about finding the longuest [palindrome](https://en.wikipedia.org/wiki/Palindrome) and I've found a very fast (linear) way to find one but the program is not ready yet for release. I expect a runtime in the low ~~`~4ms`~~.
+
+Here it is, running in __less than `1ms`__.
+
+I knew finding palindromes was a quadratic task at best except it's not!! 
+
+Look at [this awesome work](https://www.akalin.com/longest-palindrome-linear-time) by Fred Akalin. Actually, it is akin to build a `trie` but tailored to the task at hand. Instead of running in `O(n³)` for the naïve solution or in `O(n²)` for an improved technique, this one runs in __`Θ(n)`__ which is even faster than usually expected. The difference is really sensible even with small inputs like the ones from today. It comes with many good properties like:
+
+- being bound by __`Θ(n)`__
+- being bound by __`O(1)` space__
+- finding __all palindromes in one pass__
+- locating them on and __in between__ items
+
+Solving today's challenge with this technology is like being blessed with a really cool super power \o/ (at least for `rio`, my mbair).
+
+But I was in the mood for more, so I've build the solution upon a custom `bitarray32` which uses the transpose algorithm summerized in Warren's [hacker's delight](https://doc.lagout.org/security/Hackers%20Delight.pdf).
+
+1) First, each input line is obviously summerized in a integer and stored in a `bitarray32`. 
+2) Then we pipelin this `bitarray32` __directly__ to `flp` the fast palindrome finding bit.
+3) We fast transpose the `bitarray32` and
+4) Pipeline again the transposed `bitarray32` to `flp`
+
+There's a lot of pitfalls along the way but all of them are manageable. Step #2 scores the columns while step #4 scores the rows.
+
+| Command | Mean [ms] | Min [ms] | Max [ms] | Relative |
+|:---|---:|---:|---:|---:|
+| `cat input.txt > /dev/null` | 1.2 ± 0.2 | 1.0 | 3.4 | 1.00 |
+| `./aoc13 < input.txt` | 2.2 ± 0.1 | 1.9 | 2.9 | 1.73 ± 0.28 |
+
+PS. This may be one of the fastest if not the fastest solution for this challenge.
+I've also included 6 additional sample cases some simple, some tricky.
 
 ## Day 14
 
@@ -244,3 +275,11 @@ So my idea from the start was to shuffle input commands to the various `queues` 
 ## Day 16
 
 Is not ready yet.
+
+## Day 17
+
+Is not ready yet.
+
+## Day 18
+
+There's not to much to say for today challenge, except that we were compelled to use the [*shoelace formula*](https://en.wikipedia.org/wiki/Shoelace_formula) in 2023, in case some of us didn't use it on last Day 10.
