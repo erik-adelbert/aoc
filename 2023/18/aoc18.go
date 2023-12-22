@@ -67,7 +67,7 @@ func (p lagoon) area() int {
 	return (p.peri+p.lace)/2 + 1
 }
 
-var Fields = strings.Fields
+var Fields, Index = strings.Fields, strings.Index
 
 // strconv.Atoi simplified core loop
 // s is ^\d+$
@@ -79,12 +79,12 @@ func atoi(s string) (n int) {
 }
 
 func htoi(s string) (n int) {
-	var Index = strings.Index
+	ctoi := func(c byte) int {
+		return Index("0123456789abcdef", string(c))
+	}
 
-	n = 0
 	for i := range s {
-		d := Index("0123456789abcdef", string(s[i]))
-		n = n*16 + d
+		n = 16*n + ctoi(s[i])
 	}
 	return
 }

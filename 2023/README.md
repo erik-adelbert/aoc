@@ -16,9 +16,11 @@
 | 15 | 1.1 |
 | 7 | 1.1 |
 | 8 | 1.1 |
+| 19 | 1.6 |
 | 12 | 5.7 |
 | 14 | 15.2 |
-| total | 32.5 |
+| 20 | 15.7 |
+| total | 49.8 |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.2.0 - go version go1.21.4 darwin/arm64 - hyperfine 1.18.0 - 2023-12
 
@@ -61,12 +63,12 @@ Anyway, the challenge is akin to a [*static analysis*](https://en.wikipedia.org/
 
 I prize E. Wastl continuous effort on delivering such neat subjects every year. Here the challenge story is about a complex machinery with many cogwheels precisely timed and sized for the task: this is a fair description of what today's program feels like, a complex yet efficient machine with many simple parts that intricately but gracefully fall into place.
 
-PS. To the young coders that might read this: don't be afraid! It's *not* a common day3 solution and certainly not the easiest way to solve it (but one of the fastest). The thing is, last november when warming up, I happened to refactor/improve AoC22/23.
+PS. To the young coders that might read this: don't be afraid! It's *not* a common day 3 solution and certainly not the easiest way to solve it (but one of the fastest). The thing is, last november when warming up, I happened to refactor/improve AoC22/23.
 So the bitpacking technique is still vivid in my memory. If it wasn't I may not have succeded in conjuring, factorizing and finally getting right all the corner cases and details of this solution in a fair amount of time.
 
 ## Day 4
 
-Finally, day1 has come! Today's challenge is about typing speed with a few pauses here and there to actually think through the needed ops. As standard Go package `strings` has already proven usefull to tokenize inputs, I'm once again using it here.
+Finally, day 1 has come! Today's challenge is about typing speed with a few pauses here and there to actually think through the needed ops. As standard Go package `strings` has already proven usefull to tokenize inputs, I'm once again using it here.
 
 The solution is totally linear, that is it follows closely the challenge tale and its runtime complexity is bounded by `O(n)` with `n` the input (deck) size. Given the small size of today's input (~200 lines), it is very fast.
 
@@ -82,7 +84,7 @@ score += 1 << nmatch >> 1
 
 [Intervals!](https://en.wikipedia.org/wiki/Interval_(mathematics))
 
-Given that it is only day5 (and the input size), I'm *not* going to talk about [`Interval Trees`](https://en.wikipedia.org/wiki/Interval_tree). I am going to [`brute-force`](https://en.wikipedia.org/wiki/Brute-force_search) the thing!
+Given that it is only day 5 (and the input size), I'm *not* going to talk about [`Interval Trees`](https://en.wikipedia.org/wiki/Interval_tree). I am going to [`brute-force`](https://en.wikipedia.org/wiki/Brute-force_search) the thing!
 `<Spoiler>` Well brute-forcing it, doesn't mean testing millions of points! It rather means to brute-force the interval *boundaries* checking.`</Spoiler>`.
 I don't keep the challenge data format: it's not a so classical interval representation and therefore *will* get in the way. Today
 program representation is: `{[α, ω), α'}` where `α'` is the destination category from the challenge.
@@ -237,7 +239,7 @@ Look at [this awesome work](https://www.akalin.com/longest-palindrome-linear-tim
 
 Solving today's challenge with this technology is like being blessed with a really cool super power \o/ (at least for `rio`, my mbair).
 
-But I was in the mood for more, so I've build the solution upon a custom `bitarray32` which uses the transpose algorithm summerized in Warren's [hacker's delight](https://doc.lagout.org/security/Hackers%20Delight.pdf).
+But I was in the mood for more, so I've build the solution upon a custom `bitarray32` which uses the transpose algorithm summerized in Warren's [hacker's delight](https://doc.lagout.org/security/Hackers%20Delight.pdf) for [ordering](https://en.wikipedia.org/wiki/Row-_and_column-major_order) the array.
 
 1) First, each input line is obviously summerized in a integer and stored in a `bitarray32`. 
 2) Then we pipelin this `bitarray32` __directly__ to `flp` the fast palindrome finding bit.
@@ -282,4 +284,22 @@ Is not ready yet. It shares a lot with last year [day 12](https://github.com/eri
 
 ## Day 18
 
-There's not to much to say for today challenge, except that we were compelled to use the [*shoelace formula*](https://en.wikipedia.org/wiki/Shoelace_formula) in 2023, in case some of us didn't use it on last Day 10.
+There's not to much to say for today challenge, except that we were compelled to use the [*shoelace formula*](https://en.wikipedia.org/wiki/Shoelace_formula) in 2023, in case some of us didn't use it on last day 10.
+
+## Day 19
+
+There's a story in the story of today's challenge. It's not only about debugging elves contraptions, it is also about simulating workflows in an hyperspace storage! It's so so satifying. In 21/day 12 I built a `kd-trees` for a very similar task. This year I could have talked about interval trees but I went for a more simple representation with [many names](https://en.wikipedia.org/wiki/Tesseract#:~:text=The%20tesseract%20is%20also%20called,polytope.): the `tesseract`. Except for that, the problem is akin to day 5.
+
+So what we really have to do is to bucket the tesseract {1, 4000}⁴ into halving hyperrectangles aligned on its axis. It sounds crazy but really it is the very same idea of day 5 applied to 4D.
+
+## Day 20
+
+The solution runs a simulation of pulse flow, the reasons for using `lcm` and the reverse engineering are explained in the subbreddit for today.
+
+## Day 21
+
+Is not ready yet.
+
+## Day 22
+
+Is currently being composed but I'm tired.
