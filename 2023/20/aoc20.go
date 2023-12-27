@@ -8,12 +8,52 @@ import (
 	"strings"
 )
 
+var part1, part2 int
+
+func main() {
+
+	var cnt sigcnt
+	mods := make(modules, 64)
+
+	links := make([][]string, 0, 64)
+
+	// parse network
+	input := bufio.NewScanner(os.Stdin)
+	for input.Scan() {
+		args := split(input.Text(), " -> ")
+
+		m := newModule(args[0], &cnt)
+		mods[m.id] = m
+
+		links = append(links, append(split(args[1], ", "), m.id))
+	}
+
+	// relink ands find probe
+	rxinv := mods.relink(links)
+
+	// press button and probe network
+	mods.button(mods[rxinv])
+
+	fmt.Println(part1, part2)
+}
+
 const (
 	LO = iota
 	HI
 )
 
 type sigcnt [2]int
+
+type pulse struct {
+	dst, src *module
+	val      int
+}
+
+func (p pulse) String() string {
+	var sb strings.Builder
+	fmt.Fprintf(&sb, "(%v %d -> %v)", p.src, p.val, p.dst)
+	return sb.String()
+}
 
 type module struct {
 	id   string
@@ -25,17 +65,6 @@ type module struct {
 	dsts []*module
 
 	cnt *sigcnt
-}
-
-type pulse struct {
-	dst, src *module
-	val      int
-}
-
-func (p pulse) String() string {
-	var sb strings.Builder
-	fmt.Fprintf(&sb, "(%v %d -> %v)", p.src, p.val, p.dst)
-	return sb.String()
 }
 
 func newModule(s string, cnt *sigcnt) *module {
@@ -60,30 +89,6 @@ func newModule(s string, cnt *sigcnt) *module {
 	return m
 }
 
-func (m *module) link(u *module) {
-	u.srcs[m] = 0
-	m.dsts = append(m.dsts, u)
-}
-
-func (m *module) emit(v int) (pulses []pulse) {
-	pulses = make([]pulse, len(m.dsts))
-
-	i := 0
-	for _, d := range m.dsts {
-		pulses[i] = pulse{dst: d, src: m, val: v}
-		i++
-	}
-
-	return
-}
-
-func (m *module) broadcast(p pulse) []pulse {
-	val := p.val
-	m.cnt[val]++
-
-	return m.emit(val)
-}
-
 func (m *module) and(p pulse) []pulse {
 	src, val := p.src, p.val
 	m.cnt[val]++
@@ -96,6 +101,13 @@ func (m *module) and(p pulse) []pulse {
 	}
 
 	return m.emit(HI - m.acc)
+}
+
+func (m *module) broadcast(p pulse) []pulse {
+	val := p.val
+	m.cnt[val]++
+
+	return m.emit(val)
 }
 
 func (m *module) flip(p pulse) []pulse {
@@ -113,6 +125,23 @@ func (m *module) flip(p pulse) []pulse {
 func (m *module) sink(p pulse) []pulse {
 	m.cnt[p.val]++
 	return []pulse{}
+}
+
+func (m *module) emit(v int) (pulses []pulse) {
+	pulses = make([]pulse, len(m.dsts))
+
+	i := 0
+	for _, d := range m.dsts {
+		pulses[i] = pulse{dst: d, src: m, val: v}
+		i++
+	}
+
+	return
+}
+
+func (m *module) link(u *module) {
+	u.srcs[m] = 0
+	m.dsts = append(m.dsts, u)
 }
 
 func (m *module) run(p pulse) []pulse {
@@ -144,7 +173,12 @@ func (ms modules) button(rxinv *module) {
 	}
 
 	var npresses int
-	for !(rxinv != nil && len(probe) == len(rxinv.srcs)) && npresses < N { // for sample and input alike
+
+	sample := func() bool { return npresses == N }
+	input := func() bool { return (rxinv != nil && len(probe) == len(rxinv.srcs)) }
+	done := func() bool { return input() || sample() }
+
+	for !done() {
 		cur = append(cur, pulse{
 			src: nil,
 			dst: ms["broadcaster"],
@@ -161,6 +195,7 @@ func (ms modules) button(rxinv *module) {
 						probe[p.src] = npresses + 1
 					}
 				}
+
 				nxt = append(nxt, p.dst.run(p)...)
 			}
 			cur, nxt = nxt, cur
@@ -173,30 +208,13 @@ func (ms modules) button(rxinv *module) {
 		}
 		npresses++
 	}
+
 	part2 = lcm(values(probe))
 }
 
-var part1, part2 int
+func (ms modules) relink(links [][]string) string {
+	cnt := ms["broadcaster"].cnt
 
-func main() {
-
-	var cnt sigcnt
-	mods := make(modules, 64)
-
-	links := make([][]string, 0, 64)
-
-	// parse network
-	input := bufio.NewScanner(os.Stdin)
-	for input.Scan() {
-		args := split(input.Text(), " -> ")
-
-		m := newModule(args[0], &cnt)
-		mods[m.id] = m
-
-		links = append(links, append(split(args[1], ", "), m.id))
-	}
-
-	// relink ands find probe
 	rxinv := ""
 	for i := range links {
 		ω := len(links[i]) - 1
@@ -205,37 +223,17 @@ func main() {
 			if u == "rx" {
 				rxinv = m
 			}
-			if _, ok := mods[u]; !ok {
-				x := newModule(u, &cnt)
-				mods[x.id] = x
+			if _, ok := ms[u]; !ok {
+				x := newModule(u, cnt)
+				ms[x.id] = x
 			}
-			mods[m].link(mods[u])
+			ms[m].link(ms[u])
 		}
 	}
-
-	// press button and probe network
-	mods.button(mods[rxinv])
-
-	fmt.Println(part1, part2)
+	return rxinv
 }
 
 var split = strings.Split
-
-func keys[T comparable, V any](m map[T]V) []T {
-	list := make([]T, 0, len(m))
-	for k := range m {
-		list = append(list, k)
-	}
-	return list
-}
-
-func values[T comparable, V any](m map[T]V) []V {
-	list := make([]V, 0, len(m))
-	for _, v := range m {
-		list = append(list, v)
-	}
-	return list
-}
 
 func lcm(nums []int) (Π int) {
 	Π = 1
@@ -280,6 +278,22 @@ func gcd(a, b int) int {
 }
 
 const MaxInt = int(^uint(0) >> 1)
+
+func keys[T comparable, V any](m map[T]V) []T {
+	list := make([]T, 0, len(m))
+	for k := range m {
+		list = append(list, k)
+	}
+	return list
+}
+
+func values[T comparable, V any](m map[T]V) []V {
+	list := make([]V, 0, len(m))
+	for _, v := range m {
+		list = append(list, v)
+	}
+	return list
+}
 
 const DEBUG = false
 

@@ -20,7 +20,8 @@
 | 12 | 5.7 |
 | 14 | 15.2 |
 | 20 | 15.7 |
-| total | 49.8 |
+| 17 | 26.1 |
+| total | 75.9 |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.2.0 - go version go1.21.4 darwin/arm64 - hyperfine 1.18.0 - 2023-12
 
@@ -276,11 +277,13 @@ So my idea from the start was to shuffle input commands to the various `queues` 
 
 ## Day 16
 
+~~It shares a lot with last year [day 12](https://github.com/erik-adelbert/aoc/tree/main/2022/12) and I'm expecting a runtime in the low ms for my solution.~~
+
 Is not ready yet. It's `Dijkstra` as expected from day 12.
 
 ## Day 17
 
-Is not ready yet. It shares a lot with last year [day 12](https://github.com/erik-adelbert/aoc/tree/main/2022/12) and I'm expecting a runtime in the low ms for my solution.
+It's not easy to see that each cell can be crossed vertically or horizontally, leading to different losses. I'm still convinced there's a speedier way to solve this challenge but for now, the current solution is working ok. It is a classical dijkstra and states are maintained for horizontal and vertical crossings.
 
 ## Day 18
 
@@ -303,3 +306,11 @@ Is not ready yet.
 ## Day 22
 
 Is currently being composed but I'm tired.
+
+## Day 23
+
+## Day 24
+
+## Day 25
+
+I'm slowly recovering from a bad flue.
