@@ -8,291 +8,138 @@ import (
 	"strings"
 )
 
-var part1, part2 int
-
 func main() {
 
-	var cnt sigcnt
 	mods := make(modules, 64)
-
-	links := make([][]string, 0, 64)
 
 	// parse network
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
 		args := split(input.Text(), " -> ")
 
-		m := newModule(args[0], &cnt)
-		mods[m.id] = m
+		var and bool
+		switch args[0][0] {
+		case '&':
+			and = true
+			fallthrough
+		case '%':
+			args[0] = args[0][1:] // extract id
+		}
 
-		links = append(links, append(split(args[1], ", "), m.id))
+		mods[args[0]] = newModule(and, split(args[1], ", "))
 	}
 
-	// relink ands find probe
-	rxinv := mods.relink(links)
+	c := newCircuit(mods)
+	fmt.Println(c.npulse(), c.rx1())
 
-	// press button and probe network
-	mods.button(mods[rxinv])
-
-	fmt.Println(part1, part2)
-}
-
-const (
-	LO = iota
-	HI
-)
-
-type sigcnt [2]int
-
-type pulse struct {
-	dst, src *module
-	val      int
-}
-
-func (p pulse) String() string {
-	var sb strings.Builder
-	fmt.Fprintf(&sb, "(%v %d -> %v)", p.src, p.val, p.dst)
-	return sb.String()
 }
 
 type module struct {
-	id   string
-	kind byte
-
-	acc int
-
-	srcs map[*module]int
-	dsts []*module
-
-	cnt *sigcnt
+	outs []string
+	and  bool
 }
 
-func newModule(s string, cnt *sigcnt) *module {
-	m := new(module)
-
-	if m.kind == 0 {
-		switch {
-		case s == "broadcaster":
-			m.kind = 'b'
-		case s[0] == '%', s[0] == '&':
-			m.kind, s = s[0], s[1:]
-		default:
-			m.kind = 's'
-		}
-	}
-
-	m.id = s
-	m.srcs = make(map[*module]int)
-	m.dsts = make([]*module, 0, 8)
-	m.cnt = cnt
-
-	return m
-}
-
-func (m *module) and(p pulse) []pulse {
-	src, val := p.src, p.val
-	m.cnt[val]++
-
-	m.srcs[src] = val
-
-	m.acc = HI
-	for _, v := range m.srcs {
-		m.acc &= v
-	}
-
-	return m.emit(HI - m.acc)
-}
-
-func (m *module) broadcast(p pulse) []pulse {
-	val := p.val
-	m.cnt[val]++
-
-	return m.emit(val)
-}
-
-func (m *module) flip(p pulse) []pulse {
-	val := p.val
-	m.cnt[val]++
-
-	if val == LO {
-		m.acc = 1 - m.acc
-		return m.emit(m.acc)
-	}
-
-	return []pulse{}
-}
-
-func (m *module) sink(p pulse) []pulse {
-	m.cnt[p.val]++
-	return []pulse{}
-}
-
-func (m *module) emit(v int) (pulses []pulse) {
-	pulses = make([]pulse, len(m.dsts))
-
-	i := 0
-	for _, d := range m.dsts {
-		pulses[i] = pulse{dst: d, src: m, val: v}
-		i++
-	}
-
-	return
-}
-
-func (m *module) link(u *module) {
-	u.srcs[m] = 0
-	m.dsts = append(m.dsts, u)
-}
-
-func (m *module) run(p pulse) []pulse {
-	module := []func(pulse) []pulse{
-		'b': m.broadcast,
-		'%': m.flip,
-		'&': m.and,
-		's': m.sink,
-	}[m.kind]
-
-	return module(p)
+func newModule(and bool, outs []string) *module {
+	return &module{outs, and}
 }
 
 func (m *module) String() string {
-	return string(m.kind) + m.id
+	var sb strings.Builder
+	fmt.Fprintf(&sb, "%v", *m)
+	return sb.String()
 }
 
 type modules map[string]*module
 
-func (ms modules) button(rxinv *module) {
-	cur := make([]pulse, 0, 64)
-	nxt := make([]pulse, 0, 64)
+type circuit [4]uint32
 
-	probe := make(map[*module]int, 4)
-
-	N := 1000
-	if rxinv != nil {
-		N = MaxInt
+func newCircuit(mods modules) circuit {
+	type node struct {
+		id   string
+		v, b uint32
 	}
 
-	var npresses int
+	todo := make([]node, 0)
+	push := func(id string, v, b uint32) {
+		todo = append(todo, node{id, v, b})
+	}
+	pop := func() (id string, v, b uint32) {
+		var top node
+		top, todo = todo[len(todo)-1], todo[:len(todo)-1]
+		return top.id, top.v, top.b
+	}
 
-	sample := func() bool { return npresses == N }
-	input := func() bool { return (rxinv != nil && len(probe) == len(rxinv.srcs)) }
-	done := func() bool { return input() || sample() }
+	for _, start := range mods["broadcaster"].outs {
+		push(start, 0, 1)
+	}
 
-	for !done() {
-		cur = append(cur, pulse{
-			src: nil,
-			dst: ms["broadcaster"],
-			val: LO,
-		})
+	fflops := make([]uint32, 0, 4)
+JOBS:
+	for len(todo) > 0 {
+		id, v, b := pop()
 
-		for len(cur) > 0 {
-			nxt = nxt[:0]
-
-			for _, p := range cur {
-				// part2
-				if rxinv != nil && p.val == HI {
-					if _, ok := rxinv.srcs[p.src]; ok && probe[p.src] == 0 {
-						probe[p.src] = npresses + 1
-					}
+		for _, nxt := range mods[id].outs {
+			if !mods[nxt].and {
+				if len(mods[id].outs) == 2 {
+					v |= b
 				}
-
-				nxt = append(nxt, p.dst.run(p)...)
+				push(nxt, v, b<<1)
+				continue JOBS
 			}
-			cur, nxt = nxt, cur
 		}
 
-		if npresses == 999 {
-			// part1
-			cnt := ms["broadcaster"].cnt
-			part1 = cnt[LO] * cnt[HI]
-		}
-		npresses++
+		fflops = append(fflops, v|b)
 	}
 
-	part2 = lcm(values(probe))
+	return circuit(fflops)
 }
 
-func (ms modules) relink(links [][]string) string {
-	cnt := ms["broadcaster"].cnt
+func (c circuit) npulse() uint32 {
+	type io struct {
+		i, o uint32
+	}
 
-	rxinv := ""
-	for i := range links {
-		ω := len(links[i]) - 1
-		m := links[i][ω]
-		for _, u := range links[i][:ω] {
-			if u == "rx" {
-				rxinv = m
-			}
-			if _, ok := ms[u]; !ok {
-				x := newModule(u, cnt)
-				ms[x.id] = x
-			}
-			ms[m].link(ms[u])
+	ios := make([]io, len(c))
+	for i := range c {
+		ios[i] = io{c[i], 13 - uint32(popcnt32(c[i]))}
+	}
+
+	lo, hi := uint32(5000), uint32(0)
+
+	for n := 0; n < 1000; n++ {
+		rising := uint32(^n & (n + 1))
+		hi += 4 * popcnt32(rising)
+
+		falling := uint32(n & ^(n + 1))
+		lo += 4 * popcnt32(falling)
+
+		for i := range ios {
+			i, o := ios[i].i, ios[i].o
+			λ := popcnt32(rising & i)
+			hi += λ * (o + 3)
+			lo += λ
+
+			λ = popcnt32(falling & i)
+			hi += λ * (o + 2)
+			lo += λ * 2
 		}
 	}
-	return rxinv
+
+	return lo * hi
+}
+
+func (c circuit) rx1() (Π uint64) {
+	Π = 1
+	for i := range c {
+		Π *= uint64(c[i])
+	}
+	return
 }
 
 var split = strings.Split
 
-func lcm(nums []int) (Π int) {
-	Π = 1
-	for i := range nums {
-		Π *= nums[i] / gcd(Π, nums[i])
-	}
-	return Π
-}
-
-// https://en.wikipedia.org/wiki/Binary_GCD_algorithm
-func gcd(a, b int) int {
-	u, v := uint(a), uint(b)
-
-	if u == 0 {
-		return b
-	}
-
-	if v == 0 {
-		return a
-	}
-
-	// `|` is bitwise OR. `TrailingZeros` quickly counts a binary number's
-	// trailing zeros, giving its prime factorization's exponent on two.
-	log2 := bits.TrailingZeros(u | v)
-
-	// `>>=` divides the left by two to the power of the right, storing that in
-	// the left variable. `u` divided by its prime factorization's power of two
-	// turns it odd.
-	u >>= bits.TrailingZeros(u)
-	v >>= bits.TrailingZeros(v)
-
-	for u != v {
-		if u < v {
-			u, v = v, u
-		}
-		u -= v
-		u >>= bits.TrailingZeros(u)
-	}
-
-	// `<<` multiplies the left by two to the power of the right.
-	return int(u << log2)
-}
-
-const MaxInt = int(^uint(0) >> 1)
-
-func keys[T comparable, V any](m map[T]V) []T {
-	list := make([]T, 0, len(m))
-	for k := range m {
-		list = append(list, k)
-	}
-	return list
-}
-
-func values[T comparable, V any](m map[T]V) []V {
-	list := make([]V, 0, len(m))
-	for _, v := range m {
-		list = append(list, v)
-	}
-	return list
+func popcnt32(u uint32) uint32 {
+	return uint32(bits.OnesCount32(u))
 }
 
 const DEBUG = false

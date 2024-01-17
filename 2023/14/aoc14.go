@@ -3,519 +3,253 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"math/bits"
 	"os"
+	"slices"
 	"strings"
 )
 
 func main() {
-	p1, p2 := 0, 0
-	w := newWorld()
 
+	g := newGrid[byte](0)
 	input := bufio.NewScanner(os.Stdin)
 	for j := 0; input.Scan(); j++ {
-		w.readline(j, input.Text())
+		g.load(j, input.Bytes())
 	}
 
-	seen := make(map[uint64]int)
+	b := newBoard(g.widen())
 
-	// first cycle
-	for _, d := range []int{South, East, North, West} {
-		w.tilt(d)
-
-		if d == South {
-			p1 = w.load()
-		}
-	}
-	seen[w.hash()] = 1
-
-	i, len := 0, 0
-CYCLE:
-	for i = 2; ; i++ {
-		w.cycle(0, 1)
-
-		if x, ok := seen[w.hash()]; ok {
-			len = i - x
-			break CYCLE
-		}
-
-		seen[w.hash()] = i
-	}
-
-	end := (1_000_000_000 - i) % len
-	p2 = w.cycle(0, end)
-
-	fmt.Println(p1, p2)
+	fmt.Println(
+		b.tiltNorth(),
+		b.tiltCycle(1_000_000_000),
+	)
 }
 
-/*
- * world type --
- ********************/
-type world struct {
-	walls   bitarray128
-	state   bitarray128
-	D, H, W int
+const MAXN = 100
+
+type ints interface {
+	byte | int16
+}
+
+type grid[T ints] struct {
+	φ func(y, x int) int
+	d []T
+	w int
+}
+
+func newGrid[T ints](w int) *grid[T] {
+	if w == 0 {
+		w = MAXN + 2
+	}
+
+	g := grid[T]{
+		d: make([]T, w*w),
+		w: w,
+	}
+	g.φ = func(y, x int) int {
+		return y*g.w + x
+	}
+
+	return &g
+}
+
+func (g *grid[T]) load(j int, s []byte) {
+	g.w = len(s)
+	row := g.d[j*g.w:]
+	for i := range s {
+		row[i] = T(s[i])
+	}
+}
+
+func (g *grid[T]) widen() *grid[T] {
+	w := g.w
+	buf := make([]T, (w+2)*(w+2))
+	for i := range buf {
+		buf[i] = '#'
+	}
+
+	for j := 0; j < g.w; j++ {
+		copy(buf[(j+1)*(w+2)+1:], g.d[j*w:(j+1)*w])
+	}
+	g.w = w + 2
+	g.d = buf
+	return g
+}
+
+// func (g *grid[T]) clone() *grid[T] {
+// 	c := *g
+// 	c.d = make([]T, c.w*c.w)
+// 	copy(c.d, g.d)
+// 	return &c
+// }
+
+func (g *grid[T]) String() string {
+	var sb strings.Builder
+	for j := 0; j < g.w; j++ {
+		fmt.Fprintln(&sb, g.d[j*g.w:(j+1)*g.w])
+	}
+	return sb.String()
 }
 
 const (
-	East = iota
-	South
+	North = iota
 	West
-	North
+	South
+	East
 )
 
-func newWorld() (w *world) {
-	w = new(world)
-	return
+type board struct {
+	fixes [4]*grid[int16]
+	rolls [4][]int16
+	rocks []int16
+	w     int
 }
 
-func (w *world) cycle(start, end int) int {
-	for i := start; i < end; i++ {
-		for _, d := range []int{South, East, North, West} {
-			w.tilt(d)
+func newBoard(g *grid[byte]) (b *board) {
+	b = &board{w: g.w}
+
+	b.rocks = make([]int16, 0, 2037)
+	for i := range g.d {
+		if g.d[i] == 'O' {
+			b.rocks = append(b.rocks, int16(i))
 		}
 	}
-	return w.load()
-}
 
-func (w *world) face(dir int) {
-	for w.D != dir {
-		w.state.rotCW()
-		w.walls.rotCW()
-		w.H, w.W = w.W, w.H
-		w.D = (w.D + 1) % 4
-	}
-}
-
-// https://stackoverflow.com/a/12996028
-func (w *world) hash() uint64 {
-	j0, i0 := w.locate()
-
-	seed := uint64(w.H)
-	for j := j0; j < w.H+j0; j++ {
-		x := w.state[j].rsh(i0).w0
-		x = ((x >> 32) ^ x) * 0xD2E23944245D9F3B
-		x = ((x >> 32) ^ x) * 0xD2E23944245D9F3B
-		x = (x >> 32) ^ x
-		seed = x + 0x3BBCD6C79E3779B9 + (seed << 6) + (seed >> 2)
-	}
-	return seed
-}
-
-func (w *world) load() int {
-	old := w.D
-	w.face(East)
-
-	sum := 0
-	j0, _ := w.locate()
-	for j := j0; j < j0+w.H; j++ {
-		sum += (int(w.H) + j0 - j) * w.state[j].popcnt()
+	b.fixes = [4]*grid[int16]{
+		North: newGrid[int16](g.w),
+		West:  newGrid[int16](g.w),
+		South: newGrid[int16](g.w),
+		East:  newGrid[int16](g.w),
 	}
 
-	w.face(old)
-	return sum
-}
-
-func (w *world) locate() (int, int) {
-	switch w.D {
-	case East:
-		return 0, 0
-	case South:
-		return uint128size - w.H, 0
-	case West:
-		return uint128size - w.H, uint128size - w.H
-	case North:
-		return 0, uint128size - w.H
+	b.rolls = [4][]int16{
+		North: make([]int16, 0, 2061),
+		West:  make([]int16, 0, 2061),
+		South: make([]int16, 0, 2061),
+		East:  make([]int16, 0, 2061),
 	}
 
-	panic("unreachable")
-}
-
-func (w *world) readline(j int, s string) {
-	w.H = max(w.H, int(j+1))
-	w.W = max(w.W, int(len(s)))
-	for i := range s {
-		switch s[i] {
-		case '#':
-			w.walls.set(j, i)
-		case 'O':
-			w.state.set(j, i)
-		}
-	}
-}
-
-func (w *world) tilt(dir int) {
-	w.face(dir)
-
-	j0, i0 := w.locate()
-	for j := j0; j < j0+w.H; j++ {
-		walls := w.walls[j]
-
-		old, cur, done := i0-1, 0, zero128
-		for !not(done).isZero() {
-			var balls uint128
-			if balls = w.state[j]; balls.isZero() { // no ball
-				break
+	for y := 0; y < g.w; y++ {
+		for x := 0; x < g.w; x++ {
+			for θ, i := range []int{
+				North: g.φ(x, y),
+				West:  g.φ(y, x),
+				South: g.φ(g.w-1-x, y),
+				East:  g.φ(y, g.w-1-x),
+			} {
+				if g.d[i] == '#' {
+					b.rolls[θ] = append(b.rolls[θ], int16(i))
+				}
+				b.fixes[θ].d[i] = int16(len(b.rolls[θ]) - 1)
 			}
-
-			cur = walls.trail0()                                  // current obstacle
-			mask := not(zero128).rsh(uint128size - cur).xor(done) // between old and cur obstacle
-
-			balls = w.state[j].and(mask) // get balls in between old and cur
-			n := balls.popcnt()
-
-			w.state[j] = w.state[j].and(not(balls.or(mask))) // remove balls
-
-			for i := 0; i < n; i++ {
-				w.state[j] = w.state[j].set(old + 1 + i) // group balls on top of old
-			}
-
-			walls = walls.clear(cur)       // remove obstacle
-			done, old = done.or(mask), cur // expand done mask over cur
 		}
-
 	}
 
 	return
 }
 
-func (w *world) String() string {
-	old := w.D
-	w.face(East)
+func (b *board) tilt(θ int) []int16 {
+	var clone = slices.Clone[[]int16]
 
-	var sb strings.Builder
-	j0, i0 := w.locate()
-	for j := j0; j < j0+w.H; j++ {
-		for i := i0; i < i0+w.W; i++ {
-			switch {
-			case w.state[j].get(i) > 0:
-				sb.WriteByte('O')
-			case w.walls[j].get(i) > 0:
-				sb.WriteByte('#')
-			default:
-				sb.WriteByte('.')
-			}
-		}
-		sb.WriteByte('\n')
+	w := b.w
+	state := clone(b.rolls[θ])
+
+	offs := []int{
+		North: +w,
+		West:  +1,
+		South: -w,
+		East:  -1,
 	}
-	fmt.Fprintf(&sb, "H: %d W: %d L:%d, H:%0x\n", w.H, w.W, w.load(), w.hash())
 
-	w.face(old)
-	return sb.String()
+	for i, r := range b.rocks {
+		ii := b.fixes[θ].d[r]
+		state[ii] += int16(offs[θ])
+		b.rocks[i] = state[ii]
+	}
+
+	return state
 }
 
-/*
- * bitarray128 type --
- ********************/
+func (b *board) tiltNorth() (load int) {
+	var clone = slices.Clone[[]int16]
 
-type bitarray128 [128]uint128
+	rocks := clone(b.rocks)
+	state := b.tilt(North)
+	b.rocks = rocks
 
-func (BA *bitarray128) isZero() bool {
-	return BA[0].or(BA[1:]...).isZero()
-}
+	for i, x := range b.rolls[North] {
+		y := state[i]
 
-func (BA *bitarray128) set(j, i int) *bitarray128 {
-	BA[j] = BA[j].set(i)
-	return BA
-}
-
-func (BA *bitarray128) clear(j, i int) *bitarray128 {
-	BA[j] = BA[j].clear(i)
-	return BA
-}
-
-func (BA *bitarray128) get(j, i int) int {
-	return BA[j].get(i)
-}
-
-func (BA *bitarray128) trans() *bitarray128 {
-	var L0, L1, H0, H1 bitarray64
-
-	// split into 4 bitarray64
-	// A bitarray128 = {
-	// 		L0, H0,
-	// 		L1, H1,
-	// }
-	for i := range BA {
-		switch {
-		case i < 64:
-			L0[i], H0[i] = BA[i].w0, BA[i].w1
-		default:
-			L1[i-64], H1[i-64] = BA[i].w0, BA[i].w1
+		for i := x; i < y; i += int16(b.w) {
+			y := int(i) / b.w
+			load += b.w - 2 - y
 		}
 	}
 
-	// transpose all quarters
-	for _, A := range []*bitarray64{&L0, &L1, &H0, &H1} {
-		A.trans64()
-	}
-
-	// rebuild transposed BA
-	// A bitarray128 = {
-	// 		L0, L1,
-	// 		H0, H1,
-	// }
-	for i := range BA {
-		if i < 64 {
-			BA[i] = uint128{L0[i], L1[i]}
-		} else {
-			BA[i] = uint128{H0[i-64], H1[i-64]}
-		}
-	}
-
-	return BA
-}
-
-func (BA *bitarray128) rotCW() *bitarray128 {
-	//transpose
-	BA.trans()
-
-	// mirror horizontally
-	for i := range BA[:63] {
-		BA[i], BA[127-i] = BA[127-i], BA[i]
-	}
-
-	return BA
-}
-
-func (BA *bitarray128) rotCCW() *bitarray128 {
-	//transpose
-	BA.trans()
-
-	// mirror
-	for i := range BA[:63] {
-		BA[i], BA[127-i] = BA[127-i].reverse(), BA[i].reverse()
-	}
-
-	return BA
-}
-
-func (BA bitarray128) String() string {
-	var sb strings.Builder
-	for j := range BA {
-		fmt.Fprintf(&sb, "%064b%064b\n", BA[j].w1, BA[j].w0)
-	}
-	return sb.String()
-}
-
-/*
- * uint128 type --
- ********************/
-
-const uint128size = 128
-
-var (
-	zero128 uint128
-	one128  = uint128{1, 0}
-)
-
-type uint128 struct {
-	w0, w1 uint64
-}
-
-func (u uint128) isZero() bool {
-	return (u.w1 | u.w0) == 0
-}
-
-// set sets bit n-th n = 0 is LSB.
-// n must be <= 128.
-func (u uint128) set(n int) uint128 {
-	switch n >> 6 {
-	case 1:
-		u.w1 |= (1 << (n & 0x3f))
-	case 0:
-		u.w0 |= (1 << (n & 0x3f))
-	}
-	return u
-}
-
-func (u uint128) get(n int) int {
-	x := u.rsh(n)
-	return int(x.w0 & 1)
-}
-
-func (u uint128) clear(n int) uint128 {
-	switch n >> 6 {
-	case 1:
-		u.w1 &= ^(1 << (n & 0x3f))
-	case 0:
-		u.w0 &= ^(1 << (n & 0x3f))
-	}
-	return u
-}
-
-func (u uint128) hi64() uint64 {
-	return u.w1
-}
-
-func (u uint128) lo64() uint64 {
-	return u.w0
-}
-
-func (u uint128) popcnt() (n int) {
-	n += bits.OnesCount64(u.w1)
-	n += bits.OnesCount64(u.w0)
 	return
 }
 
-func (u uint128) lead0() (n int) {
-	if n += bits.LeadingZeros64(u.w1); n != 64 {
-		return
-	}
-	n += bits.LeadingZeros64(u.w0)
-	return
-}
+type hashkey []int16
 
-func (u uint128) trail0() (n int) {
-	if n = bits.TrailingZeros64(u.w0); n != 64 {
-		return
-	}
-	return n + bits.TrailingZeros64(u.w1)
-}
+func (h hashkey) hash() string {
+	var n int
 
-func (u uint128) reverse() uint128 {
-	return uint128{bits.Reverse64(u.w1), bits.Reverse64(u.w0)}
-}
-
-func (u uint128) lsh(n int) uint128 {
-	var a uint64
-
-	switch {
-	case n > 128:
-		return uint128{}
-	case n > 64:
-		u.w1, u.w0 = u.w0, 0
-		n -= 64
-		goto sh64
+	if n = len(h); n > 99 {
+		// /!\ tune cropping if needed
+		n = n * 54 / 100
 	}
 
-	// remaining shifts
-	a = u.w0 >> (64 - n)
-	u.w0 = u.w0 << n
-
-sh64:
-	u.w1 = (u.w1 << n) | a
-
-	return u
-}
-
-func (u uint128) rsh(n int) uint128 {
-	var a uint64
-
-	switch {
-	case n > 128:
-		return uint128{}
-	case n > 64:
-		u.w1, u.w0 = 0, u.w1
-		n -= 64
-		goto sh64
-	}
-
-	// remaining shifts
-	a = u.w1 << (64 - n)
-	u.w1 = u.w1 >> n
-
-sh64:
-	u.w0 = (u.w0 >> n) | a
-
-	return u
-}
-
-func not(u uint128) uint128 {
-	u.w1 = ^u.w1
-	u.w0 = ^u.w0
-	return u
-}
-
-func (u uint128) and(m ...uint128) uint128 {
-	for i := range m {
-		u.w1 &= m[i].w1
-		u.w0 &= m[i].w0
-	}
-	return u
-}
-
-func (u uint128) or(m ...uint128) uint128 {
-	for i := range m {
-		u.w1 |= m[i].w1
-		u.w0 |= m[i].w0
-	}
-	return u
-}
-
-func (u uint128) xor(m ...uint128) uint128 {
-	for i := range m {
-		u.w1 ^= m[i].w1
-		u.w0 ^= m[i].w0
-	}
-	return u
-}
-
-func (u uint128) String() string {
 	var sb strings.Builder
-	fmt.Fprintf(&sb, "%064b%064b", u.w1, u.w0)
+	for i := range h[:n] {
+		fmt.Fprintf(&sb, "%x", h[i])
+	}
 	return sb.String()
 }
 
-/*
- * bitarray64 type
- ********************/
+func (b *board) tiltCycle(n int) (load int) {
 
-type bitarray64 [64]uint64
-
-func (BA *bitarray64) trans64() *bitarray64 {
-	var mask = [12]uint64{
-		0x5555555555555555, 0xAAAAAAAAAAAAAAAA,
-		0x3333333333333333, 0xCCCCCCCCCCCCCCCC,
-		0x0F0F0F0F0F0F0F0F, 0xF0F0F0F0F0F0F0F0,
-		0x00FF00FF00FF00FF, 0xFF00FF00FF00FF00,
-		0x0000FFFF0000FFFF, 0xFFFF0000FFFF0000,
-		0x00000000FFFFFFFF, 0xFFFFFFFF00000000,
+	type state struct {
+		s []int16
+		i int
 	}
 
-	for j := 5; j >= 0; j-- {
-		s := 1 << j
-		for p := 0; p < 32/s; p++ {
-			for i := 0; i < s; i++ {
-				i0 := (p*s)<<1 + i
-				i1 := i0 + s
+	seen := make(map[string]state, len(b.rocks))
 
-				t0 := (BA[i0] & mask[j<<1]) | ((BA[i1] & mask[j<<1]) << s)
-				t1 := ((BA[i0] & mask[j<<1|1]) >> s) | (BA[i1] & mask[j<<1|1])
-				BA[i0] = t0
-				BA[i1] = t1
-			}
+	s, e := 0, 0
+CYCLE:
+	for {
+		for _, θ := range []int{North, West, South} {
+			b.tilt(θ)
+		}
+		cycle := b.tilt(East)
+
+		h := hashkey(cycle).hash()
+		if x, ok := seen[h]; ok {
+			s, e = x.i, len(seen)
+			break CYCLE
+		}
+		seen[h] = state{cycle, len(seen)}
+	}
+
+	size, off := e-s, n-1-s
+	i := s + off%size
+
+	var last []int16
+	for _, v := range seen {
+		if v.i == i {
+			last = v.s
+			break
 		}
 	}
-	return BA
-}
 
-func (BA *bitarray64) hsym() *bitarray64 {
-	for l, r := 0, 63; l < r; l, r = l+1, r-1 {
-		BA[l], BA[r] = BA[r], BA[l]
+	w := b.w
+	for i, α := range b.rolls[East] {
+		β := last[i]
+
+		n := int(α - β)
+		y := int(α) / w
+
+		load += n * (w - 1 - y)
 	}
-	return BA
-}
 
-func (BA *bitarray64) rotCW() *bitarray64 {
-	BA.trans64()
-	BA.hsym()
-	return BA
-}
-
-func (BA *bitarray64) set(j, i int) *bitarray64 {
-	BA[j] |= 1 << i
-	return BA
-}
-
-func (BA *bitarray64) get(j, i int) int {
-	return int((BA[j] >> i) & 1)
-}
-
-func (BA bitarray64) String() string {
-	var sb strings.Builder
-	for j := range BA {
-		fmt.Fprintf(&sb, "%064b\n", BA[j])
-	}
-	return sb.String()
+	return
 }

@@ -2,28 +2,34 @@
 
 | day | time |
 |-----|-----:|
-| 5 | 0.5 |
-| 1 | 0.6 |
+| 20 | 0.6 |
+| 5 | 0.6 |
 | 6 | 0.6 |
-| 18 | 0.7 |
+| 1 | 0.7 |
+| 10 | 0.7 |
+| 11 | 0.7 |
 | 2 | 0.7 |
-| 11 | 0.8 |
+| 18 | 0.8 |
 | 4 | 0.8 |
 | 9 | 0.8 |
-| 10 | 0.9 |
 | 13 | 0.9 |
-| 3 | 1.0 |
+| 7 | 0.9 |
 | 15 | 1.1 |
-| 7 | 1.1 |
+| 22 | 1.1 |
+| 3 | 1.1 |
 | 8 | 1.1 |
-| 19 | 1.6 |
-| 12 | 5.7 |
-| 14 | 15.2 |
-| 20 | 15.7 |
-| 17 | 26.1 |
-| total | 75.9 |
+| 24 | 1.3 |
+| 25 | 1.4 |
+| 19 | 1.5 |
+| 21 | 2.9 |
+| 12 | 5.4 |
+| 14 | 7.7 |
+| 23 | 8.6 |
+| 16 | 8.8 |
+| 17 | 14.8 |
+| total | 65.6 |
 
-fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.2.0 - go version go1.21.4 darwin/arm64 - hyperfine 1.18.0 - 2023-12
+fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.2.0 - go version go1.21.4 darwin/arm64 - hyperfine 1.18.0 - 2024-01
 
 ## Installation and benchmark
 
@@ -261,13 +267,15 @@ I've also included 6 additional sample cases some simple, some tricky.
 
 This challenge is a beast! I went for the simulation but needed to be faster than fast: I built a custom `bitarray128` with *fast transpose*, *fast rotate* and *fast hash* built upon a custom `uint128` type with almost all the bells and whistles. And here it is, solving this challenge in `15ms`! The hashing speed enables a standard [`hash map`](https://en.wikipedia.org/wiki/Hash_table#:~:text=In%20computing%2C%20a%20hash%20table,that%20maps%20keys%20to%20values.) to support the cycle detection.
 
-A fast `bitarray128` transpose and hashing is not easily available and the performances of this bitarray implementation could be worth publishing separately.
+A fast `bitarray128` transpose and hashing is not easily available.
+
+`<EDIT>` I've reworked this following this [nice design](https://github.com/maneatingape/advent-of-code-rust/blob/main/src/year2023/day14.rs) by `u/maneatingape`
 
 ## Day 15
 
 I don't like to fiddle with arrays and slices: Inserting/deleting from arrays is inefficient by nature and usually the sign of a poor design. Creating/Updating and then removing `lens` from `slots` is the perfect example:
 
-- First of all, the problem is almost a *pure* byte one and the (hopefully small) `lens` names can be hashed efficiently. 
+- First of all, the problem is almost a *pure* byte one and the (hopefully small) `lens` names can be hashed efficiently.
 
 - The challenge really describes some kind of [buckets](https://en.wikipedia.org/wiki/Bucket_sort) that support *ops* in *time* this is exactly what [`queues`](https://en.wikipedia.org/wiki/Queue_(abstract_data_type)) are made for, not [arrays](https://en.wikipedia.org/wiki/Array_(data_structure))! We could say `arrays` are linked to `space` while `queues` are more linked to `time`.
 
@@ -279,15 +287,21 @@ So my idea from the start was to shuffle input commands to the various `queues` 
 
 ~~It shares a lot with last year [day 12](https://github.com/erik-adelbert/aoc/tree/main/2022/12) and I'm expecting a runtime in the low ms for my solution.~~
 
-Is not ready yet. It's `Dijkstra` as expected from day 12.
+~~Is not ready yet. It's `Dijkstra` as expected from day 12.~~
+
+Nope, It wasn't. The solution is a parallelized raytracing over a manhattan grid. I do think we can gain a bit by precomputing ray segments in order to morph the given dense grid into a sparse one with the desirable data representation being akin to DLX one.
+
+<p><div style="text-align: center;"><a href="https://commons.wikimedia.org/wiki/File:Dancing_links.svg#/media/File:Dancing_links.svg"><img src="https://upload.wikimedia.org/wikipedia/commons/3/37/Dancing_links.svg" alt="Dancing links.svg" height="387" width="444"></a></div>
 
 ## Day 17
 
-It's not easy to see that each cell can be crossed vertically or horizontally, leading to different losses. I'm still convinced there's a speedier way to solve this challenge but for now, the current solution is working ok. It is a classical dijkstra and states are maintained for horizontal and vertical crossings.
+It's not easy to see that each cell can be crossed vertically or horizontally, leading to different losses. I'm still convinced there's a fastest way to solve this challenge but for now, the current solution is working ok. It is a classical dijkstra and states are maintained for horizontal and vertical crossings.
+
+`<EDIT>` I've reworked this following this [awesome solution](https://github.com/maneatingape/advent-of-code-rust/blob/main/src/year2023/day17.rs) by `u/maneatingape`. In which we can exploit a [bucket queue](https://en.wikipedia.org/wiki/Bucket_queue) to profit `A*`.
 
 ## Day 18
 
-There's not to much to say for today challenge, except that we were compelled to use the [*shoelace formula*](https://en.wikipedia.org/wiki/Shoelace_formula) in 2023, in case some of us didn't use it on last day 10.
+There's not much to say about today's challenge, except that we were compelled to use the [*shoelace formula*](https://en.wikipedia.org/wiki/Shoelace_formula) in 2023, in case some of us didn't use it on last day 10.
 
 ## Day 19
 
@@ -297,20 +311,28 @@ So what we really have to do is to bucket the tesseract {1, 4000}⁴ into halvin
 
 ## Day 20
 
-The solution runs a simulation of pulse flow, the reasons for using `lcm` and the reverse engineering are explained in the subbreddit for today.
+~~The solution runs a simulation of a pulse flow, the reasons for using `lcm` and the reverse engineering of inputs are explained in today's subbreddit.~~
+
+`<EDIT>` From this day on, I will keep studying and adapting `u/maneatingape`'s [work](https://github.com/maneatingape/advent-of-code-rust/tree/main). His 2D reasoning, linear algebra techniques and pure integer problem building are really consistent and worth studying.
 
 ## Day 21
 
-Is not ready yet.
+This solution is totally described in the subreddit [solution megathread](https://www.reddit.com/r/adventofcode/comments/18nevo3/comment/kf97mi9/?utm_source=share&utm_medium=web2x&context=3).
 
 ## Day 22
 
-Is currently being composed but I'm tired.
+This challenge is a curious beast: it starts as a computational geometry problem in the form of [AABB collisions](https://en.wikipedia.org/wiki/Bounding_volume) and evolve into a graph problem. The solution is brute-forcing the challenge parts.
 
 ## Day 23
 
+Today's solution is (largely) a port of [u/maneatingape](https://www.reddit.com/user/maneatingape/) awesome [contribution](https://www.reddit.com/r/adventofcode/comments/18oy4pc/comment/kfyvp2g/?utm_source=share&utm_medium=web2x&context=3). It has its own tricks though.
+
 ## Day 24
+
+`<EDIT>` From this day on, I will keep studying and adapting `u/maneatingape`'s [work](https://github.com/maneatingape/advent-of-code-rust/tree/main). His 2D reasoning, linear algebra techniques and pure integer problem building are really consistent and worth studying.
 
 ## Day 25
 
 I'm slowly recovering from a bad flue.
+
+`<EDIT>` From this day on, I will keep studying and adapting `u/maneatingape`'s [work](https://github.com/maneatingape/advent-of-code-rust/tree/main). His 2D reasoning, linear algebra techniques and pure integer problem building are really consistent and worth studying.

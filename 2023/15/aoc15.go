@@ -73,9 +73,9 @@ func mkop(i int, s string) ops {
 }
 
 type queue struct {
-	idx int
 	del map[string]int
 	add []ops
+	idx int
 }
 
 // var MAXDEL = 9

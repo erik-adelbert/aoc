@@ -80,12 +80,12 @@ func parseRule(s string) rule {
 	default:
 		args := split(s, ":")
 		r = rule{
+			args[1],
 			cut{
 				a: axis(index("xmas", args[0][:1])),
 				x: atoi(args[0][2:]),
 			},
 			args[0][1],
-			args[1],
 		}
 	}
 	return r
@@ -175,9 +175,9 @@ type cut struct {
 }
 
 type rule struct {
+	jmp string
 	cut
 	tst byte
-	jmp string
 }
 
 type workflow []rule
