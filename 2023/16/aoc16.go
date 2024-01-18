@@ -34,12 +34,11 @@ func main() {
 	}
 
 	// parallel raytracing
-	var wg sync.WaitGroup
-	wg.Add(n)
-
 	traces := make(chan int, n)
 
 	// distribute
+	var wg sync.WaitGroup
+	wg.Add(n)
 	for _, r := range rays {
 		go func(r cell) {
 			traces <- g.trace(r)

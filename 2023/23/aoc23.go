@@ -27,12 +27,12 @@ type grid struct {
 	w int
 }
 
-const WMAX = 141
+const MAXN = 141
 
 func newGrid() (g *grid) {
 	g = new(grid)
-	g.w = WMAX
-	g.d = make([]byte, 0, WMAX*WMAX)
+	g.w = MAXN
+	g.d = make([]byte, 0, MAXN*MAXN)
 	g.φ = func(j, i int) int { return j*g.w + i }
 	return
 }

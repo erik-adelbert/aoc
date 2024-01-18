@@ -15,6 +15,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync"
 )
 
 func main() {
@@ -32,7 +33,22 @@ func main() {
 	}
 	world.redim(h, w)
 
-	fmt.Println(world.astar(pot{1, 3}), world.astar(pot{4, 10}))
+	var wg sync.WaitGroup
+	starer := func(c chan<- int, p pot) {
+		wg.Add(1)
+		go func() {
+			c <- world.astar(p)
+			wg.Done()
+		}()
+	}
+	wait := func(c chan int) { wg.Wait(); close(c) }
+
+	losses := make(chan int, 2)
+	starer(losses, pot{1, 3})
+	starer(losses, pot{4, 10})
+	go wait(losses)
+
+	fmt.Println(<-losses, <-losses)
 }
 
 type grid struct {
@@ -45,18 +61,17 @@ type grid struct {
 const MAXN = 141
 
 func newGrid() *grid {
-	H, W := MAXN, MAXN
 	g := grid{
-		func(y, x int) (i int) { return y*MAXN + x },
-		make([]byte, H*W),
-		H, W,
+		d: make([]byte, MAXN*MAXN),
+		h: MAXN,
+		w: MAXN,
 	}
+	g.φ = func(y, x int) (i int) { return y*g.w + x }
 	return &g
 }
 
 func (g *grid) redim(h, w int) {
 	g.h, g.w = h, w
-	g.φ = func(y, x int) (i int) { return y*w + x }
 }
 
 func (g *grid) loss(i int) int {
