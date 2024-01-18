@@ -13,10 +13,10 @@ func main() {
 
 	input := bufio.NewScanner(os.Stdin)
 	for id := 0; input.Scan(); id++ {
-		args := Split(input.Text(), "~")
+		args := split(input.Text(), "~")
 
-		α := Split(args[0], ",")
-		β := Split(args[1], ",")
+		α := split(args[0], ",")
+		β := split(args[1], ",")
 
 		b := newBlock(id)
 		for i := range α {
@@ -159,7 +159,7 @@ func newBlock(id int) *block {
 	}
 }
 
-var Split = strings.Split
+var split = strings.Split
 
 const MaxInt = int(^uint(0) >> 1)
 

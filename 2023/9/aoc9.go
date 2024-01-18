@@ -15,7 +15,7 @@ func main() {
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
-		fields := Fields(input.Text())
+		fields := fields(input.Text())
 		for i := range fields {
 			history[i] = atoi(fields[i])
 		}
@@ -52,7 +52,7 @@ func next(a []int) (int, int) {
 	return a[0] - L, a[len(a)-1] + R
 }
 
-var Fields = strings.Fields
+var fields = strings.Fields
 
 // strconv.Atoi simplified core loop
 // s is ^-?\d+$

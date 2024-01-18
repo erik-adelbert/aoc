@@ -27,13 +27,13 @@ func main() {
 		// input is ^Game \d+:\s(.*;\s)+(.*)$
 		input := input.Text()
 
-		draws := Split(input[Index(input, ": ")+2:], "; ") // ditch "^Game X: " prefix, split tail
+		draws := split(input[index(input, ": ")+2:], "; ") // ditch "^Game X: " prefix, split tail
 		for j := range draws {
 
-			rgb := Split(draws[j], ", ") // split game drawings
+			rgb := split(draws[j], ", ") // split game drawings
 			for i := range rgb {
-				fields := Fields(rgb[i])             // split RGB component and count
-				color := Index("bgr", fields[1][:1]) // single char 'r', 'g' or 'b' -> R, G, B
+				fields := fields(rgb[i])             // split RGB component and count
+				color := index("bgr", fields[1][:1]) // single char 'r', 'g' or 'b' -> R, G, B
 				count := atoi(fields[0])
 
 				// check validity, part1
@@ -52,7 +52,7 @@ func main() {
 }
 
 // package strings wrappers/sugars
-var Index, Fields, Split = strings.Index, strings.Fields, strings.Split
+var index, fields, split = strings.Index, strings.Fields, strings.Split
 
 const (
 	B = iota

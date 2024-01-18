@@ -34,8 +34,8 @@ func main() {
 		// input is: ^Game\s(\s|\d)\d:\s((\s|\d)\d+\s)+|\s((\s|\d)\d\s)+(\s|\d)\d$
 
 		// ditch '^Game \d+:\s' prefix, split winning and cards numbers
-		raw := Split(input[Index(input, ":")+1:], " | ")
-		w, card := Fields(raw[0]), Fields(raw[1])
+		raw := split(input[index(input, ":")+1:], " | ")
+		w, card := fields(raw[0]), fields(raw[1])
 
 		// map winning numbers into a set
 		wins := nullset // fast adhoc int set
@@ -69,7 +69,7 @@ func main() {
 }
 
 // package strings wrappers/sugars
-var Fields, Index, Split = strings.Fields, strings.Index, strings.Split
+var fields, index, split = strings.Fields, strings.Index, strings.Split
 
 const uint128size = 128
 

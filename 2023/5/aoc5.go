@@ -41,7 +41,7 @@ func main() {
 		case len(input) == 0:
 			state++
 		case state == SEED:
-			fields := Fields(input)[1:]
+			fields := fields(input)[1:]
 			for i := range fields {
 
 				// build part1 seeds by making right open intervals of 0 length
@@ -62,9 +62,9 @@ func main() {
 					)
 				}
 			}
-		case Contains(input, ":"): // discard header
+		case contains(input, ":"): // discard header
 		default:
-			fields := Fields(input)
+			fields := fields(input)
 			world[state] = append(world[state],
 				span{
 					atoi(fields[1]),
@@ -172,7 +172,7 @@ func mkSpans() spans {
 const MaxInt = int(^uint(0) >> 1)
 
 // Go strings package wrappers/sugar
-var Contains, Fields = strings.Contains, strings.Fields
+var contains, fields = strings.Contains, strings.Fields
 
 func isodd(n int) bool {
 	return n&1 > 0

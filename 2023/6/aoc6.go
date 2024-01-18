@@ -60,7 +60,7 @@ func parse(input *bufio.Scanner) ([]int, int) {
 
 	// ditch header, split fields
 	line := input.Text()
-	fields := Fields(line[Index(line, ":")+1:])
+	fields := fields(line[index(line, ":")+1:])
 
 	a := make([]int, 0, len(fields)) // part1
 	var A strings.Builder            // part2
@@ -73,7 +73,7 @@ func parse(input *bufio.Scanner) ([]int, int) {
 }
 
 // Go package strings wrapper/sugar
-var Index, Fields = strings.Index, strings.Fields
+var index, fields = strings.Index, strings.Fields
 
 // strconv.Atoi simplified core loop
 // s is ^\d+$

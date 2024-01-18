@@ -19,7 +19,7 @@ func main() {
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
-		input := Fields(input.Text())
+		input := fields(input.Text())
 		h, b := input[Hand], atoi(input[Bid])
 
 		games1 = append(games1, game{hand: mkHand(h, Jack), bid: b})
@@ -185,7 +185,7 @@ func ctoi(c byte, mode bool) int {
 	return -1
 }
 
-var Fields = strings.Fields
+var fields = strings.Fields
 
 // strconv.Atoi simplified core loop
 // s is ^\d+$

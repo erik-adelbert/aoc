@@ -19,7 +19,7 @@ func main() {
 
 	input := bufio.NewScanner(os.Stdin)
 	for j := 0; input.Scan(); j++ {
-		args := Fields(input.Text())
+		args := fields(input.Text())
 
 		θ, k := args[0][0], atoi(args[1])
 		p1 = p1.append(θ, k)
@@ -67,7 +67,7 @@ func (p lagoon) area() int {
 	return (p.peri+p.lace)/2 + 1
 }
 
-var Fields, Index = strings.Fields, strings.Index
+var fields, index = strings.Fields, strings.Index
 
 // strconv.Atoi simplified core loop
 // s is ^\d+$
@@ -80,7 +80,7 @@ func atoi(s string) (n int) {
 
 func htoi(s string) (n int) {
 	ctoi := func(c byte) int {
-		return Index("0123456789abcdef", string(c))
+		return index("0123456789abcdef", string(c))
 	}
 
 	for i := range s {
