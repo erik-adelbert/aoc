@@ -32,8 +32,6 @@ func main() {
 	sort.Ints(left)
 	sort.Ints(right)
 
-	popcnt := mkpopcnt()
-
 	sum, sim := 0, 0
 	for i := range left {
 		sum += abs(left[i] - right[i])          // part 1
@@ -43,33 +41,22 @@ func main() {
 	fmt.Println(sum, sim) // part 1 & 2
 }
 
-// mkpopcnt returns a closure that counts the number of occurrences of a value in a sorted slice
-// The closure maintains a base index to avoid counting the same value multiple times
-func mkpopcnt() func([]int, int) int {
-	base := 0
+func popcnt(slice []int, value int) int {
+	// Find the first occurrence of value using binary search
+	start := search(slice, value)
 
-	popcnt := func(slice []int, value int) int {
-		slice = slice[base:]
-		// Find the first occurrence of value using binary search
-		start := search(slice, value)
-
-		// If the value isn't in the slice, return 0
-		if start == len(slice) || slice[start] != value {
-			return 0
-		}
-
-		// Count occurrences of the value
-		count := 0
-		for i := start; i < len(slice) && slice[i] == value; i++ {
-			count++
-		}
-
-		base = start + count
-
-		return count
+	// If the value isn't in the slice, return 0
+	if start == len(slice) || slice[start] != value {
+		return 0
 	}
 
-	return popcnt
+	// Count occurrences of the value
+	count := 0
+	for i := start; i < len(slice) && slice[i] == value; i++ {
+		count++
+	}
+
+	return count
 }
 
 func search(slice []int, value int) int {
