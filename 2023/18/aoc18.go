@@ -24,7 +24,7 @@ func main() {
 		θ, k := args[0][0], atoi(args[1])
 		p1 = p1.append(θ, k)
 
-		x := args[2][2 : len(args[2])-1] // slice the hex part off args[2] "^(#\h+)$" with \h hex digit
+		x := args[2][2 : len(args[2])-1] // slice the hex part out of args[2] "^(#\h+)$" with \h hex digit
 		p2 = p2.append(decode(x))
 	}
 

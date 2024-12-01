@@ -10,12 +10,14 @@ import (
 
 func main() {
 
+	fmt.Println('a')
+
 	sum1, sum2 := 0, 0
 
 	// yabadabadoo
 	//    y   a   b   a   d   a   b   a   d   o   o
-	//   24   0   1   0   3   0   1   0   3  14  14     ASCII codes
-	// [0 1 0 1 0 3 0 1 0 7 0 1 0 5 0 1 0 1 0 1 2 1 0]  all palindromes in O(n)!!!
+	//   24   0   1   0   3   0   1   0   3  14  14     ASCII codes - 97/'a'
+	// [0 1 0 1 0 3 0 1 0 7 0 1 0 5 0 1 0 1 0 1 2 1 0]  all palindromes in Θ(n)!!!
 	// fmt.Println(fastLongestPalindrome([]uint32{
 	// 	24, 0, 1, 0, 3, 0, 1, 0, 3, 14, 14,
 	// }))
@@ -173,7 +175,6 @@ func solve(a *area) (int, int) {
 }
 
 func (a *area) clean(base []int) int {
-	//var ok bool
 	var clean int
 
 	for _, o := range []bool{a.ord, !a.ord} {
@@ -184,7 +185,6 @@ func (a *area) clean(base []int) int {
 
 		for i := 0; i < a.H-1; i++ {
 			for ii := i + 1; ii < a.H; ii++ {
-				//fmt.Printf("%2d: %032b (%d: %d)\n", i, d[i], ii, popcnt(d[i]^d[ii]))
 				if n := d[i] ^ d[ii]; popcnt(n) == 1 {
 					d[i] ^= n
 					if cleans, ok := a.score1D(o); ok {
@@ -200,7 +200,6 @@ func (a *area) clean(base []int) int {
 		}
 	}
 
-	//panic(fmt.Sprintf("\nclean: %d base: %d\n%v", clean, base, a))
 	panic("unreachable")
 }
 

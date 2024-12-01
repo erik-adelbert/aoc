@@ -12,9 +12,9 @@ func main() {
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
-		input := Fields(input.Text())
+		input := fields(input.Text())
 
-		blocks := Split(input[1], ",")
+		blocks := split(input[1], ",")
 
 		springs1 := input[0]
 		blocks1 := make([]int, len(blocks))
@@ -22,7 +22,7 @@ func main() {
 			blocks1[i] = atoi(blocks[i])
 		}
 
-		springs2 := Join([]string{
+		springs2 := join([]string{
 			springs1, springs1, springs1, springs1, springs1,
 		}, "?")
 		blocks2 := make([]int, 5*len(blocks1))
@@ -84,10 +84,10 @@ func solve(springs string, blocks []int) int {
 }
 
 var (
-	Fields    = strings.Fields
-	Join      = strings.Join
-	Split     = strings.Split
-	TrimRight = strings.TrimRight
+	fields    = strings.Fields
+	join      = strings.Join
+	split     = strings.Split
+	trimRight = strings.TrimRight
 )
 
 // strconv.Atoi simplified core loop

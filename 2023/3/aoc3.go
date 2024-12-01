@@ -35,9 +35,10 @@ type gear struct {
 }
 
 type schema struct {
+	φ     func(j, i int) int
+	W, H  int
 	schem [MAXN * MAXN]byte // original schematic
 	gears [MAXN * MAXN]gear // static gear map
-	W, H  int
 
 	// number, symbol and gear bitmaps
 	nums [MAXN]uint192
@@ -47,17 +48,15 @@ type schema struct {
 
 func newSchema() (sc *schema) {
 	sc = new(schema)
+	sc.φ = func(j, i int) int {
+		return j*(sc.W+2) + i // 1-based surrounded by empty cells
+	}
 
 	for i := range sc.gears {
 		sc.gears[i].ratio = 1
 	}
 
 	return
-}
-
-// 2D (j, i) -> 1D φ
-func (sc *schema) φ(j, i int) int {
-	return j*(sc.W+2) + i // 1-based surrounded by empty cells
 }
 
 func (sc *schema) setrow(j int, row []byte) {
@@ -124,7 +123,7 @@ func (sc *schema) inventory() (sum, ratio int) {
 			case isdigit(c): // candidate part number digit
 				buf = append(buf, c)
 
-				part = part || parts.getbit(i) > 0 // permanent flag once set
+				part = part || parts.getbit(i) > 0 // immutable flag once set
 
 				if gear == 0 && gears.getbit(i) > 0 { // set once per part number
 					gear = φ(j, i)

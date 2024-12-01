@@ -78,9 +78,6 @@ type queue struct {
 	idx int
 }
 
-// var MAXDEL = 9
-// var MAXADD = 48
-
 func (q *queue) enqueue(op ops) {
 	if op.val == 0 {
 		q.del[op.name] = op.idx

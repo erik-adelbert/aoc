@@ -80,7 +80,7 @@ func mkHand(s string, mode bool) (h hand) {
 	h = h.set(R, High) // default rank
 	for i := range s {
 		n := ctoi(s[i], mode)
-		h = h.set(card(i), n) // store reversed, see write-uo
+		h = h.set(card(i), n) // store reversed, see write-up
 		counts[n]++
 	}
 
@@ -99,7 +99,7 @@ func mkHand(s string, mode bool) (h hand) {
 			// special hand:
 			// One + One, One + Three, Three + One, Five
 			counts[i] = min(counts[i], Four)
-			h = h.set(X, On)
+			h = h.set(X, On) // X flag
 		}
 		h = h.set(R, max(h.get(R), counts[i])) // update rank
 

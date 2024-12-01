@@ -12,7 +12,7 @@ func main() {
 
 	input := bufio.NewScanner(os.Stdin)
 	for j := 0; input.Scan(); j++ {
-		w.readline(j, input.Text())
+		w.load(j, input.Text())
 	}
 
 	//fmt.Println(w)
@@ -28,14 +28,14 @@ type world struct {
 	maze    [MAXN * MAXN]byte
 }
 
-func (w *world) readline(j int, line string) {
+func (w *world) load(j int, s string) {
 	w.H = max(w.H, j+1)
-	w.W = max(w.W, len(line))
+	w.W = max(w.W, len(s))
 
 	i := φ(j, 0)
-	copy(w.maze[i:], line)
+	copy(w.maze[i:], s)
 
-	if i := strings.Index(line, "S"); i > 0 {
+	if i := strings.Index(s, "S"); i > 0 {
 		w.O = φ(j, i)
 	}
 }

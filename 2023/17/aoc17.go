@@ -33,22 +33,28 @@ func main() {
 	}
 	world.redim(h, w)
 
+	part1, part2 := astar(world, pot{1, 3}, pot{4, 10})
+	fmt.Println(part1, part2)
+}
+
+func astar(g *grid, p ...pot) (int, int) {
 	var wg sync.WaitGroup
-	starer := func(c chan<- int, p pot) {
-		wg.Add(1)
-		go func() {
-			c <- world.astar(p)
-			wg.Done()
-		}()
-	}
-	wait := func(c chan int) { wg.Wait(); close(c) }
-
 	losses := make(chan int, 2)
-	starer(losses, pot{1, 3})
-	starer(losses, pot{4, 10})
-	go wait(losses)
 
-	fmt.Println(<-losses, <-losses)
+	// spawn
+	for _, p := range p {
+		wg.Add(1)
+		go func(p pot) {
+			losses <- g.astar(p)
+			wg.Done()
+		}(p)
+	}
+
+	// barrier
+	go func() { wg.Wait(); close(losses) }()
+
+	// collect
+	return <-losses, <-losses
 }
 
 type grid struct {
@@ -185,13 +191,9 @@ func (g *grid) astar(p pot) int {
 				return loss
 			}
 
-			if θ == V {
-				move(parms[L], i, y, x, loss)
-				move(parms[R], i, y, x, loss)
-			} else {
-				move(parms[U], i, y, x, loss)
-				move(parms[D], i, y, x, loss)
-			}
+			// if θ == V move L, R else if θ == H move U, D
+			move(parms[θ<<1|L], i, y, x, loss)
+			move(parms[θ<<1|R], i, y, x, loss)
 		}
 		i++
 	}

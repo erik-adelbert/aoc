@@ -23,32 +23,56 @@ type graph struct {
 	nodes [][2]int
 }
 
+type adjmat [][]int
+
 func newGraph(input *bufio.Scanner) *graph {
-	lut := make([]int, 26*26*26)
-	for i := range lut {
-		lut[i] = MaxInt
+
+	// perfect hashtable for ^[a..z]{3}$
+	table := make([]int, 26*26*26)
+	for i := range table {
+		table[i] = MaxInt
 	}
 
-	adjmat := make([][]int, 0, 1435) // from previous run
+	// prealloc adjacency matrix
+	A := make(adjmat, 1435) // from previous run
+	for i := range A {
+		A[i] = make([]int, 0, 8) // from previous run
+	}
+	A = A[:0:len(A)] // cover and protect rows
+
+	hash := func(s string) int {
+		h := 0
+		for i := range s {
+			h = 26*h + int(s[i]-'a')
+		}
+
+		i := table[h]
+		if i == MaxInt {
+			i = len(A)
+			table[h], A = i, A[:i+1] // uncover new row
+		}
+
+		return i
+	}
 
 	for input.Scan() {
 		args := split(input.Text(), ": ")
-		src := hash(&lut, &adjmat, args[0])
+		src := hash(args[0])
 
 		for _, s := range fields(args[1]) {
-			dst := hash(&lut, &adjmat, s)
-			adjmat[src] = append(adjmat[src], dst)
-			adjmat[dst] = append(adjmat[dst], src)
+			dst := hash(s)
+			A[src] = append(A[src], dst)
+			A[dst] = append(A[dst], src)
 		}
 	}
 
 	edges := make([]int, 0, 6416) // from previous run
-	nodes := make([][2]int, 0, len(adjmat))
+	nodes := make([][2]int, 0, len(A))
 
-	for _, adjlist := range adjmat {
+	for _, row := range A {
 		s := len(edges)
-		e := s + len(adjlist)
-		edges = append(edges, adjlist...)
+		e := s + len(row)
+		edges = append(edges, row...)
 		nodes = append(nodes, [2]int{s, e})
 	}
 
@@ -159,17 +183,17 @@ func (g *graph) flow(s, e int) (size int) {
 	return size
 }
 
-func hash(lut *[]int, nodes *[][]int, s string) int {
+func hash(table *[]int, A *adjmat, s string) int {
 	h := 0
 	for i := range s {
 		h = 26*h + int(s[i]-'a')
 	}
 
-	i := (*lut)[h]
+	i := (*table)[h]
 	if i == MaxInt {
-		i = len(*nodes)
-		(*lut)[h] = i
-		*nodes = append(*nodes, make([]int, 0, 10))
+		i = len(*A)
+		(*table)[h] = i
+		*A = (*A)[:i+1] // uncover row
 	}
 
 	return i

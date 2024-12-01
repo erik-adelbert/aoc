@@ -14,23 +14,27 @@ func main() {
 	input := bufio.NewScanner(os.Stdin)
 	var j int
 	for j = 0; input.Scan(); j++ {
-		input := input.Bytes()
-		copy(g.d[j*len(input):], input)
+		g.load(j, input.Bytes())
 	}
 	g.redim(j)
 
 	// part1 trace from first cell heading right
-	part1 := g.trace(cell{0, R})
+	part1 := g.traceOne(cell{0, R})
+	part2 := g.traceAll()
 
-	// part2 init
-	part2, n := part1, 4*g.w-2
+	fmt.Println(part1, part2)
+}
+
+func (g *grid) traceAll() int {
+	w := g.w
+	ncell, n := 0, 4*w-2
 
 	// build rays
 	rays := make([]cell, 0, n)
-	rays = append(rays, []cell{{0, D}, {j*j - 1, U}}...) // first and last column
+	rays = append(rays, []cell{{0, D}, {w*w - 1, U}}...) // first and last column
 	for i := 1; i < g.w; i++ {
 		// borders
-		rays = append(rays, []cell{{i * j, R}, {i*(j+1) - 1, L}, {i, D}, {j*j - 1 - i, U}}...)
+		rays = append(rays, []cell{{i * w, R}, {i*(w+1) - 1, L}, {i, D}, {w*w - 1 - i, U}}...)
 	}
 
 	// parallel raytracing
@@ -41,7 +45,7 @@ func main() {
 	wg.Add(n)
 	for _, r := range rays {
 		go func(r cell) {
-			traces <- g.trace(r)
+			traces <- g.traceOne(r)
 			wg.Done()
 		}(r)
 	}
@@ -54,10 +58,10 @@ func main() {
 
 	// collect
 	for t := range traces {
-		part2 = max(part2, t)
+		ncell = max(ncell, t)
 	}
 
-	fmt.Println(part1, part2)
+	return ncell
 }
 
 const (
@@ -143,6 +147,10 @@ func newGrid() *grid {
 	return &g
 }
 
+func (g *grid) load(j int, s []byte) {
+	copy(g.d[j*len(s):], s)
+}
+
 func (g *grid) get(c cell) byte {
 	return g.d[c.i]
 }
@@ -152,7 +160,7 @@ func (g *grid) redim(w int) {
 	g.w = w
 }
 
-func (g *grid) trace(start cell) int {
+func (g *grid) traceOne(start cell) int {
 	// cycle detection presence map
 	T := make([]byte, g.w*g.w)
 

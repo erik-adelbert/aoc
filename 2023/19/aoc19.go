@@ -60,11 +60,11 @@ func main() {
 
 	sum2 := 0
 	for _, p := range workflows.process(all()) {
-		prod := 1
+		Π := 1
 		for _, x := range p {
-			prod *= x.hi - x.lo + 1
+			Π *= x.hi - x.lo + 1
 		}
-		sum2 += prod
+		sum2 += Π
 	}
 
 	fmt.Println(sum1, sum2)
