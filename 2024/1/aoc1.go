@@ -43,7 +43,9 @@ func main() {
 
 func popcnt(slice []int, value int) int {
 	// Find the first occurrence of value using binary search
-	start := search(slice, value)
+	start := sort.Search(len(slice), func(i int) bool {
+		return slice[i] >= value
+	})
 
 	// If the value isn't in the slice, return 0
 	if start == len(slice) || slice[start] != value {
@@ -57,12 +59,6 @@ func popcnt(slice []int, value int) int {
 	}
 
 	return count
-}
-
-func search(slice []int, value int) int {
-	return sort.Search(len(slice), func(i int) bool {
-		return slice[i] >= value
-	})
 }
 
 // strconv.Atoi simplified core loop
