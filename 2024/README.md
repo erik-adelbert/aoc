@@ -37,4 +37,17 @@ It’s interesting to see that the vast majority of other coders opted to genera
 
 Go should be renowned for its blazing-fast [regular expression](https://en.wikipedia.org/wiki/Regular_expression) matching [engine](https://swtch.com/~rsc/regexp/). I thoroughly enjoyed today’s problem as it reminded me of [Exercice 12](https://clc-wiki.net/wiki/K%26R2_solutions:Chapter_1:Exercise_12) from *[The C Programming Language](https://en.wikipedia.org/wiki/The_C_Programming_Language)*. Combining the two concepts was a delight—and a satisfying way to wrap up the day.
 
-Note: I may revisit this solution at one point.
+Here's a fun fact collected while analysing my input:
+
+```sh
+❯ grep -oE '\w+\([0-9]+,[0-9]+\)' input.txt | sed -E 's/\(([0-9]+,[0-9]+)\)//' | sort | uniq | tr '\n' ' '
+354who 953why from how mul select what when where who why
+❯ grep -oE '[a-z]+' input.txt | sed -E 's/\(([0-9]+,[0-9]+)\)//' | sort | uniq | tr '\n' ' '
+bin do don from how mul mulselect mulwhen mulwho mulwhy perl select t usr what when where who why
+❯ grep -oE '.{0,10}perl.{0,10}' input.txt
+!/usr/bin/perl@~mul?what
+```
+
+Today's problem seems to be a tribute to Perl by [u/topaz](https://x.com/ericwastl/status/1465082878073753600?lang=en), the creator of AoC.
+
+Note: I may revisit this solution at some point.

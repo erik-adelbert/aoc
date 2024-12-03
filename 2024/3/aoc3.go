@@ -35,7 +35,6 @@ func main() {
 				sum2 += n
 			}
 		}
-
 	}
 	fmt.Println(sum1, sum2)
 }
