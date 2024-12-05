@@ -46,24 +46,20 @@ func main() {
 }
 
 func safe(report []int, maxerr int) bool {
-	if len(report) < 2 {
-		return true // a single element or empty list is trivially "safe"
-	}
+	// determine the trend from the first two elements
+	trends := []bool{report[1] > report[0], report[2] > report[1]}
+	increasing := trends[0]
 
-	// try to remove the first element and check if the report is safe
-	if maxerr > 0 && safe(report[1:], maxerr-1) {
+	// catch a misplaced first element
+	if maxerr > 0 && trends[0] != trends[1] && safe(report[1:], maxerr-1) {
 		return true
 	}
-
-	// determine the trend from the first two elements
-	increasing := report[1] > report[0]
-	decreasing := report[1] < report[0]
 
 	// find the first misplaced element if any
 	for i := 1; i < len(report); i++ {
 		diff := report[i] - report[i-1]
 
-		unsafe := abs(diff) < 1 || abs(diff) > 3 || (increasing && diff <= 0) || (decreasing && diff >= 0)
+		unsafe := abs(diff) < 1 || abs(diff) > 3 || (increasing && diff <= 0) || (!increasing && diff >= 0)
 		if unsafe {
 			if maxerr == 0 {
 				return false

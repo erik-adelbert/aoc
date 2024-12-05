@@ -41,7 +41,7 @@ func main() {
 	fmt.Println(sum, sim) // part 1 & 2
 }
 
-func popcnt(slice []int, value int) int {
+func popcnt(slice []int, value int) (count int) {
 	// Find the first occurrence of value using binary search
 	start := sort.Search(len(slice), func(i int) bool {
 		return slice[i] >= value
@@ -49,16 +49,15 @@ func popcnt(slice []int, value int) int {
 
 	// If the value isn't in the slice, return 0
 	if start == len(slice) || slice[start] != value {
-		return 0
+		return
 	}
 
 	// Count occurrences of the value
-	count := 0
 	for i := start; i < len(slice) && slice[i] == value; i++ {
 		count++
 	}
 
-	return count
+	return
 }
 
 // strconv.Atoi simplified core loop

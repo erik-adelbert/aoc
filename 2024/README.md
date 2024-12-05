@@ -3,12 +3,13 @@
 | day | time |
 |-----|-----:|
 | 1 | 0.8 |
-| 2 | 0.9 |
+| 5 | 0.9 |
+| 2 | 1.0 |
 | 3 | 1.4 |
-| total | 3.1 |
+| 4 | 2.2 |
+| total | 6.3 |
 
-
-fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.6.0 - go version go1.23.3 darwin/arm64 - hyperfine 1.18.0 - 2024-12
+fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.6.0 - go version go1.23.3 darwin/arm64 - hyperfine 1.19.0 - 2024-12
 
 ## Installation and benchmark
 
@@ -51,3 +52,14 @@ bin do don from how mul mulselect mulwhen mulwho mulwhy perl select t usr what w
 Today's problem seems to be a tribute to Perl by [u/topaz](https://x.com/ericwastl/status/1465082878073753600?lang=en), the creator of AoC.
 
 Note: I may revisit this solution at some point.
+
+## Day 4
+
+For today's solution, I opted for a sub-matrix matcher that makes multiple passes over the original matrix. It identifies 8 sub-matrices for 'XMAS' and 4 for a valid X-MAS. On the plus side, there's no need for boundary checks, and the matching process is fast. However, the downside is that it requires 12 passes over the original data. That said, the performance is acceptable for now.
+
+## Day 5
+
+Today's problem is certainly a brain teaser, but a straightforward approach can still be surprisingly effective. The key insight is that to move from one page number, a, to another, b, it must hold that `a ∈ rules[b]` which is `b is greater than a`. This is the heart of the challenge:
+
+- Part 1 requires verifying that every page number in a given set satisfies this rule.
+- Part 2 involves sorting the page numbers so that this rule holds true throughout.
