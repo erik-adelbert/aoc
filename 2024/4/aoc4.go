@@ -96,14 +96,12 @@ func main() {
 	count1 := 0
 	for _, subMatrix := range XMAS {
 		found := matrix.findAllSubMatrices(toRuneMat(subMatrix))
-		// fmt.Println(toRuneMat(subMatrix), found)
 		count1 += len(found)
 	}
 
 	count2 := 0
 	for _, subMatrix := range MAS {
 		found := matrix.findAllSubMatrices(toRuneMat(subMatrix))
-		// fmt.Println(toRuneMat(subMatrix), found)
 		count2 += len(found)
 	}
 
@@ -137,11 +135,7 @@ func (m RuneMat) findAllSubMatrices(sm RuneMat) [][2]int {
 	H, W := len(m), len(m[0])
 	h, w := len(sm), len(sm[0])
 
-	matchWithJokers := func(matrixChar, subMatrixChar rune) bool {
-		return subMatrixChar == '*' || matrixChar == subMatrixChar
-	}
-
-	matches := [][2]int{}
+	matches := make([][2]int, 0, 600)
 
 	// slide through the larger matrix
 	for j := 0; j <= H-h; j++ {
@@ -150,12 +144,12 @@ func (m RuneMat) findAllSubMatrices(sm RuneMat) [][2]int {
 			// check if the sub-matrix matches at this position
 			for y := 0; y < h; y++ {
 				for x := 0; x < w; x++ {
-					if !matchWithJokers(m[j+y][i+x], sm[y][x]) {
+					if sm[y][x] != '*' && m[j+y][i+x] != sm[y][x] {
 						continue HSCAN
 					}
 				}
 			}
-			// if we get here, the sub-matrix matches
+			// the sub-matrix matches
 			matches = append(matches, [2]int{j, i})
 		}
 	}

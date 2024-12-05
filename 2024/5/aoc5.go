@@ -49,9 +49,9 @@ func main() {
 			}
 
 			if safe(indices, rules) {
-				sum1 += middle(indices)
+				sum1 += median(indices)
 			} else {
-				sum2 += middle(reorder(indices, rules))
+				sum2 += median(sort(indices, rules))
 			}
 		}
 	}
@@ -71,7 +71,7 @@ func safe(indices []int, rules [100][]int) bool {
 	return true
 }
 
-func reorder(indices []int, rules [100][]int) []int {
+func sort(indices []int, rules [100][]int) []int {
 	return slices.SortedFunc(slices.Values(indices), func(a, b int) int {
 		if slices.Contains(rules[b], a) {
 			return -1
@@ -80,7 +80,7 @@ func reorder(indices []int, rules [100][]int) []int {
 	})
 }
 
-func middle(indices []int) int {
+func median(indices []int) int {
 	return indices[len(indices)/2]
 }
 
