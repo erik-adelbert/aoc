@@ -63,3 +63,8 @@ Today's problem is certainly a brain teaser, but a straightforward approach can 
 
 - Part 1 requires verifying that every page number in a given set satisfies this rule.
 - Part 2 involves sorting the page numbers so that this rule holds true throughout.
+
+## My take on Golang right now
+
+The introduction of the iterators and the perimeter of `slices` are deeply unsatisfactory.
+I don't bleieve this will evolve positively.

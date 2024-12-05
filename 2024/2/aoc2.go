@@ -14,7 +14,6 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"slices"
 	"strings"
 )
 
@@ -32,7 +31,7 @@ func main() {
 	}
 
 	var count1, count2 int // safe reports with no or a single error
-	for r := range slices.Values(reports) {
+	for _, r := range reports {
 		switch {
 		case safe(r, 0):
 			// safe without any error

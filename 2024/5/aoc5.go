@@ -59,13 +59,12 @@ func main() {
 			}
 		}
 	}
-
 	fmt.Println(sum1, sum2) // part 1 & 2
 }
 
 func safe(indices []int, rules [100][]int) bool {
 	pre := indices[0]
-	for cur := range slices.Values(indices[1:]) {
+	for _, cur := range indices[1:] {
 		if !slices.Contains(rules[pre], cur) {
 			return false
 		}
@@ -76,12 +75,13 @@ func safe(indices []int, rules [100][]int) bool {
 }
 
 func sort(indices []int, rules [100][]int) []int {
-	return slices.SortedFunc(slices.Values(indices), func(a, b int) int {
+	slices.SortFunc(indices, func(a, b int) int {
 		if slices.Contains(rules[b], a) {
 			return -1
 		}
 		return 0
 	})
+	return indices
 }
 
 func median(indices []int) int {
