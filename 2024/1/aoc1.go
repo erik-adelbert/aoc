@@ -14,6 +14,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"slices"
 	"sort"
 	"strings"
 )
@@ -29,31 +30,28 @@ func main() {
 	}
 
 	// presort
-	sort.Ints(left)
-	sort.Ints(right)
+	slices.Sort(left)
+	slices.Sort(right)
 
 	sum, sim := 0, 0
 	for i := range left {
 		sum += abs(left[i] - right[i])          // part 1
 		sim += left[i] * popcnt(right, left[i]) // part 2
-
 	}
 	fmt.Println(sum, sim) // part 1 & 2
 }
 
-func popcnt(slice []int, value int) (count int) {
-	// Find the first occurrence of value using binary search
+func popcnt(slice []int, n int) (count int) {
+	// find the first occurrence of n using binary search
 	start := sort.Search(len(slice), func(i int) bool {
-		return slice[i] >= value
+		return slice[i] >= n
 	})
 
-	// If the value isn't in the slice, return 0
-	if start == len(slice) || slice[start] != value {
-		return
-	}
-
-	// Count occurrences of the value
-	for i := start; i < len(slice) && slice[i] == value; i++ {
+	// count the number of occurrences of n
+	for _, x := range slice[start:] {
+		if x != n {
+			return
+		}
 		count++
 	}
 

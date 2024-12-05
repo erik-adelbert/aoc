@@ -1,4 +1,4 @@
-// aoc2.go --
+// aoc5.go --
 // advent of code 2024 day 5
 //
 // https://adventofcode.com/2024/day/5
@@ -26,6 +26,10 @@ const (
 func main() {
 	sum1, sum2 := 0, 0
 	rules := [100][]int{}
+	for i := range rules {
+		// preallocate 24 rules per index
+		rules[i] = make([]int, 0, 24)
+	}
 
 	state := RULE
 	input := bufio.NewScanner(os.Stdin)
@@ -39,8 +43,8 @@ func main() {
 		switch state {
 		case RULE:
 			words := strings.Split(line, "|")
-			index, next := atoi(words[0]), atoi(words[1])
-			rules[index] = append(rules[index], next)
+			cur, nxt := atoi(words[0]), atoi(words[1])
+			rules[cur] = append(rules[cur], nxt)
 		case UPDATE:
 			words := strings.Split(line, ",")
 			indices := make([]int, len(words))
@@ -48,9 +52,9 @@ func main() {
 				indices[i] = atoi(w)
 			}
 
-			if safe(indices, rules) {
-				sum1 += median(indices)
-			} else {
+			sum1 += median(indices)
+			if !safe(indices, rules) {
+				sum1 -= median(indices)
 				sum2 += median(sort(indices, rules))
 			}
 		}
@@ -61,7 +65,7 @@ func main() {
 
 func safe(indices []int, rules [100][]int) bool {
 	pre := indices[0]
-	for _, cur := range indices[1:] {
+	for cur := range slices.Values(indices[1:]) {
 		if !slices.Contains(rules[pre], cur) {
 			return false
 		}
@@ -91,11 +95,4 @@ func atoi(s string) (n int) {
 		n = 10*n + int(s[i]-'0')
 	}
 	return
-}
-
-func abs(n int) int {
-	if n < 0 {
-		return -n
-	}
-	return n
 }

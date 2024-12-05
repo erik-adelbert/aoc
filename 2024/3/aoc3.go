@@ -1,3 +1,13 @@
+// aoc3.go --
+// advent of code 2024 day 3
+//
+// https://adventofcode.com/2024/day/3
+// https://github.com/erik-adelbert/aoc
+//
+// (ɔ) Erik Adelbert - erik_AT_adelbert_DOT_fr
+// -------------------------------------------
+// 2024-12-3: initial commit
+
 package main
 
 import (

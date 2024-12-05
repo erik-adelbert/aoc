@@ -14,6 +14,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 )
 
@@ -31,13 +32,13 @@ func main() {
 	}
 
 	var count1, count2 int // safe reports with no or a single error
-	for _, r := range reports {
+	for r := range slices.Values(reports) {
 		switch {
 		case safe(r, 0):
 			// safe without any error
 			count1++
 		case safe(r, 1):
-			// safe by removing a misplaced element
+			// safe by removing a single misplaced element
 			count2++
 		}
 	}
@@ -70,7 +71,6 @@ func safe(report []int, maxerr int) bool {
 			left, right := remove(clone(report), i-1), remove(report, i)
 			return safe(left, maxerr-1) || safe(right, maxerr-1)
 		}
-
 	}
 
 	return true
