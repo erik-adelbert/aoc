@@ -15,7 +15,6 @@ import (
 	"fmt"
 	"os"
 	"slices"
-	"sort"
 	"strings"
 )
 
@@ -43,9 +42,7 @@ func main() {
 
 func popcnt(slice []int, n int) (count int) {
 	// find the first occurrence of n using binary search
-	start := sort.Search(len(slice), func(i int) bool {
-		return slice[i] >= n
-	})
+	start, _ := slices.BinarySearch(slice, n)
 
 	// count the number of occurrences of n
 	for _, x := range slice[start:] {

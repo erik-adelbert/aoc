@@ -18,7 +18,8 @@ import (
 )
 
 func main() {
-	var reports [][]int
+
+	reports := make([][]int, 0, 1000)
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {

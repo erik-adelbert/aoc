@@ -5,9 +5,11 @@
 | 1 | 0.8 |
 | 2 | 0.8 |
 | 5 | 0.9 |
+| 7 | 1.1 |
 | 3 | 1.5 |
+| 6 | 1.7 |
 | 4 | 2.0 |
-| total | 6.0 |
+| total | 8.8 |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.6.0 - go version go1.23.3 darwin/arm64 - hyperfine 1.19.0 - 2024-12
 
@@ -64,7 +66,40 @@ Today's problem is certainly a brain teaser, but a straightforward approach can 
 - Part 1 requires verifying that every page number in a given set satisfies this rule.
 - Part 2 involves sorting the page numbers so that this rule holds true throughout.
 
+```bash
+❯ cat rules.txt | cut -d "|" -f 1 | sort | uniq | wc -l
+      49
+❯ cat rules.txt | cut -d "|" -f 1 | sort | uniq -c
+  24 12
+  24 13
+  24 14
+  24 15
+  24 17
+  24 18
+  24 19
+```
+
+The 49 numbers in the set `{ x ∈ I | 12 <= x <= 99 ∧ x%10 != 0 }` each appear exactly 24 times as the left and right sides of all the rules. What’s incredible is that, despite the existence of a global cycle, this structure is sliced in a way that induces [a total ordering](https://en.wikipedia.org/wiki/Total_order). I got lucky this time—I didn't knew about the cycle but didn’t feel like diving into [DAG](https://en.wikipedia.org/wiki/Directed_acyclic_graph), [topological sorting](https://en.wikipedia.org/wiki/Topological_sorting) and stuff so early in AoC (and at breakfast). Instead, I grabbed a good cup of coffee, took a chance, and just sorted it, trusting the relationship a < b ⇔ a ∈ rules[b]. It was so satisfying to see it worked!
+
 ## My take on Go 1.23.3
 
-The introduction of the iterators and the perimeter of `slices` are deeply unsatisfactory.
-I don't believe this will evolve positively.
+~~The introduction of the iterators and the perimeter of `slices` are somewhat unsatisfactory.
+I don't believe this will evolve positively.~~ `<EDIT>` I'm RTFMing.
+
+## Day 6
+
+This problem has been the most demanding challenge so far. I managed a `20ms+` runtime previously, but now I'm seeing results like:
+
+```bash
+counts: 41 8 16.625µs
+```
+
+```bash
+counts: 4883 1390 1.442291ms
+```
+
+It feels like I'm close—but not quite there yet!
+
+## Day 7
+
+Today's solution is an elegant recursive, multi-branched [DFS](https://en.wikipedia.org/wiki/Depth-first_search). The key insight is to start from the target value and work *backward*, deconstructing it step by step. This approach naturally prunes certain branches—like divisions or concatenations—when they become impossible.
