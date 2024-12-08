@@ -5,11 +5,12 @@
 | 1 | 0.8 |
 | 2 | 0.8 |
 | 5 | 0.9 |
-| 7 | 1.1 |
+| 8 | 0.7 |
 | 3 | 1.5 |
 | 6 | 1.7 |
+| 7 | 1.1 |
 | 4 | 2.0 |
-| total | 8.8 |
+| total | 9.5 |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.6.0 - go version go1.23.3 darwin/arm64 - hyperfine 1.19.0 - 2024-12
 
@@ -100,6 +101,12 @@ counts: 4883 1390 1.442291ms
 
 It feels like I'm close—but not quite there yet!
 
+`<EDIT>` i'm commiting the version i'm currently working on. It is not done yet and I don't really know if it can be done like this.
+
 ## Day 7
 
 Today's solution is an elegant recursive, multi-branched [DFS](https://en.wikipedia.org/wiki/Depth-first_search). The key insight is to start from the target value and work *backward*, deconstructing it step by step. This approach naturally prunes certain branches—like divisions or concatenations—when they become impossible.
+
+## Day 8
+
+Given the size of today's input, [brute-forcing](https://en.wikipedia.org/wiki/Brute-force_search) the solution did the trick.
