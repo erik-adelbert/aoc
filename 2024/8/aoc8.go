@@ -18,7 +18,7 @@ import (
 
 const (
 	ASCIIMAX = 123 // [0-9A-Za-z] -> 48-122
-	DIM      = 50
+	MAXDIM   = 50
 )
 
 type Point struct {
@@ -28,11 +28,6 @@ type Point struct {
 type City struct {
 	H, W     int
 	antennas [][]Point // antennas map
-	terrain  [][]rune  // terrain map
-}
-
-func (c City) is_free(p Point) bool {
-	return c.terrain[p.y][p.x] == '.'
 }
 
 func (c City) inbounds(p Point) bool {
@@ -40,23 +35,24 @@ func (c City) inbounds(p Point) bool {
 }
 
 func main() {
-	terrain := make([][]rune, 0, DIM)
 	antennas := make([][]Point, ASCIIMAX)
 
 	input := bufio.NewScanner(os.Stdin)
+	h, w := 0, 0
 	for input.Scan() {
-		j, line := len(terrain), input.Text()
+		line := input.Text()
+		w = len(line)
 		for i, c := range line {
 			if c != '.' {
-				antennas[c] = append(antennas[c], Point{j, i})
+				antennas[c] = append(antennas[c], Point{h, i})
 			}
 		}
-		terrain = append(terrain, []rune(line))
+		h++
 	}
 
-	city := City{len(terrain), len(terrain[0]), antennas, terrain}
+	city := City{h, w, antennas}
 	count1 := antinodes(city, 1, 2)
-	count2 := antinodes(city, 0, DIM)
+	count2 := antinodes(city, 0, MAXDIM)
 	fmt.Println(count1, count2) // part 1 & 2
 }
 
@@ -90,13 +86,4 @@ func antinodes(city City, m, M int) int {
 		count += v
 	}
 	return count
-}
-
-// strconv.Atoi simplified core loop
-// s is ^\d+$
-func atoi(s string) (n int) {
-	for i := range s {
-		n = 10*n + int(s[i]-'0')
-	}
-	return
 }
