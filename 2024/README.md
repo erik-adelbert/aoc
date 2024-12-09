@@ -102,7 +102,7 @@ counts: 4883 1390 1.442291ms
 
 It feels like I'm close—but not quite there yet!
 
-`<EDIT>` i'm commiting the version i'm currently working on. It is not done yet (but what is done is blazingly fast) and I don't know *for sure* if it can be done this way.
+`<EDIT>` i'm commiting the version i'm currently working on. It is not done yet (but what is done is blazing fast) and I don't know *for sure* if it can be done this way.
 
 ## Day 7
 
