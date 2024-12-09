@@ -102,7 +102,7 @@ counts: 4883 1390 1.442291ms
 
 It feels like I'm close—but not quite there yet!
 
-`<EDIT>` i'm commiting the version i'm currently working on. It is not done yet and I don't really know if it can be done like this.
+`<EDIT>` i'm commiting the version i'm currently working on. It is not done yet (but what is done is blazingly fast) and I don't know *for sure* if it can be done this way.
 
 ## Day 7
 
@@ -124,4 +124,18 @@ for i, a := range set {
 
 ## Day 9
 
-Today, I implemented a compact [filesystem](https://en.wikipedia.org/wiki/File_system) with a [File Allocation Table](https://en.wikipedia.org/wiki/File_Allocation_Table) (FAT) to support file handling primitives, tailored to meet the problem's requirements.
+Today, I implemented a compact [filesystem](https://en.wikipedia.org/wiki/File_system) with a [File Allocation Table](https://en.wikipedia.org/wiki/File_Allocation_Table) (FAT) to support file handling primitives, tailored to meet the problem's requirements. [Simulations](https://en.wikipedia.org/wiki/Simulation) are great but surely require a lot of editing to bring their basic concepts to life.
+
+```bash
+❯ make lines
+      57 ./3/aoc3.go
+      72 ./1/aoc1.go
+      91 ./8/aoc8.go
+      98 ./5/aoc5.go
+     101 ./2/aoc2.go
+     104 ./7/aoc7.go
+     167 ./4/aoc4.go
+     234 ./9/aoc9.go
+     308 ./6/aoc6.go
+    1232 total
+```
