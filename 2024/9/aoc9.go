@@ -34,7 +34,7 @@ func main() {
 			if n := btoi(c); n > 0 {
 				switch {
 				case par%2 == 0:
-					fs1.Store(File{{start, n}})
+					fs1.Link(File{{start, n}})
 				default:
 					fs1.Free(Block{start, n})
 				}
@@ -44,8 +44,8 @@ func main() {
 	}
 
 	fs2 := fs1.Clone()
-	fs2.Defrag()
 	fs1.Compact()
+	fs2.Defrag()
 
 	fmt.Println(fs1.Checksum(), fs2.Checksum()) // part 1 & 2
 }
@@ -77,15 +77,14 @@ func φInit() *φFS {
 	}
 }
 
-func (fs *φFS) Clone() *φFS {
-	clone := φInit()
-	clone.fat = slices.Clone(fs.fat)
-	clone.free = slices.Clone(fs.free)
-	return clone
+func (fs *φFS) Link(f File) {
+	fs.fat = append(fs.fat, f)
 }
 
-func (fs *φFS) Store(f File) {
-	fs.fat = append(fs.fat, f)
+func (fs *φFS) Unlink(fid int) {
+	for i := range fs.fat[fid] {
+		fs.Free(fs.fat[fid][i])
+	}
 }
 
 func (fs *φFS) Free(b Block) {
@@ -93,114 +92,28 @@ func (fs *φFS) Free(b Block) {
 		return x.start - start
 	})
 
-	fs.free = slices.Insert(fs.free, i, b)
-
 	// merge with previous block if contiguous
-	if i > 0 && fs.free[i-1].start+fs.free[i-1].size == fs.free[i].start {
-		fs.free[i-1].size += fs.free[i].size
-		fs.free = append(fs.free[:i], fs.free[i+1:]...)
-		i-- // adjust index after merging
-	}
-
-	// merge with next block if contiguous
-	if i+1 < len(fs.free) && fs.free[i].start+fs.free[i].size == fs.free[i+1].start {
-		fs.free[i].size += fs.free[i+1].size
-		fs.free = append(fs.free[:i+1], fs.free[i+2:]...)
+	if i > 0 && fs.free[i-1].start+fs.free[i-1].size == b.start {
+		fs.free[i-1].size += b.size
+	} else {
+		fs.free = slices.Insert(fs.free, i, b)
 	}
 }
 
-func (fs *φFS) Move(fid int) {
-	size := fs.fat[fid].Size()
-
-	allocated := 0
-
-	blocks := make([]Block, 0, size)
-	used := make([]int, 0, size)
-
-	for i, block := range fs.free {
-		if block.start > fs.fat[fid][0].start {
+func (fs *φFS) Compact() {
+	for fid := len(fs.fat) - 1; fid >= 0 && len(fs.free) > 0; fid-- {
+		if fs.fat[fid][0].start < fs.free[0].start {
+			// no more free space at the beginning
 			return
 		}
-
-		if block.size < size {
-			continue
-		}
-
-		blocks = append(blocks, block)
-		used = append(used, i)
-		if allocated += block.size; allocated > size {
-			// keep the current block in the free list
-			used = used[:len(used)-1]
-
-			// split block
-			free := allocated - size
-			used := block.size - free
-
-			blocks[len(blocks)-1].size = used
-			fs.free[i] = Block{block.start + used, free}
-
-			// unlink file from old blocks
-			for i := range fs.fat[fid] {
-				fs.Free(fs.fat[fid][i])
-			}
-		}
-		break
+		fs.Realloc(fid)
 	}
-	if len(used) > 0 {
-		// update free list
-		fs.free = slices.Delete(fs.free, slices.Min(used), slices.Max(used)+1)
-	}
-
-	// link file to new blocks
-	fs.fat[fid] = blocks
-	return
 }
 
-func (fs *φFS) Realloc(fid int) {
-	size := fs.fat[fid].Size()
-	allocated := 0
-
-	blocks := make([]Block, 0, size)
-	used := make([]int, 0, size)
-
-	for i := range fs.fat[fid] {
-		fs.Free(fs.fat[fid][i])
+func (fs *φFS) Defrag() {
+	for fid := len(fs.fat) - 1; fid >= 0; fid-- {
+		fs.Move(fid)
 	}
-ALLOC:
-	for i, block := range fs.free {
-		allocated += block.size
-
-		blocks = append(blocks, block)
-		used = append(used, i)
-
-		switch {
-		case allocated < size:
-			continue
-		case allocated > size:
-			// keep the current block in the free list
-			used = used[:len(used)-1]
-
-			// split block
-			free := allocated - size
-			used := block.size - free
-
-			blocks[len(blocks)-1].size = used
-			fs.free[i] = Block{block.start + used, free}
-
-			fallthrough
-		case allocated == size:
-			// done allocating
-			break ALLOC
-		}
-	}
-	if len(used) > 0 {
-		// update free list
-		fs.free = slices.Delete(fs.free, slices.Min(used), slices.Max(used)+1)
-	}
-
-	// link file to new blocks
-	fs.fat[fid] = blocks
-	return
 }
 
 func (fs *φFS) Checksum() int {
@@ -215,22 +128,105 @@ func (fs *φFS) Checksum() int {
 	return checksum
 }
 
-func (fs *φFS) Compact() {
-	for i := len(fs.fat) - 1; i >= 0 && len(fs.free) > 0; i-- {
-		if fs.fat[i][0].start < fs.free[0].start {
+func (fs *φFS) Move(fid int) {
+	size := fs.fat[fid].Size()
+
+	nalloc := 0
+
+	blocks := make([]Block, 0)
+	reserved := -1
+
+ALLOC:
+	for i, block := range fs.free {
+		switch {
+		case block.start > fs.fat[fid][0].start:
+			// can't move file to a lower address
 			return
+		case block.size < size:
+			// not enough space
+			continue
+		default:
+			// move file to new block
+			blocks = append(blocks, block)
+			reserved = i
+
+			if nalloc += block.size; nalloc > size {
+				// keep the current block in the free list
+				reserved = -1
+
+				// split block
+				free := nalloc - size
+				used := block.size - free
+
+				blocks[len(blocks)-1].size = used
+				fs.free[i] = Block{block.start + used, free}
+				// link file to new blocks
+			}
+
+			fs.Unlink(fid)
+			fs.fat[fid] = blocks
+			break ALLOC
 		}
-		fs.Realloc(i)
 	}
+	if reserved >= 0 {
+		// fs.free = append(fs.free[:reserved], fs.free[reserved+1:]...)
+		fs.free = slices.Delete(fs.free, reserved, reserved+1)
+	}
+
+	return
 }
 
-func (fs *φFS) Defrag() {
-	for i := len(fs.fat) - 1; i >= 0; i-- {
-		if fs.fat[i][0].start < fs.free[0].start {
-			return
+func (fs *φFS) Realloc(fid int) {
+	size := fs.fat[fid].Size()
+	allocated := 0
+
+	blocks := make([]Block, 0, size)
+	reserved := make([]int, 0, size)
+
+	fs.Unlink(fid)
+ALLOC:
+	for i, block := range fs.free {
+		allocated += block.size
+
+		blocks = append(blocks, block)
+		reserved = append(reserved, i)
+
+		switch {
+		case allocated < size:
+			// not done yet
+			continue
+		case allocated > size:
+			// keep the current block in the free list
+			reserved = reserved[:len(reserved)-1]
+
+			// split block
+			free := allocated - size
+			used := block.size - free
+
+			blocks[len(blocks)-1].size = used
+			fs.free[i] = Block{block.start + used, free}
+
+			fallthrough
+		default:
+			// done allocating
+			break ALLOC
 		}
-		fs.Move(i)
 	}
+	if len(reserved) > 0 {
+		// update free list
+		fs.free = slices.Delete(fs.free, reserved[0], reserved[len(reserved)-1]+1)
+	}
+
+	// link file to new blocks
+	fs.fat[fid] = blocks
+	return
+}
+
+func (fs *φFS) Clone() *φFS {
+	clone := φInit()
+	clone.fat = slices.Clone(fs.fat)
+	clone.free = slices.Clone(fs.free)
+	return clone
 }
 
 func btoi(b byte) int {
