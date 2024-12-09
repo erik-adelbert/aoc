@@ -231,7 +231,7 @@ func (m Maze) run() (bool, Path) {
 	mark()
 
 	now := time.Now()
-	count1, count2 := 0, 0
+	count1, count2, count3 := 0, 0, 0
 	for i := range seen {
 		if slices.Max(seen[i][:]) > 0 {
 			count1++
@@ -247,6 +247,8 @@ func (m Maze) run() (bool, Path) {
 						case 0 < snxt[h2] && snxt[h2] < seen[i][h0]:
 							fmt.Println("from:", h0, "to:", h1, "coo:", i/W, i%W)
 							count2++
+						case slices.Max(snxt[:]) == 0:
+							count3++
 						}
 					}
 				}
@@ -254,7 +256,7 @@ func (m Maze) run() (bool, Path) {
 		}
 	}
 	elapsed := time.Since(now)
-	fmt.Println("counts:", count1, count2, elapsed)
+	fmt.Println("counts:", count1, count2, count3, elapsed)
 
 	return false, []Point{}
 }

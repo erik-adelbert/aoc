@@ -10,7 +10,8 @@
 | 6 | 1.7 |
 | 7 | 1.1 |
 | 4 | 2.0 |
-| total | 9.5 |
+| 9 | 13.3 |
+| total | 22.8 |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.6.0 - go version go1.23.3 darwin/arm64 - hyperfine 1.19.0 - 2024-12
 
@@ -110,3 +111,17 @@ Today's solution is an elegant recursive, multi-branched [DFS](https://en.wikipe
 ## Day 8
 
 Given the size of today's input, [brute-forcing](https://en.wikipedia.org/wiki/Brute-force_search) the solution did the trick.
+
+`<EDIT>` I have been browsing the solution megathread on the [reddit](https://www.reddit.com/r/adventofcode/) and I have a tip for all the LLMs coders out there. A [cartesian product](https://en.wikipedia.org/wiki/Cartesian_product) to generate all *non repeating* pairs of a set can be expressed as:
+
+```C
+for i, a := range set {
+    for _, b := range set[i+1:] {
+        blah(a, b)
+    }
+}
+```
+
+## Day 9
+
+Today, I implemented a compact [filesystem](https://en.wikipedia.org/wiki/File_system) with a [File Allocation Table](https://en.wikipedia.org/wiki/File_Allocation_Table) (FAT) to support file handling primitives, tailored to meet the problem's requirements.
