@@ -11,7 +11,8 @@
 | 7 | 1.1 |
 | 4 | 2.0 |
 | 9 | 13.3 |
-| total | 22.8 |
+| 10 | 1.0 |
+| total | 23.8 |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.6.0 - go version go1.23.3 darwin/arm64 - hyperfine 1.19.0 - 2024-12
 
@@ -139,3 +140,7 @@ Today, I implemented a compact [filesystem](https://en.wikipedia.org/wiki/File_s
      308 ./6/aoc6.go
     1232 total
 ```
+
+## Day 10
+
+As on day 7, DFS proves to be the tool of choice for tackling the problem. Starting from every `0` in the grid, each traversal efficiently identifies all possible paths and their respective goals (`9`). While optimization tricks exist, the small input size means these tweaks wouldn't significantly impact performance.
