@@ -48,16 +48,17 @@ func solve(grid [][]int) (int, int) {
 		seen[i] = make([]bool, W)
 	}
 
-	var redfs func(p Cell, target int, goals map[[2]int]bool) int
-	redfs = func(p Cell, target int, goals map[[2]int]bool) int {
+	// recursive dfs search for paths
+	var research func(p Cell, target int, goals map[Cell]bool) int
+	research = func(p Cell, target int, goals map[Cell]bool) int {
 		if p.r < 0 || p.r >= H || p.c < 0 || p.c >= W || seen[p.r][p.c] || grid[p.r][p.c] != target {
 			return 0
 		}
 
 		// if we reach 9, we found a valid path
 		if target == 9 {
-			goals[[2]int{p.r, p.c}] = true // remember the goal
-			return 1                       // count the path
+			goals[p] = true // remember the goal
+			return 1        // count the path
 		}
 
 		// mark the cell
@@ -66,7 +67,7 @@ func solve(grid [][]int) (int, int) {
 		// count the paths from the neighbors
 		count := 0
 		for _, x := range neighbors {
-			count += redfs(Cell{p.r + x.r, p.c + x.c}, target+1, goals)
+			count += research(add(p, x), target+1, goals)
 		}
 
 		// unmark the cell
@@ -75,26 +76,30 @@ func solve(grid [][]int) (int, int) {
 	}
 
 	// path score
-	scores := make(map[[2]int]int)
+	scores := make(map[Cell]int)
 
 	// find all starting points
-	count1 := 0
+	count2 := 0
 	for r := 0; r < H; r++ {
 		for c := 0; c < W; c++ {
 			if grid[r][c] == 0 {
-				goals := make(map[[2]int]bool)
-				count1 += redfs(Cell{r, c}, 0, goals)
-				scores[[2]int{r, c}] = len(goals)
+				goals := make(map[Cell]bool)
+				count2 += research(Cell{r, c}, 0, goals)
+				scores[Cell{r, c}] = len(goals)
 			}
 		}
 	}
 
-	count2 := 0
+	count1 := 0
 	for _, v := range scores {
-		count2 += v
+		count1 += v
 	}
 
 	return count1, count2
+}
+
+func add(a, b Cell) Cell {
+	return Cell{a.r + b.r, a.c + b.c}
 }
 
 func btoi(b byte) int {
