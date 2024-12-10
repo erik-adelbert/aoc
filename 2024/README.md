@@ -144,3 +144,11 @@ Today, I implemented a compact [filesystem](https://en.wikipedia.org/wiki/File_s
 ## Day 10
 
 As on day 7, DFS proves to be the tool of choice for tackling the problem. Starting from every `0` in the grid, each traversal efficiently identifies all possible paths and their respective goals (`9`). While optimization tricks exist, the small input size means these tweaks wouldn't significantly impact performance.
+
+Got lucky today! Initially, I mistakenly counted the paths instead of the goals reached. I quickly fixed it to focus on goals, only to find that Part 2 required the path count! Both numbers are natural outputs of DFS, so the adjustment was easy.
+
+```bash
+      --------Part 1--------   --------Part 2--------
+Day       Time   Rank  Score       Time   Rank  Score
+ 10   00:26:19   4169      0   00:27:48   3435      0
+ ```
