@@ -69,8 +69,8 @@ func blink(stone int) []int {
 func (c Counter) MemBlink() Counter {
 	next := NewCounter()
 	for n, count := range c.data {
-		for _, r := range blink(n) {
-			next.Add(r, count)
+		for _, m := range blink(n) {
+			next.Add(m, count)
 		}
 	}
 	return next
@@ -87,14 +87,6 @@ func (c Counter) Sum() int {
 		sum += n
 	}
 	return sum
-}
-
-func strip(s string) string {
-	stripped := strings.TrimLeft(s, "0")
-	if stripped == "" {
-		return "0"
-	}
-	return stripped
 }
 
 // strconv.Atoi simplified core loop
