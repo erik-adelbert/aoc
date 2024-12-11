@@ -30,23 +30,15 @@ func main() {
 		}
 	}
 
-	sum := func(c *Counter) int {
-		sum := 0
-		for _, n := range c.data {
-			sum += n
-		}
-		return sum
-	}
-
 	for i := 0; i < 25; i++ {
 		nums = nums.MemBlink()
 	}
-	sum1 := sum(nums)
+	sum1 := nums.Sum()
 
 	for i := 0; i < 50; i++ {
 		nums = nums.MemBlink()
 	}
-	sum2 := sum(nums)
+	sum2 := nums.Sum()
 
 	fmt.Println(sum1, sum2)
 
@@ -88,6 +80,14 @@ func (c *Counter) MemBlink() *Counter {
 // Add increments the value for the given key.
 func (c *Counter) Add(key int, value int) {
 	c.data[key] = c.data[key] + value
+}
+
+func (c *Counter) Sum() int {
+	sum := 0
+	for _, n := range c.data {
+		sum += n
+	}
+	return sum
 }
 
 func strip(s string) string {
