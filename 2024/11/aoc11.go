@@ -21,24 +21,24 @@ import (
 const MAXN = 3799
 
 func main() {
-	nums := NewCounter()
+	stones := NewCounter()
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
 		for _, n := range strings.Fields(input.Text()) {
-			nums.Add(atoi(n), 1)
+			stones.Add(atoi(n), 1)
 		}
 	}
 
 	for i := 0; i < 25; i++ {
-		nums = nums.MemBlink()
+		stones = stones.MemBlink()
 	}
-	sum1 := nums.Sum()
+	sum1 := stones.Sum()
 
 	for i := 0; i < 50; i++ {
-		nums = nums.MemBlink()
+		stones = stones.MemBlink()
 	}
-	sum2 := nums.Sum()
+	sum2 := stones.Sum()
 
 	fmt.Println(sum1, sum2)
 }
@@ -53,16 +53,17 @@ func NewCounter() Counter {
 	}
 }
 
-func blink(stone int) []int {
-	word := strconv.Itoa(stone)
+func blink(n int) []int {
+	stone := strconv.Itoa(n)
 	switch {
-	case stone == 0:
+	case n == 0:
 		return []int{1}
-	case len(word) > 1 && len(word)%2 == 0:
-		m := len(word) / 2
-		return []int{atoi(word[:m]), atoi(word[m:])}
+	case len(stone) > 1 && len(stone)%2 == 0:
+		// split stone in half
+		m := len(stone) / 2
+		return []int{atoi(stone[:m]), atoi(stone[m:])}
 	default:
-		return []int{2024 * stone}
+		return []int{2024 * n}
 	}
 }
 
@@ -77,8 +78,8 @@ func (c Counter) MemBlink() Counter {
 }
 
 // Add increments the value for the given key.
-func (c Counter) Add(key int, value int) {
-	c.data[key] = c.data[key] + value
+func (c Counter) Add(stone int, count int) {
+	c.data[stone] = c.data[stone] + count
 }
 
 func (c Counter) Sum() int {
