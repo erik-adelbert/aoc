@@ -14,7 +14,6 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
 )
 
@@ -33,35 +32,32 @@ func main() {
 	for i := 0; i < 25; i++ {
 		stones = stones.MemBlink()
 	}
-	sum1 := stones.Sum()
+	count1 := stones.Popcnt()
 
 	for i := 0; i < 50; i++ {
 		stones = stones.MemBlink()
 	}
-	sum2 := stones.Sum()
+	count2 := stones.Popcnt()
 
-	fmt.Println(sum1, sum2)
+	fmt.Println(count1, count2)
 }
 
-type Counter struct {
-	data map[int]int
-}
+type Counter map[int]int
 
 func NewCounter() Counter {
-	return Counter{
-		data: make(map[int]int, MAXN),
-	}
+	return make(map[int]int, MAXN)
 }
 
 func blink(n int) []int {
-	stone := strconv.Itoa(n)
+	ndigit := log10(n)
+
 	switch {
 	case n == 0:
 		return []int{1}
-	case len(stone) > 1 && len(stone)%2 == 0:
+	case ndigit%2 == 0:
 		// split stone in half
-		m := len(stone) / 2
-		return []int{atoi(stone[:m]), atoi(stone[m:])}
+		d := pow10(ndigit / 2)
+		return []int{n / d, n % d}
 	default:
 		return []int{2024 * n}
 	}
@@ -69,7 +65,7 @@ func blink(n int) []int {
 
 func (c Counter) MemBlink() Counter {
 	next := NewCounter()
-	for n, count := range c.data {
+	for n, count := range c {
 		for _, m := range blink(n) {
 			next.Add(m, count)
 		}
@@ -79,15 +75,40 @@ func (c Counter) MemBlink() Counter {
 
 // Add increments the value for the given key.
 func (c Counter) Add(stone int, count int) {
-	c.data[stone] = c.data[stone] + count
+	c[stone] = c[stone] + count
 }
 
-func (c Counter) Sum() int {
-	sum := 0
-	for _, n := range c.data {
-		sum += n
+func (c Counter) Popcnt() int {
+	pop := 0
+	for _, n := range c {
+		pop += n
 	}
-	return sum
+	return pop
+}
+
+func log10(n int) int {
+	i := 0
+	for n > 0 {
+		n /= 10
+		i++
+	}
+	return i
+}
+
+func pow10(n int) int {
+	var table = []int{
+		1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000,
+	}
+
+	if n < len(table) {
+		return table[n]
+	}
+
+	p := 1
+	for i := 0; i < n; i++ {
+		p *= 10
+	}
+	return p
 }
 
 // strconv.Atoi simplified core loop

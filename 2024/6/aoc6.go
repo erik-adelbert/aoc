@@ -26,6 +26,8 @@ const (
 	WEST
 )
 
+const MaxInt = int(^uint(0) >> 1)
+
 func main() {
 	var origin Point
 	matrix := make([][]rune, 0, 130)
@@ -248,6 +250,7 @@ func (m Maze) run() (bool, Path) {
 							fmt.Println("from:", h0, "to:", h1, "coo:", i/W, i%W)
 							count2++
 						case slices.Max(snxt[:]) == 0:
+							// seen[nxt.y*W+nxt.x][h2] = MaxInt
 							count3++
 						}
 					}

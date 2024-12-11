@@ -11,9 +11,9 @@
 | 6 | 1.7 |
 | 7 | 1.1 |
 | 4 | 2.0 |
+| 11 | 12.9 |
 | 9 | 13.3 |
-| 11 | 14.7 |
-| total | 38.5 |
+| total | 36.7 |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.6.0 - go version go1.23.3 darwin/arm64 - hyperfine 1.19.0 - 2024-12
 
@@ -158,4 +158,4 @@ Today is the *10th* day of the *10th* anniversary of [Advent Of Code](https://en
 
 ## Day 11
 
-In today’s solution, the `Counter` struct functions as a frequency map for integers, making it easy to add and retrieve counts. It processes stones in batches, avoiding unnecessary loops. Last but not least, it [minimizes redundant operations by using direct map access](https://en.wikipedia.org/wiki/Memoization). As a result and for my input, the final and longest line consists of `3799` unique numbers, each appearing one or more times.
+In today’s solution, the `Counter` works as a frequency map for integers, making it easy to add and retrieve counts. It processes stones in batches, avoiding unnecessary loops. Last but not least, it [minimizes redundant operations by using direct map access](https://en.wikipedia.org/wiki/Memoization). As a result and for my input, the final and longest line consists of `3799` unique numbers, each appearing one or more times for a total of `223M+`.
