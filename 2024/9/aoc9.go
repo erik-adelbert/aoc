@@ -36,7 +36,7 @@ func main() {
 				case par%2 == 0:
 					fs1.Link(File{{start, n}})
 				default:
-					fs1.Free(Block{start, n})
+					fs1.MarkFree(Block{start, n})
 				}
 				start += n
 			}
@@ -85,6 +85,10 @@ func (fs *φFS) Unlink(fid int) {
 	for i := range fs.fat[fid] {
 		fs.Free(fs.fat[fid][i])
 	}
+}
+
+func (fs *φFS) MarkFree(b Block) {
+	fs.free = append(fs.free, b)
 }
 
 func (fs *φFS) Free(b Block) {
@@ -136,10 +140,12 @@ func (fs *φFS) Move(fid int) {
 	blocks := make([]Block, 0)
 	reserved := -1
 
+	file := fs.fat[fid]
+
 ALLOC:
 	for i, block := range fs.free {
 		switch {
-		case block.start > fs.fat[fid][0].start:
+		case block.start > file[0].start:
 			// can't move file to a lower address
 			return
 		case block.size < size:
@@ -160,10 +166,9 @@ ALLOC:
 
 				blocks[len(blocks)-1].size = used
 				fs.free[i] = Block{block.start + used, free}
-				// link file to new blocks
 			}
 
-			fs.Unlink(fid)
+			// link file to new blocks
 			fs.fat[fid] = blocks
 			break ALLOC
 		}
@@ -183,7 +188,9 @@ func (fs *φFS) Realloc(fid int) {
 	blocks := make([]Block, 0, size)
 	reserved := make([]int, 0, size)
 
-	fs.Unlink(fid)
+	if len(fs.free) < 10 {
+		fs.Unlink(fid)
+	}
 ALLOC:
 	for i, block := range fs.free {
 		allocated += block.size

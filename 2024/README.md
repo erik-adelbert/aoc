@@ -6,13 +6,14 @@
 | 2 | 0.8 |
 | 5 | 0.9 |
 | 8 | 0.7 |
+| 10 | 1.0 |
 | 3 | 1.5 |
 | 6 | 1.7 |
 | 7 | 1.1 |
 | 4 | 2.0 |
 | 9 | 13.3 |
-| 10 | 1.0 |
-| total | 23.8 |
+| 11 | 14.8 |
+| total | 38.6 |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.6.0 - go version go1.23.3 darwin/arm64 - hyperfine 1.19.0 - 2024-12
 
@@ -154,3 +155,7 @@ Day       Time   Rank  Score       Time   Rank  Score
  ```
 
 Today is the *10th* day of the *10th* anniversary of [Advent Of Code](https://en.wikipedia.org/wiki/Advent_of_Code) and my calendar surely looks like it.
+
+## Day 11
+
+In today’s solution, the `Counter` struct functions as a frequency map for integers, making it easy to add and retrieve counts. It processes stones in batches, avoiding unnecessary loops. Last but not least, it [minimizes redundant operations by using direct map access](https://en.wikipedia.org/wiki/Memoization). As a result and for my input, the final and longest line consists of `3799` unique numbers, each appearing one or more times.
