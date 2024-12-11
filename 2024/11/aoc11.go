@@ -17,7 +17,7 @@ import (
 	"strings"
 )
 
-const MAXN = 3799 // arbitrary
+const MAXN = 3799 // arbitrary but educated guess
 
 func main() {
 	stones := NewCounter()
@@ -50,6 +50,13 @@ func NewCounter() Counter {
 	return make(map[int]int, MAXN)
 }
 
+func (c Counter) Popcnt() (pop int) {
+	for _, n := range c {
+		pop += n
+	}
+	return
+}
+
 func (c Counter) Blink() Counter {
 	next := NewCounter()
 	for n, count := range c {
@@ -58,14 +65,6 @@ func (c Counter) Blink() Counter {
 		}
 	}
 	return next
-}
-
-func (c Counter) Popcnt() int {
-	pop := 0
-	for _, n := range c {
-		pop += n
-	}
-	return pop
 }
 
 func blink(n int) []int {
@@ -83,15 +82,14 @@ func blink(n int) []int {
 	}
 }
 
-func log10(n int) int {
-	i := 0
-	for n > 0 {
+func log10(n int) (i int) {
+	for i = 0; n > 0; i++ {
 		n /= 10
-		i++
 	}
-	return i
+	return
 }
 
+// pow10 returns 10^n for n in [0,6] in O(1)
 func pow10(n int) int {
 	return []int{
 		1, 10, 100, 1000, 10000, 100000, 1000000,
