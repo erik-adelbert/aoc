@@ -17,7 +17,7 @@ import (
 	"strings"
 )
 
-const MAXN = 3799
+const MAXN = 3799 // arbitrary
 
 func main() {
 	stones := NewCounter()
@@ -25,18 +25,20 @@ func main() {
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
 		for _, n := range strings.Fields(input.Text()) {
-			stones.Add(atoi(n), 1)
+			stones[atoi(n)] = 1
 		}
 	}
 
-	for i := 0; i < 25; i++ {
-		stones = stones.MemBlink()
+	blinks := func(n int) {
+		for i := 0; i < n; i++ {
+			stones = stones.Blink()
+		}
 	}
+
+	blinks(25)
 	count1 := stones.Popcnt()
 
-	for i := 0; i < 50; i++ {
-		stones = stones.MemBlink()
-	}
+	blinks(50)
 	count2 := stones.Popcnt()
 
 	fmt.Println(count1, count2)
@@ -46,6 +48,24 @@ type Counter map[int]int
 
 func NewCounter() Counter {
 	return make(map[int]int, MAXN)
+}
+
+func (c Counter) Blink() Counter {
+	next := NewCounter()
+	for n, count := range c {
+		for _, m := range blink(n) {
+			next[m] += count
+		}
+	}
+	return next
+}
+
+func (c Counter) Popcnt() int {
+	pop := 0
+	for _, n := range c {
+		pop += n
+	}
+	return pop
 }
 
 func blink(n int) []int {
@@ -61,29 +81,6 @@ func blink(n int) []int {
 	default:
 		return []int{2024 * n}
 	}
-}
-
-func (c Counter) MemBlink() Counter {
-	next := NewCounter()
-	for n, count := range c {
-		for _, m := range blink(n) {
-			next.Add(m, count)
-		}
-	}
-	return next
-}
-
-// Add increments the value for the given key.
-func (c Counter) Add(stone int, count int) {
-	c[stone] = c[stone] + count
-}
-
-func (c Counter) Popcnt() int {
-	pop := 0
-	for _, n := range c {
-		pop += n
-	}
-	return pop
 }
 
 func log10(n int) int {
