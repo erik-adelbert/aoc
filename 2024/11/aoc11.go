@@ -41,15 +41,14 @@ func main() {
 	sum2 := nums.Sum()
 
 	fmt.Println(sum1, sum2)
-
 }
 
 type Counter struct {
 	data map[int]int
 }
 
-func NewCounter() *Counter {
-	return &Counter{
+func NewCounter() Counter {
+	return Counter{
 		data: make(map[int]int, MAXN),
 	}
 }
@@ -67,7 +66,7 @@ func blink(stone int) []int {
 	}
 }
 
-func (c *Counter) MemBlink() *Counter {
+func (c Counter) MemBlink() Counter {
 	next := NewCounter()
 	for n, count := range c.data {
 		for _, r := range blink(n) {
@@ -78,11 +77,11 @@ func (c *Counter) MemBlink() *Counter {
 }
 
 // Add increments the value for the given key.
-func (c *Counter) Add(key int, value int) {
+func (c Counter) Add(key int, value int) {
 	c.data[key] = c.data[key] + value
 }
 
-func (c *Counter) Sum() int {
+func (c Counter) Sum() int {
 	sum := 0
 	for _, n := range c.data {
 		sum += n
