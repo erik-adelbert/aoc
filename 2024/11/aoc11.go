@@ -29,16 +29,16 @@ func main() {
 		}
 	}
 
-	blinks := func(n int) {
+	blink := func(n int) {
 		for i := 0; i < n; i++ {
 			stones = stones.Blink()
 		}
 	}
 
-	blinks(25)
+	blink(25)
 	count1 := stones.Popcnt()
 
-	blinks(50)
+	blink(50)
 	count2 := stones.Popcnt()
 
 	fmt.Println(count1, count2)
@@ -93,19 +93,9 @@ func log10(n int) int {
 }
 
 func pow10(n int) int {
-	var table = []int{
-		1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000,
-	}
-
-	if n < len(table) {
-		return table[n]
-	}
-
-	p := 1
-	for i := 0; i < n; i++ {
-		p *= 10
-	}
-	return p
+	return []int{
+		1, 10, 100, 1000, 10000, 100000, 1000000,
+	}[n]
 }
 
 // strconv.Atoi simplified core loop
