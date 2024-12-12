@@ -11,9 +11,10 @@
 | 3 | 1.5 |
 | 6 | 1.6 |
 | 4 | 2.0 |
+| 12 | 8.7 |
 | 11 | 10.0 |
 | 9 | 13.3 |
-| total | 33.6 |
+| total | 42.3 |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.6.0 - go version go1.23.3 darwin/arm64 - hyperfine 1.19.0 - 2024-12
 
@@ -160,4 +161,8 @@ Today is the *10th* day of the *10th* anniversary of [Advent Of Code](https://en
 
 In today’s solution, the `Counter` works as a frequency map for integers, making it easy to add and retrieve counts. It processes stones in batches, avoiding unnecessary loops. Last but not least, it [minimizes redundant operations by using direct map access](https://en.wikipedia.org/wiki/Memoization). As a result and for my input, the final and longest line consists of `3799` unique numbers, each appearing one or more times for a total of `223M+` stones.
 
-I really appreciate the minimalism and simplicity of this solution—it's like Bauhaus in code form!
+I really appreciate the minimalism and simplicity of this solution—it's like Bauhaus code!
+
+## Day 12
+
+I nearly fried my brain today! The first part of the problem was a breeze—it was similar to Day 10, and adapting my solution didn’t take any effort. But then came Part 2, and it completely blindsided me. My brain froze. Eventually, I decided to take a long break and enjoy a nice breakfast. Only after that was I able to focus, isolate the solution for Part 2, and come up with a simple routine to handle the computation. I’m not finished with this problem yet!
