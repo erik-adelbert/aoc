@@ -5,6 +5,7 @@
 | 8 | 0.7 |
 | 1 | 0.8 |
 | 2 | 0.8 |
+| 13 | 0.8 |
 | 5 | 0.9 |
 | 10 | 0.9 |
 | 7 | 1.1 |
@@ -14,7 +15,7 @@
 | 12 | 8.7 |
 | 11 | 10.0 |
 | 9 | 13.3 |
-| total | 42.3 |
+| total | 43.1 |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.6.0 - go version go1.23.3 darwin/arm64 - hyperfine 1.19.0 - 2024-12
 
@@ -166,3 +167,7 @@ I really appreciate the minimalism and simplicity of this solution—it's like B
 ## Day 12
 
 I nearly fried my brain today! The first part of the problem was a breeze—it was similar to Day 10, and adapting my solution didn’t take any effort. But then came Part 2, and it completely blindsided me. My brain froze. Eventually, I decided to take a long break and enjoy a nice breakfast. Only after that was I able to focus, isolate the solution for Part 2, and come up with a simple routine to handle the computation. I’m not finished with this problem yet!
+
+## Day 13
+
+Today's problem has a straightforward mathematical solution, specifically solving [systems of two linear equations](https://en.wikipedia.org/wiki/System_of_linear_equations). The key but easy challenge is to avoid [integer overflows](https://en.wikipedia.org/wiki/Integer_overflow). My solution will work out of the box on 64-bit machines, and if needed, a [simple adaptation](https://go.dev/ref/spec#Numeric_types) for 32-bit systems is left for you to handle.
