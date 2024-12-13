@@ -174,7 +174,7 @@ Day       Time   Rank  Score       Time   Rank  Score
  12   00:07:21    436      0   00:50:48   1506      0
 ```
 
-PS. #436 is my personal best
+PS. #436 is my personal best. Having detailed day10 was a huge payoff!
 
 ## Day 13
 
