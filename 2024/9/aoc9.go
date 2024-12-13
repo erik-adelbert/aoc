@@ -15,6 +15,7 @@ import (
 	"fmt"
 	"os"
 	"slices"
+	"sync"
 )
 
 const (
@@ -44,8 +45,17 @@ func main() {
 	}
 
 	fs2 := fs1.Clone()
+
+	var wg sync.WaitGroup
+	wg.Add(1)
+
+	go func() {
+		defer wg.Done()
+		fs2.Defrag()
+	}()
 	fs1.Compact()
-	fs2.Defrag()
+
+	wg.Wait()
 
 	fmt.Println(fs1.Checksum(), fs2.Checksum()) // part 1 & 2
 }
@@ -82,8 +92,9 @@ func (fs *φFS) Link(f File) {
 }
 
 func (fs *φFS) Unlink(fid int) {
-	for i := range fs.fat[fid] {
-		fs.Free(fs.fat[fid][i])
+	file := fs.fat[fid]
+	for i := range file {
+		fs.Free(file[i])
 	}
 }
 
@@ -92,8 +103,8 @@ func (fs *φFS) MarkFree(b Block) {
 }
 
 func (fs *φFS) Free(b Block) {
-	i, _ := slices.BinarySearchFunc(fs.free, b.start, func(x Block, start int) int {
-		return x.start - start
+	i, _ := slices.BinarySearchFunc(fs.free, b, func(x Block, b Block) int {
+		return x.start - b.start
 	})
 
 	// merge with previous block if contiguous
@@ -104,20 +115,24 @@ func (fs *φFS) Free(b Block) {
 	}
 }
 
-func (fs *φFS) Compact() {
-	for fid := len(fs.fat) - 1; fid >= 0 && len(fs.free) > 0; fid-- {
-		if fs.fat[fid][0].start < fs.free[0].start {
-			// no more free space at the beginning
-			return
+func fsmap(fs *φFS, fun func(int)) {
+	for fid := len(fs.fat) - 1; fid >= 0; fid-- {
+		file := fs.fat[fid]
+
+		if file[0].start < fs.free[0].start {
+			return // no more free space at the beginning
 		}
-		fs.Realloc(fid)
+
+		fun(fid)
 	}
 }
 
+func (fs *φFS) Compact() {
+	fsmap(fs, fs.Realloc)
+}
+
 func (fs *φFS) Defrag() {
-	for fid := len(fs.fat) - 1; fid >= 0; fid-- {
-		fs.Move(fid)
-	}
+	fsmap(fs, fs.Move)
 }
 
 func (fs *φFS) Checksum() int {
@@ -182,8 +197,9 @@ ALLOC:
 }
 
 func (fs *φFS) Realloc(fid int) {
-	size := fs.fat[fid].Size()
-	allocated := 0
+	file := fs.fat[fid]
+	size := file.Size()
+	nalloc := 0
 
 	blocks := make([]Block, 0, size)
 	reserved := make([]int, 0, size)
@@ -193,21 +209,21 @@ func (fs *φFS) Realloc(fid int) {
 	}
 ALLOC:
 	for i, block := range fs.free {
-		allocated += block.size
+		nalloc += block.size
 
 		blocks = append(blocks, block)
 		reserved = append(reserved, i)
 
 		switch {
-		case allocated < size:
+		case nalloc < size:
 			// not done yet
 			continue
-		case allocated > size:
+		case nalloc > size:
 			// keep the current block in the free list
 			reserved = reserved[:len(reserved)-1]
 
 			// split block
-			free := allocated - size
+			free := nalloc - size
 			used := block.size - free
 
 			blocks[len(blocks)-1].size = used

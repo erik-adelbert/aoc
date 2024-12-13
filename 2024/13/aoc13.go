@@ -63,7 +63,9 @@ func solve(sys []int, off int) (A, B int) {
 	X += off
 	Y += off
 
-	if Δ = ax*by - ay*bx; Δ == 0 {
+	Δ = ax*by - ay*bx
+
+	if Δ == 0 {
 		return
 	}
 

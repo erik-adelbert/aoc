@@ -29,7 +29,7 @@ func main() {
 	regions := decompose(grid)
 	for _, region := range regions {
 		sum1 += region.area * region.perim
-		sum2 += region.nside * region.area
+		sum2 += region.area * region.nside
 	}
 
 	fmt.Println(sum1, sum2)
@@ -105,7 +105,7 @@ var dirs = []Cell{
 }
 
 func shape(region []Cell) (count int) {
-	cells := make(map[Cell]bool)
+	cells := make(map[Cell]bool, len(region))
 	for _, cell := range region {
 		cells[cell] = true
 	}

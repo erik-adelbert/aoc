@@ -76,14 +76,14 @@ func solve(grid [][]int) (int, int) {
 	}
 
 	// path score
-	scores := make(map[Cell]int)
+	scores := make(map[Cell]int, 318) // arbitrary but educated guess
 
 	// find all starting points
 	count2 := 0
 	for r := 0; r < H; r++ {
 		for c := 0; c < W; c++ {
 			if grid[r][c] == 0 {
-				goals := make(map[Cell]bool)
+				goals := make(map[Cell]bool, 8)
 				count2 += research(Cell{r, c}, 0, goals)
 				scores[Cell{r, c}] = len(goals)
 			}
