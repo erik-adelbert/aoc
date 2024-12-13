@@ -15,6 +15,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync"
 )
 
 // "*" (star) is a wildcard character that can match any letter.
@@ -94,11 +95,17 @@ func main() {
 		matrix = append(matrix, []rune(input.Text()))
 	}
 
+	var wg sync.WaitGroup
+
 	count1 := 0
-	for _, sub := range XMAS {
-		matches := matrix.findAll(toRuneMat(sub))
-		count1 += len(matches)
-	}
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for _, sub := range XMAS {
+			matches := matrix.findAll(toRuneMat(sub))
+			count1 += len(matches)
+		}
+	}()
 
 	count2 := 0
 	for _, sub := range MAS {
@@ -106,8 +113,9 @@ func main() {
 		count2 += len(matches)
 	}
 
-	fmt.Println(count1, count2)
+	wg.Wait()
 
+	fmt.Println(count1, count2)
 }
 
 type RuneMat [][]rune

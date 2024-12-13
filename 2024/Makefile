@@ -1,4 +1,4 @@
-GO = go build 
+GO = go build
 
 TARGETS := bench binrun build check clean header run
 
@@ -10,7 +10,7 @@ $(SUBDIRS):
 		@$(MAKE) -C $@ $(MAKECMDGOALS)
 
 cyclo:
-	@gocyclo -top 10 -avg .
+	@gocyclo -ignore "header|download|runtime" -top 10 -avg .
 
 lines:
 	@find . -name '*go' \( -not -iname "main.go" \) | grep -v 'v1' | xargs wc -l | sort
@@ -18,4 +18,4 @@ lines:
 runtime:
 	@./runtime.sh | sort -n -k 4 > runtime.md
 
-.PHONY: $(TARGETS) $(SUBDIRS) cyclo lines runtime 
+.PHONY: $(TARGETS) $(SUBDIRS) cyclo lines runtime

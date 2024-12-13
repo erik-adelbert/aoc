@@ -11,11 +11,11 @@
 | 7 | 1.1 |
 | 3 | 1.5 |
 | 6 | 1.6 |
-| 4 | 2.0 |
+| 4 | 1.7 |
 | 12 | 5.7 |
 | 9 | 9.0 |
 | 11 | 10.0 |
-| total | 35.8 |
+| total | 35.5 |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.6.0 - go version go1.23.3 darwin/arm64 - hyperfine 1.19.0 - 2024-12
 
@@ -168,8 +168,32 @@ I really appreciate the minimalism and simplicity of this solution—it's like B
 
 I nearly fried my brain today! The first part of the problem was a breeze—it was similar to Day 10, and adapting my solution didn’t take any effort. But then came Part 2, and it completely blindsided me. My brain froze. Eventually, I decided to take a long break and enjoy a nice breakfast. Only after that was I able to focus, isolate the solution for Part 2, and come up with a simple routine to handle the computation. I’m not finished with this problem yet!
 
+```bash
+      --------Part 1--------   --------Part 2--------
+Day       Time   Rank  Score       Time   Rank  Score
+ 12   00:07:21    436      0   00:50:48   1506      0
+```
+
+PS. #436 is my personal best
+
 ## Day 13
 
-Today's problem has a straightforward mathematical solution, specifically solving [systems of two linear equations](https://en.wikipedia.org/wiki/System_of_linear_equations). The key but easy challenge is to avoid [integer overflows](https://en.wikipedia.org/wiki/Integer_overflow). My solution will work out of the box on 64-bit machines, and if needed, a [simple adaptation](https://go.dev/ref/spec#Numeric_types) for 32-bit systems is left for you to handle.
+Today's problem has a straightforward mathematical solution, specifically solving [systems of two linear equations](https://en.wikipedia.org/wiki/System_of_linear_equations). The key and easy challenge is to avoid [integer overflows](https://en.wikipedia.org/wiki/Integer_overflow). My solution will work out of the box on 64-bit machines, and if needed, a [simple adaptation](https://go.dev/ref/spec#Numeric_types) for 32-bit systems is left for you to handle.
 
 It's Friday, and we've just passed the middle of December. I think today's problem is more of a fun break before the weekend. Stay tuned—I'm betting on some special weekend topics!
+
+PS. So far so good! 3.74 of [cyclomatic complexity](https://en.wikipedia.org/wiki/Cyclomatic_complexity) on average is ok:
+
+```bash
+14 main (Maze).run 6/aoc6.go:183:1
+14 main solve 10/aoc10.go:43:1
+13 main safe 2/aoc2.go:49:1
+12 main decompose 12/aoc12.go:49:1
+10 main antinodes 8/aoc8.go:59:1
+10 main check 7/aoc7.go:47:1
+9 main shape 12/aoc12.go:107:1
+8 main scan 6/aoc6.go:78:1
+8 main main 5/aoc5.go:26:1
+7 main (RuneMat).findAll 4/aoc4.go:143:1
+Average: 3.74
+```
