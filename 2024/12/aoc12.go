@@ -49,7 +49,7 @@ type Cell struct {
 func decompose(matrix [][]rune) []Region {
 	H, W := len(matrix), len(matrix[0])
 
-	cells := make([]Cell, 0, H*W/2)
+	region := make([]Cell, 0, H*W/4)
 
 	seen := make([][]bool, len(matrix))
 	for i := range seen {
@@ -68,7 +68,7 @@ func decompose(matrix [][]rune) []Region {
 		seen[r][c] = true
 
 		area, perim := 1, 0
-		cells = append(cells, Cell{r, c})
+		region = append(region, Cell{r, c})
 
 		for _, dir := range dirs {
 			rr, rc := r+dir.r, c+dir.c
@@ -84,13 +84,13 @@ func decompose(matrix [][]rune) []Region {
 	for r := range matrix {
 		for c := range matrix[r] {
 			if !seen[r][c] {
-				cells = cells[:0] // reset cells
+				region = region[:0] // reset cells
 
 				a, p := research(r, c, matrix[r][c])
 				regions = append(regions, Region{
 					area:  a,
 					perim: p,
-					nside: shape(cells),
+					nside: shape(region),
 				})
 			}
 		}
@@ -104,19 +104,19 @@ var dirs = []Cell{
 	{-1, 0}, {1, 0}, {0, -1}, {0, 1}, // UDLR
 }
 
-func shape(region []Cell) (count int) {
+func shape(region []Cell) int {
 	cells := make(map[Cell]bool, len(region))
-	for _, cell := range region {
-		cells[cell] = true
+	for _, x := range region {
+		cells[x] = true
 	}
 
-	seen := make(map[[4]int]bool)
+	seen := make(map[[4]int]bool, len(region))
 
 	for _, cell := range region {
 		r, c := cell.r, cell.c
 
-		for _, δ := range dirs {
-			δr, δc := δ.r, δ.c
+		for _, d := range dirs {
+			δr, δc := d.r, d.c
 
 			// check if the neighboring cell is in the group
 			if cells[Cell{r + δr, c + δc}] {
@@ -137,14 +137,12 @@ func shape(region []Cell) (count int) {
 				break
 			}
 
-			edge := [...]int{rr, cc, δr, δc}
-
+			edge := [4]int{rr, cc, δr, δc}
 			if !seen[edge] {
 				seen[edge] = true
-				count++
 			}
 		}
 	}
 
-	return count
+	return len(seen)
 }

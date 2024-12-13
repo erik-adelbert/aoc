@@ -3,19 +3,19 @@
 | day | time |
 |-----|-----:|
 | 8 | 0.7 |
+| 13 | 0.7 |
 | 1 | 0.8 |
 | 2 | 0.8 |
-| 13 | 0.8 |
 | 5 | 0.9 |
 | 10 | 0.9 |
 | 7 | 1.1 |
 | 3 | 1.5 |
 | 6 | 1.6 |
 | 4 | 1.7 |
-| 12 | 5.7 |
+| 12 | 5.5 |
 | 9 | 9.0 |
 | 11 | 10.0 |
-| total | 35.5 |
+| total | 35.2 |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.6.0 - go version go1.23.3 darwin/arm64 - hyperfine 1.19.0 - 2024-12
 
@@ -179,6 +179,8 @@ PS. #436 is my personal best. Having detailed day10 was a huge payoff!
 ## Day 13
 
 Today's problem has a straightforward mathematical solution, specifically solving [systems of two linear equations](https://en.wikipedia.org/wiki/System_of_linear_equations). The key and easy challenge is to avoid [integer overflows](https://en.wikipedia.org/wiki/Integer_overflow). My solution will work out of the box on 64-bit machines, and if needed, a [simple adaptation](https://go.dev/ref/spec#Numeric_types) for 32-bit systems is left for you to handle.
+
+Today's parsing might seem tedious, but it's not! Here's my advice for events like AoC: embrace laziness. The more regular the input format, the easier it is to extract data with quick and efficient string routines instead of, say, regular expressions. Especially during AoC, I always trust the input and [never waste time validating](https://www.youtube.com/watch?v=_oNOTknRTSU) it.
 
 It's Friday, and we've just passed the middle of December. I think today's problem is more of a fun break before the weekend. Stay tuned—I'm betting on some special weekend topics!
 
