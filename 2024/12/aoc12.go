@@ -16,10 +16,6 @@ import (
 	"os"
 )
 
-type Cell struct {
-	r, c int
-}
-
 func main() {
 	grid := make([][]rune, 0, 140)
 
@@ -33,26 +29,27 @@ func main() {
 	regions := decompose(grid)
 	for _, region := range regions {
 		sum1 += region.area * region.perim
-		sum2 += region.sides * region.area
+		sum2 += region.nside * region.area
 	}
 
 	fmt.Println(sum1, sum2)
-	// fmt.Println(regions)
 }
 
 type Region struct {
-	char  rune
 	area  int
 	perim int
-	sides int
-	cells []Cell
+	nside int
+}
+
+type Cell struct {
+	r, c int
 }
 
 // decompose the matrix into regions by dfs flood filling
 func decompose(matrix [][]rune) []Region {
 	H, W := len(matrix), len(matrix[0])
 
-	var cells []Cell
+	cells := make([]Cell, 0, H*W/2)
 
 	seen := make([][]bool, len(matrix))
 	for i := range seen {
@@ -87,14 +84,13 @@ func decompose(matrix [][]rune) []Region {
 	for r := range matrix {
 		for c := range matrix[r] {
 			if !seen[r][c] {
-				cells = make([]Cell, 0, len(matrix)*len(matrix[0]))
-				area, perimeter := research(r, c, matrix[r][c])
+				cells = cells[:0] // reset cells
+
+				a, p := research(r, c, matrix[r][c])
 				regions = append(regions, Region{
-					char:  matrix[r][c],
-					area:  area,
-					perim: perimeter,
-					sides: sidecount(cells),
-					cells: cells,
+					area:  a,
+					perim: p,
+					nside: shape(cells),
 				})
 			}
 		}
@@ -108,7 +104,7 @@ var dirs = []Cell{
 	{-1, 0}, {1, 0}, {0, -1}, {0, 1}, // UDLR
 }
 
-func sidecount(region []Cell) (count int) {
+func shape(region []Cell) (count int) {
 	cells := make(map[Cell]bool)
 	for _, cell := range region {
 		cells[cell] = true
@@ -123,26 +119,28 @@ func sidecount(region []Cell) (count int) {
 			δr, δc := δ.r, δ.c
 
 			// check if the neighboring cell is in the group
-			if _, found := cells[Cell{r + δr, c + δc}]; found {
+			if cells[Cell{r + δr, c + δc}] {
 				continue
 			}
 
 			// find the corner side
-			rr, rc := r, c
+			rr, cc := r, c
 			for {
 				// check if the neighboring cell in the direction is in the group
-				if cells[Cell{rr + δc, rc + δr}] {
-					if !cells[Cell{rr + δr, rc + δc}] {
+				if cells[Cell{rr + δc, cc + δr}] {
+					if !cells[Cell{rr + δr, cc + δc}] {
 						rr += δc
-						rc += δr
+						cc += δr
 						continue
 					}
 				}
 				break
 			}
 
-			if !seen[[4]int{rr, rc, δr, δc}] {
-				seen[[4]int{rr, rc, δr, δc}] = true
+			edge := [...]int{rr, cc, δr, δc}
+
+			if !seen[edge] {
+				seen[edge] = true
 				count++
 			}
 		}
