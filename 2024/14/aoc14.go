@@ -79,7 +79,7 @@ func move(robots []Robots, t int) []Robots {
 	return robots
 }
 
-func check(robots []Robots) int {
+func quads(robots []Robots) [4]int {
 	ox, oy := W/2, H/2
 
 	quads := [4]int{}
@@ -96,9 +96,12 @@ func check(robots []Robots) int {
 			quads[3]++
 		}
 	}
+	return quads
+}
 
+func check(robots []Robots) int {
 	prod1 := 1
-	for _, n := range quads {
+	for _, n := range quads(robots) {
 		prod1 *= n
 	}
 
@@ -151,12 +154,10 @@ func atoi(s string) (n int) {
 }
 
 func easter(robots []Robots) bool {
-	n := len(robots)
-
-	pos := make(map[Vec]struct{}, n)
-	for _, r := range robots {
-		pos[r.pos] = struct{}{}
+	for _, n := range quads(robots) {
+		if n > len(robots)/2 {
+			return true
+		}
 	}
-
-	return len(pos) == n
+	return false
 }
