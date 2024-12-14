@@ -9,13 +9,14 @@
 | 5 | 0.9 |
 | 10 | 0.9 |
 | 7 | 1.1 |
+| 14 | 1.4 |
 | 3 | 1.5 |
 | 6 | 1.6 |
 | 4 | 1.7 |
 | 12 | 5.5 |
 | 9 | 9.0 |
 | 11 | 10.0 |
-| total | 35.2 |
+| total | 36.6 |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.6.0 - go version go1.23.3 darwin/arm64 - hyperfine 1.19.0 - 2024-12
 
@@ -199,3 +200,11 @@ PS. So far so good! 3.74 of [cyclomatic complexity](https://en.wikipedia.org/wik
 7 main (RuneMat).findAll 4/aoc4.go:143:1
 Average: 3.74
 ```
+
+## Day 14
+
+What a day! Today's challenge is easy—Part 1 just checks if we’re moving the robots correctly. But Part 2? That’s a whole different game. I had to generate and manually scan 10K+ images with my own eyes to figure it out. The good news? I nailed it and learned something interesting about the easter egg along the way. My advice: don’t peek at the solution unless you’re okay with spoiling the fun!
+
+I have included a visualization routine that outputs a png file in the working directory.
+
+![Advent Of Code 2024 - 10 years edition - day14 easter egg - a framed xmas tree in the snow](./images/aoc14-6516.png)

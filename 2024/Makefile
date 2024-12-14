@@ -10,7 +10,7 @@ $(SUBDIRS):
 		@$(MAKE) -C $@ $(MAKECMDGOALS)
 
 cyclo:
-	@gocyclo -ignore "header|download|runtime" -top 10 -avg .
+	@gocyclo -ignore "download|images|header|runtime" -top 10 -avg .
 
 lines:
 	@find . -name '*go' \( -not -iname "main.go" \) | grep -v 'v1' | xargs wc -l | sort
