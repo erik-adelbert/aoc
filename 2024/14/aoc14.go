@@ -62,9 +62,10 @@ func main() {
 	prod1 := check(robots)
 
 	// part 2 search
-	var time2 int
-	for time2 = T0; !easter(robots); time2++ {
+	time2 := T0
+	for !easter(robots) {
 		robots = move(robots, 1)
+		time2++
 	}
 	fmt.Println(prod1, time2) // part 1 & 2
 	// output(time2, H, W, robots)
