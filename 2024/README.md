@@ -2,21 +2,22 @@
 
 | day | time |
 |-----|-----:|
-| 8 | 0.7 |
+| 8 | 0.6 |
 | 13 | 0.7 |
-| 1 | 0.8 |
 | 2 | 0.8 |
-| 5 | 0.9 |
-| 10 | 0.9 |
-| 7 | 1.1 |
-| 14 | 1.4 |
+| 5 | 0.8 |
+| 1 | 0.9 |
+| 10 | 1.0 |
+| 7 | 1.0 |
+| 15 | 1.1 |
 | 3 | 1.5 |
 | 6 | 1.6 |
 | 4 | 1.7 |
+| 14 | 2.5 |
 | 12 | 5.5 |
-| 9 | 9.0 |
-| 11 | 10.0 |
-| total | 36.6 |
+| 9 | 9.1 |
+| 11 | 10.1 |
+| total | 38.9 |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.6.0 - go version go1.23.3 darwin/arm64 - hyperfine 1.19.0 - 2024-12
 
@@ -208,3 +209,9 @@ What a day! Today's challenge is easy—Part 1 just checks if we’re moving the
 I have included a visualization routine that outputs a png file in the working directory.
 
 ![Advent Of Code 2024 - 10 years edition - day14 easter egg - a framed xmas tree in the snow](./images/aoc14-6516.png)
+
+`<EDIT>` I have found a way to automate the solution!!! Note is coming.
+
+## Day 15
+
+I found this sunday's problem tedious and frankly it didn't interest me so much. Note is coming.
