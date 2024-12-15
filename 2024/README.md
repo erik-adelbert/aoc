@@ -9,7 +9,7 @@
 | 1 | 0.9 |
 | 10 | 1.0 |
 | 7 | 1.0 |
-| 15 | 1.1 |
+| 15 | 1.3 |
 | 3 | 1.5 |
 | 6 | 1.6 |
 | 4 | 1.7 |
@@ -17,7 +17,7 @@
 | 12 | 5.5 |
 | 9 | 9.1 |
 | 11 | 10.1 |
-| total | 38.9 |
+| total | 39.1 |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.6.0 - go version go1.23.3 darwin/arm64 - hyperfine 1.19.0 - 2024-12
 

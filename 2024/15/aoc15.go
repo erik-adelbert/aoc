@@ -50,14 +50,33 @@ func (g Grid) String() string {
 	return sb.String()
 }
 
-func (g Grid) move(x Cell, dir rune) Cell {
-
-	switch g[x.r][x.c] {
-	case '[':
-		g[x.r][x.c+1] = '.'
-	case ']':
-		g[x.r][x.c-1] = '.'
+func (g Grid) clone() Grid {
+	clone := make(Grid, 0, len(g))
+	for _, row := range g {
+		clone = append(clone, append([]rune(nil), row...))
 	}
+	return clone
+}
+
+// func (g Grid) move(x Cell, dir rune) Cell {
+// 	g[x.r][x.c] = '.'
+// 	old := x
+
+// 	x = x.move(dir)
+// 	switch g[x.r][x.c] {
+// 	case '#':
+// 		x = old
+// 	case 'O':
+// 		if !g.push(x, dir) {
+// 			x = old
+// 		}
+// 	}
+
+// 	// fmt.Println("move", x, string(dir), "\n", g)
+// 	return x
+// }
+
+func (g Grid) move(x Cell, dir rune) Cell {
 	g[x.r][x.c] = '.'
 	old := x
 
@@ -71,59 +90,109 @@ func (g Grid) move(x Cell, dir rune) Cell {
 		}
 	}
 
-	// fmt.Println("move", x, string(dir), "\n", g)
+	// fmt.Println("move2", x, string(dir))
 	return x
 }
 
-func (g Grid) push(x Cell, dir rune) bool {
+func (g Grid) push(x Cell, dir rune) (ok bool) {
+
+	type State struct {
+		Cell
+		dir rune
+	}
+
+	todo := make([]State, 0, 4)
 
 	var repush func(Cell, rune) bool
-	repush = func(x Cell, dir rune) bool {
-		var old Cell
-		// fmt.Println("repush", x, string(dir), "\n", g)
+	repush = func(nxt Cell, dir rune) bool {
+		var cur Cell
+		// fmt.Println("repush", nxt, string(dir))
 
-		old, x = x, x.move(dir)
-		box := g[old.r][old.c]
-		_ = box
-		switch g[x.r][x.c] {
+		cur, nxt = nxt, nxt.move(dir)
+		car := g[cur.r][cur.c]
+		switch car {
 		case '#':
-			x = old
+			nxt = cur
 		case 'O':
-			if repush(x, dir) {
+			if repush(nxt, dir) {
+				todo = append(todo, State{cur, dir})
 				return true
 			}
 		case '[', ']':
-			xx := Cell{x.r, x.c - 1}
-			if g[x.r][x.c] == '[' {
-				xx.c += 2
+			left, right := cur, Cell{cur.r, cur.c + 1}
+			lnxt, rnxt := nxt, right.move(dir)
+			if car == ']' {
+				left, right = Cell{cur.r, cur.c - 1}, cur
+				lnxt, rnxt = left.move(dir), nxt
 			}
-			if repush(x, dir) && repush(xx, dir) {
-				return true
+
+			switch dir {
+			case '^', 'v':
+				if repush(lnxt, dir) && repush(rnxt, dir) {
+					todo = append(todo, State{left, dir}, State{right, dir})
+					return true
+				}
+			case '<', '>':
+				if repush(nxt, dir) {
+					todo = append(todo, State{cur, dir})
+					return true
+				}
 			}
 		case '.':
-			switch box {
-			case 'O':
-				g[x.r][x.c] = 'O'
-			case '[':
-				if g[x.r][x.c+1] != '.' {
-					return false
-				}
-				g[x.r][x.c] = '['
-				g[x.r][x.c+1] = ']'
-			case ']':
-				if g[x.r][x.c-1] != '.' {
-					return false
-				}
-				g[x.r][x.c] = ']'
-				g[x.r][x.c-1] = '['
-			}
+			// todo = append(todo, State{cur, dir})
 			return true
 		}
+
 		return false
 	}
 
-	return repush(x, dir)
+	ok = repush(x, dir)
+	if ok && len(todo) > 0 {
+		var state State
+
+		for _, state = range todo {
+			from := state.Cell
+			to := from.move(state.dir)
+
+			if g[from.r][from.c] != '.' {
+				// fmt.Println("copy", string(g[from.r][from.c]), from, to)
+				g[to.r][to.c] = g[from.r][from.c]
+			}
+			g[from.r][from.c] = '.'
+		}
+		end := state.Cell
+		g[end.r][end.c] = '.'
+	}
+
+	return
 }
+
+// func (g Grid) push(x Cell, dir rune) bool {
+
+// 	var repush func(Cell, rune) bool
+// 	repush = func(x Cell, dir rune) bool {
+// 		var old Cell
+// 		// fmt.Println("repush", x, string(dir), "\n", g)
+
+// 		old, x = x, x.move(dir)
+// 		box := g[old.r][old.c]
+// 		_ = box
+// 		switch g[x.r][x.c] {
+// 		case '#':
+// 			x = old
+// 		case 'O':
+// 			if repush(x, dir) {
+// 				return true
+// 			}
+// 		case '.':
+// 			g[x.r][x.c] = 'O'
+// 			return true
+// 		}
+// 		return false
+// 	}
+
+// 	return repush(x, dir)
+// }
 
 func (g Grid) expand() Grid {
 	new := make(Grid, 0, len(g))
@@ -179,14 +248,16 @@ func main() {
 		}
 	}
 
-	robot2 := robot1
+	robot2 := Cell{robot1.r, 2 * robot1.c}
 	matrix2 := matrix1.expand()
-	fmt.Println(matrix2)
 
 	for _, dirs := range moves {
 		for _, dir := range dirs {
 			robot1 = matrix1.move(robot1, dir)
 			robot2 = matrix2.move(robot2, dir)
+			// matrix2[robot2.r][robot2.c] = dir
+			// // fmt.Println(matrix2)
+			// matrix2[robot2.r][robot2.c] = '.'
 		}
 	}
 	sum1 := matrix1.score()
