@@ -94,7 +94,7 @@ func (g Grid) move(x Cell, dir rune) Cell {
 		}
 	}
 
-	fmt.Println("move", x, string(dir))
+	// fmt.Println("move", x, string(dir))
 	return x
 }
 
@@ -102,15 +102,17 @@ func (g Grid) push(x Cell, dir rune) (ok bool) {
 
 	type State struct {
 		Cell
-		dir rune
+		val rune
 	}
 
+	// clear := make([]Cell, 0, 4)
 	todo := make([]State, 0, 4)
 
 	var repush func(Cell, rune) bool
 	repush = func(nxt Cell, dir rune) bool {
 		var cur Cell
 		old := g[cur.r][cur.c]
+		g[cur.r][cur.c] = '.'
 		// fmt.Println("repush", nxt, string(dir))
 
 		cur, nxt = nxt, nxt.move(dir)
@@ -120,32 +122,36 @@ func (g Grid) push(x Cell, dir rune) (ok bool) {
 			nxt = cur
 		case 'O':
 			if repush(nxt, dir) {
-				todo = append(todo, State{cur, dir})
+				todo = append(todo, State{nxt, car})
 				return true
 			}
 		case '[', ']':
+			lcar, rcar := g[cur.r][cur.c], g[cur.r][cur.c+1]
 			left, right := cur, Cell{cur.r, cur.c + 1}
 			lnxt, rnxt := nxt, right.move(dir)
 			if car == ']' {
+				lcar, rcar = g[cur.r][cur.c-1], g[cur.r][cur.c]
 				left, right = Cell{cur.r, cur.c - 1}, cur
 				lnxt, rnxt = left.move(dir), nxt
 			}
 
 			if old == car {
 				if repush(nxt, dir) {
-					todo = append(todo, State{left, dir}, State{right, dir})
+					g[left.r][left.c], g[right.r][right.c] = '.', '.'
+					todo = append(todo, State{lnxt, lcar}, State{rnxt, rcar})
 					return true
 				}
 			} else {
 				switch dir {
 				case '^', 'v':
 					if repush(lnxt, dir) && repush(rnxt, dir) {
-						todo = append(todo, State{left, dir}, State{right, dir})
+						g[left.r][left.c], g[right.r][right.c] = '.', '.'
+						todo = append(todo, State{lnxt, lcar}, State{rnxt, rcar})
 						return true
 					}
 				case '<', '>':
 					if repush(nxt, dir) {
-						todo = append(todo, State{cur, dir})
+						todo = append(todo, State{nxt, car})
 						return true
 					}
 				}
@@ -162,26 +168,12 @@ func (g Grid) push(x Cell, dir rune) (ok bool) {
 	if ok && len(todo) > 0 {
 		var state State
 
-		// if dir == 'v' {
-		// 	slices.Reverse(todo)
-		// }
-
 		for _, state = range todo {
-			from := state.Cell
-			to := from.move(state.dir)
+			to := state.Cell
+			v := state.val
 
-			if g[from.r][from.c] != '.' {
-				// fmt.Println("copy", string(g[from.r][from.c]), from, to)
-				// fmt.Println(g)
-				g[to.r][to.c] = g[from.r][from.c]
-				// if dir == '^' || dir == 'v' {
-				// 	g[from.r][from.c] = '.'
-				// }
-			}
-
+			g[to.r][to.c] = v
 		}
-		// end := state.Cell
-		// g[end.r][end.c] = '.'
 	}
 
 	return
@@ -243,24 +235,24 @@ func main() {
 
 	robot2 := Cell{robot1.r, 2 * robot1.c}
 	matrix2 := matrix1.expand()
-	matrix2[robot2.r][robot2.c] = '@'
-	fmt.Println(matrix2)
-	matrix2[robot2.r][robot2.c] = '.'
+	// matrix2[robot2.r][robot2.c] = '@'
+	// fmt.Println(matrix2)
+	// matrix2[robot2.r][robot2.c] = '.'
 
-	for j, dirs := range moves {
-		for i, dir := range dirs {
-			// robot1 = matrix1.move(robot1, dir)
-			fmt.Println("action", j, i, string(dir))
+	for _, dirs := range moves {
+		for _, dir := range dirs {
+			robot1 = matrix1.move(robot1, dir)
+			// fmt.Println("action", j, i, string(dir))
 			robot2 = matrix2.move(robot2, dir)
-			matrix2[robot2.r][robot2.c] = dir
-			fmt.Println(matrix2)
-			matrix2[robot2.r][robot2.c] = '.'
+			// matrix2[robot2.r][robot2.c] = dir
+			// // fmt.Println(matrix2)
+			// matrix2[robot2.r][robot2.c] = '.'
 		}
 	}
 	sum1 := matrix1.score()
 	sum2 := matrix2.score()
 
-	fmt.Println(matrix2)
+	// fmt.Println(matrix2)
 
 	fmt.Println(sum1, sum2) // part 1 & 2
 
