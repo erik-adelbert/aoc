@@ -78,7 +78,7 @@ func main() {
 
 	time2 := easter(tx0, ty0)
 	robots = move(robots, time2-T0)
-	// output(time2, H, W, robots)
+	output(time2, H, W, robots)
 
 	fmt.Println(prod1, time2)
 }
@@ -164,19 +164,17 @@ func atoi(s string) int {
 	return n * neg
 }
 
-func binmat(robots []Robots) [][]int {
+func sample(robots []Robots) [][]int {
 	binmat := make([][]int, H)
 	for j := range binmat {
 		binmat[j] = make([]int, W)
 	}
 
-	for i := 0; i < len(robots); i += 2 {
-		binmat[robots[i].pos.y][robots[i].pos.x] = 1
+	// sub-sample the first half of the robots
+	for i := range robots[:len(robots)/2] {
+		r := robots[i]
+		binmat[r.pos.y][r.pos.x] = 1
 	}
-
-	// for _, r := range robots {
-	// 	binmat[r.pos.y][r.pos.x] = 1
-	// }
 
 	return binmat
 }
@@ -184,11 +182,11 @@ func binmat(robots []Robots) [][]int {
 func stddev2D(robots []Robots) (float64, float64) {
 	var xs, ys []int
 
-	bmat := binmat(robots)
-	// Extract coordinates where matrix[i][j] == 1
-	for i := 0; i < len(bmat); i++ {
-		for j := 0; j < len(bmat[0]); j++ {
-			if bmat[i][j] == 1 {
+	sample := sample(robots)
+
+	for i := 0; i < len(sample); i++ {
+		for j := 0; j < len(sample[0]); j++ {
+			if sample[i][j] == 1 {
 				ys = append(ys, i) // Y-coordinates
 				xs = append(xs, j) // X-coordinates
 			}
