@@ -70,16 +70,16 @@ For today's solution, I opted for a sub-matrix matcher that makes multiple passe
 
 ```C
 var MAS = [][]string{
-	{
-		"M*M",
-		"*A*",
-		"S*S",
-	},
-	{
-		"S*M",
-		"*A*",
-		"S*M",
-	},
+    {
+        "M*M",
+        "*A*",
+        "S*S",
+    },
+    {
+        "S*M",
+        "*A*",
+        "S*M",
+    },
     ...
 ```
 
@@ -184,6 +184,8 @@ In today’s solution, the `Counter` works as a frequency map for integers, maki
 
 I really appreciate the minimalism and simplicity of this solution—it is about [design](https://en.wikipedia.org/wiki/Dieter_Rams)!
 
+![Dieter Ram's chair](https://upload.wikimedia.org/wikipedia/commons/0/00/1952_Dieter_Rams_Chair_from_Studienarbeit_drawing_%28resized%29.jpg)
+
 ## Day 12: Garden Groups
 
 I nearly fried my brain today! The first part of the problem was a breeze—it was similar to Day 10, and adapting my solution didn’t take any effort. But then came Part 2, and it completely blindsided me. My brain froze. Eventually, I decided to take a long break and enjoy a nice breakfast. Only after that was I able to focus, isolate the solution for Part 2, and come up with a simple routine to handle the computation. I’m not finished with this problem yet!
@@ -230,13 +232,35 @@ I have included a visualization routine that outputs a png file in the working d
 
 `<EDIT>` I've discovered what seems to be a very fast way to automatically find the Easter egg: simply subsample half of the points and calculate the [standard deviation](https://en.wikipedia.org/wiki/Standard_deviation) along the X and Y axes. There are two keyframes between [0–103] that will have significantly lower deviation on either axis. Once the keyframe times are identified, we can determine the first cycle's coincidence using the [Chinese Remainder Theorem](https://en.wikipedia.org/wiki/Chinese_remainder_theorem). which is kind of a recurring joke in AoC.
 
-## Day 15: Reindeer Maze
+## Day 15: Warehouse Woes
+
+I tackled today’s challenge in place, using the maze itself as the data storage! On the plus side, this approach comes with built-in visualization. However, the trade-off lies in how the maze needs to be updated. Thankfully, deferring all moves and then filtering out unnecessary clears turned out to be just fine. The code reminds me a weird old but precise clockwork.
+
+```bash
+❯ make sample
+go run ./aoc15.go < sample.txt
+10092 9021
+####################
+##[].......[].[][]##
+##[]...........[].##
+##[]........[][][]##
+##[]......[]....[]##
+##..##......[]....##
+##..[]............##
+##.........[].[][]##
+##......[][]..[]..##
+####################
+```
+
+
+## Day 16: Reindeer Maze
 
 ~~I'm not completely satisfied with today's solution.~~ I often say there's not much to discuss when it comes to Dijkstra—it’s like handing the problem over to a computational mycelium, after all: it will eventually be decomposed but it takes time. That said, I ended up using [Dijkstra's algorithm](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm) twice (RIP problem!):
 
 - first, from the start node to the end node,
 - and then from the end node to all other cells.
 
- By memoizing the distance matrices, I was able to recombine the best path scores for all traversed cells, selecting only the lowest values. Why go through all that effort? After all, it's straightforward to memorize the paths during the first run, right? Well, while that’s easy to implement, the core loop would end up allocating over 57,000 small chunks (~300 words each) and stall there as a result. The proposed approach shifts that allocation overhead into computing time, making it not only faster but also inherently parallel!
+ By combining the distance matrices, I was able to recombine the best path scores for all traversed cells, selecting only the lowest values. Why go through all that effort? After all, it's straightforward to memorize the paths during the first run, right? Well, while that’s easy to implement, the core loop would end up allocating over 57,000 small chunks (~300 words each) and stall there as a result. The proposed approach shifts that allocation overhead into computing time, making it not only faster but also inherently parallel!
 
 [![Dijkstra's algorithm animated](https://img.youtube.com/vi/EFg3u_E6eHU/0.jpg)](https://www.youtube.com/watch?v=EFg3u_E6eHU)
+
