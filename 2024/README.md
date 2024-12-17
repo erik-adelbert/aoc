@@ -7,10 +7,11 @@
 | 2 | 0.8 |
 | 5 | 0.8 |
 | 1 | 0.9 |
-| 10 | 1.0 |
 | 7 | 1.0 |
+| 10 | 1.0 |
 | 15 | 1.3 |
 | 3 | 1.5 |
+| 17 | 1.5 |
 | 6 | 1.6 |
 | 4 | 1.7 |
 | 14 | 2.5 |
@@ -18,7 +19,7 @@
 | 9 | 9.1 |
 | 11 | 10.1 |
 | 16 | 17.4 |
-| total | 57.5 |
+| total | 59.0 |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.6.0 - go version go1.23.3 darwin/arm64 - hyperfine 1.19.0 - 2024-12
 
@@ -252,7 +253,6 @@ go run ./aoc15.go < sample.txt
 ####################
 ```
 
-
 ## Day 16: Reindeer Maze
 
 ~~I'm not completely satisfied with today's solution.~~ I often say there's not much to discuss when it comes to Dijkstra—it’s like handing the problem over to a computational mycelium, after all: it will eventually be decomposed but it takes time. That said, I ended up using [Dijkstra's algorithm](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm) twice (RIP problem!):
@@ -264,3 +264,29 @@ go run ./aoc15.go < sample.txt
 
 [![Dijkstra's algorithm animated](https://img.youtube.com/vi/EFg3u_E6eHU/0.jpg)](https://www.youtube.com/watch?v=EFg3u_E6eHU)
 
+## Day 17: Chronospatial Computer
+
+Building a computer is a recurring theme in AoC, and once we’ve built a bytecode machine, the next challenge often involves disassembling and reversing a program. Today, the goal was to find a configuration that turns the code into a [quine](https://en.wikipedia.org/wiki/Quine_(computing)). *What an idea!*
+
+Two years ago, I did it painfully with pen and paper. Last year, I went all in with symbolic resolution and variable binding. This year? I kept it simple—I’m trying to save my energy for the challenges ahead.
+First, I built a reliable, decently fast emulator. Then, I reversed the program. Finally, I went with a trial-and-error approach: browsing Reddit, checking out different solutions, and eventually settling on [this one in the code](https://www.reddit.com/r/adventofcode/comments/1hg38ah/comment/m2go5os/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button). The method uses insights from reversing the code to force digits one at a time and then packs the forcing values into a single initial value.
+
+Who knows—maybe I’ll try dynamically forcing the value later on.
+
+```bash
+go run ./aoc17.go < input.txt
+00 BST 4 A 66245665 00000001 00000000   out:
+02 BXL 7 ? 66245665 00000006 00000000   out:
+04 CDV 5 B 66245665 00000006 01035088   out:
+06 BXL 7 ? 66245665 00000001 01035088   out:
+08 BXC 6 C 66245665 01035089 01035088   out:
+10 ADV 3 3 08280708 01035089 01035088   out:
+12 OUT 5 B 08280708 01035089 01035088   out: 1
+14 JNZ 0 0 08280708 01035089 01035088   out: 1
+00 BST 4 A 08280708 00000004 01035088   out: 1
+02 BXL 7 ? 08280708 00000003 01035088   out: 1
+04 CDV 5 B 08280708 00000003 01035088   out: 1
+06 BXL 7 ? 08280708 00000004 01035088   out: 1
+08 BXC 6 C 08280708 01035092 01035088   out: 1
+10 ADV 3 3 01035088 01035092 01035088   out: 1
+```
