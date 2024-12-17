@@ -68,6 +68,21 @@ Note: I may revisit this solution at some point.
 
 For today's solution, I opted for a sub-matrix matcher that makes multiple passes over the original matrix. It identifies 8 sub-matrices for 'XMAS' and 4 for a valid X-MAS. On the plus side, there's no need for boundary checks, and the matching process is fast. However, the downside is that it requires 12 passes over the original data. That said, the performance is acceptable for now.
 
+```C
+var MAS = [][]string{
+	{
+		"M*M",
+		"*A*",
+		"S*S",
+	},
+	{
+		"S*M",
+		"*A*",
+		"S*M",
+	},
+    ...
+```
+
 ## Day 5: Print Queue
 
 Today's problem is certainly a brain teaser, but a straightforward approach can still be surprisingly effective. The key insight is that to move from one page number, a, to another, b, it must hold that `a ∈ rules[b]` which is `b is greater than a`. This is the heart of the challenge:
@@ -114,6 +129,8 @@ It feels like I'm close—but not quite there yet!
 ## Day 7: Bridge Repair
 
 Today's solution is an elegant recursive, multi-branched [DFS](https://en.wikipedia.org/wiki/Depth-first_search). The key insight is to start from the target value and work *backward*, deconstructing it step by step. This approach naturally prunes certain branches—like divisions or concatenations—when they become impossible.
+
+[![DFS search animated](https://img.youtube.com/vi/NUgMa5coCoE/0.jpg)](https://www.youtube.com/watch?v=NUgMa5coCoE)
 
 ## Day 8: Resonant Collinearity
 
@@ -165,7 +182,7 @@ Today is the *10th* day of the *10th* anniversary of [Advent Of Code](https://en
 
 In today’s solution, the `Counter` works as a frequency map for integers, making it easy to add and retrieve counts. It processes stones in batches, avoiding unnecessary loops. Last but not least, it [minimizes redundant operations by using direct map access](https://en.wikipedia.org/wiki/Memoization). As a result and for my input, the final and longest line consists of `3799` unique numbers, each appearing one or more times for a total of `223M+` stones.
 
-I really appreciate the minimalism and simplicity of this solution—it's like Bauhaus code!
+I really appreciate the minimalism and simplicity of this solution—it is about [design](https://en.wikipedia.org/wiki/Dieter_Rams)!
 
 ## Day 12: Garden Groups
 
@@ -211,7 +228,7 @@ I have included a visualization routine that outputs a png file in the working d
 
 ![Advent Of Code 2024 - 10 years edition - day14 easter egg - a framed xmas tree in the snow](./images/aoc14-6516.png)
 
-`<EDIT>` I've discovered what seems to be a very fast way to automatically find the Easter egg: simply subsample half of the points and calculate the standard deviation along the X and Y axes. There are two keyframes between [0–103] that will have significantly lower deviation on either axis. Once the keyframe times are identified, we can determine the first cycle's coincidence using the [Chinese Remainder Theorem](https://en.wikipedia.org/wiki/Chinese_remainder_theorem). which is kind of a recurring joke in AoC.
+`<EDIT>` I've discovered what seems to be a very fast way to automatically find the Easter egg: simply subsample half of the points and calculate the [standard deviation](https://en.wikipedia.org/wiki/Standard_deviation) along the X and Y axes. There are two keyframes between [0–103] that will have significantly lower deviation on either axis. Once the keyframe times are identified, we can determine the first cycle's coincidence using the [Chinese Remainder Theorem](https://en.wikipedia.org/wiki/Chinese_remainder_theorem). which is kind of a recurring joke in AoC.
 
 ## Day 15: Reindeer Maze
 
@@ -222,4 +239,4 @@ I have included a visualization routine that outputs a png file in the working d
 
  By memoizing the distance matrices, I was able to recombine the best path scores for all traversed cells, selecting only the lowest values. Why go through all that effort? After all, it's straightforward to memorize the paths during the first run, right? Well, while that’s easy to implement, the core loop would end up allocating over 57,000 small chunks (~300 words each) and stall there as a result. The proposed approach shifts that allocation overhead into computing time, making it not only faster but also inherently parallel!
 
-[![Watch the video](https://img.youtube.com/vi/EFg3u_E6eHU/0.jpg)](https://www.youtube.com/watch?v=EFg3u_E6eHU)
+[![Dijkstra's algorithm animated](https://img.youtube.com/vi/EFg3u_E6eHU/0.jpg)](https://www.youtube.com/watch?v=EFg3u_E6eHU)
