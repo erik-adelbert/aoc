@@ -17,6 +17,7 @@ import (
 	"os"
 	"slices"
 	"strings"
+	"sync"
 )
 
 const (
@@ -57,17 +58,15 @@ func main() {
 	}
 
 	maze := Maze{data: data, start: start, goal: goal}
+	score, tiles := maze.solve()
 
-	best, tiles := maze.search()
-
-	p1, p2 := best, len(tiles)
-	fmt.Println(p1, p2) // part 1 & 2
+	fmt.Println(score, len(tiles)) // part 1 & 2
 }
 
 var DIRS = [4]Cell{{-1, 0, 0}, {0, 1, 0}, {1, 0, 0}, {0, -1, 0}}
 
-func key(r, c, dir int) int {
-	return r*MAXDIM*4 + c*4 + dir
+func key(x Cell) int {
+	return x.r*MAXDIM*4 + x.c*4 + x.dir
 }
 
 // shortest path from start to end
@@ -75,24 +74,23 @@ func (m Maze) forward() Maze {
 	H, W := len(m.data), len(m.data[0])
 
 	var pq Heap
-	heap.Push(&pq, Item{dist: 0, r: m.start.r, c: m.start.c, dir: 0})
+	heap.Push(&pq, State{Cell{r: m.start.r, c: m.start.c, dir: 0}, 0})
 
 	best := 0
-	// dist := make(map[int]int, MAXLEN)
 	dist := make([]int, MAXDIM*MAXDIM*4)
-	seen := [MAXDIM][MAXDIM][4]bool{}
+	seen := make([]bool, MAXDIM*MAXDIM*4)
 
 	for pq.Len() > 0 {
-		cur := heap.Pop(&pq).(Item)
+		cur := heap.Pop(&pq).(State)
 
-		if seen[cur.r][cur.c][cur.dir] {
+		if seen[key(cur.Cell)] {
 			continue
 		}
 
-		seen[cur.r][cur.c][cur.dir] = true
+		seen[key(cur.Cell)] = true
 
-		if dist[key(cur.r, cur.c, cur.dir)] == 0 {
-			dist[key(cur.r, cur.c, cur.dir)] = cur.dist
+		if dist[key(cur.Cell)] == 0 {
+			dist[key(cur.Cell)] = cur.dist
 		}
 
 		if cur.r == m.goal.r && cur.c == m.goal.c && best == 0 {
@@ -103,14 +101,14 @@ func (m Maze) forward() Maze {
 		δr, δc := DIRS[cur.dir].r, DIRS[cur.dir].c
 		rr, cc := cur.r+δr, cur.c+δc
 		if rr >= 0 && rr < H && cc >= 0 && cc < W && m.data[rr][cc] != '#' {
-			heap.Push(&pq, Item{dist: cur.dist + 1, r: rr, c: cc, dir: cur.dir})
+			heap.Push(&pq, State{Cell{r: rr, c: cc, dir: cur.dir}, cur.dist + 1})
 		}
 
 		// rotate clockwise
-		heap.Push(&pq, Item{dist: cur.dist + 1000, r: cur.r, c: cur.c, dir: (cur.dir + 1) % 4})
+		heap.Push(&pq, State{Cell{r: cur.r, c: cur.c, dir: (cur.dir + 1) % 4}, cur.dist + 1000})
 
 		// rotate counterclockwise
-		heap.Push(&pq, Item{dist: cur.dist + 1000, r: cur.r, c: cur.c, dir: (cur.dir + 3) % 4})
+		heap.Push(&pq, State{Cell{r: cur.r, c: cur.c, dir: (cur.dir + 3) % 4}, cur.dist + 1000})
 	}
 
 	m.best = best
@@ -126,38 +124,37 @@ func (m Maze) backward() Maze {
 
 	// push all directions from the end point
 	for dir := range DIRS {
-		heap.Push(&pq, Item{dist: 0, r: m.goal.r, c: m.goal.c, dir: dir})
+		heap.Push(&pq, State{Cell{r: m.goal.r, c: m.goal.c, dir: dir}, 0})
 	}
 
 	dist := make([]int, MAXDIM*MAXDIM*4)
-	seen := [MAXDIM][MAXDIM][4]bool{}
+	seen := make([]bool, MAXDIM*MAXDIM*4)
 
 	for pq.Len() > 0 {
-		cur := heap.Pop(&pq).(Item)
+		cur := heap.Pop(&pq).(State)
 
-		if seen[cur.r][cur.c][cur.dir] {
+		if seen[key(cur.Cell)] {
 			continue
 		}
 
-		seen[cur.r][cur.c][cur.dir] = true
+		seen[key(cur.Cell)] = true
 
-		if dist[key(cur.r, cur.c, cur.dir)] == 0 {
-			dist[key(cur.r, cur.c, cur.dir)] = cur.dist
+		if dist[key(cur.Cell)] == 0 {
+			dist[key(cur.Cell)] = cur.dist
 		}
 
-		// move backwards (opposite direction)
+		// move backwards
 		δr, δc := DIRS[(cur.dir+2)%4].r, DIRS[(cur.dir+2)%4].c
 		rr, cc := cur.r+δr, cur.c+δc
 		if rr >= 0 && rr < H && cc >= 0 && cc < W && m.data[rr][cc] != '#' {
-
-			heap.Push(&pq, Item{dist: cur.dist + 1, r: rr, c: cc, dir: cur.dir})
+			heap.Push(&pq, State{Cell{r: rr, c: cc, dir: cur.dir}, cur.dist + 1})
 		}
 
 		// clockwise
-		heap.Push(&pq, Item{dist: cur.dist + 1000, r: cur.r, c: cur.c, dir: (cur.dir + 1) % 4})
+		heap.Push(&pq, State{Cell{r: cur.r, c: cur.c, dir: (cur.dir + 1) % 4}, cur.dist + 1000})
 
 		// counterclockwise
-		heap.Push(&pq, Item{dist: cur.dist + 1000, r: cur.r, c: cur.c, dir: (cur.dir + 3) % 4})
+		heap.Push(&pq, State{Cell{r: cur.r, c: cur.c, dir: (cur.dir + 3) % 4}, cur.dist + 1000})
 	}
 
 	m.dist2 = dist
@@ -166,11 +163,21 @@ func (m Maze) backward() Maze {
 }
 
 // find all optimal path tiles
-func (m Maze) search() (int, []int) {
-	m = m.forward()
-	m = m.backward()
+func (m Maze) solve() (int, []int) {
+	var wg sync.WaitGroup
 
-	best, d1, d2 := m.best, m.dist1, m.dist2
+	var m1, m2 Maze
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		m1 = m.forward()
+	}()
+
+	m2 = m.backward()
+	wg.Wait()
+
+	best, d1, d2 := m1.best, m1.dist1, m2.dist2
 	tiles := make([]int, 0, 602)
 
 	for i := range d1 {
@@ -181,23 +188,24 @@ func (m Maze) search() (int, []int) {
 	}
 
 	slices.Sort(tiles)
-	return m.best, slices.Compact(tiles)
+	return best, slices.Compact(tiles) // unique tiles
 }
 
-type Item struct {
-	dist, r, c, dir int
+type State struct {
+	Cell
+	dist int
 }
 
-// Heap for the priority queue
-type Heap []Item
+// heap as priority queue
+type Heap []State
 
-// Implementing heap.Interface for MinHeap
+// heap.Interface for MinHeap
 func (h Heap) Len() int           { return len(h) }
 func (h Heap) Less(i, j int) bool { return h[i].dist < h[j].dist }
 func (h Heap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
 
 func (h *Heap) Push(x interface{}) {
-	*h = append(*h, x.(Item))
+	*h = append(*h, x.(State))
 }
 
 func (h *Heap) Pop() interface{} {
@@ -205,12 +213,5 @@ func (h *Heap) Pop() interface{} {
 	n := len(old)
 	x := old[n-1]
 	*h = old[0 : n-1]
-	return x
-}
-
-func abs(x int) int {
-	if x < 0 {
-		return -x
-	}
 	return x
 }

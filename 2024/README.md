@@ -17,7 +17,8 @@
 | 12 | 5.5 |
 | 9 | 9.1 |
 | 11 | 10.1 |
-| total | 39.1 |
+| 16 | 17.4 |
+| total | 57.5 |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.6.0 - go version go1.23.3 darwin/arm64 - hyperfine 1.19.0 - 2024-12
 
@@ -210,8 +211,15 @@ I have included a visualization routine that outputs a png file in the working d
 
 ![Advent Of Code 2024 - 10 years edition - day14 easter egg - a framed xmas tree in the snow](./images/aoc14-6516.png)
 
-`<EDIT>` I have found a way to automate the solution!!! Note is coming.
+`<EDIT>` I've discovered what seems to be a very fast way to automatically find the Easter egg: simply subsample half of the points and calculate the standard deviation along the X and Y axes. There are two keyframes between [0–103] that will have significantly lower deviation on either axis. Once the keyframe times are identified, we can determine the first cycle's coincidence using the [Chinese Remainder Theorem](https://en.wikipedia.org/wiki/Chinese_remainder_theorem). which is kind of a recurring joke in AoC.
 
-## Day 15
+## Day 15: Reindeer Maze
 
-I found this sunday's problem tedious and frankly it didn't interest me so much. Note is coming.
+~~I'm not completely satisfied with today's solution.~~ I often say there's not much to discuss when it comes to Dijkstra—it’s like handing the problem over to a computational mycelium, after all: it will eventually be decomposed but it takes time. That said, I ended up using [Dijkstra's algorithm](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm) twice (RIP problem!):
+
+- first, from the start node to the end node,
+- and then from the end node to all other cells.
+
+ By memoizing the distance matrices, I was able to recombine the best path scores for all traversed cells, selecting only the lowest values. Why go through all that effort? After all, it's straightforward to memorize the paths during the first run, right? Well, while that’s easy to implement, the core loop would end up allocating over 57,000 small chunks (~300 words each) and stall there as a result. The proposed approach shifts that allocation overhead into computing time, making it not only faster but also inherently parallel!
+
+[![Watch the video](https://img.youtube.com/vi/EFg3u_E6eHU/0.jpg)](https://www.youtube.com/watch?v=EFg3u_E6eHU)
