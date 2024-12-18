@@ -43,9 +43,59 @@ func main() {
 	}
 
 	p1 := g.shortest(T0)
-	p2 := g.locate(g.failfast())
+	p2 := g.locate(g.failfast(T0 + 1)) // we know the answer is at least T0+1
 
 	fmt.Printf("%d  %d,%d\n", p1, p2.c, p2.r)
+}
+
+func (g *Grid) failfast(t0 int) int {
+	low, high := t0, g.T
+
+	for low < high {
+		mid := (low + high) / 2
+		if g.shortest(mid) == -1 {
+			high = mid
+		} else {
+			low = mid + 1
+		}
+	}
+
+	return low
+}
+
+func (g *Grid) shortest(t int) int {
+	dirs := []Cell{{0, -1}, {0, 1}, {-1, 0}, {1, 0}}
+
+	α, ω := Cell{0, 0}, Cell{g.H - 1, g.W - 1}
+
+	idx := g.index
+
+	Q := []Cell{α}
+	seen := make([]bool, g.H*g.W)
+	seen[idx(α)] = true
+
+	steps := 0
+	for len(Q) > 0 {
+		nxtQ := []Cell{}
+		for _, cur := range Q {
+			if cur == ω {
+				return steps
+			}
+
+			for _, δ := range dirs {
+				nxt := cur.add(δ)
+				if g.inbounds(nxt) && !seen[idx(nxt)] && g.at(nxt, t) {
+					seen[idx(nxt)] = true
+					nxtQ = append(nxtQ, nxt)
+				}
+			}
+		}
+
+		Q = nxtQ
+		steps++
+	}
+
+	return -1
 }
 
 type Grid struct {
@@ -121,56 +171,6 @@ type Cell struct {
 
 func (x Cell) add(y Cell) Cell {
 	return Cell{x.r + y.r, x.c + y.c}
-}
-
-func (g *Grid) shortest(t int) int {
-	dirs := []Cell{{0, -1}, {0, 1}, {-1, 0}, {1, 0}}
-
-	α, ω := Cell{0, 0}, Cell{g.H - 1, g.W - 1}
-
-	idx := g.index
-
-	Q := []Cell{α}
-	seen := make([]bool, g.H*g.W)
-	seen[idx(α)] = true
-
-	steps := 0
-	for len(Q) > 0 {
-		nxtQ := []Cell{}
-		for _, cur := range Q {
-			if cur == ω {
-				return steps
-			}
-
-			for _, δ := range dirs {
-				nxt := cur.add(δ)
-				if g.inbounds(nxt) && !seen[idx(nxt)] && g.at(nxt, t) {
-					seen[idx(nxt)] = true
-					nxtQ = append(nxtQ, nxt)
-				}
-			}
-		}
-
-		Q = nxtQ
-		steps++
-	}
-
-	return -1
-}
-
-func (g *Grid) failfast() int {
-	low, high := T0+1, g.T
-
-	for low < high {
-		mid := (low + high) / 2
-		if g.shortest(mid) == -1 {
-			high = mid
-		} else {
-			low = mid + 1
-		}
-	}
-
-	return low
 }
 
 // strconv.Atoi simplified core loop
