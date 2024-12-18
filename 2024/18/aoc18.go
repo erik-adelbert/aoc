@@ -160,7 +160,7 @@ func (g *Grid) String() string {
 		for c := 0; c < g.W; c++ {
 			x := Cell{r, c}
 			if g.get(x) == MaxInt {
-				sb.WriteString(" . ")
+				sb.WriteString(" ∞ ")
 				continue
 			}
 			fmt.Fprintf(&sb, "%2d ", g.get(x))
@@ -174,8 +174,7 @@ func (g *Grid) dumpat(t int) {
 	var sb strings.Builder
 	for r := 0; r < g.H; r++ {
 		for c := 0; c < g.W; c++ {
-			x := Cell{r, c}
-			if g.get(x) <= t {
+			if x := (Cell{r, c}); g.get(x) <= t {
 				sb.WriteString(" # ")
 			} else {
 				sb.WriteString(" . ")

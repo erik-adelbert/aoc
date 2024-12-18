@@ -294,6 +294,20 @@ go run ./aoc17.go < input.txt
 
 ## Day 18: RAM Run
 
+The key to this challenge is storing the data in a way that efficiently supports [BFS](https://en.wikipedia.org/wiki/Breadth-first_search) operations. Here’s a hint:
+
+```bash
+❯ make sample
+go run ./aoc18.go < sample.txt
+ ∞ 22 25  4  ∞  ∞  ∞
+ ∞ 20  5  ∞  ∞ 12 21
+ ∞ 13  ∞  ∞  2  ∞  ∞
+ ∞  ∞  ∞ 10  ∞  ∞  6
+18 17  7  ∞  ∞  1 19
+23  8 15  ∞  3 14 16
+ 9 24 11  ∞  ∞  ∞  ∞
+```
+
 Today is a nice boost to keep us going strong for the final stretch. The second part might have been different if we had to navigate the maze at nanosecond speed, but I vaguely remember doing something similar last year. Anyway, it’s time for another great video on BFS!
 
 ![Advent Of Code 2024 - 10 years edition - day18 maze](./images/aoc18.png)
