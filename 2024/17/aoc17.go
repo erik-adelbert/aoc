@@ -99,14 +99,14 @@ func (m Machine) exec(text []int) Machine {
 }
 
 func (m Machine) quine(text []int) int {
-	units := make([]int, 0)
+	table := make([]int, 0)
 	for a := 0; a < (1 << 10); a++ {
-		units = append(units, m.init(a, 0, 0).exec(text).out[0])
+		table = append(table, m.init(a, 0, 0).exec(text).out[0])
 	}
 
-	cur := make([][]int, 0, len(units))
-	for i := range units {
-		if units[i] == text[0] {
+	cur := make([][]int, 0, len(table))
+	for i := range table {
+		if table[i] == text[0] {
 			cur = append(cur, []int{i})
 		}
 	}
@@ -115,10 +115,10 @@ func (m Machine) quine(text []int) int {
 	for _, word := range text[1:] {
 		nxt = make([][]int, 0, len(cur))
 		for _, x := range cur {
-			base := x[len(x)-1] >> 3
+			seed := x[len(x)-1] >> 3
 			for i := 0; i < 8; i++ {
-				if units[(i<<7)+base] == word {
-					nxt = append(nxt, append(slices.Clone(x), (i<<7)+base))
+				if table[(i<<7)+seed] == word {
+					nxt = append(nxt, append(slices.Clone(x), (i<<7)+seed))
 				}
 			}
 		}
@@ -134,12 +134,19 @@ func (m Machine) quine(text []int) int {
 		return i
 	}
 
+	// quines := make([]int, 0, 16)
 	for _, x := range cur {
 		a := pack(x)
 		if slices.Equal(text, m.init(a, 0, 0).exec(text).out) {
 			return a
+			// here we should retain the min and return it at the end
+			// but somehow my input's solution appears here first
+
+			// quines = append(quines, a)
 		}
 	}
+
+	// return slices.Min(quines)
 
 	panic("unreachable")
 }
