@@ -20,7 +20,7 @@ import (
 const MAXN = 3799 // arbitrary but educated guess
 
 func main() {
-	stones := NewCounter()
+	stones := NewCounter(0)
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
@@ -46,8 +46,11 @@ func main() {
 
 type Counter map[int]int
 
-func NewCounter() Counter {
-	return make(map[int]int, MAXN)
+func NewCounter(size int) Counter {
+	if size == 0 || size > MAXN {
+		size = MAXN
+	}
+	return make(map[int]int, size)
 }
 
 func (c Counter) Popcnt() (pop int) {
@@ -58,7 +61,7 @@ func (c Counter) Popcnt() (pop int) {
 }
 
 func (c Counter) Blink() Counter {
-	next := NewCounter()
+	next := NewCounter(2 * len(c))
 	for n, count := range c {
 		for _, m := range blink(n) {
 			next[m] += count

@@ -2,25 +2,25 @@
 
 | Day  | Time (ms) | % of Total |
 |------|-----------|------------|
-| 8    | 0.6       | 1.00%      |
-| 13   | 0.7       | 1.16%      |
-| 2    | 0.8       | 1.33%      |
-| 5    | 0.8       | 1.33%      |
-| 1    | 0.9       | 1.50%      |
-| 7    | 1.0       | 1.66%      |
-| 10   | 1.0       | 1.66%      |
-| 15   | 1.3       | 2.16%      |
-| 18   | 1.2       | 2.00%      |
-| 3    | 1.5       | 2.49%      |
-| 17   | 1.5       | 2.49%      |
-| 6    | 1.6       | 2.66%      |
-| 4    | 1.7       | 2.82%      |
-| 14   | 2.5       | 4.15%      |
-| 12   | 5.5       | 9.14%      |
-| 9    | 9.1       | 15.11%     |
-| 11   | 10.1      | 16.77%     |
-| 16   | 17.4      | 28.85%     |
-| Total| 60.2      | 100.00%    |
+| 8    | 0.6       | 1.07%      |
+| 13   | 0.7       | 1.25%      |
+| 2    | 0.8       | 1.43%      |
+| 5    | 0.8       | 1.43%      |
+| 1    | 0.8       | 1.43%      |
+| 10   | 0.9       | 1.61%      |
+| 7    | 1.0       | 1.79%      |
+| 18   | 1.2       | 2.14%      |
+| 15   | 1.3       | 2.32%      |
+| 3    | 1.4       | 2.50%      |
+| 17   | 1.4       | 2.50%      |
+| 6    | 1.5       | 2.68%      |
+| 4    | 1.7       | 3.04%      |
+| 14   | 2.5       | 4.46%      |
+| 12   | 5.5       | 9.82%      |
+| 9    | 9.0       | 16.07%     |
+| 11   | 10.0      | 17.86%     |
+| 16   | 13.9      | 24.82%     |
+| Total| 56.0      | 100.00%    |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.6.0 - go version go1.23.3 darwin/arm64 - hyperfine 1.19.0 - 2024-12
 
@@ -83,6 +83,7 @@ var MAS = [][]string{
         "S*M",
     },
     ...
+}
 ```
 
 ## Day 5: Print Queue
@@ -267,7 +268,7 @@ go run ./aoc15.go < sample.txt
 
 ## Day 17: Chronospatial Computer
 
-Building a computer is a recurring theme in AoC, and once we’ve built a bytecode machine, the next challenge often involves disassembling and reversing a program. Today, the goal was to find a configuration that turns the code into a [quine](https://en.wikipedia.org/wiki/Quine_(computing)). *What an idea!*
+Building a computer is a [recurring theme](https://youtu.be/35VIm2ChVUg) in AoC, and once we’ve built a bytecode machine, the next challenge often involves [disassembling and reversing a program](https://youtu.be/hmq6veCFo0Y). Today, the goal was to find a configuration that turns the code into a [quine](https://en.wikipedia.org/wiki/Quine_(computing)). *What an idea!*
 
 Two years ago, I did it painfully with pen and paper. Last year, I went all in with symbolic resolution and variable binding. This year? I kept it simple—I’m trying to save my energy for the challenges ahead.
 First, I built a reliable, decently fast emulator. Then, I reversed the program. Finally, I went with a trial-and-error approach: browsing Reddit, checking out different solutions, and eventually settling on [this one in the code](https://www.reddit.com/r/adventofcode/comments/1hg38ah/comment/m2go5os/). The method uses insights from reversing the code to force digits one at a time and then packs the forcing values into a single initial value.

@@ -36,14 +36,14 @@ func main() {
 		t++
 	}
 
-	g := newGrid(slices.Max(rows)+1, slices.Max(cols)+1, t)
+	mem := newGrid(slices.Max(rows)+1, slices.Max(cols)+1, t)
 	for i := range rows {
 		x := Cell{rows[i], cols[i]}
-		g.set(x, i+1)
+		mem.set(x, i+1)
 	}
 
-	p1 := g.shortest(T0)
-	p2 := g.locate(g.failfast(T0 + 1)) // we know the closing time is at least T0+1
+	p1 := mem.shortest(T0)
+	p2 := mem.locate(mem.failfast(T0 + 1)) // we know the closing time is at least T0+1
 
 	fmt.Printf("%d  %d,%d\n", p1, p2.c, p2.r)
 }

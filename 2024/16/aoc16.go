@@ -33,7 +33,7 @@ type Maze struct {
 	dist1 []int
 	dist2 []int
 	tiles map[int]struct{}
-	data  []string
+	data  [][]byte
 	start Cell
 	goal  Cell
 	best  int
@@ -42,35 +42,96 @@ type Maze struct {
 func main() {
 	var start, goal Cell
 
-	data := make([]string, 0, MAXDIM)
+	data := make([][]byte, 0, MAXDIM)
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
 		line := input.Text()
 
 		if i := strings.Index(line, "S"); i >= 0 {
-			start = Cell{len(data), i, 0}
+			start = Cell{r: len(data), c: i}
 		}
 		if i := strings.Index(line, "E"); i >= 0 {
-			goal = Cell{len(data), i, 0}
+			goal = Cell{r: len(data), c: i}
 		}
-		data = append(data, line)
+		data = append(data, []byte(line))
 	}
 
-	maze := Maze{data: data, start: start, goal: goal}
+	maze := &Maze{data: data, start: start, goal: goal}
 	score, tiles := maze.solve()
 
 	fmt.Println(score, len(tiles)) // part 1 & 2
 }
 
-var DIRS = [4]Cell{{-1, 0, 0}, {0, 1, 0}, {1, 0, 0}, {0, -1, 0}}
+var DIRS = [4]Cell{{r: -1, c: 0}, {r: 0, c: 1}, {r: 1, c: 0}, {r: 0, c: -1}}
 
 func key(x Cell) int {
 	return x.r*MAXDIM*4 + x.c*4 + x.dir
 }
 
+func (m Maze) String() string {
+	var sb strings.Builder
+	for _, line := range m.data {
+		sb.WriteString(string(line))
+		sb.WriteByte('\n')
+	}
+	return sb.String()
+}
+
+func (m *Maze) prune() {
+	H, W := len(m.data), len(m.data[0])
+
+	queue := make([]Cell, 0, 395)
+	seen := make([][]bool, H)
+	for i := range seen {
+		seen[i] = make([]bool, W)
+	}
+
+	for r := 1; r < H-1; r++ {
+		for c := 1; c < W-1; c++ {
+			if m.data[r][c] == '.' {
+				nopen := 0
+				for _, δ := range DIRS {
+					rr, cc := r+δ.r, c+δ.c
+					if m.data[rr][cc] == '.' || m.data[rr][cc] == 'S' || m.data[rr][cc] == 'E' {
+						nopen++
+					}
+				}
+				if nopen <= 1 {
+					queue = append(queue, Cell{r: r, c: c})
+					seen[r][c] = true
+				}
+			}
+		}
+	}
+
+	for len(queue) > 0 {
+		cur := queue[0]
+		queue = queue[1:]
+
+		m.data[cur.r][cur.c] = '#'
+
+		for _, dir := range DIRS {
+			rr, cc := cur.r+dir.r, cur.c+dir.c
+			if m.data[rr][cc] == '.' && !seen[rr][cc] {
+				nopen := 0
+				for _, δ := range DIRS {
+					nr, nc := rr+δ.r, cc+δ.c
+					if m.data[nr][nc] == '.' || m.data[nr][nc] == 'S' || m.data[nr][nc] == 'E' {
+						nopen++
+					}
+				}
+				if nopen <= 1 {
+					queue = append(queue, Cell{r: rr, c: cc})
+					seen[rr][cc] = true
+				}
+			}
+		}
+	}
+}
+
 // shortest path from start to end
-func (m Maze) forward() Maze {
+func (m *Maze) forward() {
 	H, W := len(m.data), len(m.data[0])
 
 	var pq Heap
@@ -113,12 +174,10 @@ func (m Maze) forward() Maze {
 
 	m.best = best
 	m.dist1 = dist
-
-	return m
 }
 
 // shortest path single source to all other cells
-func (m Maze) backward() Maze {
+func (m *Maze) backward() {
 	H, W := len(m.data), len(m.data[0])
 	var pq Heap
 
@@ -159,25 +218,25 @@ func (m Maze) backward() Maze {
 
 	m.dist2 = dist
 
-	return m
+	return
 }
 
 // find all optimal path tiles
-func (m Maze) solve() (int, []int) {
+func (m *Maze) solve() (int, []int) {
 	var wg sync.WaitGroup
 
-	var m1, m2 Maze
+	m.prune()
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		m1 = m.forward()
+		m.forward()
 	}()
 
-	m2 = m.backward()
+	m.backward()
 	wg.Wait()
 
-	best, d1, d2 := m1.best, m1.dist1, m2.dist2
+	best, d1, d2 := m.best, m.dist1, m.dist2
 	tiles := make([]int, 0, 602)
 
 	for i := range d1 {
