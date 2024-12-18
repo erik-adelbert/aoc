@@ -2,24 +2,25 @@
 
 | Day  | Time (ms) | % of Total |
 |------|-----------|------------|
-| 8    | 0.6       | 1.02%      |
-| 13   | 0.7       | 1.19%      |
-| 2    | 0.8       | 1.36%      |
-| 5    | 0.8       | 1.36%      |
-| 1    | 0.9       | 1.53%      |
-| 7    | 1.0       | 1.69%      |
-| 10   | 1.0       | 1.69%      |
-| 15   | 1.3       | 2.20%      |
-| 3    | 1.5       | 2.54%      |
-| 17   | 1.5       | 2.54%      |
-| 6    | 1.6       | 2.71%      |
-| 4    | 1.7       | 2.88%      |
-| 14   | 2.5       | 4.24%      |
-| 12   | 5.5       | 9.32%      |
-| 9    | 9.1       | 15.42%     |
-| 11   | 10.1      | 17.12%     |
-| 16   | 17.4      | 29.49%     |
-| Total| 59.0      | 100.00%    |
+| 8    | 0.6       | 1.00%      |
+| 13   | 0.7       | 1.17%      |
+| 2    | 0.8       | 1.33%      |
+| 5    | 0.8       | 1.33%      |
+| 1    | 0.9       | 1.50%      |
+| 7    | 1.0       | 1.67%      |
+| 10   | 1.0       | 1.67%      |
+| 15   | 1.3       | 2.17%      |
+| 18   | 1.4       | 2.33%      |
+| 3    | 1.5       | 2.50%      |
+| 17   | 1.5       | 2.50%      |
+| 6    | 1.6       | 2.67%      |
+| 4    | 1.7       | 2.83%      |
+| 14   | 2.5       | 4.17%      |
+| 12   | 5.5       | 9.17%      |
+| 9    | 9.1       | 15.17%     |
+| 11   | 10.1      | 16.83%     |
+| 16   | 17.4      | 29.00%     |
+| Total| 60.4      | 100.00%    |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.6.0 - go version go1.23.3 darwin/arm64 - hyperfine 1.19.0 - 2024-12
 
@@ -290,3 +291,9 @@ go run ./aoc17.go < input.txt
 08 BXC 6 C 08280708 01035092 01035088   out: 1
 10 ADV 3 3 01035088 01035092 01035088   out: 1
 ```
+
+## Day 18: RAM Run
+
+Today is a nice boost to keep us going strong for the final stretch. The second part might have been different if we had to navigate the maze at nanosecond speed, but I vaguely remember doing something similar last year. Anyway, it’s time for another great video on BFS!
+
+[![BFS algorithm animated](https://img.youtube.com/vi/xlVX7dXLS64/0.jpg)](https://www.youtube.com/watch?v=xlVX7dXLS64)

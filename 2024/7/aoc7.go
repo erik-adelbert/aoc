@@ -85,13 +85,11 @@ func log10(n int) int {
 	return i
 }
 
+// pow10 returns 10^n for n in [0,3] in O(1)
 func pow10(n int) int {
-	i := 1
-	for n > 0 {
-		i *= 10
-		n--
-	}
-	return i
+	return []int{
+		1, 10, 100, 1000,
+	}[n]
 }
 
 // strconv.Atoi simplified core loop
