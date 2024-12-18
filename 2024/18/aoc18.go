@@ -60,6 +60,7 @@ func (g *Grid) failfast(t0 int) int {
 		}
 	}
 
+	// g.dumpat(low)
 	return low
 }
 
@@ -163,6 +164,22 @@ func (g *Grid) String() string {
 		sb.WriteString("\n")
 	}
 	return sb.String()
+}
+
+func (g *Grid) dumpat(t int) {
+	var sb strings.Builder
+	for r := 0; r < g.H; r++ {
+		for c := 0; c < g.W; c++ {
+			x := Cell{r, c}
+			if g.get(x) <= t {
+				sb.WriteString(" # ")
+			} else {
+				sb.WriteString(" . ")
+			}
+		}
+		sb.WriteString("\n")
+	}
+	fmt.Println(sb.String())
 }
 
 type Cell struct {

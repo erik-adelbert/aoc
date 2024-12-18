@@ -296,4 +296,6 @@ go run ./aoc17.go < input.txt
 
 Today is a nice boost to keep us going strong for the final stretch. The second part might have been different if we had to navigate the maze at nanosecond speed, but I vaguely remember doing something similar last year. Anyway, it’s time for another great video on BFS!
 
+![Advent Of Code 2024 - 10 years edition - day18 maze](./images/aoc18.png)
+
 [![BFS algorithm animated](https://img.youtube.com/vi/xlVX7dXLS64/0.jpg)](https://www.youtube.com/watch?v=xlVX7dXLS64)
