@@ -43,7 +43,7 @@ func main() {
 	}
 
 	p1 := g.shortest(T0)
-	p2 := g.locate(g.failfast(T0 + 1)) // we know the answer is at least T0+1
+	p2 := g.locate(g.failfast(T0 + 1)) // we know the closing time is at least T0+1
 
 	fmt.Printf("%d  %d,%d\n", p1, p2.c, p2.r)
 }
@@ -71,29 +71,34 @@ func (g *Grid) shortest(t int) int {
 
 	idx := g.index
 
-	Q := []Cell{α}
-	seen := make([]bool, g.H*g.W)
-	seen[idx(α)] = true
+	// BFS
+	const NALLOC = 80 // arbitrary but informed preallocation
 
-	steps := 0
-	for len(Q) > 0 {
-		nxtQ := []Cell{}
-		for _, cur := range Q {
+	// double-buffered queue
+	Q1, Q2 := make([]Cell, 0, NALLOC), make([]Cell, 0, NALLOC)
+
+	// visited cells
+	seen := make([]bool, g.H*g.W)
+
+	seen[idx(α)] = true
+	Q1 = append(Q1, α)
+	nstep := 0
+	for len(Q1) > 0 {
+		for _, cur := range Q1 {
 			if cur == ω {
-				return steps
+				return nstep
 			}
 
 			for _, δ := range dirs {
 				nxt := cur.add(δ)
 				if g.inbounds(nxt) && !seen[idx(nxt)] && g.at(nxt, t) {
 					seen[idx(nxt)] = true
-					nxtQ = append(nxtQ, nxt)
+					Q2 = append(Q2, nxt)
 				}
 			}
 		}
-
-		Q = nxtQ
-		steps++
+		Q1, Q2 = Q2, Q1[:0] // swap queues + reset Q2
+		nstep++
 	}
 
 	return -1
@@ -141,8 +146,7 @@ func (g *Grid) set(x Cell, t int) {
 func (g *Grid) locate(t int) Cell {
 	for r := 0; r < g.H; r++ {
 		for c := 0; c < g.W; c++ {
-			x := Cell{r, c}
-			if g.get(x) == t {
+			if x := (Cell{r, c}); g.get(x) == t {
 				return x
 			}
 		}
