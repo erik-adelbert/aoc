@@ -89,7 +89,6 @@ func (g Grid) move(x Cell, dir rune) Cell {
 			g.clear(nxt)
 		}
 	}
-
 	return nxt
 }
 
@@ -114,8 +113,6 @@ func (g Grid) push(x Cell, dir rune) (ok bool) {
 
 		car := g[cur.r][cur.c]
 		switch car {
-		case '#':
-			nxt = cur
 		case 'O':
 			if repush(nxt, dir) {
 				todo(up{nxt, car})
@@ -207,14 +204,6 @@ func (g Grid) score() int {
 		}
 	}
 	return sum
-}
-
-func (g Grid) clone() Grid {
-	clone := make(Grid, 0, len(g))
-	for _, row := range g {
-		clone = append(clone, append([]rune(nil), row...))
-	}
-	return clone
 }
 
 func (g Grid) clear(x Cell) {

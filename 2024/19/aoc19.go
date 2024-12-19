@@ -54,25 +54,22 @@ func main() {
 }
 
 type TrieNode struct {
-	next map[byte]*TrieNode
+	next mtgmap
 	stop bool
-}
-
-func newNode() *TrieNode {
-	return &TrieNode{next: make(map[byte]*TrieNode)}
 }
 
 // Build a trie from a list of words
 func build(words []string) *TrieNode {
-	root := newNode()
+	root := &TrieNode{}
 	for _, word := range words {
 		cur := root
 		for _, x := range word {
 			car := byte(x)
-			if _, ok := cur.next[car]; !ok {
-				cur.next[car] = newNode()
+			if cur.getnext(car) == nil {
+				cur.setnext(car, &TrieNode{})
 			}
-			cur = cur.next[car]
+
+			cur = cur.getnext(car)
 		}
 		cur.stop = true
 	}
@@ -97,11 +94,11 @@ func match(line string, trie *TrieNode) int {
 
 		cur := trie
 		for i := start; i < end; i++ {
-			var ok bool
 			var nxt *TrieNode
 
 			car := line[i]
-			if nxt, ok = cur.next[car]; !ok {
+
+			if nxt = cur.getnext(car); nxt == nil {
 				break
 			}
 
@@ -118,11 +115,16 @@ func match(line string, trie *TrieNode) int {
 	return recount(0)
 }
 
-// strconv.Atoi simplified core loop
-// s is ^\d+$
-func atoi(s string) (n int) {
-	for i := range s {
-		n = 10*n + int(s[i]-'0')
-	}
-	return
+func (node *TrieNode) getnext(b byte) *TrieNode {
+	return node.next[CMAPINDEX[b]]
 }
+
+func (node *TrieNode) setnext(b byte, t *TrieNode) {
+	node.next[CMAPINDEX[b]] = t
+}
+
+var CMAPINDEX = []int{
+	'w': 0, 'u': 1, 'b': 2, 'r': 3, 'g': 4,
+}
+
+type mtgmap [5]*TrieNode
