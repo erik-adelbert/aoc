@@ -55,15 +55,6 @@ func main() {
 	fmt.Println(count1, count2) // part 1 & 2
 }
 
-// strconv.Atoi simplified core loop
-// s is ^\d+$
-func atoi(s string) (n int) {
-	for i := range s {
-		n = 10*n + int(s[i]-'0')
-	}
-	return
-}
-
 type TrieNode struct {
 	next map[byte]*TrieNode
 	stop bool
@@ -123,4 +114,13 @@ func match(line string, trie *TrieNode) int {
 	}
 
 	return dfs(0)
+}
+
+// strconv.Atoi simplified core loop
+// s is ^\d+$
+func atoi(s string) (n int) {
+	for i := range s {
+		n = 10*n + int(s[i]-'0')
+	}
+	return
 }
