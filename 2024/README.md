@@ -318,7 +318,7 @@ Today is a nice boost to keep us going strong for the final stretch. The second 
 
 ## Day 19: Linen Layout
 
-Upon reading today’s challenge, I immediately recognized it called for building a [prefix tree](https://en.wikipedia.org/wiki/Trie). Once the trie was in place, the solution involved greedily matching all prefixes, easily achieved through a simple DFS. The result is both concise and efficient.
+Upon reading today’s challenge, I immediately recognized it called for building a [prefix tree](https://en.wikipedia.org/wiki/Trie). Once the trie was in place, the solution involved greedily matching all prefixes, easily achieved through a simple DFS. The result is both [concise and efficient](https://go.dev/doc/effective_go).
 
 I delved deeply into tries after first employing them on [Day 1 of AoC 2023](../2023/README.md).
 
