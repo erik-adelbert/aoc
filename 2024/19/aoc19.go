@@ -63,8 +63,7 @@ func build(words []string) *TrieNode {
 	root := &TrieNode{}
 	for _, word := range words {
 		cur := root
-		for _, x := range word {
-			car := byte(x)
+		for _, car := range []byte(word) {
 			if cur.getnext(car) == nil {
 				cur.setnext(car, &TrieNode{})
 			}
