@@ -322,4 +322,10 @@ Upon reading today’s challenge, I immediately recognized it called for buildin
 
 I delved deeply into tries after first employing them on [Day 1 of AoC 2023](../2023/README.md).
 
+```bash
+      --------Part 1--------   --------Part 2--------
+Day       Time   Rank  Score       Time   Rank  Score
+ 19   00:12:24   1669      0   00:17:08   1351      0
+```
+
 ![Wikipedia's trie example](./images/aoc19a.svg)
