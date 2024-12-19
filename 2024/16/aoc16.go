@@ -135,6 +135,7 @@ func (m *Maze) forward() {
 	H, W := len(m.data), len(m.data[0])
 
 	var pq Heap
+
 	heap.Push(&pq, State{Cell{r: m.start.r, c: m.start.c, dir: 0}, 0})
 
 	best := 0
@@ -272,5 +273,12 @@ func (h *Heap) Pop() interface{} {
 	n := len(old)
 	x := old[n-1]
 	*h = old[0 : n-1]
+	return x
+}
+
+func abs(x int) int {
+	if x < 0 {
+		return -x
+	}
 	return x
 }
