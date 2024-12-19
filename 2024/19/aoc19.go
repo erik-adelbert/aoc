@@ -30,14 +30,12 @@ func main() {
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
 		line := input.Text()
-		switch state {
-		case RULES:
-			if line == "" {
-				state = WORDS
-			} else {
-				rules = strings.Split(line, ", ")
-			}
-		case WORDS:
+		switch {
+		case line == "":
+			state = WORDS
+		case state == RULES:
+			rules = strings.Split(line, ", ")
+		case state == WORDS:
 			words = append(words, line)
 		}
 	}
