@@ -61,7 +61,7 @@ func (c Counter) Popcnt() (pop int) {
 }
 
 func (c Counter) Blink() Counter {
-	next := NewCounter(2 * len(c))
+	next := NewCounter(3 * len(c) / 2)
 	for n, count := range c {
 		for _, m := range blink(n) {
 			next[m] += count
