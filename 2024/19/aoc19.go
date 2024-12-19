@@ -84,8 +84,9 @@ func match(line string, trie *TrieNode) int {
 	end := len(line)
 	memo := make(map[int]int)
 
-	var dfs func(int) int
-	dfs = func(start int) int {
+	// DFS with memoization
+	var recount func(int) int
+	recount = func(start int) int {
 		if start == end {
 			return 1 // success on the entire line!
 		}
@@ -100,7 +101,7 @@ func match(line string, trie *TrieNode) int {
 			if next, ok := cur.next[car]; ok {
 				cur = next
 				if cur.stop {
-					count += dfs(i + 1) // add all ways from the next position
+					count += recount(i + 1) // add all ways from the next position
 				}
 			} else {
 				break
@@ -111,7 +112,7 @@ func match(line string, trie *TrieNode) int {
 		return count
 	}
 
-	return dfs(0)
+	return recount(0)
 }
 
 // strconv.Atoi simplified core loop
