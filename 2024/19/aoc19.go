@@ -23,8 +23,8 @@ const (
 )
 
 func main() {
-	rules := make([]string, 0)
-	words := make([]string, 0)
+	rules := make([]string, 0, 450) // arbitrary size
+	words := make([]string, 0, 400) // arbitrary size
 
 	state := RULES
 	input := bufio.NewScanner(os.Stdin)
@@ -82,34 +82,37 @@ func build(words []string) *TrieNode {
 // Count all possible ways to fully match a string using words in the trie without overlaps
 func match(line string, trie *TrieNode) int {
 	end := len(line)
-	memo := make(map[int]int)
+	memo := make(map[int]int, 58) // arbitrary size
 
 	// DFS with memoization
 	var recount func(int) int
-	recount = func(start int) int {
+	recount = func(start int) (count int) {
 		if start == end {
 			return 1 // success on the entire line!
 		}
-		if val, ok := memo[start]; ok {
-			return val // use cached value
+
+		if cnt, ok := memo[start]; ok {
+			return cnt // use cached value
 		}
 
-		count := 0
 		cur := trie
 		for i := start; i < end; i++ {
+			var ok bool
+			var nxt *TrieNode
+
 			car := line[i]
-			if nxt, ok := cur.next[car]; ok {
-				cur = nxt
-				if cur.stop {
-					count += recount(i + 1) // add all ways from the next position
-				}
-			} else {
+			if nxt, ok = cur.next[car]; !ok {
 				break
+			}
+
+			cur = nxt
+			if cur.stop {
+				count += recount(i + 1) // add all ways from the next position
 			}
 		}
 
 		memo[start] = count
-		return count
+		return
 	}
 
 	return recount(0)
