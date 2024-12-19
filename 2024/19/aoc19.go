@@ -98,8 +98,8 @@ func match(line string, trie *TrieNode) int {
 		cur := trie
 		for i := start; i < end; i++ {
 			car := line[i]
-			if next, ok := cur.next[car]; ok {
-				cur = next
+			if nxt, ok := cur.next[car]; ok {
+				cur = nxt
 				if cur.stop {
 					count += recount(i + 1) // add all ways from the next position
 				}
