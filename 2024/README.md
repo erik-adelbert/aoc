@@ -314,3 +314,11 @@ Today is a nice boost to keep us going strong for the final stretch. The second 
 ![Advent Of Code 2024 - 10 years edition - day18 maze](./images/aoc18.png)
 
 [![BFS algorithm animated](https://img.youtube.com/vi/xlVX7dXLS64/0.jpg)](https://www.youtube.com/watch?v=xlVX7dXLS64)
+
+## Day 19: Linen Layout
+
+Upon reading today’s challenge, I immediately recognized it called for building a [prefix tree](https://en.wikipedia.org/wiki/Trie). Once the trie was in place, the solution involved greedily matching all prefixes, easily achieved through a simple DFS. The result is both concise and efficient.
+
+I delved deeply into tries after first employing them on [Day 1 of AoC 2023](../2023/README.md).
+
+![Wikipedia's trie example](./images/aoc19a.svg)

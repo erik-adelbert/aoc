@@ -93,15 +93,15 @@ func build(words []string) *TrieNode {
 // Count all possible ways to fully match a string using words in the trie without overlaps
 func match(line string, trie *TrieNode) int {
 	end := len(line)
-	memo := make(map[int]int) // Memoization for index-to-count mapping
+	memo := make(map[int]int)
 
 	var dfs func(int) int
 	dfs = func(start int) int {
 		if start == end {
-			return 1 // Successfully matched the entire line
+			return 1 // success on the entire line!
 		}
 		if val, ok := memo[start]; ok {
-			return val // Use cached result
+			return val // use cached value
 		}
 
 		count := 0
@@ -111,7 +111,7 @@ func match(line string, trie *TrieNode) int {
 			if next, ok := cur.next[car]; ok {
 				cur = next
 				if cur.stop {
-					count += dfs(i + 1) // Add all ways from the next position
+					count += dfs(i + 1) // add all ways from the next position
 				}
 			} else {
 				break
