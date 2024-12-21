@@ -143,7 +143,7 @@ Given the size of today's input, [brute-forcing](https://en.wikipedia.org/wiki/B
 `<EDIT>` I have been browsing the solution megathread on the [reddit](https://www.reddit.com/r/adventofcode/) and I have a tip for all the LLM-prompters out there. A [cartesian product](https://en.wikipedia.org/wiki/Cartesian_product) to generate all *non repeating* pairs of a set can be expressed as:
 
 ```C
-for i, a := range set {
+for i, a := range set[:len(set)-1] {
     for _, b := range set[i+1:] {
         blah(a, b)
     }
@@ -329,3 +329,27 @@ Day       Time   Rank  Score       Time   Rank  Score
 ```
 
 ![Wikipedia's trie example](./images/aoc19a.svg)
+
+## Day 20: Race Condition
+
+*Oh my gosh!* When I first read the challenge, I had mixed feelings—it seemed simple enough, just a race track, right? But then came the quiet dread: I knew part 2 was coming even before I downloaded my input. I threw everything I could at this challenge, but I'm still not satisfied. I feel like I might have missed something. I can't believe a runtime under 20ms is possible, even in Rust or similar languages. I'll definitely need to take a closer look at other people's solutions for today.
+
+In the meantime, my solution offers *way more* than I initially hoped for. It includes *visualization, a reverse distance matrix, fast tracking, a KD-Tree, and parallelism*. It already feels like *Christmas*!
+
+```C
+    var ends1, ends2 []Shortcut
+    maze := newMaze(data, start, goal)
+
+    ends1 = maze.shortcut(2, 100)
+    ends2 = maze.shortcut(20, 100)
+
+    fmt.Println(len(ends1), len(ends2))
+```
+
+```bash
+Benchmark 2: ./aoc20 < input.txt
+  Time (mean ± σ):      32.6 ms ±   0.7 ms    [User: 105.1 ms, System: 20.2 ms]
+  Range (min … max):    31.8 ms …  38.1 ms    86 runs
+```
+
+[![KD-Tree explained](https://img.youtube.com/vi/Glp7THUpGow/0.jpg)](https://www.youtube.com/watch?v=Glp7THUpGow)
