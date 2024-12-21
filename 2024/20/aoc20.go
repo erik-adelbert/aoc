@@ -63,13 +63,13 @@ func main() {
 		data = append(data, []byte(line))
 	}
 
-	var ends1, ends2 []Shortcut
+	var shorts1, shorts2 []Shortcut
 	maze := newMaze(data, start, goal)
 
-	ends1 = maze.shortcut(2, 100)
-	ends2 = maze.shortcut(20, 100)
+	shorts1 = maze.shortcut(2, 100)
+	shorts2 = maze.shortcut(20, 100)
 
-	fmt.Println(len(ends1), len(ends2))
+	fmt.Println(len(shorts1), len(shorts2))
 }
 
 func newMaze(data [][]byte, start, goal Cell) *Maze {
@@ -255,7 +255,6 @@ func (m *Maze) String() string {
 	return sb.String()
 }
 
-// KDNode represents a node in the k-d tree
 type KDNode struct {
 	left  *KDNode
 	right *KDNode
@@ -263,7 +262,6 @@ type KDNode struct {
 	axis  int
 }
 
-// KDTree represents the k-d tree itself
 type KDTree struct {
 	root *KDNode
 }

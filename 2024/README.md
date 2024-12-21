@@ -337,13 +337,13 @@ Day       Time   Rank  Score       Time   Rank  Score
 In the meantime, my solution offers *way more* than I initially hoped for. It includes *visualization, a reverse distance matrix, fast tracking, a KD-Tree, and parallelism*. It already feels like *Christmas*!
 
 ```C
-    var ends1, ends2 []Shortcut
+    var shorts1, shorts2 []Shortcut
     maze := newMaze(data, start, goal)
 
-    ends1 = maze.shortcut(2, 100)
-    ends2 = maze.shortcut(20, 100)
+    shorts1 = maze.shortcut(2, 100)
+    shorts2 = maze.shortcut(20, 100)
 
-    fmt.Println(len(ends1), len(ends2))
+    fmt.Println(len(shorts1), len(shorts2))
 ```
 
 ```bash
