@@ -89,24 +89,7 @@ func newMaze(data [][]byte, start, goal Cell) *Maze {
 type Shortcut struct {
 	start, end Cell
 	time       int
-	// dist       int
 }
-
-// func (m *Maze) shortcuts(tmax, lim int) []Shortcut {
-// 	ends := make([]Shortcut, 0, MAXSHORTS)
-
-// 	for _, x := range m.track {
-// 		dx := m.dist[x.r][x.c]
-// 		for _, xx := range m.tree.query(x, tmax) {
-// 			dxx := manh(x, xx) + m.dist[xx.r][xx.c]
-// 			if short := dx - dxx; short >= lim {
-// 				ends = append(ends, Shortcut{start: x, end: xx, dist: short})
-// 			}
-// 		}
-// 	}
-
-// 	return ends
-// }
 
 func (m *Maze) shortcut(tmax, lim int) []Shortcut {
 	shorts := make([]Shortcut, 0, MAXSHORTS)
@@ -128,7 +111,7 @@ func (m *Maze) shortcut(tmax, lim int) []Shortcut {
 					md := manh(x, xx)
 					dxx := md + dist(xx)
 					if short := dx - dxx; short >= lim {
-						locals = append(locals, Shortcut{start: x, end: xx, time: short /*, dist: md*/})
+						locals = append(locals, Shortcut{start: x, end: xx, time: short})
 					}
 				}
 

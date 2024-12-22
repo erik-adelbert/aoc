@@ -2,26 +2,28 @@
 
 | Day  | Time (ms) | % of Total |
 |------|-----------|------------|
-| 8    | 0.6       | 1.06%      |
-| 13   | 0.7       | 1.23%      |
-| 2    | 0.8       | 1.41%      |
-| 5    | 0.8       | 1.41%      |
-| 1    | 0.8       | 1.41%      |
-| 10   | 0.9       | 1.59%      |
-| 7    | 1.0       | 1.76%      |
-| 18   | 1.2       | 2.12%      |
-| 15   | 1.3       | 2.29%      |
-| 3    | 1.4       | 2.47%      |
-| 17   | 1.4       | 2.47%      |
-| 6    | 1.5       | 2.65%      |
-| 4    | 1.7       | 3.00%      |
-| 19   | 2.0       | 3.53%      |
-| 14   | 2.5       | 4.41%      |
-| 12   | 5.5       | 9.71%      |
-| 9    | 9.0       | 15.88%     |
-| 11   | 9.7       | 17.12%     |
-| 16   | 13.9      | 24.51%     |
-| Total| 56.7      | 100.00%    |
+| 8    | 0.6       | 0.81%      |
+| 13   | 0.7       | 0.95%      |
+| 2    | 0.8       | 1.08%      |
+| 5    | 0.8       | 1.08%      |
+| 1    | 0.8       | 1.08%      |
+| 10   | 0.9       | 1.22%      |
+| 7    | 1.0       | 1.36%      |
+| 18   | 1.2       | 1.63%      |
+| 21   | 1.2       | 1.63%      |
+| 15   | 1.3       | 1.76%      |
+| 3    | 1.4       | 1.90%      |
+| 17   | 1.4       | 1.90%      |
+| 6    | 1.5       | 2.03%      |
+| 4    | 1.7       | 2.30%      |
+| 19   | 2.0       | 2.71%      |
+| 14   | 2.5       | 3.39%      |
+| 12   | 5.5       | 7.45%      |
+| 9    | 9.0       | 12.20%     |
+| 11   | 9.7       | 13.14%     |
+| 16   | 13.9      | 18.83%     |
+| 22   | 15.9      | 21.54%     |
+| Total| 73.8      | 100.00%    |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.6.0 - go version go1.23.3 darwin/arm64 - hyperfine 1.19.0 - 2024-12
 
@@ -353,3 +355,77 @@ Benchmark 2: ./aoc20 < input.txt
 ```
 
 [![KD-Tree explained](https://img.youtube.com/vi/Glp7THUpGow/0.jpg)](https://www.youtube.com/watch?v=Glp7THUpGow)
+
+## Day 21: Keypad Conundrum
+
+Today's solution was one of those that feels incredibly tedious to get right, but once it's done, it seems straightforward. The key challenge is navigating around the gap to find the shortest path. How you structure your code makes all the difference—it can either be concise and manageable or frustrating and full of errors. It's like a version of Day 11 on steroïds.
+
+![An old commercial about a window keypad](https://upload.wikimedia.org/wikipedia/commons/a/a4/Window_keypad.jpg)
+
+## Day 22: Monkey Market
+
+Quite the reading today. This challenge is a great opportunity to discover some [tesujis](https://senseis.xmp.net/?Tesuji). There's really only one winning strategy today: generate all the sequences. With around 40k sequences and a hash function that performs decently—producing less than 0.9% collisions on our inputs—there’s no shortcut around solving the problem outright. So, how can we reduce the runtime?
+
+- Tesuji #1: The only way is to ditch the map, because (props to u/topaz) the *dict hashing itself takes forever*.
+- Tesuji #2: It is possible to use a *multicolored map* that is never reinit in between 2 runs.
+- Tesuji #3: It is possible to build a *[running key](https://en.wikipedia.org/wiki/Running_key_cipher)* for the sequences.
+
+Those tesujis were skillfully suggested by [`u/ndunnett`](https://www.reddit.com/r/adventofcode/comments/1hjroap/comment/m39nlbn/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button)
+
+```bash
+Uniformity & Collision Resistance:
+Total samples: 1000000
+Distinct hash values: 631991
+Mean: 1.582301, Variance: 0.661217
+
+Avalanche Effect:
+Avalanche effect (bit difference): 2
+
+Range Coverage:
+Coverage: 3.771246%
+```
+
+![A Monkey playing go](./images/aoc22.jpg)
+
+## How is it going?
+
+```bash
+❯ make lines
+      57 ./3/aoc3.go
+      72 ./1/aoc1.go
+      81 ./22/aoc22.go
+      91 ./8/aoc8.go
+      92 ./13/aoc13.go
+      98 ./5/aoc5.go
+     101 ./2/aoc2.go
+     102 ./7/aoc7.go
+     107 ./10/aoc10.go
+     109 ./11/aoc11.go
+     126 ./22/stats/stats.go
+     129 ./19/aoc19.go
+     138 ./movie/movie.go
+     148 ./12/aoc12.go
+     175 ./4/aoc4.go
+     203 ./18/aoc18.go
+     221 ./17/aoc17.go
+     223 ./21/aoc21.go
+     235 ./15/aoc15.go
+     257 ./9/aoc9.go
+     258 ./14/aoc14.go
+     284 ./16/aoc16.go
+     311 ./6/aoc6.go
+     320 ./20/aoc20.go
+    3938 total
+❯ make cyclo
+19 main (*Maze).prune 16/aoc16.go:81:1
+19 main (Grid).push 15/aoc15.go:95:1
+14 main (Maze).run 6/aoc6.go:183:1
+14 main solve 10/aoc10.go:43:1
+13 main safe 2/aoc2.go:49:1
+12 main (*Maze).mktrack 20/aoc20.go:147:1
+12 main (*Maze).forward 16/aoc16.go:134:1
+12 main decompose 12/aoc12.go:49:1
+11 main (Machine).quine 17/aoc17.go:101:1
+10 main antinodes 8/aoc8.go:59:1
+Average: 3.78
+```
