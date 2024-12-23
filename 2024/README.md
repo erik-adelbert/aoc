@@ -8,8 +8,8 @@
 | 9    | 9.0       | 11.86%     |
 | 12   | 5.5       | 7.25%      |
 | 14   | 2.5       | 3.29%      |
-| 19   | 2.0       | 2.63%      |
 | 23   | 2.1       | 2.77%      |
+| 19   | 2.0       | 2.63%      |
 | 4    | 1.7       | 2.24%      |
 | 6    | 1.5       | 1.97%      |
 | 3    | 1.4       | 1.84%      |
@@ -446,8 +446,7 @@ Average: 3.78
 
 Today's challenge is a classic graph problem that one can solve by throwing [the book](https://arxiv.org/html/2403.09742v1) at it. The task is to find the smallest and largest cliques in the graph. With 520 nodes and 3.3K edges, it's not super heavy, ~~but getting it to run in double-digit milliseconds is no joke~~. In order to get the stars as quickly as possible I resorted to brute force part1 and to [Bron-Kerbosch](https://en.wikipedia.org/wiki/Bron–Kerbosch_algorithm) part2. ~~I'm still working on the solution~~.
 
-*Oh wow, this is incredible! The graph is designed in such a way that a simple, straightforward approach works WAY (x50) better than something complex or fancy. I'm seriously in awe of the effort that went into crafting these challenges!*
-
+*Oh wow, this is incredible! The graph is designed in such a way that a simple, straightforward approach works WAY (x50) better than something complex or fancy. IT EVEN HAS A MISLEADING [EASTER EGG](https://fr.wikipedia.org/wiki/Kata_(programmation))!!! I'm seriously in awe of the effort that went into crafting these challenges!*
 
 ![A graph with 6 nodes image](./images/aoc23a.png)
 
