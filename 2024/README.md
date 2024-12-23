@@ -2,28 +2,29 @@
 
 | Day  | Time (ms) | % of Total |
 |------|-----------|------------|
-| 8    | 0.6       | 0.81%      |
-| 13   | 0.7       | 0.95%      |
-| 2    | 0.8       | 1.08%      |
-| 5    | 0.8       | 1.08%      |
-| 1    | 0.8       | 1.08%      |
-| 10   | 0.9       | 1.22%      |
-| 7    | 1.0       | 1.36%      |
-| 18   | 1.2       | 1.63%      |
-| 21   | 1.2       | 1.63%      |
-| 15   | 1.3       | 1.76%      |
-| 3    | 1.4       | 1.90%      |
-| 17   | 1.4       | 1.90%      |
-| 6    | 1.5       | 2.03%      |
-| 4    | 1.7       | 2.30%      |
-| 19   | 2.0       | 2.71%      |
-| 14   | 2.5       | 3.39%      |
-| 12   | 5.5       | 7.45%      |
-| 9    | 9.0       | 12.20%     |
-| 11   | 9.7       | 13.14%     |
-| 16   | 13.9      | 18.83%     |
-| 22   | 15.9      | 21.54%     |
-| Total| 73.8      | 100.00%    |
+| 22   | 15.9      | 20.97%     |
+| 16   | 13.9      | 18.34%     |
+| 11   | 9.7       | 12.80%     |
+| 9    | 9.0       | 11.86%     |
+| 12   | 5.5       | 7.25%      |
+| 14   | 2.5       | 3.29%      |
+| 19   | 2.0       | 2.63%      |
+| 23   | 2.1       | 2.77%      |
+| 4    | 1.7       | 2.24%      |
+| 6    | 1.5       | 1.97%      |
+| 3    | 1.4       | 1.84%      |
+| 17   | 1.4       | 1.84%      |
+| 15   | 1.3       | 1.71%      |
+| 18   | 1.2       | 1.58%      |
+| 21   | 1.2       | 1.58%      |
+| 10   | 0.9       | 1.19%      |
+| 1    | 0.8       | 1.05%      |
+| 2    | 0.8       | 1.05%      |
+| 5    | 0.8       | 1.05%      |
+| 13   | 0.7       | 0.92%      |
+| 7    | 1.0       | 1.32%      |
+| 8    | 0.6       | 0.79%      |
+| Total| 75.9      | 100.00%    |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.6.0 - go version go1.23.3 darwin/arm64 - hyperfine 1.19.0 - 2024-12
 
@@ -338,6 +339,8 @@ Day       Time   Rank  Score       Time   Rank  Score
 
 In the meantime, my solution offers *way more* than I initially hoped for. It includes *visualization, a reverse distance matrix, fast tracking, a KD-Tree, and parallelism*. It already feels like *Christmas*!
 
+`<EDIT>` Day 23 taught me a lesson, I believe I have missed the naïve way.
+
 ```C
     var shorts1, shorts2 []Shortcut
     maze := newMaze(data, start, goal)
@@ -441,17 +444,10 @@ Average: 3.78
 
 ## Day 23: LAN Party
 
-Today's challenge is a classic graph problem that one can solve by throwing [the book](https://arxiv.org/html/2403.09742v1) at it. The task is to find the smallest and largest cliques in the graph. With 520 nodes and 3.3K edges, it's not super heavy, but getting it to run in double-digit milliseconds is no joke. In order to get the stars as quickly as possible I resorted to brute force part1 and to [Bron-Kerbosch](https://en.wikipedia.org/wiki/Bron–Kerbosch_algorithm) part2. I'm still working on the solution.
+Today's challenge is a classic graph problem that one can solve by throwing [the book](https://arxiv.org/html/2403.09742v1) at it. The task is to find the smallest and largest cliques in the graph. With 520 nodes and 3.3K edges, it's not super heavy, ~~but getting it to run in double-digit milliseconds is no joke~~. In order to get the stars as quickly as possible I resorted to brute force part1 and to [Bron-Kerbosch](https://en.wikipedia.org/wiki/Bron–Kerbosch_algorithm) part2. ~~I'm still working on the solution~~.
 
-```C
-algorithm BronKerbosch3(G) is
-    P = V(G)
-    R = X = empty
-    for each vertex v in a degeneracy ordering of G do
-        BronKerbosch2({v}, P ⋂ N(v), X ⋂ N(v))
-        P := P \ {v}
-        X := X ⋃ {v}
-```
+*Oh wow, this is incredible! The graph is designed in such a way that a simple, straightforward approach works WAY (x50) better than something complex or fancy. I'm seriously in awe of the effort that went into crafting these challenges!*
+
 
 ![A graph with 6 nodes image](./images/aoc23a.png)
 
