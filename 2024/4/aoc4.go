@@ -18,6 +18,37 @@ import (
 	"sync"
 )
 
+func main() {
+	var matrix RuneMat
+
+	input := bufio.NewScanner(os.Stdin)
+	for input.Scan() {
+		matrix = append(matrix, []rune(input.Text()))
+	}
+
+	var wg sync.WaitGroup
+
+	count1 := 0
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for _, sub := range XMAS {
+			matches := matrix.findAll(toRuneMat(sub))
+			count1 += len(matches)
+		}
+	}()
+
+	count2 := 0
+	for _, sub := range MAS {
+		matches := matrix.findAll(toRuneMat(sub))
+		count2 += len(matches)
+	}
+
+	wg.Wait()
+
+	fmt.Println(count1, count2)
+}
+
 // "*" (star) is a wildcard character that can match any letter.
 var XMAS = [][]string{
 	{
@@ -87,37 +118,6 @@ var MAS = [][]string{
 	},
 }
 
-func main() {
-	var matrix RuneMat
-
-	input := bufio.NewScanner(os.Stdin)
-	for input.Scan() {
-		matrix = append(matrix, []rune(input.Text()))
-	}
-
-	var wg sync.WaitGroup
-
-	count1 := 0
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		for _, sub := range XMAS {
-			matches := matrix.findAll(toRuneMat(sub))
-			count1 += len(matches)
-		}
-	}()
-
-	count2 := 0
-	for _, sub := range MAS {
-		matches := matrix.findAll(toRuneMat(sub))
-		count2 += len(matches)
-	}
-
-	wg.Wait()
-
-	fmt.Println(count1, count2)
-}
-
 type RuneMat [][]rune
 
 func toRuneMat(s []string) RuneMat {
@@ -163,13 +163,4 @@ func (m RuneMat) findAll(sm RuneMat) [][2]int {
 		}
 	}
 	return matches
-}
-
-// strconv.Atoi simplified core loop
-// s is ^\d+$
-func atoi(s string) (n int) {
-	for i := range s {
-		n = 10*n + int(s[i]-'0')
-	}
-	return
 }

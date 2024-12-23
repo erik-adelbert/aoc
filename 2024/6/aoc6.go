@@ -26,8 +26,6 @@ const (
 	WEST
 )
 
-const MaxInt = int(^uint(0) >> 1)
-
 func main() {
 	var origin Point
 	matrix := make([][]rune, 0, 130)
@@ -300,6 +298,8 @@ func (p Path) cells() Path {
 
 	return cells
 }
+
+const MaxInt = int(^uint(0) >> 1)
 
 // strconv.Atoi simplified core loop
 // s is ^\d+$

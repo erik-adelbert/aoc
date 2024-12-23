@@ -358,17 +358,26 @@ Benchmark 2: ./aoc20 < input.txt
 
 ## Day 21: Keypad Conundrum
 
-Today's solution was one of those that feels incredibly tedious to get right, but once it's done, it seems straightforward. The key challenge is navigating around the gap to find the shortest path. How you structure your code makes all the difference—it can either be concise and manageable or frustrating and full of errors. It's like a version of Day 11 on steroïds.
+Today's solution was one of those that feels incredibly tedious to get right, but once it's done, it seems straightforward.  It’s all about mentally diving into [recursion](https://en.wikipedia.org/wiki/Recursion)—not exactly a strength for most of us. After all, recursion is all about faith—you just have to trust that it will eventually kill the game *without* thinking of it.
+
+Anyway, the key challenge is navigating around the gap to find the shortest path. How you structure your code makes all the difference—it can either be concise and manageable or frustrating and full of errors. It's like a version of Day 11 on steroïds.
+
+
+*It is also an incredibly smart tribute to [BrainF\*ck](https://en.wikipedia.org/wiki/Brainfuck)*
+
+```C
+++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.
+```
 
 ![An old commercial about a window keypad](https://upload.wikimedia.org/wikipedia/commons/a/a4/Window_keypad.jpg)
 
 ## Day 22: Monkey Market
 
-Quite the reading today. This challenge is a great opportunity to discover some [tesujis](https://senseis.xmp.net/?Tesuji). There's really only one winning strategy today: generate all the sequences. With around 40k sequences and a hash function that performs decently—producing less than 0.9% collisions on our inputs—there’s no shortcut around solving the problem outright. So, how can we reduce the runtime?
+Quite the reading today. There’s really only one winning strategy: generate all the sequences. It’s a great chance to explore some [tesujis](https://senseis.xmp.net/?Tesuji)—those skillful and decisive tactical moves. With around 40k sequences and a hash function that holds up decently (less than 0.9% collisions on our inputs), there’s no avoiding the full solution. So, the big question is: how can we cut down the runtime without going the dark way?
 
 - Tesuji #1: The only way is to ditch the map, because (props to u/topaz) the *dict hashing itself takes forever*.
 - Tesuji #2: It is possible to use a *multicolored map* that is never reinit in between 2 runs.
-- Tesuji #3: It is possible to build a *[running key](https://en.wikipedia.org/wiki/Running_key_cipher)* for the sequences.
+- Tesuji #3: It is possible to build a *[running index](https://en.wikipedia.org/wiki/Running_key_cipher)* for the sequences.
 
 Those tesujis were skillfully suggested by [`u/ndunnett`](https://www.reddit.com/r/adventofcode/comments/1hjroap/comment/m39nlbn/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button)
 
@@ -429,3 +438,23 @@ Coverage: 3.771246%
 10 main antinodes 8/aoc8.go:59:1
 Average: 3.78
 ```
+
+## Day 23: LAN Party
+
+Today's challenge is a classic graph problem that one can solve by throwing [the book](https://arxiv.org/html/2403.09742v1) at it. The task is to find the smallest and largest cliques in the graph. With 520 nodes and 3.3K edges, it's not super heavy, but getting it to run in double-digit milliseconds is no joke. In order to get the stars as quickly as possible I resorted to brute force part1 and to [Bron-Kerbosch](https://en.wikipedia.org/wiki/Bron–Kerbosch_algorithm) part2. I'm still working on the solution.
+
+```C
+algorithm BronKerbosch3(G) is
+    P = V(G)
+    R = X = empty
+    for each vertex v in a degeneracy ordering of G do
+        BronKerbosch2({v}, P ⋂ N(v), X ⋂ N(v))
+        P := P \ {v}
+        X := X ⋃ {v}
+```
+
+![A graph with 6 nodes image](./images/aoc23a.png)
+
+Meanwhile, don't forget to cast your vote!
+
+![A screen saying that I voted for AoC SnowGlobe Award](./images/aoc23b.png)

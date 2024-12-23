@@ -45,15 +45,16 @@ var SEEN = make([]int, MAXDIM)
 func rehash(a, n int, seqs []int) int {
 	color := a
 
+	// loop on digits
 	key, cur := 0, a%10
 	for i := 0; i < n; i++ {
-		a = hash(a)
-		nxt := a % 10
-		δ := nxt - cur + VOFF
+		a = hash(a)   // rehash
+		nxt := a % 10 // next digit
 
-		key = ((key << 5) & MAXDIM) + δ
+		δ := nxt - cur + VOFF           // vertical offset to avoid negative keys
+		key = ((key << 5) & MAXDIM) + δ // running key
 
-		if i > 3 && SEEN[key] != color {
+		if i > 3 && SEEN[key] != color { // color as seen
 			SEEN[key] = color
 			seqs[key] += nxt
 		}

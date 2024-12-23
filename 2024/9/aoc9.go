@@ -18,9 +18,7 @@ import (
 	"sync"
 )
 
-const (
-	MAXFILE = 20000
-)
+const MAXFILE = 20000
 
 func main() {
 

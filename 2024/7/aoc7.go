@@ -18,10 +18,6 @@ import (
 	"strings"
 )
 
-const (
-	CONS = true
-)
-
 func main() {
 	sum1, sum2 := 0, 0
 
@@ -35,9 +31,9 @@ func main() {
 		}
 
 		switch {
-		case check(nums, !CONS):
+		case check(nums, false):
 			sum1 += nums[0]
-		case check(nums, CONS):
+		case check(nums, true):
 			sum2 += nums[0]
 		}
 	}

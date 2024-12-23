@@ -20,8 +20,8 @@ import (
 
 const (
 	MAXMSG = 12
-	NLOOP1 = 2
-	NLOOP2 = 25 - NLOOP1
+	DEPTH1 = 2
+	DEPTH2 = 25 - DEPTH1
 )
 
 func main() {
@@ -31,16 +31,22 @@ func main() {
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
 		code := input.Text()
+
+		// transtype on the keypad
 		m := Message{code: 1}.keytype()
 
-		for i := 0; i < NLOOP1; i++ {
-			m = m.cmdtype()
+		// recurse simulates the depth of the message
+		// each loop adds a new layer of transtyping
+		recurse := func(n int) {
+			for i := 0; i < n; i++ {
+				m = m.cmdtype()
+			}
 		}
+
+		recurse(DEPTH1)
 		count1 += atoi(code[:3]) * m.len()
 
-		for i := 0; i < NLOOP2; i++ {
-			m = m.cmdtype()
-		}
+		recurse(DEPTH2)
 		count2 += atoi(code[:3]) * m.len()
 	}
 
@@ -111,12 +117,12 @@ func init() {
 	CMDPAD = setup(CMDPAD)
 }
 
-func (p Pad) key(c Cell) byte {
+func (p Pad) key(r, c int) byte {
 	H, W := len(p.k), len(p.k[0])
-	if c.r < 0 || c.r >= H || c.c < 0 || c.c >= W {
+	if r < 0 || r >= H || c < 0 || c >= W {
 		return '.'
 	}
-	return p.k[c.r][c.c]
+	return p.k[r][c]
 }
 
 func (p Pad) rc(k byte) Cell {
@@ -152,9 +158,9 @@ func (p Pad) move(a, b byte) []byte {
 	A := []byte{'A'}
 
 	switch {
-	case δ.c > 0 && p.key(Cell{dst.r, src.c}) != '.':
+	case δ.c > 0 && p.key(dst.r, src.c) != '.':
 		write(v, h, A)
-	case p.key(Cell{src.r, dst.c}) != '.':
+	case p.key(src.r, dst.c) != '.':
 		write(h, v, A)
 	default:
 		write(v, h, A)
