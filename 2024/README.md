@@ -2,29 +2,31 @@
 
 | Day  | Time (ms) | % of Total |
 |------|-----------|------------|
-| 22   | 15.9      | 20.97%     |
-| 16   | 13.9      | 18.34%     |
-| 11   | 9.7       | 12.80%     |
-| 9    | 9.0       | 11.86%     |
-| 12   | 5.5       | 7.25%      |
-| 14   | 2.5       | 3.29%      |
-| 23   | 2.1       | 2.77%      |
-| 19   | 2.0       | 2.63%      |
-| 4    | 1.7       | 2.24%      |
-| 6    | 1.5       | 1.97%      |
-| 3    | 1.4       | 1.84%      |
-| 17   | 1.4       | 1.84%      |
-| 15   | 1.3       | 1.71%      |
-| 18   | 1.2       | 1.58%      |
-| 21   | 1.2       | 1.58%      |
-| 10   | 0.9       | 1.19%      |
-| 1    | 0.8       | 1.05%      |
-| 2    | 0.8       | 1.05%      |
-| 5    | 0.8       | 1.05%      |
-| 13   | 0.7       | 0.92%      |
-| 7    | 1.0       | 1.32%      |
-| 8    | 0.6       | 0.79%      |
-| Total| 75.9      | 100.00%    |
+| 20   | 16.0      | 17.22%     |
+| 22   | 15.9      | 17.12%     |
+| 16   | 13.9      | 14.96%     |
+| 11   | 9.7       | 10.44%     |
+| 9    | 9.0       | 9.69%      |
+| 12   | 5.5       | 5.92%      |
+| 14   | 2.5       | 2.69%      |
+| 23   | 2.1       | 2.26%      |
+| 19   | 2.0       | 2.15%      |
+| 4    | 1.7       | 1.83%      |
+| 6    | 1.5       | 1.61%      |
+| 3    | 1.4       | 1.51%      |
+| 17   | 1.4       | 1.51%      |
+| 15   | 1.3       | 1.40%      |
+| 18   | 1.2       | 1.29%      |
+| 21   | 1.2       | 1.29%      |
+| 24   | 1.0       | 1.08%      |
+| 10   | 0.9       | 0.97%      |
+| 1    | 0.8       | 0.86%      |
+| 2    | 0.8       | 0.86%      |
+| 5    | 0.8       | 0.86%      |
+| 13   | 0.7       | 0.75%      |
+| 7    | 1.0       | 1.08%      |
+| 8    | 0.6       | 0.65%      |
+| Total| 92.9      | 100.00%    |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.6.0 - go version go1.23.3 darwin/arm64 - hyperfine 1.19.0 - 2024-12
 
@@ -39,19 +41,19 @@ fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbai
 6. `$ make runtime && cat runtime.md`
 7. explore the other `Makefile` goals
 
-## Day 1: Historian Hysteria
+## Day 1: [Historian Hysteria](https://adventofcode.com/2024/day/1)
 
 *This year, I’m freelancing and available to take on projects—preferably in Go or Python. Please help spread the word!*
 
 On this first day of AoC 2024, the challenge seems reasonable. For today’s solution, I’m using `sort` instead of `slices` because the problem invites presorted integer data. This choice allows the code to perform [binary searches](https://en.wikipedia.org/wiki/Binary_search) on the right dataset using the left dataset. When factoring in the presorting, the overall [runtime complexity](https://en.wikipedia.org/wiki/Time_complexity) is [O(n log n)](https://go.dev/src/sort/sort.go).
 
-## Day 2: Red-Nosed Reports
+## Day 2: [Red-Nosed Reports](https://adventofcode.com/2024/day/2)
 
 My solution to today’s problem is fairly straightforward. It involves a left-to-right scan to ensure the safety constraints, evolving into a [tail-recursive call](https://en.wikipedia.org/wiki/Tail_call) to tolerate exactly one misplaced element. The only tricky part is when the first item is the misplaced one. In that case, we can simply check whether the report starting from the second element is safe. This approach applies anytime there’s a misplaced element, significantly simplifying the flow of control.
 
 It’s interesting to see that the vast majority of other coders opted to generate all possible reports and brute-force the solution. In contrast, my approach requires at most two generated reports to validate or invalidate any given report and only one of them needs extra memory allocation and data copy.
 
-## Day 3: Mull It Over
+## Day 3: [Mull It Over](https://adventofcode.com/2024/day/3)
 
 Go should be renowned for its blazing-fast [regular expression](https://en.wikipedia.org/wiki/Regular_expression) matching [engine](https://swtch.com/~rsc/regexp/). I thoroughly enjoyed today’s problem as it reminded me of [Exercice 12](https://clc-wiki.net/wiki/K%26R2_solutions:Chapter_1:Exercise_12) from *[The C Programming Language](https://en.wikipedia.org/wiki/The_C_Programming_Language)*. Combining the two concepts was a delight—and a satisfying way to wrap up the day.
 
@@ -70,7 +72,7 @@ Today's problem seems to be a tribute to Perl by [u/topaz](https://x.com/ericwas
 
 Note: I may revisit this solution at some point.
 
-## Day 4: Ceres Search
+## Day 4: [Ceres Search](https://adventofcode.com/2024/day/4)
 
 For today's solution, I opted for a sub-matrix matcher that makes multiple passes over the original matrix. It identifies 8 sub-matrices for 'XMAS' and 4 for a valid X-MAS. On the plus side, there's no need for boundary checks, and the matching process is fast. However, the downside is that it requires 12 passes over the original data. That said, the performance is acceptable for now.
 
@@ -90,7 +92,7 @@ var MAS = [][]string{
 }
 ```
 
-## Day 5: Print Queue
+## Day 5: [Print Queue](https://adventofcode.com/2024/day/5)
 
 Today's problem is certainly a brain teaser, but a straightforward approach can still be surprisingly effective. The key insight is that to move from one page number, a, to another, b, it must hold that `a ∈ rules[b]` which is `b is greater than a`. This is the heart of the challenge:
 
@@ -117,7 +119,7 @@ The 49 numbers in the set `{ x ∈ I | 12 <= x <= 99 ∧ x%10 != 0 }` each appea
 ~~The introduction of the iterators and the perimeter of `slices` are somewhat unsatisfactory.
 I don't believe this will evolve positively.~~ `<EDIT>` I'm RTFMing.
 
-## Day 6: Guard Gallivant
+## Day 6: [Guard Gallivant](https://adventofcode.com/2024/day/6)
 
 This problem has been the most demanding challenge so far. I managed a `20ms+` runtime previously, but now I'm seeing results like:
 
@@ -133,13 +135,13 @@ It feels like I'm close—but not quite there yet!
 
 `<EDIT>` i'm commiting the version i'm currently working on. It is not done yet (but what is done is blazing fast) and I don't know *for sure* if it can be done this way.
 
-## Day 7: Bridge Repair
+## Day 7: [Bridge Repair](https://adventofcode.com/2024/day/7)
 
 Today's solution is an elegant recursive, multi-branched [DFS](https://en.wikipedia.org/wiki/Depth-first_search). The key insight is to start from the target value and work *backward*, deconstructing it step by step. This approach naturally prunes certain branches—like divisions or concatenations—when they become impossible.
 
 [![DFS search animated](https://img.youtube.com/vi/NUgMa5coCoE/0.jpg)](https://www.youtube.com/watch?v=NUgMa5coCoE)
 
-## Day 8: Resonant Collinearity
+## Day 8: [Resonant Collinearity](https://adventofcode.com/2024/day/8)
 
 Given the size of today's input, [brute-forcing](https://en.wikipedia.org/wiki/Brute-force_search) the solution did the trick.
 
@@ -153,7 +155,7 @@ for i, a := range set[:len(set)-1] {
 }
 ```
 
-## Day 9: Disk Fragmenter
+## Day 9: [Disk Fragmenter](https://adventofcode.com/2024/day/9)
 
 Today, I implemented a compact [filesystem](https://en.wikipedia.org/wiki/File_system) with a [File Allocation Table](https://en.wikipedia.org/wiki/File_Allocation_Table) (FAT) to support file handling primitives, tailored to meet the problem's requirements. [Simulations](https://en.wikipedia.org/wiki/Simulation) are great but surely require a lot of editing to bring their basic concepts to life.
 
@@ -171,7 +173,7 @@ Today, I implemented a compact [filesystem](https://en.wikipedia.org/wiki/File_s
     1232 total
 ```
 
-## Day 10: Hoof It
+## Day 10: [Hoof It](https://adventofcode.com/2024/day/10)
 
 As on day 7, DFS proves to be the tool of choice for tackling the problem. Starting from every `0` in the grid, each traversal efficiently identifies all possible paths and their respective goals (`9`). While optimization tricks exist, the small input size means these tweaks wouldn't significantly impact performance.
 
@@ -185,7 +187,7 @@ Day       Time   Rank  Score       Time   Rank  Score
 
 Today is the *10th* day of the *10th* anniversary of [Advent Of Code](https://en.wikipedia.org/wiki/Advent_of_Code) and my calendar surely looks like it.
 
-## Day 11: Plutonian Pebbles
+## Day 11: [Plutonian Pebbles](https://adventofcode.com/2024/day/11)
 
 In today’s solution, the `Counter` works as a frequency map for integers, making it easy to add and retrieve counts. It processes stones in batches, avoiding unnecessary loops. Last but not least, it [minimizes redundant operations by using direct map access](https://en.wikipedia.org/wiki/Memoization). As a result and for my input, the final and longest line consists of `3799` unique numbers, each appearing one or more times for a total of `223M+` stones.
 
@@ -193,7 +195,7 @@ I really appreciate the minimalism and simplicity of this solution—it is about
 
 ![Dieter Ram's chair](https://upload.wikimedia.org/wikipedia/commons/0/00/1952_Dieter_Rams_Chair_from_Studienarbeit_drawing_%28resized%29.jpg)
 
-## Day 12: Garden Groups
+## Day 12: [Garden Groups](https://adventofcode.com/2024/day/12)
 
 I nearly fried my brain today! The first part of the problem was a breeze—it was similar to Day 10, and adapting my solution didn’t take any effort. But then came Part 2, and it completely blindsided me. My brain froze. Eventually, I decided to take a long break and enjoy a nice breakfast. Only after that was I able to focus, isolate the solution for Part 2, and come up with a simple routine to handle the computation. I’m not finished with this problem yet!
 
@@ -205,7 +207,7 @@ Day       Time   Rank  Score       Time   Rank  Score
 
 PS. #436 is my personal best. Having detailed day10 was a huge payoff!
 
-## Day 13: Claw Contraption
+## Day 13: [Claw Contraption](https://adventofcode.com/2024/day/13)
 
 Today's problem has a straightforward mathematical solution, specifically solving [systems of two linear equations](https://en.wikipedia.org/wiki/System_of_linear_equations). The key and easy challenge is to avoid [integer overflows](https://en.wikipedia.org/wiki/Integer_overflow). My solution will work out of the box on 64-bit machines, and if needed, a [simple adaptation](https://go.dev/ref/spec#Numeric_types) for 32-bit systems is left for you to handle.
 
@@ -229,7 +231,7 @@ PS. So far so good! 3.74 of [cyclomatic complexity](https://en.wikipedia.org/wik
 Average: 3.74
 ```
 
-## Day 14: Restroom Redoubt
+## Day 14: [Restroom Redoubt](https://adventofcode.com/2024/day/14)
 
 What a day! Today's challenge is easy—Part 1 just checks if we’re moving the robots correctly. But Part 2? That’s a whole different game. I had to generate and manually scan 10K+ images with my own eyes to figure it out. The good news? I nailed it and learned something interesting about the easter egg along the way. My advice: don’t peek at the solution unless you’re okay with spoiling the fun!
 
@@ -239,7 +241,7 @@ I have included a visualization routine that outputs a png file in the working d
 
 `<EDIT>` I've discovered what seems to be a very fast way to automatically find the Easter egg: simply subsample half of the points and calculate the [standard deviation](https://en.wikipedia.org/wiki/Standard_deviation) along the X and Y axes. There are two keyframes between [0–103] that will have significantly lower deviation on either axis. Once the keyframe times are identified, we can determine the first cycle's coincidence using the [Chinese Remainder Theorem](https://en.wikipedia.org/wiki/Chinese_remainder_theorem). which is kind of a [recurring joke](https://www.reddit.com/r/adventofcode/comments/1hgegw6/comment/m2izyvv/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button) in AoC.
 
-## Day 15: Warehouse Woes
+## Day 15: [Warehouse Woes](https://adventofcode.com/2024/day/15)
 
 I tackled today’s challenge in place, using the maze itself as the data storage! On the plus side, this approach comes with built-in visualization. However, the trade-off lies in how the maze needs to be updated. Thankfully, deferring all moves and then filtering out unnecessary clears turned out to be just fine. The code reminds me a weird old but precise clockwork.
 
@@ -259,7 +261,7 @@ go run ./aoc15.go < sample.txt
 ####################
 ```
 
-## Day 16: Reindeer Maze
+## Day 16: [Reindeer Maze](https://adventofcode.com/2024/day/16)
 
 ~~I'm not completely satisfied with today's solution.~~ I often say there's not much to discuss when it comes to Dijkstra—it’s like handing the problem over to a computational mycelium, after all: it will eventually be decomposed but it takes time. That said, I ended up using [Dijkstra's algorithm](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm) twice (RIP problem!):
 
@@ -270,7 +272,7 @@ go run ./aoc15.go < sample.txt
 
 [![Dijkstra's algorithm animated](https://img.youtube.com/vi/EFg3u_E6eHU/0.jpg)](https://www.youtube.com/watch?v=EFg3u_E6eHU)
 
-## Day 17: Chronospatial Computer
+## Day 17: [Chronospatial Computer](https://adventofcode.com/2024/day/17)
 
 Building a computer is a [recurring theme](https://youtu.be/35VIm2ChVUg) in AoC, and once we’ve built a bytecode machine, the next challenge often involves [disassembling and reversing a program](https://youtu.be/hmq6veCFo0Y). Today, the goal was to find a configuration that turns the code into a [quine](https://en.wikipedia.org/wiki/Quine_(computing)). *What an idea!*
 
@@ -297,7 +299,7 @@ go run ./aoc17.go < input.txt
 10 ADV 3 3 01035088 01035092 01035088   out: 1
 ```
 
-## Day 18: RAM Run
+## Day 18: [RAM Run](https://adventofcode.com/2024/day/18)
 
 The key to this challenge is storing the data in a way that efficiently supports [BFS](https://en.wikipedia.org/wiki/Breadth-first_search) operations. Here’s a hint:
 
@@ -319,7 +321,7 @@ Today is a nice boost to keep us going strong for the final stretch. The second 
 
 [![BFS algorithm animated](https://img.youtube.com/vi/xlVX7dXLS64/0.jpg)](https://www.youtube.com/watch?v=xlVX7dXLS64)
 
-## Day 19: Linen Layout
+## Day 19: [Linen Layout](https://adventofcode.com/2024/day/19)
 
 Upon reading today’s challenge, I immediately recognized it called for building a [prefix tree](https://en.wikipedia.org/wiki/Trie). Once the trie was in place, the solution involved greedily matching all prefixes, easily achieved through a simple DFS. The result is both [concise and efficient](https://go.dev/doc/effective_go).
 
@@ -333,7 +335,7 @@ Day       Time   Rank  Score       Time   Rank  Score
 
 ![Wikipedia's trie example](./images/aoc19a.svg)
 
-## Day 20: Race Condition
+## Day 20: [Race Condition](https://adventofcode.com/2024/day/20)
 
 *Oh my gosh!* When I first read the challenge, I had mixed feelings—it seemed simple enough, just a race track, right? But then came the quiet dread: I knew part 2 was coming even before I downloaded my input. I threw everything I could at this challenge, but I'm still not satisfied. I feel like I might have missed something. I can't believe a runtime under 20ms is possible, even in Rust or similar languages. I'll definitely need to take a closer look at other people's solutions for today.
 
@@ -359,7 +361,7 @@ Benchmark 2: ./aoc20 < input.txt
 
 [![KD-Tree explained](https://img.youtube.com/vi/Glp7THUpGow/0.jpg)](https://www.youtube.com/watch?v=Glp7THUpGow)
 
-## Day 21: Keypad Conundrum
+## Day 21: [Keypad Conundrum](https://adventofcode.com/2024/day/21)
 
 Today's solution was one of those that feels incredibly tedious to get right, but once it's done, it seems straightforward.  It’s all about mentally diving into [recursion](https://en.wikipedia.org/wiki/Recursion)—not exactly a strength for most of us. After all, recursion is all about faith—you just have to trust that it will eventually kill the game *without* thinking of it.
 
@@ -374,7 +376,7 @@ Anyway, the key challenge is navigating around the gap to find the shortest path
 
 ![An old commercial about a window keypad](https://upload.wikimedia.org/wikipedia/commons/a/a4/Window_keypad.jpg)
 
-## Day 22: Monkey Market
+## Day 22: [Monkey Market](https://adventofcode.com/2024/day/22)
 
 Quite the reading today. There’s really only one winning strategy: generate all the sequences. It’s a great chance to explore some [tesujis](https://senseis.xmp.net/?Tesuji)—those skillful and decisive tactical moves. With around 40k sequences and a hash function that holds up decently (less than 0.9% collisions on our inputs), there’s no avoiding the full solution. So, the big question is: how can we cut down the runtime without going the dark way?
 
@@ -442,7 +444,7 @@ Coverage: 3.771246%
 Average: 3.78
 ```
 
-## Day 23: LAN Party
+## Day 23: [LAN Party](https://adventofcode.com/2024/day/23)
 
 Today's challenge is a classic graph problem that one can solve by throwing [the book](https://arxiv.org/html/2403.09742v1) at it. The task is to find the smallest and largest cliques in the graph. With 520 nodes and 3.3K edges, it's not super heavy, ~~but getting it to run in double-digit milliseconds is no joke~~. In order to get the stars as quickly as possible I resorted to brute force part1 and to [Bron-Kerbosch](https://en.wikipedia.org/wiki/Bron–Kerbosch_algorithm) part2. ~~I'm still working on the solution~~.
 
@@ -453,3 +455,38 @@ Today's challenge is a classic graph problem that one can solve by throwing [the
 Meanwhile, don't forget to cast your vote!
 
 ![A screen saying that I voted for AoC SnowGlobe Award](./images/aoc23b.png)
+
+## Day 24: [Crossed Wires](https://adventofcode.com/2024/day/24)
+
+What a wild Day 24! It’s all about a logic board that turns out to be a glitchy [44-bit ripple-carry adder](https://en.wikipedia.org/wiki/Adder_(electronics)#Ripple-carry_adder). I carefully pulled off a fast simulation using a custom connector type. Since the circuitry is pretty standard, I ended up using static pattern matching to tackle Part 2.
+
+This challenge pop up from time to time, and I usually struggle with it. But today, I took it slow and steady, and the simulation turned out great!
+
+```bash
+go run ./aoc24.go < input.txt
+Connector mx05-x05 set to true
+Connector hqs-C set to true
+Connector mhqs-hqs set to true
+Connector fgr-B set to true
+Connector z05-C set to true
+Connector mz05-z05 set to true
+```
+
+[![An 8-bit ripple carry adder](https://img.youtube.com/vi/ZF8nAglC3MU/0.jpg)](https://www.youtube.com/watch?v=ZF8nAglC3MU)
+
+## The night before Xmas
+
+By this point in AoC, I’m usually feeling worn out, but not this year—the challenges have been so good, they’ve kept me strong!
+I wish a merry christmas to all christians and more generally to all people that are gathering to share some family quality time.
+This is not feeling like a great time though, and I want to express my saddeness, outrage and support to the palestinian people.
+Please speak out and Palestine will be free.
+
+```
+💔🖤🖤🖤🖤🖤🖤🖤🖤🖤🖤🖤🖤🖤🖤
+💔💔🖤🖤🖤🖤🖤🖤🖤🖤🖤🖤🖤🖤🖤
+💔💔💔🤍🤍🤍🤍🤍🤍🤍🤍🤍🤍🤍🤍
+💔💔💔💔🤍🤍🤍🤍🤍🤍🤍🤍🤍🤍🤍
+💔💔💔🤍🤍🤍🤍🤍🤍🤍🤍🤍🤍🤍🤍
+💔💔💚💚💚💚💚💚💚💚💚💚💚💚💚
+💔💚💚💚💚💚💚💚💚💚💚💚💚💚💚
+```
