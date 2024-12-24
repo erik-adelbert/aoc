@@ -477,7 +477,7 @@ Connector mz05-z05 set to true
 ## The night before Xmas
 
 By this point in AoC, I’m usually feeling worn out, but not this year—the challenges have been so good, they’ve kept me strong!
-I wish a merry christmas to all christians and more generally to all people that are gathering to share some family quality time.
+I wish a merry christmas to all christians and more generally to all people that are gathering to share some  quality time.
 This is not feeling like a great time though, and I want to express my saddeness, outrage and support to the palestinian people.
 Please speak out and Palestine will be free.
 
