@@ -508,8 +508,8 @@ Today, the challenge was about speed in compositing and suggested a useful metho
 .....
 ```
 
-And now, the best part of it is that when there is no overlap in between a, b two integers: `a⊕b = a+b`
-
+And now, the best part of it is that when there is no overlap in between a, b two integers: `a⊕b = a+b`.
+That means *there's no carry propagation when adding them*, which we know (thanks to yesterday) is a good thing!
 
 ## How was it?
 
