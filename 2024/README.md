@@ -13,20 +13,20 @@
 | 19   | 2.0       | 2.15%      |
 | 4    | 1.7       | 1.83%      |
 | 6    | 1.5       | 1.61%      |
-| 3    | 1.4       | 1.51%      |
 | 17   | 1.4       | 1.51%      |
+| 3    | 1.4       | 1.51%      |
 | 15   | 1.3       | 1.40%      |
-| 18   | 1.2       | 1.29%      |
 | 21   | 1.2       | 1.29%      |
+| 18   | 1.2       | 1.29%      |
 | 24   | 1.0       | 1.08%      |
-| 10   | 0.9       | 0.97%      |
-| 1    | 0.8       | 0.86%      |
-| 2    | 0.8       | 0.86%      |
-| 5    | 0.8       | 0.86%      |
-| 13   | 0.7       | 0.75%      |
 | 7    | 1.0       | 1.08%      |
+| 25   | 0.8       | 0.86%      |
+| 5    | 0.8       | 0.86%      |
+| 2    | 0.8       | 0.86%      |
+| 1    | 0.8       | 0.86%      |
+| 13   | 0.7       | 0.75%      |
 | 8    | 0.6       | 0.65%      |
-| Total| 92.9      | 100.00%    |
+| Total| 93.7      | 100.00%    |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 23.6.0 - go version go1.23.3 darwin/arm64 - hyperfine 1.19.0 - 2024-12
 
@@ -45,7 +45,7 @@ fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbai
 
 *This year, I’m freelancing and available to take on projects—preferably in Go or Python. Please help spread the word!*
 
-On this first day of AoC 2024, the challenge seems reasonable. For today’s solution, I’m using `sort` instead of `slices` because the problem invites presorted integer data. This choice allows the code to perform [binary searches](https://en.wikipedia.org/wiki/Binary_search) on the right dataset using the left dataset. When factoring in the presorting, the overall [runtime complexity](https://en.wikipedia.org/wiki/Time_complexity) is [O(n log n)](https://go.dev/src/sort/sort.go).
+On this first day of AoC 2024, the challenge seems reasonable. For today’s solution, I’m using `sort` because the problem invites presorted integer data. This choice allows the code to perform [binary searches](https://en.wikipedia.org/wiki/Binary_search) on the right dataset using the left dataset. When factoring in the presorting, the overall [runtime complexity](https://en.wikipedia.org/wiki/Time_complexity) is [o(n log n)](https://go.dev/src/sort/sort.go).
 
 ## Day 2: [Red-Nosed Reports](https://adventofcode.com/2024/day/2)
 
@@ -133,7 +133,8 @@ counts: 4883 1390 1.442291ms
 
 It feels like I'm close—but not quite there yet!
 
-`<EDIT>` i'm commiting the version i'm currently working on. It is not done yet (but what is done is blazing fast) and I don't know *for sure* if it can be done this way.
+`<EDIT>` i'm commiting the version i'm currently working on. It is not done yet (but what is done is blazing fast) and I don't know *for sure* if it can be done this way but i'm confident: All i'm doing now is stacking more
+`o(m)` components over an `o(m+n)` core loop.
 
 ## Day 7: [Bridge Repair](https://adventofcode.com/2024/day/7)
 
@@ -243,7 +244,7 @@ I have included a visualization routine that outputs a png file in the working d
 
 ## Day 15: [Warehouse Woes](https://adventofcode.com/2024/day/15)
 
-I tackled today’s challenge in place, using the maze itself as the data storage! On the plus side, this approach comes with built-in visualization. However, the trade-off lies in how the maze needs to be updated. Thankfully, deferring all moves and then filtering out unnecessary clears turned out to be just fine. The code reminds me a weird old but precise clockwork.
+I tackled today’s challenge in place, using the maze itself as the [data storage](https://en.wikipedia.org/wiki/Data_storage)! On the plus side, this approach comes with built-in visualization. However, the trade-off lies in how the maze needs to be updated. Thankfully, deferring all moves and then filtering out unnecessary clears turned out to be just fine. The code reminds me a weird old but precise clockwork.
 
 ```bash
 ❯ make sample
@@ -266,7 +267,7 @@ go run ./aoc15.go < sample.txt
 ~~I'm not completely satisfied with today's solution.~~ I often say there's not much to discuss when it comes to Dijkstra—it’s like handing the problem over to a computational mycelium, after all: it will eventually be decomposed but it takes time. That said, I ended up using [Dijkstra's algorithm](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm) twice (RIP problem!):
 
 - first, from the start node to the end node,
-- and then from the end node to all other cells.
+- and then from the end node to all other nodes.
 
  By combining the distance matrices, I was able to reconstruct the best path scores for all traversed cells, selecting only the lowest values. Why go through all that effort? After all, it's straightforward to memorize the paths during the first run, right? Well, while that’s easy to implement, the core loop would end up allocating over 57,000 small chunks (~300 words each) and stall there as a result. The proposed approach shifts that allocation overhead into computing time, making it not only faster but also inherently parallel!
 
@@ -274,7 +275,7 @@ go run ./aoc15.go < sample.txt
 
 ## Day 17: [Chronospatial Computer](https://adventofcode.com/2024/day/17)
 
-Building a computer is a [recurring theme](https://youtu.be/35VIm2ChVUg) in AoC, and once we’ve built a bytecode machine, the next challenge often involves [disassembling and reversing a program](https://youtu.be/hmq6veCFo0Y). Today, the goal was to find a configuration that turns the code into a [quine](https://en.wikipedia.org/wiki/Quine_(computing)). *What an idea!*
+Building a computer is a [recurring theme](https://youtu.be/35VIm2ChVUg) in AoC, and once we’ve built a [bytecode](https://en.wikipedia.org/wiki/Bytecode) machine, the next challenge often involves [disassembling and reversing a program](https://youtu.be/hmq6veCFo0Y). Today, the goal was to find a configuration that turns the code into a [quine](https://en.wikipedia.org/wiki/Quine_(computing)). *What an idea!*
 
 Two years ago, I did it painfully with pen and paper. Last year, I went all in with symbolic resolution and variable binding. This year? I kept it simple—I’m trying to save my energy for the challenges ahead.
 First, I built a reliable, decently fast emulator. Then, I reversed the program. Finally, I went with a trial-and-error approach: browsing Reddit, checking out different solutions, and eventually settling on [this one in the code](https://www.reddit.com/r/adventofcode/comments/1hg38ah/comment/m2go5os/). The method uses insights from reversing the code to force digits one at a time and then packs the forcing values into a single initial value.
@@ -458,7 +459,7 @@ Meanwhile, don't forget to cast your vote!
 
 ## Day 24: [Crossed Wires](https://adventofcode.com/2024/day/24)
 
-What a wild Day 24! It’s all about a logic board that turns out to be a glitchy [44-bit ripple-carry adder](https://en.wikipedia.org/wiki/Adder_(electronics)#Ripple-carry_adder). I carefully pulled off a fast simulation using a custom connector type. Since the circuitry is pretty standard, I ended up using static pattern matching to tackle Part 2.
+What a wild Day 24! It’s all about a logic board that turns out to be a glitchy [44-bit ripple-carry adder](https://en.wikipedia.org/wiki/Adder_(electronics)#Ripple-carry_adder). I carefully pulled off a fast simulation using a custom connector type. Since the [circuitry](https://en.wikipedia.org/wiki/Electronic_circuit) is [pretty standard](https://www.bermotech.com/wp-content/uploads/2016/08/fulladder.png), I ended up using static [pattern matching](https://en.wikipedia.org/wiki/Pattern_matching) to tackle Part 2.
 
 This challenge pop up from time to time, and I usually struggle with it. But today, I took it slow and steady, and the simulation turned out great!
 
@@ -474,7 +475,7 @@ Connector mz05-z05 set to true
 
 [![An 8-bit ripple carry adder](https://img.youtube.com/vi/ZF8nAglC3MU/0.jpg)](https://www.youtube.com/watch?v=ZF8nAglC3MU)
 
-## The night before Xmas
+## The night before X-Mas
 
 By this point in AoC, I’m usually feeling worn out, but not this year—the challenges have been so good, they’ve kept me strong!
 I wish a merry christmas to all christians and more generally to all people that are gathering to share some  quality time.
@@ -490,3 +491,42 @@ Please speak out and Palestine will be free.
 💔💔💚💚💚💚💚💚💚💚💚
 💔💚💚💚💚💚💚💚💚💚💚
 ```
+
+![Jack Skellington coding](./images/aocjack.jpg)
+
+## Day 25: Code Chronicle
+
+Today, the challenge was about speed in compositing and suggested a useful method to get the result like a human would. However, a machine could do it faster than what was proposed. Here’s an example of encoding a key or lock into a 35-bit integer:
+
+```bash
+#####
+##.##
+.#.##
+...##   -> flatten   #######.##.#.##...##...#...#......
+...#.         v
+...#.      transcode 1111111011010110001100010001000000
+.....
+```
+
+And now, the best part of it is that when there is no overlap in between a, b two integers: `a⊕b = a+b`
+
+
+## How was it?
+
+Happy Birthday, Advent of Code! Here’s to 012 more amazing and successful years! 🎉
+
+I want to start this closing by expressing my awe to [u/topaz](https://www.reddit.com/user/topaz2078/) for this year's edition. It has been so much fun from the start and especially over the last few days. Many of the jokes draw from what's amount to our *[pop culture](https://en.wikipedia.org/wiki/Popular_culture)*.
+
+I wasn't planning to commit, but I ended up syncing up with AoC and waking up at 5:45 am. I must admit, I’m pretty productive early in the morning!
+
+This year's challenges felt simpler than usual, but they covered a broader range of skills. I've seen the best and the worst when it comes to LLMs: generated solutions that worked well for the first few days, and then a slow but steady degradation in code style, performance, and eventually painful, infatuated, useless uggly code. Many prompters have made it to the various leaderboards. Good for them! But in my opinion, they’ve just proved that some of us are [The Goose that Laid the Golden Eggs](https://youtu.be/U3SoVMGpF-E). On the other hand, when you know exactly what you are doing, a co-typist that gladly undertake all the toil is a wonderful tool.
+
+If you're an experienced coder, you know that these solutions are just the tip of the iceberg. For some challenges, I explored different ways to approach the problem and even got deep into the structure of some inputs, or some of the techniques I used throughout December — and for me that's where the fun really comes from. But if you're a beginner, I'd like to share my take on coding in general and solving AoC challenges in particular: You're supposed to have fun. If you're not, step back, take a rest, and do what's best for you.
+
+The fun was at its [peak on Day 23](https://www.reddit.com/r/adventofcode/comments/1hkiqvh/2024_day_23_part_2_it_finally_cliqued/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button) when the example literally screamed `code kata`, and the challenge asked for a maximum clique search in `o(3^(n/3))`—while the problem itself is [`NP-Hard`](https://en.wikipedia.org/wiki/NP-hardness), right? Usually, when working through an algorithm, you have to consider the worst-case scenario, but in this case, it was the complete opposite. The input was skewed toward an impossible best-case scenario — a flower for a naive approach. This meant that *solid beginners* could have perfectly *made it* to the leaderboard *by not knowing any of this*.
+
+Happy coding to you all and props again to `u/topaz`!!!<br>
+December 2024, Paris,<br>
+e.
+
+![AoC 2024 Calendar](./images/aoc2024.png)

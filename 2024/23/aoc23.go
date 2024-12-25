@@ -60,12 +60,12 @@ func (g Graph) tris() int {
 	}
 
 	tris := make(map[[3]string]struct{})
-	for a, edges := range g {
-		if a[0] == 't' {
-			for b := range edges {
-				for c := range g[b] {
-					if _, ok := edges[c]; ok {
-						set := sort3(a, b, c)
+	for n0, edges := range g {
+		if n0[0] == 't' {
+			for n1 := range edges {
+				for n2 := range g[n1] {
+					if _, ok := edges[n2]; ok {
+						set := sort3(n0, n1, n2)
 						tris[set] = struct{}{}
 					}
 				}

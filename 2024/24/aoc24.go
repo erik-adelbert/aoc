@@ -86,6 +86,25 @@ func main() {
 	fmt.Println(z, strings.Join(faults, ",")) // part 1 & 2
 }
 
+/* Our 1bit full adder:
+A ---+---------+
+     |          \ (2)
+	 |		    XOR --- + -------+
+     |          /       |         \ (1)
+B ------+------+        |         XOR -------------> S
+     |  |               |         /
+C_in ----------------------------+
+     |  |               |         \
+	 |	|				|	      AND -----+
+	 |	|				|         /         \
+	 |	|				+--------+           \
+	 |	|				              (3)    OR ---> C_out
+	 +-------------------------+		     /
+		|                       \		    /
+		|					     AND ------+
+		|					    /
+        +----------------------+
+*/
 // statically inspect the circuit for faults
 func inspect(logics []Logic) []string {
 
@@ -111,13 +130,13 @@ func inspect(logics []Logic) []string {
 		op, in0, in1, out := a.op, a.A, a.B, a.C
 		switch {
 		case out[0] == 'z' && out != "z45" && op != "XOR":
-			// fault in the output stage
+			// fault in the output stage (1)
 			fallthrough
 		case out[0] != 'z' && op == "XOR" && in0[0] != 'x' && in0[0] != 'y' && in1[0] != 'x' && in1[0] != 'y':
-			// fault in the middle stage
+			// fault in the input stage (2)
 			faults = append(faults, a.C)
 		case (op == "XOR" || op == "AND") && (in0[0] == 'x' || in0[0] == 'y') && (in1[0] == 'x' || in1[0] == 'y'):
-			// fault in the input stage
+			// fault in the carry stage (3)
 			if in0[1:] != "00" && in1[1:] != "00" {
 				if is_swapped(a) {
 					faults = append(faults, a.C)
