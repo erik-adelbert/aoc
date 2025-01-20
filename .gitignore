@@ -15,7 +15,7 @@
 # vendor/
 
 # AoC asks to not publish inputs
-input.txt
+input*.txt
 output.txt
 time.md
 runtime.md
