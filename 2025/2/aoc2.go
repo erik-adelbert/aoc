@@ -8,10 +8,12 @@ import (
 	"slices"
 )
 
+const MaxDigit = 10 // maximum digit count for our inputs
+
 func main() {
 	var (
-		acc1, acc2 int      // parts 1 and 2
-		s2         [20]byte // buffer for rotation check. 20 is enough for our inputs.
+		acc1, acc2 int                // parts 1 and 2
+		ss         [2 * MaxDigit]byte // buffer for rotation check. 20 is enough for our inputs.
 	)
 
 	input := bufio.NewScanner(os.Stdin)
@@ -36,11 +38,11 @@ func main() {
 
 			// part2: check if s is a rotation of itself
 			// double the slice in the buffer
-			copy(s2[:slen], s)
-			copy(s2[slen:], s2[:slen])
+			copy(ss[:slen], s)
+			copy(ss[slen:], ss[:slen])
 
 			// check inside excluding full matches at ends
-			if bytes.Contains(s2[1:slen<<1-1], s) {
+			if bytes.Contains(ss[1:slen<<1-1], s) {
 				acc2 += i
 			}
 		}
@@ -63,7 +65,7 @@ func itoa(n int) []byte {
 		return []byte("0")
 	}
 
-	var buf [10]byte // 10 is enough for our inputs
+	var buf [MaxDigit]byte // 10 is enough for our inputs
 	i := len(buf)
 
 	for n > 0 {
