@@ -74,6 +74,8 @@ The search space, although it may not seem like it, is actually quite respectabl
 
 The code runs with a time complexity of `k.O(n)` on average, with *n* being the number of digits in the inputs and *k* some big and hard to compute (at least for me) constant. I will get back to this calculation if I don't find a faster idea for this challenge.
 
+It is worth noting that the solution hits the sweet spot where running `part2` *only* if `part1` fails — versus *always* running both `part1` and `part2` (no [predictive branching](https://en.wikipedia.org/wiki/Branch_predictor)) — actually hurts the overall runtime.
+
 The solution itself is pretty neat, but the performance, as you can see, isn’t quite there. I’ll call it a day for now.
 
 ```bash
