@@ -44,7 +44,9 @@ The password method <span title='CLICK'><code>0x434C49434B</code></span> actuall
 
 ## Day 2: [Gift Shop](https://adventofcode.com/2025/day/2)
 
-![Ouroboros](./images/Serpiente_alquimica.jpg)
+<div align="center">
+  <img src="./images/Serpiente_alquimica.jpg" alt="Ouroboros" width="80%" />
+</div>
 
 On this second day, the code speed conundrum begins: the challenge requires us to convert back and forth between integers and ASCII slices, and to check the allocated memory for certain patterns.
 
