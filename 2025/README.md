@@ -14,7 +14,7 @@ fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbai
 1. install [hyperfine](https://github.com/sharkdp/hyperfine)
 2. `git clone` this repository somewhere in your `$GOPATH`
 3. `export` envar `$SESSION` with your AoC `session` value (get it from the cookie stored in your browser)
-4. `$ cd 2024`
+4. `$ cd 2025`
 5. `$ make`
 6. `$ make runtime && cat runtime.md`
 7. explore the other `Makefile` goals
