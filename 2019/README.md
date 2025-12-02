@@ -4,7 +4,7 @@ fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbai
 
 ## Installation and benchmark
 
-0. optionnally install [gocyclo](https://github.com/fzipp/gocyclo)
+0. optionally install [gocyclo](https://github.com/fzipp/gocyclo)
 1. install [hyperfine](https://github.com/sharkdp/hyperfine)
 2. `git clone` this repository somewhere in your `$GOPATH`
 3. `export` envar `$SESSION` with your AoC `session` value (get it from the cookie stored in your browser)
@@ -216,6 +216,14 @@ The result feels strong. After careful review, the VM delivers `~12.86 Miops` <-
 
 ## Day 25: [Cryostasis](https://adventofcode.com/2019/day/25)
 
+The IntCode program powers a full-fledged old-school text adventure game. I have managed to write an almost bug-free CLI that should work on any entry and is ok for now.
 
+The solution is a game CLI with some solving builtins like:
+
+- `a`, `automap`
+- `go`, `go in`, `go <room>`
+- `b`, `breakin`
+
+Drawing the starship is not an easy challenge and I'm still figuring it out.
 
 ## How was it?

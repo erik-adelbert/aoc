@@ -33,7 +33,7 @@ fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbai
 
 ## Installation and benchmark
 
-0. optionnally install [gocyclo](https://github.com/fzipp/gocyclo)
+0. optionally install [gocyclo](https://github.com/fzipp/gocyclo)
 1. install [hyperfine](https://github.com/sharkdp/hyperfine)
 2. `git clone` this repository somewhere in your `$GOPATH`
 3. `export` envar `$SESSION` with your AoC `session` value (get it from the cookie stored in your browser)
@@ -46,9 +46,9 @@ fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbai
 
 For this 2022 edition first day, I have written a simple and fast solution:
 The logic is like a fragment of [insertion sort](https://en.wikipedia.org/wiki/Insertion_sort).
-There's not much to say here, once again it's about pure composing speed. 
-Nonetheless, it reminded me the 
-[first challenge from last year](https://github.com/erik-adelbert/aoc/blob/main/2021/en_notes.md): 
+There's not much to say here, once again it's about pure composing speed.
+Nonetheless, it reminded me the
+[first challenge from last year](https://github.com/erik-adelbert/aoc/blob/main/2021/en_notes.md):
 I chose (again) to use 3 variables. I favored the `switch/case` form because the `if/else if/..`
 lacked a final `else` clause (ie. balance, pedantic though).
 Finally, I like the way max3, as a closure, captures global vars and gives the
@@ -57,12 +57,12 @@ resulting code a vintage-ish look and feel.
 ## Day 2
 
 There is two efficient ways to solve today challenge: either the solution should precompute all
-possible outcomes and match inputs against them or devise a scoring formula that is fast enough 
+possible outcomes and match inputs against them or devise a scoring formula that is fast enough
 to be computed on the fly while parsing inputs.
 
 But what would be the score anyway?
 
-With R(ock), P(aper), S(cissors), let me consider the round where my O(pponent) plays R and I play P, 
+With R(ock), P(aper), S(cissors), let me consider the round where my O(pponent) plays R and I play P,
 as paper wins rock, my score is:
 
 2 + 6 = 8 that is `m + r` with `m`, my move score and `r`, the outcome score
@@ -137,13 +137,13 @@ here's the *second part formula*:
 
 Back to the practical design of my solution, I now have my answer:
 I have found fast enough formulas to compute scores on the fly. But
-why bother? I have also found a static scaling matrix for an even 
+why bother? I have also found a static scaling matrix for an even
 faster score computation!
 
 ## Day 3
 
-Today my solution closely follows the challenge story and it's pretty boring 
-but fast. First, the program splits any input line in two halves and maps 
+Today my solution closely follows the challenge story and it's pretty boring
+but fast. First, the program splits any input line in two halves and maps
 each of them, in turn, with either `Head` or `Tail`, *two strictly positive
 values*, in a *single map*. This amounts to build a set from the input line
 while intersecting its head and tail.
@@ -152,22 +152,22 @@ ex:
 
 `ABCabc -> { A: Head, B: Head, C: Head, a: Tail, b: Tail, c: Tail }`
 
-When updating the set with symbols from the tail, if there's already an 
+When updating the set with symbols from the tail, if there's already an
 item seen in the head, it is *counted for Part1*.
 Once done, the map is memoized.
-Moving forward, every 3 lines, the program scans the last 3 maps for a 
+Moving forward, every 3 lines, the program scans the last 3 maps for a
 common item. Once found it is *counted for Part2*.
 
 Using a sparse `[128]int` (no symbol is higher than `z = 122`), instead of, say,
-a hashmap is trading space for speed. 
-Only the 2 previous maps are buffered. 
+a hashmap is trading space for speed.
+Only the 2 previous maps are buffered.
 
 If item `c` is common to all 3 input lines, then:
 
 `mapbuf[0][c] * mapbuf[1][c] > 0` and `c` is in the current line
 
 `count` closure is written as "prioritize no matter what for a lowercase symbol
-and amend the priority if it is an uppercase one". This form was once known to 
+and amend the priority if it is an uppercase one". This form was once known to
 ease branch prediction and here, I fancy the code layout.
 
 As a final word and just for fun, I've tried my best to balance the naming.
@@ -178,8 +178,8 @@ My solution is exceptionnally boring but fast. This challenge plays against
 Go fortes but the difficulty is really low.
 It is about [1D geometry](https://en.wikipedia.org/wiki/One-dimensional_space).
 
-There's a fact about 1D segments that translates elegantly in Go: *when one 
-segment contains the other one, they also intersect*. It nicely becomes a 
+There's a fact about 1D segments that translates elegantly in Go: *when one
+segment contains the other one, they also intersect*. It nicely becomes a
 `fallthrough` in the 2 branches `switch/case` of the main loop.
 
 `<EDIT>` I've even removed the `fallthrough` because it simply means that part2
@@ -204,7 +204,7 @@ My solution grows a [sliding window](https://itnext.io/sliding-window-algorithm-
     for each index, symbol in the input:
         if symbol is not in the current window:
             add it to the window
-        else: 
+        else:
             reset the window accordingly
 
         if window length is maximum:
@@ -234,7 +234,7 @@ In practice, only the current window length needs to be maintained.
 _Did you notice (I didn't at first)?_
 
 The proposed solution builds [_the longest substring without repeating characters_](https://leetcode.com/problems/longest-substring-without-repeating-characters/solutions/) that means it can *generally solve* the question.
-Let me rephrase this idea: The _same code_ solves part 1&2. At runtime, if we _watch_ the window len and display the first index after a 4 non-repeating chars and later on the first one after 14 such chars, we're done! 
+Let me rephrase this idea: The _same code_ solves part 1&2. At runtime, if we _watch_ the window len and display the first index after a 4 non-repeating chars and later on the first one after 14 such chars, we're done!
 
 Last but not least the internal memory size is fixed, the solution also has `O(1)` `space` `complexity` `n-wise`:
 *It is one of the best to solve the task at hand*.
@@ -315,7 +315,7 @@ As trees are *counted* from *distances* and all distances are `chars` (offsetted
 
 ~~I will eventually rework this one to use a `monotonic` `stack` and I'm sure that will bring the complexity down to `n^2` instead of `n^3`. That is cutting the runtime by 1/3 in this case.~~
 
-`<EDIT>` I've realised that `dist(o, v)` which counts the viewing distance from `o` needed to also output `h` the highest height. From there I was able to remove the call to `max(v)`. And the program runtime went down to ~1.6ms which I'm happy with.  
+`<EDIT>` I've realised that `dist(o, v)` which counts the viewing distance from `o` needed to also output `h` the highest height. From there I was able to remove the call to `max(v)`. And the program runtime went down to ~1.6ms which I'm happy with.
 
 ## Day 9
 
@@ -331,11 +331,11 @@ In this case, I had to be torough writing every single case separately and later
 At first, I needed to relate `{20, 60, 100, 140, 180, 220, ...}` form `part1` with a closed formula, I went to [Sloane Sequence Encyclopedia](https://oeis.org) and discovered `f(x) = 40 x − 20`. This is where `20` was hidden. Reversing `f(x)` gave `(cycle+20)%40 == 0` as a starting point.
 
     10760
-    ���� ���   ��  ���  �  � ����  ��  �  � 
-    �    �  � �  � �  � �  � �    �  � �  � 
-    ���  �  � �    �  � ���� ���  �    ���� 
-    �    ���  � �� ���  �  � �    � �� �  � 
-    �    �    �  � �    �  � �    �  � �  � 
+    ���� ���   ��  ���  �  � ����  ��  �  �
+    �    �  � �  � �  � �  � �    �  � �  �
+    ���  �  � �    �  � ���� ���  �    ����
+    �    ���  � �� ���  �  � �    � �� �  �
+    �    �    �  � �    �  � �    �  � �  �
     �    �     ��� �    �  � �     ��� �  �
 
 I've updated my go toolchain from 1.17 to 1.19: it spared me 1ms. As of today my programs from day1-10 run all parts collectively under 15ms!
@@ -344,29 +344,29 @@ I've updated my go toolchain from 1.17 to 1.19: it spared me 1ms. As of today my
 
 AoC 2022 is on! Today challenge describes an interesting dispatching or routing mechanism based on [modular arithmetic](https://en.wikipedia.org/wiki/Modular_arithmetic).
 
-My solution is a straightforward implementation of the described design. 
+My solution is a straightforward implementation of the described design.
 *Monkeys* are modelised as parameterized states capable to self-update.
 One of these parameters is an update function description: there's an embed minimal interpret that parse, tokenize and finally evaluates to an integer.
 
 This works great for `part1` but coding it put me in a slow state of mind.
-`part2` caught me off guard. First, I thought, well `math/big` could 
+`part2` caught me off guard. First, I thought, well `math/big` could
 do the trick... well not really feasible given the `10_000` loop.
 
-After a while, and a lot of circular thinking, I realised that it was about 
-*modular arithmetic*: to keep the numbers checked while preserving speed, 
-I needed a way to reduce the number in a way invisible to `updates` *and* 
-`data routing`. Updates are not subject to number cutting side-effects: they 
-are dumb single arithmetic operations. Routing is done modular-wise, the number 
-that is invisible to all routing tests done in the network is the *least common 
-multiple* of all modulos! 
+After a while, and a lot of circular thinking, I realised that it was about
+*modular arithmetic*: to keep the numbers checked while preserving speed,
+I needed a way to reduce the number in a way invisible to `updates` *and*
+`data routing`. Updates are not subject to number cutting side-effects: they
+are dumb single arithmetic operations. Routing is done modular-wise, the number
+that is invisible to all routing tests done in the network is the *least common
+multiple* of all modulos!
 
 | Command | Mean [ms] | Min [ms] | Max [ms] | Relative |
 |:---|---:|---:|---:|---:|
 | `cat input.txt` | 0.6 ± 0.2 | 0.2 | 2.1 | 1.00 |
 | `cat input.txt \| ./aoc11` | 6.5 ± 0.3 | 6.0 | 13.0 | 10.52 ± 3.45 |
 
-PS. ahah, program runtimes have been doubling for the last 3 days, `dijkstra` 
-is probably coming on day 16! 
+PS. ahah, program runtimes have been doubling for the last 3 days, `dijkstra`
+is probably coming on day 16!
 
 ## Day 12
 
@@ -451,7 +451,7 @@ Finally! I've managed to rework this challenge and the solution is surprisingly 
     Benchmark 1: cat input.txt
     Time (mean ± σ):       0.5 ms ±   0.2 ms    [User: 0.2 ms, System: 0.2 ms]
     Range (min … max):     0.2 ms …   2.0 ms    1160 runs
-    
+
     Benchmark 2: cat input.txt | ./aoc19
     Time (mean ± σ):       6.1 ms ±   0.3 ms    [User: 4.8 ms, System: 1.9 ms]
     Range (min … max):     5.6 ms …   7.5 ms    1000 runs

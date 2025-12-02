@@ -33,7 +33,7 @@ fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbai
 
 ## Installation and benchmark
 
-0. optionnally install [gocyclo](https://github.com/fzipp/gocyclo)
+0. optionally install [gocyclo](https://github.com/fzipp/gocyclo)
 1. install [hyperfine](https://github.com/sharkdp/hyperfine)
 2. `git clone` this repository somewhere in your `$GOPATH`
 3. `export` envar `$SESSION` with your AoC `session` value (get it from the cookie stored in your browser)
@@ -235,7 +235,7 @@ Nevermind, today's challenge is about finding the longuest [palindrome](https://
 
 Here it is, running in __less than `1ms`__.
 
-I knew finding palindromes was a quadratic task at best except it's not!! 
+I knew finding palindromes was a quadratic task at best except it's not!!
 
 Look at [this awesome work](https://www.akalin.com/longest-palindrome-linear-time) by Fred Akalin. Actually, it is akin to build a `trie` but tailored to the task at hand. Instead of running in `O(n³)` for the naïve solution or in `O(n²)` for an improved technique, this one runs in __`Θ(n)`__ which is even faster than usually expected. The difference is really sensible even with small inputs like the ones from today. It comes with many good properties like:
 
@@ -248,7 +248,7 @@ Solving today's challenge with this technology is like being blessed with a real
 
 But I was in the mood for more, so I've build the solution upon a custom `bitarray32` which uses the transpose algorithm summerized in Warren's [hacker's delight](https://doc.lagout.org/security/Hackers%20Delight.pdf) for [ordering](https://en.wikipedia.org/wiki/Row-_and_column-major_order) the array.
 
-1) First, each input line is obviously summerized in a integer and stored in a `bitarray32`. 
+1) First, each input line is obviously summerized in a integer and stored in a `bitarray32`.
 2) Then we pipelin this `bitarray32` __directly__ to `flp` the fast palindrome finding bit.
 3) We fast transpose the `bitarray32` and
 4) Pipeline again the transposed `bitarray32` to `flp`

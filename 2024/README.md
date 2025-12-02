@@ -32,7 +32,7 @@ fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbai
 
 ## Installation and benchmark
 
-0. optionnally install [gocyclo](https://github.com/fzipp/gocyclo)
+0. optionally install [gocyclo](https://github.com/fzipp/gocyclo)
 1. install [hyperfine](https://github.com/sharkdp/hyperfine)
 2. `git clone` this repository somewhere in your `$GOPATH`
 3. `export` envar `$SESSION` with your AoC `session` value (get it from the cookie stored in your browser)

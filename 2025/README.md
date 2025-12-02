@@ -10,7 +10,7 @@ fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbai
 
 ## Installation and benchmark
 
-0. optionnally install [gocyclo](https://github.com/fzipp/gocyclo)
+0. optionally install [gocyclo](https://github.com/fzipp/gocyclo)
 1. install [hyperfine](https://github.com/sharkdp/hyperfine)
 2. `git clone` this repository somewhere in your `$GOPATH`
 3. `export` envar `$SESSION` with your AoC `session` value (get it from the cookie stored in your browser)
@@ -33,7 +33,7 @@ For today’s solution, I’m reimplementing `mod` so that it always returns a p
 
 The code runs with an overall (optimal) [time complexity](https://en.wikipedia.org/wiki/Time_complexity) of `O(n)`, where *n* is the number of moves. What’s interesting here is that ~~I don’t believe it’s possible to accidentally end up with a solution that has a higher complexity~~ it doesn't depend on the distance value of the moves.
 
-`<EDIT>` Actually, naïve solutions might (incorrectly) click through each move — fully simulating the dial — which would increase the total loop count by a factor of the distance value *d* resulting in `o(n * d)` (`d_min` for the best case, `d_avg` for the average case or `d_max` for the worst case). This kind of code would be roughly 50~1000× slower than the shocased solution depending on the input.
+`<EDIT>` Actually, naïve solutions might (incorrectly) click through each move — fully simulating the dial — which would increase the total loop count by a factor of the distance value *d* resulting in `o(n * d)` (`d_min` for the best case, `d_avg` for the average case or `d_max` for the worst case). This kind of code would be roughly 50~1000× slower than the showcased solution depending on the input.
 
 <details>
   <summary><strong>SPOILER: Click to reveal</strong></summary>
@@ -52,7 +52,25 @@ For part 2, a doubled slice should contain the original slice as a subslice — 
 
 As a matter of fact, the Go standard `bytes` package uses a combination of techniques, including an ultimate fallback to [Rabin–Karp](https://cs.opensource.google/go/go/+/refs/tags/go1.25.4:src/bytes/bytes.go;l=1389).
 
-The code itself is pretty neat, but the performance, as you can see, isn’t quite there. I’ll call it a day for now.
+The search space, although it may not seem like it, is actually quite respectable:
+
+```bash
+❯ cd /Users/erika/go/src/github.com/erik-adelbert/aoc/2025/2 && awk -F',' '{for(i=1;i<=NF;i++){split($i,range,"-"); for(j=range[1];j<=range[2];j++){len=length(j); count[len]++}}} END{for(i in count) print i " digits:", count[i] " numbers" | "sort -n"}' input.txt
+1 digits: 8 numbers
+2 digits: 81 numbers
+3 digits: 758 numbers
+4 digits: 8041 numbers
+5 digits: 66257 numbers
+6 digits: 666270 numbers
+7 digits: 413789 numbers
+8 digits: 539292 numbers
+9 digits: 248595 numbers
+10 digits: 301477 numbers
+```
+
+The code runs with a time complexity of `k.O(n)` on average, with *n* being the number of digits in the inputs and *k* some big and hard to compute (at least for me) constant. I will get back to this calculation if I don't find a faster idea for this challenge.
+
+The solution itself is pretty neat, but the performance, as you can see, isn’t quite there. I’ll call it a day for now.
 
 ```bash
 cloc .

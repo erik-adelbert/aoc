@@ -33,7 +33,7 @@ end-to-end timing for part1&2 in ms - mbair M1/16GB - darwin 23.0.0 - go version
 
 ## Installation and benchmark
 
-0. optionnally install [gocyclo](https://github.com/fzipp/gocyclo)
+0. optionally install [gocyclo](https://github.com/fzipp/gocyclo)
 1. install [hyperfine](https://github.com/sharkdp/hyperfine)
 2. `git clone` this repository somewhere in your `$GOPATH`
 3. `export` envar `$SESSION` with your AoC `session` value (get it from the cookie stored in your browser)
@@ -47,15 +47,15 @@ end-to-end timing for part1&2 in ms - mbair M1/16GB - darwin 23.0.0 - go version
 For the first day of `aoc2021`, I've written and submitted the results in less than 5mn but it only got me in the top 3k ranks, wow!
 We have to count, in a serie of numbers, how many time there's an increase between two successive numbers. I've got nothing to say about the problem: it's all about composing speed.
 For `part2`, I chose to use three variables (say instead of an array) because *the simpler, the better*: between two readable and efficient syntaxes, I always try to write the simplest form. That said, here, three is the limit before the array form being better.
-  
+
 Speaking of this problem simplicity, it's nonetheless the perfect occasion to compose a *well written* program. I mean we have to use a naming and a style made to last: the construct `for input.scan(){}` is to be found as it is in the Go manual by [Donovan & Kernighan (D&K)](https://www.gopl.io). It's efficient because it states `simply`, `clearly` and `shortly` what the coding *intention* is.
-A word about the variable `old`: here we have a previous and a current value to compare, we could use `last`/`prev` and `cur`. As I find same length names nice to manipulate when I edit a program, you'll often see me using `old`/`cur`/`nxt` and it usually helps to understand what's going on at first sight.  
+A word about the variable `old`: here we have a previous and a current value to compare, we could use `last`/`prev` and `cur`. As I find same length names nice to manipulate when I edit a program, you'll often see me using `old`/`cur`/`nxt` and it usually helps to understand what's going on at first sight.
 
 Finally, we can also feel the minimalism of the Go language: I have to define `MaxInt`. I try to do this in the [*idiomatic*](https://dgryski.medium.com/idiomatic-go-resources-966535376dba) way even if it's not: I'm supposed to link to the `math` library only to import this constant. As it feels like a `C` style regression to me, I don't!
 
 ## Day 2
 
-In competitive programming, when confronted to simulation problems, we frequently can do something without having to perfectly parse the inputs. Here, input lines are made of a command followed by a single number argument: 1) as first letters of legit commands are all different, it suffices to read `line[0]` (`f`, `u`, `d`) to decode a command. 2) if we split any input `line` on its central space, the number will go to the right.  
+In competitive programming, when confronted to simulation problems, we frequently can do something without having to perfectly parse the inputs. Here, input lines are made of a command followed by a single number argument: 1) as first letters of legit commands are all different, it suffices to read `line[0]` (`f`, `u`, `d`) to decode a command. 2) if we split any input `line` on its central space, the number will go to the right.
 
 ## Day 3
 
@@ -63,7 +63,7 @@ I love Go utf8 support, greek γράμματα and *old school* low-level proble
 
 I've written a single `rate()` function to solve `part2`. It executes its parameterized workflow according to a *modal* argument `gas`. As this choice is binary, `gas` is naturally a boolean. I  use the constants `O2` and `CO2` in order to improve readability.
 
-`rate()` computes (in a string representing a binary number) the *most/least popular bits* of inputs (also a bunch of strings), it returns the result of `strconv.ParseInt()` from the standard library. Instead of handling the possible error right after calling `ParseInt()`, I let it float up the calling stack until I *need* to address it: here it's just before sending the conversion down to a channel.  
+`rate()` computes (in a string representing a binary number) the *most/least popular bits* of inputs (also a bunch of strings), it returns the result of `strconv.ParseInt()` from the standard library. Instead of handling the possible error right after calling `ParseInt()`, I let it float up the calling stack until I *need* to address it: here it's just before sending the conversion down to a channel.
 I tend to (gracefully) handle errors only when they can't go up in the calling stack: usually, they have a clear meaning by then. That said, unless I have to, I won't do any error handling during competitive programming sessions.
 
 As the computations (`part1`, `part2/[o2, co2]`) are clearly independent, I use *goroutines* [concurrency](https://youtu.be/oV9rvDllKEg): it's almost free and the speedup worth it!
@@ -76,7 +76,7 @@ Here, the solution has to play `loto`: it must keep track of drawn numbers on th
 To model a cardboard, I use a structure that groups:
 
 - 5 *row adders*
-- 5 *column adders* 
+- 5 *column adders*
 - 1 `map` of numbers and their position on the board
 
 ie. this board (3x3 instead of 5x5):
@@ -131,11 +131,11 @@ is represented like this:
 </tbody>
 </table>
 
-{  
-    1: (1, 1), 2: (1, 2), 3: (1, 3),  
-    4: (2, 1), 5: (2, 2), 6: (2, 3),  
-    7: (3, 1), 8: (3, 2): 9: (3, 3),  
-}  
+{
+    1: (1, 1), 2: (1, 2), 3: (1, 3),
+    4: (2, 1), 5: (2, 2), 6: (2, 3),
+    7: (3, 1), 8: (3, 2): 9: (3, 3),
+}
 
 When `3` is drawn, we have to:
 
@@ -173,23 +173,23 @@ When `3` is drawn, we have to:
 </tbody>
 </table>
 
-{  
-    1: (1, 1), 2: (1, 2), *~~3: (1, 3)~~*,  
-    4: (2, 1), 5: (2, 2), 6: (2, 3),  
-    7: (3, 1), 8: (3, 2): 9: (3, 3),  
-}  
+{
+    1: (1, 1), 2: (1, 2), *~~3: (1, 3)~~*,
+    4: (2, 1), 5: (2, 2), 6: (2, 3),
+    7: (3, 1), 8: (3, 2): 9: (3, 3),
+}
 
 If any count falls to zero, the corresponding line or column is a win, it's [`bingo`](https://fr.wikipedia.org/wiki/Loto#Bingo)! If all the counts are zero (or if the map is empty), the board itself is a win.
 
 For each `bingo`, summing the remaining numbers on the board amounts to either sum line or column adders.
 
-The chosen data structure helps solve the problem by *simply* and *efficiently* supporting all required operations during a `loto` draw. As there is no duplicate number in inputs I don't even bother purging the map in the `biff()` function. 
+The chosen data structure helps solve the problem by *simply* and *efficiently* supporting all required operations during a `loto` draw. As there is no duplicate number in inputs I don't even bother purging the map in the `biff()` function.
 
 We don't need to use a [`stack`](https://yourbasic.org/golang/implement-stack/) to solve this problem: one could actually memorise the first and the last board to win.
 
 I choose to use one because my program is more *general* this way: the stack stores the game *history* and it becomes easy to answer any question on the relative order of the winning boards. ie. at any time of a draw, the last winning board is on the top of the stack.
 
-On the practical side, there's apparently a problem: In Go resizing a slice while iterating on it is *undefined* (it doesn't work): we can't delete winning boards form our deck, the moment they win... We can overcome this limitation if 1) we don't change the slice size while iterating on it and 2) we update the slice *before* or *on* the current pointer. Here between the lines 88~97, we see, for each drawn number that a winning board goes to the stack while others **go back** to the deck. Whenever we finish a pass on our deck, the slice can be resized to the remaining cards.  
+On the practical side, there's apparently a problem: In Go resizing a slice while iterating on it is *undefined* (it doesn't work): we can't delete winning boards form our deck, the moment they win... We can overcome this limitation if 1) we don't change the slice size while iterating on it and 2) we update the slice *before* or *on* the current pointer. Here between the lines 88~97, we see, for each drawn number that a winning board goes to the stack while others **go back** to the deck. Whenever we finish a pass on our deck, the slice can be resized to the remaining cards.
 It works because instead of deleting winning boards, we put the others back in the deck. It's easy to see that `i` from the line 88 will always be lesser or equal than the implicit index of line 89. Finally, the relative order of the boards is preserved (it's usually a good property that comes for free here).
 
 ## Day 5
@@ -212,13 +212,13 @@ Sadly this day log has been lost
 
 ## Day 9
 
-I tackled `part2` with [Hoshen-Kopelman](https://www.ocf.berkeley.edu/~fricke/projects/hoshenkopelman/hoshenkopelman.html) that I've used [previously](https://github.com/erik-adelbert/mcs/blob/master/pkg/chaingame/tag.go) with success. The algorithm exploits the reordering properties of a standard `Union-Find` ([here](https://www.cs.princeton.edu/~rs/AlgsDS07/01UnionFind.pdf) is [sedgewick](https://en.wikipedia.org/wiki/Robert_Sedgewick_(computer_scientist))'s lecture about it). It's able to overcome connected components contouring problems: when [north-west flood filling](https://en.wikipedia.org/wiki/Flood_fill) a grid the result can show concavity and numerous irregularities (corner cases) that are difficult to acccount for. When using `Hoshen-Kopelman` one can achieve the perfect output in *linear time*, just like my solution for this day \o/. 
+I tackled `part2` with [Hoshen-Kopelman](https://www.ocf.berkeley.edu/~fricke/projects/hoshenkopelman/hoshenkopelman.html) that I've used [previously](https://github.com/erik-adelbert/mcs/blob/master/pkg/chaingame/tag.go) with success. The algorithm exploits the reordering properties of a standard `Union-Find` ([here](https://www.cs.princeton.edu/~rs/AlgsDS07/01UnionFind.pdf) is [sedgewick](https://en.wikipedia.org/wiki/Robert_Sedgewick_(computer_scientist))'s lecture about it). It's able to overcome connected components contouring problems: when [north-west flood filling](https://en.wikipedia.org/wiki/Flood_fill) a grid the result can show concavity and numerous irregularities (corner cases) that are difficult to acccount for. When using `Hoshen-Kopelman` one can achieve the perfect output in *linear time*, just like my solution for this day \o/.
 
 ## Day 10
 
-This problem is so classical that it even has a name: `bracket matching`. It is solved in every `IDE` usually with a [stack](https://www.geeksforgeeks.org/check-for-balanced-parentheses-in-an-expression/).  
+This problem is so classical that it even has a name: `bracket matching`. It is solved in every `IDE` usually with a [stack](https://www.geeksforgeeks.org/check-for-balanced-parentheses-in-an-expression/).
 
-Instead of pushing an *opening symbol* to the stack, pushing the corresponding *closing* one simplifies the matching that comes later (ligne 50). 
+Instead of pushing an *opening symbol* to the stack, pushing the corresponding *closing* one simplifies the matching that comes later (ligne 50).
 
 ## Day 11
 
@@ -234,7 +234,7 @@ This is a direct application of [depth-first search](https://en.wikipedia.org/wi
 
 Between the lines of the story, this problem hides two basic techniques: one from [coding theory](https://en.wikipedia.org/wiki/Coding_theory) and the other from [computer graphics](https://en.wikipedia.org/wiki/Computer_graphics). Some dots are given as vectors. After having transformed (decoded) them, we need to display the result on the screen (rasterise).
 
-I've coded this display as a [Raster Scan Display](https://www.geeksforgeeks.org/raster-scan-displays/). It is based on an [aabb](https://en.wikipedia.org/wiki/Minimum_bounding_box#Axis-aligned_minimum_bounding_box) spanning over a [framebuffer](https://en.wikipedia.org/wiki/Rasterisation). Namely, in order to obtain an image, I [rasterise](https://en.wikipedia.org/wiki/Rasterisation) the dots into this buffer.  
+I've coded this display as a [Raster Scan Display](https://www.geeksforgeeks.org/raster-scan-displays/). It is based on an [aabb](https://en.wikipedia.org/wiki/Minimum_bounding_box#Axis-aligned_minimum_bounding_box) spanning over a [framebuffer](https://en.wikipedia.org/wiki/Rasterisation). Namely, in order to obtain an image, I [rasterise](https://en.wikipedia.org/wiki/Rasterisation) the dots into this buffer.
 Thanks to one of my teammates, during a [review](https://en.wikipedia.org/wiki/Code_review), I discovered that the undefined character `�` of extended `ASCII` is the brightest of all: that's why it's the lighten-up pixel value.
 
 When I'm using [well known abstractions](https://en.wikipedia.org/wiki/Abstraction_(computer_science)), I shorten the coding time: I ease writing, debuging and editing. I know beforehand what's need to be done and how, mainly because there's plenty of documentation. If I use an abstraction enough, I end up knowing it by heart.
@@ -293,7 +293,7 @@ For problems in which all points are moving, this technique becomes really power
 ## Day 15
 
 When using [Dijkstra algorithm](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm) there's not much left to say: it builds a kind of data [*mycelium*](https://en.wikipedia.org/wiki/Mycelium) while decomposing (nibbling) the problem. To guide this *search*, we can use a [*priority queue*](https://en.wikipedia.org/wiki/Priority_queue). Here i'm using the [one](https://pkg.go.dev/container/heap) from the Go standard library.
-  
+
 <div style="text-align:center">
   <img src="https://upload.wikimedia.org/wikipedia/commons/2/23/Dijkstras_progress_animation.gif" />
 </div>
@@ -306,7 +306,7 @@ These libraries implement standard [interfaces](https://jordanorelli.com/post/32
 
 In `part2`, I implement an [accumulator machine](https://en.wikipedia.org/wiki/Accumulator_(computing)) that [evaluates](https://en.wikipedia.org/wiki/Eval) commands encoded in a `BITS` [datagram](https://en.wikipedia.org/wiki/Datagram#Examples).
 
-`Pedantic Note`:  
+`Pedantic Note`:
 I believe the problem mistakenly states BITS [packet](https://en.wikipedia.org/wiki/Network_packet) instead of `datagram`.
 
 ## Day 17
@@ -315,22 +315,22 @@ Sadly this day log has been lost
 
 ## Day 18
 
-The problem deal with a peculiar kind of [binary trees](https://en.wikipedia.org/wiki/Binary_tree#Internal_nodes) which have a pair of operations defined on them: the snailfish numbers.  
+The problem deal with a peculiar kind of [binary trees](https://en.wikipedia.org/wiki/Binary_tree#Internal_nodes) which have a pair of operations defined on them: the snailfish numbers.
 In these trees, *leaves* contain an integer and are linked between them and to the root by *internal nodes*. An internal node contains *solely* a pair of links. This data structure is known to operate a *classification* like in [`k-d trees`](https://en.wikipedia.org/wiki/K-d_tree) or [B-trees](https://en.wikipedia.org/wiki/B-tree).
 
-I pump spaces into the input line until I can get every bracket and number the first time I tokenise it. `newPair()` is a variadic function.  
+I pump spaces into the input line until I can get every bracket and number the first time I tokenise it. `newPair()` is a variadic function.
 
 The `explode()` operation uses the [flatten](https://www.geeksforgeeks.org/flatten-a-binary-tree-into-linked-list/) form of the tree to update *neighboring* leaves.
 
 During `reduce()`, I use [binary flags](https://en.wikipedia.org/wiki/Mask_(computing)) to synchronise the workflow (`done` ligne 174~184).
 
-Finally, having profiled my first version, I found `part2` to be waiting for to hint the kernel about its memory usage a lot. I took the step of making `part2` concurrent with a *producer* which computes snailfish numbers and pass them to *consumers* that compute their magnitudes. In the `main` routine, I collect and filter the results. All of this made this program runtime go down from 651ms to 245ms!  
+Finally, having profiled my first version, I found `part2` to be waiting for to hint the kernel about its memory usage a lot. I took the step of making `part2` concurrent with a *producer* which computes snailfish numbers and pass them to *consumers* that compute their magnitudes. In the `main` routine, I collect and filter the results. All of this made this program runtime go down from 651ms to 245ms!
 
 `<EDIT>` Everything said before is true but too complicated. When rethinking this problem I found that maintaining two arrays: one for the integers and one for their depths made everything to fall in place gracefully except for the magnitude computation. Nonetheless, this was  acceptable. I have spent almost 24 hours on this problem only and rewriting it entirely made my collection run in under a second on my mbair M1 \o/.
 
 ## Day 19
 
-The problem can be frightening at first sight.  
+The problem can be frightening at first sight.
 I resort to a very mecanical solution. I have precomputed rotations and modelised them in two parts: the axis order and their signs. As usual when doing this kind of stuffs my brain started swelling to the point I used a matchbox and a pen in desperation of getting the precomputation right.
 
 ## Day 21
@@ -367,8 +367,8 @@ I made a first solution for this but afterward I saw the string representation o
 
 As I've lost the link to the original reddit contribution, if you are the first coder to have used this representation, please tell me: I'll credit you for your finding in a more proper way.
 
-`<EDIT>` [pem](https://www.reddit.com/r/adventofcode/comments/rzvsjq/2021_all_daysgo_fast_solutions_under_a_second/hsx595b/?context=3) told me about a good heuristic function and made structural comments about the game space: he enabled me to refactor the move generation, to augment `Dijkstra` into `A*` and finally I had to fix/tweak the code to ease Go runtime memory handling. Namely, **before** optimizing anything I first [profiled](https://jvns.ca/blog/2017/09/24/profiling-go-with-pprof/) a flat version (without concurrency) of the program. After having lighten the program by fixing data structures (pointers/no pointer mainly), I studied the decisions made by my Go compiler with:  
- ```go build -gcflags '-m' aoc23.go```  
+`<EDIT>` [pem](https://www.reddit.com/r/adventofcode/comments/rzvsjq/2021_all_daysgo_fast_solutions_under_a_second/hsx595b/?context=3) told me about a good heuristic function and made structural comments about the game space: he enabled me to refactor the move generation, to augment `Dijkstra` into `A*` and finally I had to fix/tweak the code to ease Go runtime memory handling. Namely, **before** optimizing anything I first [profiled](https://jvns.ca/blog/2017/09/24/profiling-go-with-pprof/) a flat version (without concurrency) of the program. After having lighten the program by fixing data structures (pointers/no pointer mainly), I studied the decisions made by my Go compiler with:
+ ```go build -gcflags '-m' aoc23.go```
 
 When using Go, `strings` are immutable and every transformation on a string induce an allocation. Moreover, strings tend to easily escape to the `heap` inducing even more operations there (allocs/gc). For `part2`, the solution explores 57k paths of 23B strings. This amounts to a modest 1MB but it's the tens of thousand strings we don't want to move around unwillingly. That is to say, strings may not be the best choice here but it was mine, for the sake of fun: I surely went heavy on this problem, my board abstraction is a fixed-size array of strings. The only good thing that comes here is copying the data: a [walrus assignement](https://realpython.com/lessons/assignment-expressions/) of a board does the trick! I also made the choice to break a rule and pass some `strings.Builder` by value (I won't do this IRL).
 
@@ -423,8 +423,8 @@ ok      github.com/erik-adelbert/aoc/2021/23    25.680s
 
 I've cracked this problem by hand (`txt` files) thanks to the support of a teammate. It was my most difficult day and I almost quit again. The solution shown here is an adaptation of the clever python I've found on line after christmas.
 
-I'm not able to solve this problem generally using a computer (surely not in less than 24 hours). I still thinks that it hasn't a clear general solution: it's about [program comprehension](https://en.wikipedia.org/wiki/Program_comprehension) and I don't know what it really is or even could be.  
-On the other hand, the [constraint satisfaction](https://en.wikipedia.org/wiki/Constraint_satisfaction_problem) part is easy and is what the solution is doing.  
+I'm not able to solve this problem generally using a computer (surely not in less than 24 hours). I still thinks that it hasn't a clear general solution: it's about [program comprehension](https://en.wikipedia.org/wiki/Program_comprehension) and I don't know what it really is or even could be.
+On the other hand, the [constraint satisfaction](https://en.wikipedia.org/wiki/Constraint_satisfaction_problem) part is easy and is what the solution is doing.
 
 I've implemented a [fast integer exponentiation](https://en.wikipedia.org/wiki/Exponentiation_by_squaring) in order to have a little fun and no dependency on the `math` library. It's probably slower than the `FPU` but the actual size of inputs makes it impossible to tell for sure.
 
@@ -436,9 +436,9 @@ Feedback is welcome and happy coding!
 
 ## Post Scriptum
 
-If you're reading this, I believe you find my programs worth studying. If you take a quick look to the commits I've made to this repository it's obvious that I've turned this `aoc` into an obsessive *exercice de style*.  
+If you're reading this, I believe you find my programs worth studying. If you take a quick look to the commits I've made to this repository it's obvious that I've turned this `aoc` into an obsessive *exercice de style*.
 
-My style doesn't come from nowhere: first I had the chance of becoming a student of the late [Jean Méhat](https://www.chessprogramming.org/Jean_Méhat) at paris8 university, a true [10x](https://www.techopedia.com/definition/31673/10x-developer). He was the first to told me about [K&R](https://en.wikipedia.org/wiki/The_C_Programming_Language), [The Element Of Programming Style](https://en.wikipedia.org/wiki/The_Elements_of_Programming_Style), [The Practice Of Programming](https://en.wikipedia.org/wiki/The_Practice_of_Programming) (my favorite), and I started studying algorithms in [Algorithms in C](https://www.pearson.com/us/higher-education/program/Sedgewick-Algorithms-in-C-Parts-1-4-Fundamentals-Data-Structures-Sorting-Searching-3rd-Edition/PGM295950.html) before going for [The big book](https://en.wikipedia.org/wiki/Introduction_to_Algorithms) and the [Dragon book](https://en.wikipedia.org/wiki/Compilers:_Principles,_Techniques,_and_Tools). Eventually, I had to go back to this *absolute* source: [TAOCP](https://en.wikipedia.org/wiki/The_Art_of_Computer_Programming).  
+My style doesn't come from nowhere: first I had the chance of becoming a student of the late [Jean Méhat](https://www.chessprogramming.org/Jean_Méhat) at paris8 university, a true [10x](https://www.techopedia.com/definition/31673/10x-developer). He was the first to told me about [K&R](https://en.wikipedia.org/wiki/The_C_Programming_Language), [The Element Of Programming Style](https://en.wikipedia.org/wiki/The_Elements_of_Programming_Style), [The Practice Of Programming](https://en.wikipedia.org/wiki/The_Practice_of_Programming) (my favorite), and I started studying algorithms in [Algorithms in C](https://www.pearson.com/us/higher-education/program/Sedgewick-Algorithms-in-C-Parts-1-4-Fundamentals-Data-Structures-Sorting-Searching-3rd-Edition/PGM295950.html) before going for [The big book](https://en.wikipedia.org/wiki/Introduction_to_Algorithms) and the [Dragon book](https://en.wikipedia.org/wiki/Compilers:_Principles,_Techniques,_and_Tools). Eventually, I had to go back to this *absolute* source: [TAOCP](https://en.wikipedia.org/wiki/The_Art_of_Computer_Programming).
 
 While under-graduating in CS/AI there, I also met [Tristan Cazenave](https://www.lamsade.dauphine.fr/~cazenave/papers/rootparallelggp.pdf) who introduced me to game theory. JM and him won the [GGP](https://en.wikipedia.org/wiki/General_game_playing), they were inspirationnal! This [project](https://github.com/erik-adelbert/mcs) of mine is closely related to this time and it has not been properly explored yet.
 
