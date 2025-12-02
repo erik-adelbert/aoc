@@ -8,12 +8,12 @@ import (
 	"slices"
 )
 
-const MaxDigit = 10 // maximum digit count for our inputs
+const MaxDigits = 10 // maximum digit count for our inputs
 
 func main() {
 	var (
-		acc1, acc2 int                // parts 1 and 2
-		ss         [2 * MaxDigit]byte // buffer for rotation check. 20 is enough for our inputs.
+		acc1, acc2 int                 // parts 1 and 2
+		ss         [2 * MaxDigits]byte // buffer for rotation check. 20 is enough for our inputs.
 	)
 
 	input := bufio.NewScanner(os.Stdin)
@@ -65,7 +65,7 @@ func itoa(n int) []byte {
 		return []byte("0")
 	}
 
-	var buf [MaxDigit]byte // 10 is enough for our inputs
+	var buf [MaxDigits]byte // 10 is enough for our inputs
 	i := len(buf)
 
 	for n > 0 {
