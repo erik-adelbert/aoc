@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"os"
@@ -10,32 +11,36 @@ import (
 func main() {
 	var (
 		acc1, acc2 int      // parts 1 and 2
-		s2         [19]byte // buffer for rotation check
+		s2         [20]byte // buffer for rotation check. 20 is enough for our inputs.
 	)
 
-	buf, _ := os.ReadFile("input.txt") // read entire input file
-	line := bytes.TrimSpace(buf)       // single line input
+	input := bufio.NewScanner(os.Stdin)
+	input.Scan()
 
+	line := bytes.TrimSpace(input.Bytes()) // single line input
 	for _, span := range bytes.Split(line, []byte(",")) {
 		// parse range
-		bounds := bytes.Split(span, []byte("-"))
+		bufA, bufB, _ := bytes.Cut(span, []byte("-"))
 
-		a, b := atoi(bounds[0]), atoi(bounds[1])
+		a, b := atoi(bufA), atoi(bufB)
 
 		for i := a; i <= b; i++ {
 			s := itoa(i) // convert to byte slice
+			slen := len(s)
 
-			// create doubled slice
-			copy(s2[:len(s)], s)
-			copy(s2[len(s):], s)
-
-			if slices.Equal(s[len(s)/2:], s[:len(s)/2]) {
-				// part1: s is a repetition
+			// part1: check if s is a repetition
+			half := slen >> 1
+			if (slen&1 == 0) && slices.Equal(s[:half], s[half:]) {
 				acc1 += i
 			}
 
-			if bytes.Contains(s2[1:2*len(s)-1], s) {
-				// part2: s has a rotation
+			// part2: check if s is a rotation of itself
+			// double the slice in the buffer
+			copy(s2[:slen], s)
+			copy(s2[slen:], s2[:slen])
+
+			// check inside excluding full matches at ends
+			if bytes.Contains(s2[1:slen<<1-1], s) {
 				acc2 += i
 			}
 		}
@@ -58,7 +63,7 @@ func itoa(n int) []byte {
 		return []byte("0")
 	}
 
-	var buf [19]byte // enough for 64-bit integer
+	var buf [10]byte // 10 is enough for our inputs
 	i := len(buf)
 
 	for n > 0 {

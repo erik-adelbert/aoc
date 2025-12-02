@@ -2,9 +2,9 @@
 
 | Day  | Time (ms) | % of Total |
 |------|----------:|-----------:|
-| 1    |       0.8 |      1.77% |
-| 2    |      44.5 |     98.23% |
-| Total|      45.3 |    100.00% |
+| 1    |       0.8 |      1.80% |
+| 2    |      43.6 |     98.20% |
+| Total|      44.4 |    100.00% |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 24.6.0 - go version go1.25.3 darwin/arm64 - hyperfine 1.20.0 - 2025-12
 
@@ -42,7 +42,11 @@ The password method <span title='CLICK'><code>0x434C49434B</code></span> actuall
 
 ## Day 2: [Gift Shop](https://adventofcode.com/2025/day/2)
 
-On this second day, the code speed conundrum begins: the challenge requires us to convert back and forth between integers and ASCII slices, and to check the allocated memory for certain patterns. For part 1, the second half of the slice should be a copy of the first, and for part 2, a doubled slice should contain the original slice as a subslice — meaning that the slice is a [rotation of itself](https://en.wikipedia.org/wiki/Ouroboros).
+On this second day, the code speed conundrum begins: the challenge requires us to convert back and forth between integers and ASCII slices, and to check the allocated memory for certain patterns.
+
+For part 1, the second half of the slice should be a copy of the first.
+
+For part 2, a doubled slice should contain the original slice as a subslice — meaning that the slice is a [rotation of itself](https://en.wikipedia.org/wiki/Ouroboros). This idea is demonstrated in this [study](https://www.geeksforgeeks.org/dsa/a-program-to-check-if-strings-are-rotations-of-each-other/) along with various pattern-searching techniques like [Rabin–Karp](https://en.wikipedia.org/wiki/Rabin–Karp_algorithm) and [KMP](https://en.wikipedia.org/wiki/Knuth–Morris–Pratt_algorithm).
 
 The code itself is pretty neat, but the performance, as you can see, isn’t quite there. I’ll call it a day for now.
 
