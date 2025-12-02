@@ -23,6 +23,8 @@ fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbai
 
 *This year, I’m freelancing and available to take on projects—preferably in Go or Python. Please help spread the word!*
 
+![Secret Entrance](./images/1606_Mercator_Hondius_Map_of_the_Arctic_\(First_Map_of_the_North_Pole\)_-_Geographicus_-_NorthPole-mercator-1606.jpg)
+
 On this first day of AoC 2025, the challenge is reasonably tricky. It highlights the sign ambiguity of the [modulo](https://en.wikipedia.org/wiki/Modulo) operation when the remainder is negative.
 
 For today’s solution, I’m reimplementing `mod` so that it always returns a positive value, since the problem includes negative integer data (i.e., left turns). Then, as always — especially when coding for production — I validate the inputs as early as possible. In this case, it allows me to reduce the computation domain to a single wrap of the dial. By doing this consistently, I don’t need to apply any offsets (and neither do you). From there, a switch selects one of the four interesting cases and updates the counts used as passwords for parts 1 and 2.
