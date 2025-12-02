@@ -16,49 +16,52 @@ import (
 	"os"
 )
 
-func main() {
-	input := bufio.NewScanner(os.Stdin)
+const MaxDial = 100
 
-	old, cur := 50, 50 // dial starts at 50
-	pwd1, pwd2 := 0, 0 // passwords
+func main() {
+	var pwd1, pwd2 int // passwords
+
+	old, cur := MaxDial/2, MaxDial/2 // dial starts at 50
 
 	// process input lines
+	input := bufio.NewScanner(os.Stdin)
+
 	for input.Scan() {
 		buf := input.Bytes()
 		dir, n := buf[0], atoi(buf[1:]) // parse direction and number
 
 		// handle large movements
-		pwd2 += n / 100 // count full wraps
-		n = mod(n, 100) // reduce to within one wrap
+		pwd2 += n / MaxDial // count full wraps
+		n %= MaxDial        // reduce to within one wrap
 
-		// move dial
-		cur += n // default to right turn
-		if dir == 'L' {
-			cur -= 2 * n
+		// move dial: default to left turn
+		if cur = old - n; dir == 'R' {
+			cur = old + n // adjust for right turn
 		}
 
 		// handle circular dial (0-99)
-		cur = mod(cur, 100)
+		if cur %= MaxDial; cur < 0 {
+			cur += MaxDial // adjust negative remainder
+		}
 
 		switch {
 		case old == 0:
-			// cannot cross or reach zero from zero
+			// cannot reach or cross zero from zero in one move
 			// count nothing
 		case cur == 0:
-			// count landings on zero
+			// part1: count turns landing on zero
 			pwd1++
-		case cur > old && dir == 'L':
-			// count left turns crossing zero
-			pwd2++
-		case cur < old && dir == 'R':
-			// count right turns crossing zero
+		case (old < cur) == (dir == 'L'), // position increased when turning left
+			(old > cur) == (dir == 'R'): // position decreased when turning right
+			// part2: count turns crossing zero
 			pwd2++
 		}
 
 		old = cur // update
 	}
+	pwd2 += pwd1 // part2 includes part1
 
-	fmt.Println(pwd1, pwd1+pwd2) // output passwords
+	fmt.Println(pwd1, pwd2) // output passwords
 }
 
 // strconv.Atoi simplified core loop
@@ -66,15 +69,6 @@ func main() {
 func atoi(s []byte) (n int) {
 	for i := range s {
 		n = 10*n + int(s[i]-'0')
-	}
-	return
-}
-
-// mod returns a modulo b, always non-negative
-func mod(a, b int) (r int) {
-	r = a % b
-	if r < 0 {
-		r += b
 	}
 	return
 }
