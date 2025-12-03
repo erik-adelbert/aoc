@@ -58,8 +58,8 @@ type seq struct {
 	krem   int // remaining removals
 }
 
-// newSeq creates a new sequence of given size and input size
-// authorizing inputSize - size removals to build the largest subsequence
+// newSeq creates a new preallocated sequence
+// the sequence should be reset for use/reuse
 func newSeq() *seq {
 	return &seq{
 		digits: make([]byte, 0, Part2), // max size needed
@@ -68,6 +68,8 @@ func newSeq() *seq {
 	}
 }
 
+// reset the sequence for reuse of given size and input size
+// authorizing inputSize - size removals to build the largest subsequence
 func (s *seq) reset(size, inputSize int) {
 	s.digits = s.digits[:0]   // reset slice
 	s.size = size             // desired size
