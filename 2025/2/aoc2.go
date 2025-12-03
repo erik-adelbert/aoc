@@ -23,7 +23,7 @@ const MaxDigits = 10 // maximum digit count for our inputs
 func main() {
 	var (
 		acc1, acc2 int                 // parts 1 and 2
-		ss         [2 * MaxDigits]byte // buffer for rotation check. 20 is enough for our inputs.
+		ss         [2 * MaxDigits]byte // for part 2 rotation check
 	)
 
 	input := bufio.NewScanner(os.Stdin)
@@ -70,12 +70,15 @@ func atoi(s []byte) (n int) {
 	return
 }
 
+// itoa converts n to its byte slice representation.
+// It is taylored for our inputs (n >= 0) of at most MaxDigits digits.
+// It prevents allocations by using a fixed-size array internally
 func itoa(n int) []byte {
 	if n == 0 {
 		return []byte("0")
 	}
 
-	var buf [MaxDigits]byte // 10 is enough for our inputs
+	var buf [MaxDigits]byte
 	i := len(buf)
 
 	for n > 0 {

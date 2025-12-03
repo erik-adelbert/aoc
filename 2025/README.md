@@ -102,6 +102,18 @@ SUM:                             5             14              6             57
 -------------------------------------------------------------------------------
 ```
 
+`<EDIT>` In Go, strings are immutable, which means many operations on them require allocations. This is why I prefer byte slices in the solution: they allow me to tightly control memory usage and eliminate all allocations from the hot path.
+
+```bash
+❯ go test -bench=. -benchmem
+goos: darwin
+goarch: arm64
+pkg: github.com/erik-adelbert/aoc/2025/2
+cpu: Apple M1
+BenchmarkItoa-8         180716007                6.548 ns/op           0 B/op          0 allocs/op
+PASS
+```
+
 ## Day 3: [Lobby](https://adventofcode.com/2025/day/3)
 
 <div align="center">
