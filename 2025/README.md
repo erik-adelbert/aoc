@@ -2,9 +2,10 @@
 
 | Day  | Time (ms) | % of Total |
 |------|----------:|-----------:|
-| 1    |       0.8 |      1.80% |
-| 2    |      43.6 |     98.20% |
-| Total|      44.4 |    100.00% |
+| 1    |       0.8 |      1.75% |
+| 3    |       1.2 |      2.62% |
+| 2    |      43.6 |     95.63% |
+| Total|      45.8 |    100.00% |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 24.6.0 - go version go1.25.3 darwin/arm64 - hyperfine 1.20.0 - 2025-12
 
@@ -23,7 +24,11 @@ fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbai
 
 *This year, I’m freelancing and available to take on projects—preferably in Go or Python. Please help spread the word!*
 
-![Secret Entrance](./images/1606_Mercator_Hondius_Map_of_the_Arctic_\(First_Map_of_the_North_Pole\)_-_Geographicus_-_NorthPole-mercator-1606.jpg)
+<div align="center">
+  <img src="./images/1606_Mercator_Hondius_Map_of_the_Arctic_(First_Map_of_the_North_Pole)_-_Geographicus_-_NorthPole-mercator-1606.jpg" alt="North Pole Map" width="70%" />
+</div>
+
+<!-- ![Secret Entrance](./images/1606_Mercator_Hondius_Map_of_the_Arctic_\(First_Map_of_the_North_Pole\)_-_Geographicus_-_NorthPole-mercator-1606.jpg) -->
 
 On this first day of AoC 2025, the challenge is reasonably tricky. It highlights the sign ambiguity of the [modulo](https://en.wikipedia.org/wiki/Modulo) operation when the remainder is negative.
 
@@ -45,7 +50,7 @@ The password method <span title='CLICK'><code>0x434C49434B</code></span> actuall
 ## Day 2: [Gift Shop](https://adventofcode.com/2025/day/2)
 
 <div align="center">
-  <img src="./images/Serpiente_alquimica.jpg" alt="Ouroboros" width="80%" />
+  <img src="./images/Serpiente_alquimica.jpg" alt="Ouroboros" width="70%" />
 </div>
 
 On this second day, the code speed conundrum begins: the challenge requires us to convert back and forth between integers and ASCII slices, and to check the allocated memory for certain patterns.
@@ -74,7 +79,7 @@ The search space, although it may not seem like it, is actually quite respectabl
 
 The code runs with a time complexity of `k.O(n)` on average, with *n* being the number of digits in the inputs and *k* some big and hard to compute (at least for me) constant. I will get back to this calculation if I don't find a faster idea for this challenge.
 
-It is worth noting that the solution hits the sweet spot where running `part2` *only* if `part1` fails — versus *always* running both `part1` and `part2` (no [predictive branching](https://en.wikipedia.org/wiki/Branch_predictor)) — actually hurts the overall runtime.
+It is worth noting that the solution hits the sweet spot where running `part2` *only* if `part1` fails (ie., [predictive branching](https://en.wikipedia.org/wiki/Branch_predictor))— versus *always* running both `part1` and `part2`  — actually hurts the overall runtime.
 
 The solution itself is pretty neat, but the performance, as you can see, isn’t quite there. I’ll call it a day for now.
 
@@ -95,4 +100,19 @@ make                             1              0              0              1
 -------------------------------------------------------------------------------
 SUM:                             5             14              6             57
 -------------------------------------------------------------------------------
+```
+
+## Day 3: [Lobby](https://adventofcode.com/2025/day/3)
+
+<div align="center">
+  <img src="./images/Polar_Night_energy.jpg" alt="Polar Night Energy" width="70%" />
+</div>
+
+Today's challenge is quite straightforward: the goal is to build the *lexicographically largest string after **k** removals*. I chose a [greedy](https://en.wikipedia.org/wiki/Greedy_algorithm), [stack-based](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) approach to solve it. The solution is simple, and once again it runs optimally in linear time with respect to the length of the input lines: it is easy  to see that every given digit can only be pushed/popped once.
+
+Having an adhoc `seq` type keeps the main intention obvious while separating concerns. The digit-selection logic becomes a mere implementation detail of the solution. The search space is so small that the Go garbage collector has no time to get in the way, even though the code creates two short-lived buffers per input line.
+
+```bash
+❯ wc -lc input.txt # how many lines and cars?
+     200   20200 input.txt
 ```

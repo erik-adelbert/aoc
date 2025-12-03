@@ -118,8 +118,6 @@ func (h *header) getenv() {
 			*field.s = field.def
 		}
 	}
-
-	return
 }
 
 func (h *header) getpwd() {
