@@ -29,7 +29,7 @@ func main() {
 	input := bufio.NewScanner(os.Stdin)
 
 	for input.Scan() {
-		buf := input.Bytes()
+		buf := input.Bytes() // current line as byte slice
 
 		seq1 := newSeq(Part1, len(buf))
 		seq2 := newSeq(Part2, len(buf))
