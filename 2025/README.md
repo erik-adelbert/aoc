@@ -64,7 +64,7 @@ As a matter of fact, the Go standard `bytes` package uses a combination of techn
 The search space, although it may not seem like it, is actually quite respectable:
 
 ```bash
-❯ cd /Users/erika/go/src/github.com/erik-adelbert/aoc/2025/2 && awk -F',' '{for(i=1;i<=NF;i++){split($i,range,"-"); for(j=range[1];j<=range[2];j++){len=length(j); count[len]++}}} END{for(i in count) print i " digits:", count[i] " numbers" | "sort -n"}' input.txt
+❯ awk -F',' '{for(i=1;i<=NF;i++){split($i,range,"-"); for(j=range[1];j<=range[2];j++){len=length(j); count[len]++}}} END{for(i in count) print i " digits:", count[i] " numbers" | "sort -n"}' input.txt
 1 digits: 8 numbers
 2 digits: 81 numbers
 3 digits: 758 numbers
@@ -110,7 +110,7 @@ SUM:                             5             14              6             57
 
 Today's challenge is quite straightforward: the goal is to build the *lexicographically largest string after **k** removals*. I chose a [greedy](https://en.wikipedia.org/wiki/Greedy_algorithm), [stack-based](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) approach to solve it. The solution is simple, and once again it runs optimally in linear time with respect to the length of the input lines: it is easy  to see that every given digit can only be pushed/popped once.
 
-Having an adhoc `seq` type keeps the main intention obvious while [separating concerns](https://en.wikipedia.org/wiki/Separation_of_concerns). The digit-selection logic becomes a mere implementation detail of the solution. The search space is so small that the [Go garbage collector](https://go.dev/doc/gc-guide) has no time to get in the way, even though the code creates two short-lived small buffers per input line.
+Having an adhoc `seq` type keeps the main intention obvious while [separating concerns](https://en.wikipedia.org/wiki/Separation_of_concerns). The digit-selection logic becomes a mere implementation detail of the solution. ~~The search space is so small that the [Go garbage collector](https://go.dev/doc/gc-guide) has no time to get in the way, even though the code creates two short-lived small buffers per input line~~.
 
 `<EDIT>` As I wanted to emphasize the `O(1)` space complexity alongside the `O(n)` time complexity of the solution—and to avoid invoking the GC altogether—the code now reuses the *same* sequences repeatedly.
 
