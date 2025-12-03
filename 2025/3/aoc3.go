@@ -17,6 +17,8 @@ import (
 )
 
 const (
+	MaxDigits = 29 // maximum digit count for our inputs
+
 	Part1 = 2  // keep 2 digits for part 1
 	Part2 = 12 // keep 12 digits for part 2
 )
@@ -62,7 +64,7 @@ type seq struct {
 // the sequence should be reset for use/reuse
 func newSeq() *seq {
 	return &seq{
-		digits: make([]byte, 0, Part2), // max size needed
+		digits: make([]byte, 0, MaxDigits), // preallocate
 		size:   0,
 		krem:   0,
 	}
