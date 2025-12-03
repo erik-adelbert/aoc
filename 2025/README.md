@@ -83,6 +83,8 @@ It is worth noting that the solution hits the sweet spot where running `part2` *
 
 The solution itself is pretty neat, but the performance, as you can see, isn’t quite there. I’ll call it a day for now.
 
+<`EDIT>` Actually, the performance is interesting to analyze: given my input, there are 2,244,568 candidates (as shown in the `awk` command above), of which 816 are invalid for part 1 and 895 for part 2. This results in a blazing-fast 43.6 ms / 2,244,568 numbers ≈ 19.4 ns per number for parts 1 and 2 combined. This result feels arguably good.
+
 ```bash
 cloc .
        5 text files.

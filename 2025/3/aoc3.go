@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	MaxDigits = 29 // maximum digit count for our inputs
+	MaxDigits = 30 // maximum digit count for our inputs
 
 	Part1 = 2  // keep 2 digits for part 1
 	Part2 = 12 // keep 12 digits for part 2
