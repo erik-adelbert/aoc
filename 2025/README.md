@@ -102,7 +102,7 @@ SUM:                             5             14              6             57
 -------------------------------------------------------------------------------
 ```
 
-`<EDIT>` In Go, strings are immutable, which means many operations on them require allocations. This is why I prefer byte slices in the solution: they allow me to tightly control memory usage and eliminate all allocations from the hot path.
+`<EDIT>` In Go, [strings](https://go.dev/blog/strings) are immutable, which means many operations on them require allocations. This is why I prefer [byte slices](https://go.dev/blog/slices-intro) in the solution: they allow me to tightly control memory usage and eliminate all allocations from the hot path.
 
 ```bash
 ❯ go test -bench=. -benchmem
@@ -113,6 +113,10 @@ cpu: Apple M1
 BenchmarkItoa-8         180716007                6.548 ns/op           0 B/op          0 allocs/op
 PASS
 ```
+
+`<EDIT>` This challenge is also interesting because substring matching efficiently is inherently complex. This is one of the rare cases where the standard library’s implementation has a good chance of being the best tool for the job — even in a performance-critical context. **This last idea is almost always true if you are a beginner**.
+
+The beauty of [`u/topaz2078`](https://www.reddit.com/user/topaz2078/)’s craftsmanship is that, in this very solution, you’ll see me *simultaneously* relying on Go for the heavy lifting *and* deliberately avoiding it for the ASCII translation. I have the room to exercise my judgment to tilt the solution toward the fast side. For that, I am forever in awe.
 
 ## Day 3: [Lobby](https://adventofcode.com/2025/day/3)
 
