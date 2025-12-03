@@ -14,7 +14,6 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"strings"
 )
 
 const (
@@ -23,7 +22,11 @@ const (
 )
 
 func main() {
-	var sum1, sum2 int // sums for parts 1 and 2
+	var (
+		sum1, sum2 int // sums for parts 1 and 2
+	)
+
+	seq1, seq2 := newSeq(), newSeq() // maximizing sequences for parts 1 and 2
 
 	// process input lines
 	input := bufio.NewScanner(os.Stdin)
@@ -31,8 +34,9 @@ func main() {
 	for input.Scan() {
 		buf := input.Bytes() // current line as byte slice
 
-		seq1 := newSeq(Part1, len(buf))
-		seq2 := newSeq(Part2, len(buf))
+		// use/reuse sequences
+		seq1.reset(Part1, len(buf))
+		seq2.reset(Part2, len(buf))
 
 		for _, c := range buf {
 			seq1.push(c)
@@ -56,12 +60,18 @@ type seq struct {
 
 // newSeq creates a new sequence of given size and input size
 // authorizing inputSize - size removals to build the largest subsequence
-func newSeq(size, inputSize int) *seq {
+func newSeq() *seq {
 	return &seq{
-		digits: make([]byte, 0, size),
-		size:   size,
-		krem:   inputSize - size,
+		digits: make([]byte, 0, Part2), // max size needed
+		size:   0,
+		krem:   0,
 	}
+}
+
+func (s *seq) reset(size, inputSize int) {
+	s.digits = s.digits[:0]   // reset slice
+	s.size = size             // desired size
+	s.krem = inputSize - size // authorized removals
 }
 
 // push a new digit, removing larger trailing digits if possible
@@ -70,9 +80,8 @@ func (s *seq) push(d byte) {
 
 	// remove larger trailing digits while we can
 	for s.krem > 0 && !s.empty() && d > s.peek() {
-		// remove last
-		s.krem--
-		s.digits = s.digits[:len(s.digits)-1] // pop
+		s.krem--                              // use up a removal
+		s.digits = s.digits[:len(s.digits)-1] // pop last
 	}
 
 	// add new digit
@@ -94,14 +103,6 @@ func (s *seq) peek() byte {
 
 func (s *seq) empty() bool {
 	return len(s.digits) == 0
-}
-
-func (s *seq) String() string {
-	var sb strings.Builder
-	for i := range s.digits[:s.size] {
-		sb.WriteByte(s.digits[i])
-	}
-	return sb.String()
 }
 
 func ctoi(c byte) int {
