@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"strconv"
 	"testing"
 )
 
@@ -33,7 +34,23 @@ func TestItoa(t *testing.T) {
 }
 
 func BenchmarkItoa(b *testing.B) {
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		itoa(9876543210)
+	}
+}
+
+func BenchmarkStrconvItoa(b *testing.B) {
+	for b.Loop() {
+		_ = strconv.Itoa(9876543210)
+	}
+}
+
+func BenchmarkCopy(b *testing.B) {
+	s := []byte("9876543210")
+	buf := make([]byte, 20)
+
+	for b.Loop() {
+		copy(buf, s)
+		copy(buf[len(s):], s)
 	}
 }

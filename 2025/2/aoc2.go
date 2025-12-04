@@ -37,7 +37,7 @@ func main() {
 		a, b := atoi(bufA), atoi(bufB)
 
 		for i := a; i <= b; i++ {
-			s := itoa(i) // convert to byte slice
+			s := itoa(i)
 			slen := len(s)
 
 			// part1: check if s is a repetition

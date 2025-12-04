@@ -2,10 +2,11 @@
 
 | Day  | Time (ms) | % of Total |
 |------|----------:|-----------:|
-| 1    |       0.8 |      1.77% |
-| 3    |       1.0 |      2.21% |
-| 2    |      43.6 |     96.02% |
-| Total|      45.4 |    100.00% |
+| 1    |       0.8 |      1.54% |
+| 3    |       1.0 |      1.93% |
+| 4    |       6.5 |     12.52% |
+| 2    |      43.6 |     84.01% |
+| Total|      51.9 |    100.00% |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 24.6.0 - go version go1.25.3 darwin/arm64 - hyperfine 1.20.0 - 2025-12
 
@@ -27,8 +28,6 @@ fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbai
 <div align="center">
   <img src="./images/1606_Mercator_Hondius_Map_of_the_Arctic_(First_Map_of_the_North_Pole)_-_Geographicus_-_NorthPole-mercator-1606.jpg" alt="North Pole Map" width="60%" />
 </div>
-
-<!-- ![Secret Entrance](./images/1606_Mercator_Hondius_Map_of_the_Arctic_\(First_Map_of_the_North_Pole\)_-_Geographicus_-_NorthPole-mercator-1606.jpg) -->
 
 On this first day of AoC 2025, the challenge is reasonably tricky. It highlights the sign ambiguity of the [modulo](https://en.wikipedia.org/wiki/Modulo) operation when the remainder is negative.
 
@@ -136,3 +135,23 @@ Having an adhoc `seq` type keeps the main intention obvious while [separating co
 ❯ wc -lc input.txt # how many lines and cars?
      200   20200 input.txt
 ```
+
+## Day 4: [Printing Department](https://adventofcode.com/2025/day/4)
+
+<div align="center">
+  <img src="./images/bolas.jpg" alt="Paper for matrix printers" width="60%" />
+</div>
+
+This challenge is the perfect opportunity to go fully old-school with the solution. It’s an AoC [classic](https://adventofcode.com/2021/day/20) that pops up regularly. It has nothing to do with mathematics and everything to do with programming efficiently for our machines when [processing images](https://en.wikipedia.org/wiki/Digital_image_processing). **If you're a beginner, you could benefit from working through this problem and studying its [various solutions](https://www.reddit.com/r/adventofcode/comments/1pdr8x6/2025_day_4_solutions/).**
+
+My technique of choice here is to [double-buffer](https://wiki.osdev.org/Double_Buffering) the grid. By doing this, the code kills the removal process with a single [double-stone](https://en.wikipedia.org/wiki/Bolas): it becomes natural to go from one step of the roll removals to the next by updating the *next* buffer from the *current* one and then swapping them.
+
+For the 2D grid itself, nothing beats a [1D grid](https://en.wikipedia.org/wiki/Array_(data_structure)). The code uses two preallocated slices and spatially organizes data on the fly. Except for the initial allocations, the solution once again performs **no memory allocation** on the [hot path](https://en.wikipedia.org/wiki/Hot_spot_(computer_programming)).
+
+I didn't add a blank border to the grid because it would interfere with the index computations—and actually, I don't need to. The showcased code features a *branchless* neighborhood scan that is slightly incorrect because it includes the center roll itself. But this turns out to be beneficial: since we only scan *from* the rolls, it is easy to remove the center cell test in favor of thresholding at 4 rolls (3 neighbors + 1 center) during the entire scan.
+
+The time complexity of *one scan* is `O(n)`: it is easy to see that each cell is processed only once per scan. The total runtime depends on the input, its roll count, and the relative positions. For my input, it takes 70 loops to reduce the grid.
+
+<div align="center">
+  <img src="./images/aoc20251204.png" alt="Final grid" width="40%" />
+</div>
