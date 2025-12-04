@@ -2,11 +2,11 @@
 
 | Day  | Time (ms) | % of Total |
 |------|----------:|-----------:|
-| 1    |       0.8 |      1.54% |
-| 3    |       1.0 |      1.93% |
-| 4    |       6.5 |     12.52% |
-| 2    |      43.6 |     84.01% |
-| Total|      51.9 |    100.00% |
+| 1    |       0.8 |      5.71% |
+| 3    |       1.0 |      7.14% |
+| 2    |       5.7 |     40.71% |
+| 4    |       6.5 |     46.44% |
+| Total|      14.0 |    100.00% |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 24.6.0 - go version go1.25.3 darwin/arm64 - hyperfine 1.20.0 - 2025-12
 
@@ -52,6 +52,25 @@ The password method <span title='CLICK'><code>0x434C49434B</code></span> actuall
   <img src="./images/Serpiente_alquimica.jpg" alt="Ouroboros" width="60%" />
 </div>
 
+### Current Approach
+
+I have come across a better idea than my original approach and expanded on it. The insight is to exploit the properties of [Repunit](https://en.wikipedia.org/wiki/Repunit) numbers: within each numeric range, the repeating-digit numbers (the ones we need to detect in today’s challenge) are simply multiples of a small set of base values.
+
+For example, between 10 and 99, it’s easy to see that all repeating numbers are multiples of 11.
+
+The resulting code stays within the integer domain, the cost effectively disappears — and the routine now runs in **5.8 ms**!
+
+I first saw this idea in [Tim Visée](https://github.com/timvisee/advent-of-code-2025/blob/master/day02b/src/main.rs)’s code.
+Tim is a performance-oriented programmer of the finest caliber, and I warmly recommend following his work.
+
+As a final note, this solution uses `fallthrough`, which helps improve runtime.
+However, it’s not actually necessary: since part 2 includes part 1, all the
+`fallthrough` statements can be replaced with a single `part2 += part1` right before producing the final output.
+
+### Historical Approach
+
+**For the following discussion please pull commit 06ede07**
+
 On this second day, the code speed conundrum begins: the challenge requires us to convert back and forth between integers and ASCII slices, and to check the allocated memory for certain patterns.
 
 For part 1, the second half of the slice should be a copy of the first.
@@ -59,6 +78,14 @@ For part 1, the second half of the slice should be a copy of the first.
 For part 2, a doubled slice should contain the original slice as a subslice — meaning that the slice is a [rotation of itself](https://en.wikipedia.org/wiki/Ouroboros). This idea is demonstrated in this [study](https://www.geeksforgeeks.org/dsa/a-program-to-check-if-strings-are-rotations-of-each-other/) along with various pattern-searching techniques like [Rabin–Karp](https://en.wikipedia.org/wiki/Rabin–Karp_algorithm) and [KMP](https://en.wikipedia.org/wiki/Knuth–Morris–Pratt_algorithm).
 
 As a matter of fact, the Go standard `bytes` package uses a combination of techniques, including an ultimate fallback to [Rabin–Karp](https://cs.opensource.google/go/go/+/refs/tags/go1.25.4:src/bytes/bytes.go;l=1389).
+
+The code runs with a time complexity of `k.O(n)` on average, with *n* being the number of digits in the inputs and *k* some big and hard to compute (at least for me) constant. I will get back to this calculation if I don't find a faster idea for this challenge.
+
+It is worth noting that the solution hits the sweet spot where running `part2` *only* if `part1` fails (ie., [predictive branching](https://en.wikipedia.org/wiki/Branch_predictor))— versus *always* running both `part1` and `part2`  — actually hurts the overall runtime.
+
+The solution itself is pretty neat, but the performance, as you can see, isn’t quite there. I’ll call it a day for now.
+
+<`EDIT>` Actually, the performance is interesting to analyze: given my input, there are 2,244,568 candidates (as shown in the `awk` command above), of which 816 are invalid for part 1 and 895 for part 2. This results in a blazing-fast 43.6 ms / 2,244,568 numbers ≈ 19.4 ns per number for parts 1 and 2 combined. This result feels arguably good.
 
 The search space, although it may not seem like it, is actually quite respectable:
 
@@ -75,14 +102,6 @@ The search space, although it may not seem like it, is actually quite respectabl
 9 digits: 248595 numbers
 10 digits: 301477 numbers
 ```
-
-The code runs with a time complexity of `k.O(n)` on average, with *n* being the number of digits in the inputs and *k* some big and hard to compute (at least for me) constant. I will get back to this calculation if I don't find a faster idea for this challenge.
-
-It is worth noting that the solution hits the sweet spot where running `part2` *only* if `part1` fails (ie., [predictive branching](https://en.wikipedia.org/wiki/Branch_predictor))— versus *always* running both `part1` and `part2`  — actually hurts the overall runtime.
-
-The solution itself is pretty neat, but the performance, as you can see, isn’t quite there. I’ll call it a day for now.
-
-<`EDIT>` Actually, the performance is interesting to analyze: given my input, there are 2,244,568 candidates (as shown in the `awk` command above), of which 816 are invalid for part 1 and 895 for part 2. This results in a blazing-fast 43.6 ms / 2,244,568 numbers ≈ 19.4 ns per number for parts 1 and 2 combined. This result feels arguably good.
 
 ```bash
 cloc .

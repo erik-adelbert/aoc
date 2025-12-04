@@ -15,45 +15,84 @@ import (
 	"bytes"
 	"fmt"
 	"os"
-	"slices"
 )
 
 const MaxDigits = 10 // maximum digit count for our inputs
 
 func main() {
-	var (
-		acc1, acc2 int                 // parts 1 and 2
-		ss         [2 * MaxDigits]byte // for part 2 rotation check
-	)
+	var acc1, acc2 int // parts 1 and 2
 
 	input := bufio.NewScanner(os.Stdin)
 	input.Scan()
 
 	line := bytes.TrimSpace(input.Bytes()) // single line input
-	for _, span := range bytes.Split(line, []byte(",")) {
+
+	for span := range bytes.SplitSeq(line, []byte(",")) {
 		// parse range
 		bufA, bufB, _ := bytes.Cut(span, []byte("-"))
 
 		a, b := atoi(bufA), atoi(bufB)
 
+		// https://github.com/timvisee/advent-of-code-2025/blob/master/day02b/src/main.rs
 		for i := a; i <= b; i++ {
-			s := itoa(i)
-			slen := len(s)
-
-			// part1: check if s is a repetition
-			half := slen >> 1
-			if (slen&1 == 0) && slices.Equal(s[:half], s[half:]) {
-				acc1 += i
-			}
-
-			// part2: check if s is a rotation of itself
-			// double the slice in the buffer
-			copy(ss[:slen], s)
-			copy(ss[slen:], ss[:slen])
-
-			// check inside excluding full matches at ends
-			if bytes.Contains(ss[1:slen<<1-1], s) {
-				acc2 += i
+			switch {
+			case i >= 1_000_000_000:
+				switch {
+				case i%100_001 == 0:
+					acc1 += i
+					fallthrough
+				case i%101_010_101 == 0 || i%1_111_111_111 == 0:
+					acc2 += i
+				}
+			case i >= 100_000_000:
+				if i%1_001_001 == 0 || i%111_111_111 == 0 {
+					acc2 += i
+				}
+			case i >= 10_000_000:
+				switch {
+				case i%10_001 == 0:
+					acc1 += i
+					fallthrough
+				case i%1_010_101 == 0 || i%11_111_111 == 0:
+					acc2 += i
+				}
+			case i >= 10_000_000:
+				if i%1_010_101 == 0 || i%11_111_111 == 0 {
+					acc2 += i
+				}
+			case i >= 1_000_000:
+				if i%1_111_111 == 0 {
+					acc2 += i
+				}
+			case i >= 100_000:
+				switch {
+				case i%1_001 == 0:
+					acc1 += i
+					fallthrough
+				case i%10_101 == 0 || i%111_111 == 0:
+					acc2 += i
+				}
+			case i >= 10_000:
+				if i%11_111 == 0 {
+					acc2 += i
+				}
+			case i >= 1_000:
+				switch {
+				case i%101 == 0:
+					acc1 += i
+					fallthrough
+				case i%1_111 == 0:
+					acc2 += i
+				}
+			case i >= 100:
+				if i%111 == 0 {
+					acc2 += i
+				}
+			case i >= 10:
+				if i%11 == 0 {
+					acc1 += i
+					acc2 += i
+				}
 			}
 		}
 	}
@@ -68,23 +107,4 @@ func atoi(s []byte) (n int) {
 		n = 10*n + int(s[i]-'0')
 	}
 	return
-}
-
-// itoa converts n to its byte slice representation.
-// It is taylored for our inputs (n >= 0) of at most MaxDigits digits.
-// It prevents allocations by using a fixed-size array internally
-func itoa(n int) []byte {
-	if n == 0 {
-		return []byte("0")
-	}
-
-	var buf [MaxDigits]byte
-	i := len(buf)
-
-	for n > 0 {
-		i--
-		buf[i] = byte(n%10) + '0'
-		n /= 10
-	}
-	return buf[i:]
 }
