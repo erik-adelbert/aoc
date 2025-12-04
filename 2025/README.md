@@ -150,7 +150,7 @@ For the 2D grid itself, nothing beats a [1D grid](https://en.wikipedia.org/wiki/
 
 I didn't add a blank border to the grid because it would interfere with the index computations—and actually, I don't need to. The showcased code features a *branchless* neighborhood scan that is slightly incorrect because it includes the center roll itself. But this turns out to be beneficial: since we only scan *from* the rolls, it is easy to remove the center cell test in favor of thresholding at 4 rolls (3 neighbors + 1 center) during the entire scan.
 
-The time complexity of *one scan* is `O(n)`: it is easy to see that each cell is processed only once per scan. The total runtime depends on the input, its roll count, and the relative positions. For my input, it takes 70 loops to reduce the grid.
+The time complexity of *one scan* is `O(n)`: it is easy to see that each cell is processed only once per scan. The total runtime depends on the input, its roll count, and the relative positions. For my input, wich contains 64% of rolls, it takes 70 loops to reduce the grid.
 
 <div align="center">
   <img src="./images/aoc20251204.png" alt="Final grid" width="40%" />
