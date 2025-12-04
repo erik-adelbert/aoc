@@ -22,11 +22,6 @@ const (
 	MinRolls    = 4   // minimum roll neighbors to keep roll
 )
 
-const (
-	Empty byte = '.'
-	Roll  byte = '@'
-)
-
 func main() {
 	var part1, part2 int
 
@@ -108,8 +103,14 @@ func main() {
 	}
 
 	fmt.Println(part1, part2)
-	// fmt.Println(cur) // Uncomment to see final grid
+	// fmt.Println(cur) // uncomment to see the final grid
 }
+
+// sugars
+const (
+	Empty byte = '.'
+	Roll  byte = '@'
+)
 
 // grid represents a 2D grid of bytes in row-major order
 type grid struct {
