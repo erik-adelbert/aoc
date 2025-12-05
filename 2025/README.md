@@ -2,12 +2,12 @@
 
 | Day  | Time (ms) | % of Total |
 |------|----------:|-----------:|
-| 2    |       0.7 |      6.93% |
-| 1    |       0.9 |      8.91% |
-| 3    |       1.0 |      9.90% |
-| 5    |       1.0 |      9.90% |
-| 4    |       6.5 |     64.36% |
-| Total|      10.1 |    100.00% |
+| 2    |       0.7 |     12.96% |
+| 1    |       0.9 |     16.67% |
+| 3    |       1.0 |     18.52% |
+| 5    |       1.0 |     18.52% |
+| 4    |       1.8 |     33.33% |
+| Total|       5.4 |    100.00% |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 24.6.0 - go version go1.25.3 darwin/arm64 - hyperfine 1.20.0 - 2025-12
 
@@ -178,6 +178,16 @@ Having an adhoc `seq` type keeps the main intention obvious while [separating co
   <img src="./images/bolas.jpg" alt="Paper for matrix printers" width="60%" />
 </div>
 
+### Current Approach
+
+After having seen various solutions online, I have decided to remove the double-buffering and to favor a queue in which updates are stored before being bulk applied between steps. Moreover, the queue-based approach only processes cells that might have changed (neighbors of removed rolls) rather than scanning the entire grid each iteration. This transforms the algorithm from a grid-scanning problem to a change-propagation problem, with a time complexity linear with respect to the total removals.
+
+The implementation also eliminates the memory overhead of maintaining two grids by collecting removal positions first, then applying them atomically to prevent corruption during neighbor counting. Combined with preallocated queues and direct array indexing instead of hash maps for deduplication, this optimization achieves a **72% performance improvement** over the original double-buffered approach, bringing the runtime down from 6.5ms to 1.8ms.
+
+### First Approach
+
+**For the following discussion please checkout commit [06ede07](https://github.com/erik-adelbert/aoc/blob/06ede07387eb9f7ca4c23409e15c569aa844321f/2025/4/aoc4.go)**
+
 This challenge is the perfect opportunity to go fully old-school with the solution. It’s an AoC [classic](https://adventofcode.com/2021/day/20) that pops up regularly. It has nothing to do with mathematics and everything to do with programming efficiently for our machines when [processing images](https://en.wikipedia.org/wiki/Digital_image_processing). **If you're a beginner, you could benefit from working through this problem and studying its [various solutions](https://www.reddit.com/r/adventofcode/comments/1pdr8x6/2025_day_4_solutions/).**
 
 My technique of choice here is to [double-buffer](https://wiki.osdev.org/Double_Buffering) the grid. By doing this, the code kills the removal process with a single [double-stone](https://en.wikipedia.org/wiki/Bolas): it becomes natural to go from one step of the roll removals to the next by updating the *next* buffer from the *current* one and then swapping them.
@@ -212,4 +222,4 @@ go run ./aoc5.go < input.txt
 
 ### How is it going?
 
-After putting a lot of effort into day 2, I’m quite happy with the total time budget for the first five days: **10.1 ms**.
+After putting a lot of effort into day 2, I’m quite happy with the total time budget for the first five days: **5.4ms**.

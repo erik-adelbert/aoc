@@ -69,29 +69,29 @@ func cover(spans []span) int {
 		return 0
 	}
 
-	// Sort intervals by start position
+	// sort intervals by start position
 	slices.SortFunc(spans, func(a, b span) int {
 		return a.start - b.start
 	})
 
-	// Merge overlapping intervals and count cover
+	// merge overlapping intervals and count cover
 	cover := 0
 	cur := spans[0]
 
 	for i := 1; i < len(spans); i++ {
 		if spans[i].start <= cur.end+1 {
-			// Overlapping or adjacent intervals - merge
+			// overlapping or adjacent intervals - merge
 			if spans[i].end > cur.end {
 				cur.end = spans[i].end
 			}
 		} else {
-			// Non-overlapping interval - add current coverage and start new interval
+			// non-overlapping interval - add current coverage and start new interval
 			cover += cur.end - cur.start + 1
 			cur = spans[i]
 		}
 	}
 
-	// Add the last interval coverage
+	// add the last interval coverage
 	cover += cur.end - cur.start + 1
 	return cover
 }

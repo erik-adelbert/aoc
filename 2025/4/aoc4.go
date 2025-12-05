@@ -25,13 +25,7 @@ const (
 func main() {
 	var part1, part2 int
 
-	// prepare grids
-	grids := []*grid{
-		newGrid(MaxGridSize),
-		newGrid(MaxGridSize),
-	}
-
-	grid := grids[0]
+	grid := newGrid(MaxGridSize)
 
 	// read input grid
 	input := bufio.NewScanner(os.Stdin)
@@ -44,51 +38,88 @@ func main() {
 		copy(grid.data[i*grid.size:], buf)
 	}
 
-	// setup double buffer
-	cur := grids[0]
-	nxt := grids[1]
+	// scan for roll removal using single buffer + queue0 approach
+	queue0 := make([][2]int, 0, MaxGridSize*MaxGridSize) // preallocate queue
+	queue1 := make([][2]int, 0, MaxGridSize*MaxGridSize) // preallocate next queue
+	seen0 := make([]bool, MaxGridSize*MaxGridSize)       // prevent duplicate queue entries
 
-	nxt.size = cur.size
-
-	// scan for roll removal
-	done := false
-
-	for !done {
-		done = true // scan until no more removals
-
-		nremove := 0
-		for r := range cur.size {
-			for c := range cur.size {
-				i := r*cur.size + c // linear index
-
-				nxt.data[i] = cur.data[i] // default copy
-
-				if cur.data[i] != Roll {
-					continue // skip non-rolls entirely
+	// initially, queue all roll positions
+	for r := range grid.size {
+		for c := range grid.size {
+			if grid.data[r*grid.size+c] == Roll {
+				pos := [2]int{r, c}
+				i := r*grid.size + c
+				if !seen0[i] {
+					queue0 = append(queue0, pos)
+					seen0[i] = true
 				}
+			}
+		}
+	}
 
-				// define neighbor bounds
-				rmin := max(0, r-1)
-				rmax := min(cur.size-1, r+1)
-				cmin := max(0, c-1)
-				cmax := min(cur.size-1, c+1)
+	for len(queue0) > 0 {
+		queue1 = queue1[:0] // reset length, keep capacity
+		seen1 := make([]bool, MaxGridSize*MaxGridSize)
+		var toRemove []int // collect positions to remove
 
-				// scan neighbors -- including center roll
-				nrolls := 0
+		// process current queue - collect removals without modifying grid
+		for _, pos := range queue0 {
+			r, c := pos[0], pos[1]
+			i := r*grid.size + c
 
-				for nr := rmin; nr <= rmax; nr++ {
-					for nc := cmin; nc <= cmax; nc++ {
-						if cur.data[nr*cur.size+nc] == Roll {
-							nrolls++
-						}
+			if grid.data[i] != Roll {
+				continue // skip if not a roll
+			}
+
+			// define neighbor bounds
+			rmin := max(0, r-1)
+			rmax := min(grid.size-1, r+1)
+			cmin := max(0, c-1)
+			cmax := min(grid.size-1, c+1)
+
+			// scan neighbors -- including center roll
+			nrolls := 0
+
+			for nr := rmin; nr <= rmax; nr++ {
+				for nc := cmin; nc <= cmax; nc++ {
+					if grid.data[nr*grid.size+nc] == Roll {
+						nrolls++
 					}
 				}
+			}
 
-				// decide removal
-				if nrolls <= MinRolls { // include center roll
-					done = false
-					nxt.data[i] = Empty
-					nremove++
+			// decide removal
+			if nrolls <= MinRolls { // include center roll
+				toRemove = append(toRemove, i)
+			}
+		}
+
+		nremove := len(toRemove)
+
+		// apply all removals at once
+		for _, i := range toRemove {
+			grid.data[i] = Empty
+		}
+
+		// queue neighbors of removed rolls for next iteration
+		for _, i := range toRemove {
+			r, c := i/grid.size, i%grid.size
+
+			rmin := max(0, r-1)
+			rmax := min(grid.size-1, r+1)
+			cmin := max(0, c-1)
+			cmax := min(grid.size-1, c+1)
+
+			for nr := rmin; nr <= rmax; nr++ {
+				for nc := cmin; nc <= cmax; nc++ {
+					if grid.data[nr*grid.size+nc] == Roll { // only queue remaining rolls
+						nxtPos := [2]int{nr, nc}
+						i := nr*grid.size + nc
+						if !seen1[i] {
+							queue1 = append(queue1, nxtPos)
+							seen1[i] = true
+						}
+					}
 				}
 			}
 		}
@@ -99,11 +130,16 @@ func main() {
 		}
 		part2 += nremove
 
-		cur, nxt = nxt, cur // swap buffers
+		// prepare for next iteration
+		if nremove == 0 {
+			break // no more removals
+		}
+
+		queue0, seen0 = queue1, seen1
 	}
 
 	fmt.Println(part1, part2)
-	// fmt.Println(cur) // uncomment to see the final grid
+	// fmt.Println(grid) // uncomment to see the final grid
 }
 
 // sugars
