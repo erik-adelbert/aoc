@@ -2,11 +2,11 @@
 
 | Day  | Time (ms) | % of Total |
 |------|----------:|-----------:|
-| 1    |       0.8 |      5.71% |
-| 3    |       1.0 |      7.14% |
-| 2    |       5.7 |     40.71% |
-| 4    |       6.5 |     46.44% |
-| Total|      14.0 |    100.00% |
+| 2    |       0.7 |      7.69% |
+| 1    |       0.9 |      9.89% |
+| 3    |       1.0 |     10.99% |
+| 4    |       6.5 |     71.43% |
+| Total|       9.1 |    100.00% |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 24.6.0 - go version go1.25.3 darwin/arm64 - hyperfine 1.20.0 - 2025-12
 
@@ -52,9 +52,25 @@ The password method <span title='CLICK'><code>0x434C49434B</code></span> actuall
   <img src="./images/Serpiente_alquimica.jpg" alt="Ouroboros" width="60%" />
 </div>
 
-### Current Approach
+### Third Approach
 
-I have come across a better idea than my original approach and expanded on it. The insight is to exploit the properties of [Repunit](https://en.wikipedia.org/wiki/Repunit) numbers: within each numeric range, the repeating-digit numbers (the ones we need to detect in today’s challenge) are simply multiples of a small set of base values.
+As AoC is a gathering, I usually keep a back channel open with my fellow programmer and friend **hm** (pending link). From the very beginning, he had been insisting on how fast the generation of the numbers we are tasked to find in today’s challenge could be. He was convinced from the start that, given their regular nature, they were natural candidates for efficient generation… and it turns out he was right.
+
+I must admit I wasn’t convinced at first, but once we saw [Tim Visée’s solution](https://github.com/timvisee/advent-of-code-2025/blob/master/day02b/src/main.rs)—which does exactly the opposite by sieving the repeating numbers statically—the challenge was on.
+
+And here it is: possibly **the fastest way on earth** to compute the solution to today’s challenge. It runs in **less than 1 ms**.
+
+This code runs in `O(k)` time, with *k* being the number of ranges. **It shrinks the original 2M+ search space down to only ~1,800 relevant numbers.** It operates in constant memory and evaluates the repeating-number sums using direct arithmetic formulas.
+
+The flow starts by segmenting the input ranges into sub-ranges aligned on `[10, 1e2, ..., 1e9]` so that the appropriate generating seed values are naturally selected (see the second approach below). Thanks to the structure of the input, this results in only a single split once in a while. Put simply, once the ranges are aligned on successive powers of ten (from 1 to 9 digits), all repeating numbers become multiples of a small set of [Repunit-based](https://en.wikipedia.org/wiki/Repunit) numbers (1 or 2 per range).
+
+From there, given an interval `[a, b]` and its corresponding generating seeds `s0`, we simply compute the sum of the multiples of `s0` that fall within the range. The code uses an almost closed-form solution (i.e., an arithmetic formula) to achieve this, along with efficient techniques to handle well-known issues such as eliminating duplicate numbers when different seeds share common multiples within the same range, or merging seeds that become redundant.
+
+### Second Approach
+
+**For the following discussion please checkout commit  [1fd714e](https://github.com/erik-adelbert/aoc/blob/1fd714e7f1a3d37736e4e87a35544bd33a2c852a/2025/2/aoc2.go)**
+
+I have come across a better idea than my original approach and expanded on it. The insight is to exploit the properties of [Repunit](https://en.wikipedia.org/wiki/Repunit) numbers: within each numeric range, the repeating-digit numbers (the ones we need to detect in today’s challenge) are simply multiples of a small set of seed values.
 
 For example, between 10 and 99, it’s easy to see that all repeating numbers are multiples of 11.
 
@@ -67,9 +83,9 @@ As a final note, this solution uses `fallthrough`, which helps improve runtime.
 However, it’s not actually necessary: since part 2 includes part 1, all the
 `fallthrough` statements can be replaced with a single `part2 += part1` right before producing the final output.
 
-### Historical Approach
+### First Approach
 
-**For the following discussion please pull commit 06ede07**
+**For the following discussion please checkout commit [a89bc57](https://github.com/erik-adelbert/aoc/blob/a89bc57abece8df39e0ea2acbf5d6d4a9eae6924/2025/2/aoc2.go)**
 
 On this second day, the code speed conundrum begins: the challenge requires us to convert back and forth between integers and ASCII slices, and to check the allocated memory for certain patterns.
 

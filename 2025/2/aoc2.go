@@ -7,6 +7,8 @@
 // (ɔ) Erik Adelbert - erik_AT_adelbert_DOT_fr
 // -------------------------------------------
 // 2025-12-2: initial commit
+// 2025-12-4: Tim Visée's approach
+// 2025-12-5: improved approach discussed with hm - sub ms runtime
 
 package main
 
@@ -20,7 +22,7 @@ import (
 const MaxDigits = 10 // maximum digit count for our inputs
 
 func main() {
-	var acc1, acc2 int // parts 1 and 2
+	var acc1, acc2 int // parts 1 and 2 accumulators
 
 	input := bufio.NewScanner(os.Stdin)
 	input.Scan()
@@ -28,76 +30,132 @@ func main() {
 	line := bytes.TrimSpace(input.Bytes()) // single line input
 
 	for span := range bytes.SplitSeq(line, []byte(",")) {
-		// parse range
-		bufA, bufB, _ := bytes.Cut(span, []byte("-"))
+		bufA, bufB, _ := bytes.Cut(span, []byte("-")) // parse range
 
 		a, b := atoi(bufA), atoi(bufB)
 
-		// https://github.com/timvisee/advent-of-code-2025/blob/master/day02b/src/main.rs
-		for i := a; i <= b; i++ {
+		spans := splitSpan(a, b) // split into subranges
+
+		sub1, sub2 := 0, 0 // partial sums for this span
+		for _, span := range spans {
+			a, b := span[0], span[1]
+
 			switch {
-			case i >= 1_000_000_000:
-				switch {
-				case i%100_001 == 0:
-					acc1 += i
-					fallthrough
-				case i%101_010_101 == 0 || i%1_111_111_111 == 0:
-					acc2 += i
-				}
-			case i >= 100_000_000:
-				if i%1_001_001 == 0 || i%111_111_111 == 0 {
-					acc2 += i
-				}
-			case i >= 10_000_000:
-				switch {
-				case i%10_001 == 0:
-					acc1 += i
-					fallthrough
-				case i%1_010_101 == 0 || i%11_111_111 == 0:
-					acc2 += i
-				}
-			case i >= 10_000_000:
-				if i%1_010_101 == 0 || i%11_111_111 == 0 {
-					acc2 += i
-				}
-			case i >= 1_000_000:
-				if i%1_111_111 == 0 {
-					acc2 += i
-				}
-			case i >= 100_000:
-				switch {
-				case i%1_001 == 0:
-					acc1 += i
-					fallthrough
-				case i%10_101 == 0 || i%111_111 == 0:
-					acc2 += i
-				}
-			case i >= 10_000:
-				if i%11_111 == 0 {
-					acc2 += i
-				}
-			case i >= 1_000:
-				switch {
-				case i%101 == 0:
-					acc1 += i
-					fallthrough
-				case i%1_111 == 0:
-					acc2 += i
-				}
-			case i >= 100:
-				if i%111 == 0 {
-					acc2 += i
-				}
-			case i >= 10:
-				if i%11 == 0 {
-					acc1 += i
-					acc2 += i
-				}
+			case a >= 1_000_000_000:
+				const seed1, seed2 = 100_001, 101_010_101
+
+				// sum multiples of seed1
+				sub1 += sumMultiples(a, b, seed1)
+
+				// sum multiples of seed2, excluding common multiples already counted in sub1
+				sub2 += sumMultiples(a, b, seed2) - sumMultiples(a, b, lcm(seed2, seed1))
+			case a >= 100_000_000:
+				const seed2a, seed2b = 1_001_001, 111_111_111
+
+				sub2 += sumMultiples(a, b, seed2a)
+				sub2 += sumMultiples(a, b, seed2b)
+			case a >= 10_000_000:
+				const seed1, seed2 = 10_001, 11_111_111
+
+				sub1 += sumMultiples(a, b, seed1)
+
+				sub2 += sumMultiples(a, b, seed2) - sumMultiples(a, b, lcm(seed2, seed1))
+			case a >= 1_000_000:
+				const seed2 = 1_111_111
+
+				sub2 += sumMultiples(a, b, seed2)
+			case a >= 100_000:
+				const seed1, seed2 = 1_001, 10_101
+
+				sub1 += sumMultiples(a, b, seed1)
+
+				sub2 += sumMultiples(a, b, seed2) - sumMultiples(a, b, lcm(seed2, seed1))
+			case a >= 10_000:
+				const seed2 = 11_111
+
+				sub2 += sumMultiples(a, b, seed2)
+			case a >= 1_000:
+				const seed1 = 101
+
+				sub1 += sumMultiples(a, b, seed1)
+			case a >= 100:
+				const seed2 = 111
+
+				sub2 += sumMultiples(a, b, seed2)
+			case a >= 10:
+				const seed1 = 11
+
+				sub1 += sumMultiples(a, b, seed1)
 			}
+		}
+
+		acc1 += sub1
+		acc2 += sub2
+	}
+	acc2 += acc1 // part 2 includes part 1
+
+	fmt.Println(acc1, acc2)
+}
+
+// sumMultiples computes the sum of all multiples of x in the range [a, b]
+func sumMultiples(a, b, x int) int {
+	var first int
+
+	// first multiple: ceiling(a/x) * x
+	if first = ((a + x - 1) / x) * x; first > b {
+		return 0 // no multiples in range
+	}
+
+	// last multiple: floor(b/x) * x
+	last := (b / x) * x
+
+	// count of multiples
+	count := (last-first)/x + 1
+
+	// sum using arithmetic series
+	return count * (first + last) / 2
+}
+
+// splitSpan divides the range [a, b] into subranges based on splitPoints
+func splitSpan(a, b int) [][2]int {
+	var splitPoints = [...]int{
+		10, 100, 1_000, 10_000, 100_000, 1_000_000,
+		10_000_000, 100_000_000, 1_000_000_000,
+	}
+
+	var splits [][2]int
+
+	// start with the beginning of the range
+	start := a
+
+	// create subranges for each split point
+	for _, x := range splitPoints {
+		if x > start && x <= b {
+			// add range [start, x)
+			splits = append(splits, [2]int{start, x - 1})
+			start = x
 		}
 	}
 
-	fmt.Println(acc1, acc2)
+	// add the final range [last_split, b]
+	if start <= b {
+		splits = append(splits, [2]int{start, b})
+	}
+
+	return splits
+}
+
+// gcd computes the greatest common divisor of a and b
+func gcd(a, b int) int {
+	for b != 0 {
+		a, b = b, a%b
+	}
+	return a
+}
+
+// lcm computes the least common multiple of a and b
+func lcm(a, b int) int {
+	return a * b / gcd(a, b)
 }
 
 // strconv.Atoi simplified core loop
