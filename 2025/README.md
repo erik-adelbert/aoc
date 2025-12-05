@@ -2,11 +2,12 @@
 
 | Day  | Time (ms) | % of Total |
 |------|----------:|-----------:|
-| 2    |       0.7 |      7.69% |
-| 1    |       0.9 |      9.89% |
-| 3    |       1.0 |     10.99% |
-| 4    |       6.5 |     71.43% |
-| Total|       9.1 |    100.00% |
+| 2    |       0.7 |      6.93% |
+| 1    |       0.9 |      8.91% |
+| 3    |       1.0 |      9.90% |
+| 5    |       1.0 |      9.90% |
+| 4    |       6.5 |     64.36% |
+| Total|      10.1 |    100.00% |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 24.6.0 - go version go1.25.3 darwin/arm64 - hyperfine 1.20.0 - 2025-12
 
@@ -190,3 +191,25 @@ The time complexity of *one scan* is `O(n)`: it is easy to see that each cell is
 <div align="center">
   <img src="./images/aoc20251204.png" alt="Final grid" width="40%" />
 </div>
+
+## Day 5: [Cafeteria](https://adventofcode.com/2025/day/5)
+
+<div align="center">
+  <img src="./images/SpaceVegetables.jpg" alt="Space Vegetables" width="60%" />
+</div>
+
+I don’t have much to say about today’s challenge. In anticipation of part 2, I used an [interval tree](https://en.wikipedia.org/wiki/Interval_tree). But part 2 ultimately required merging the input ranges and computing the total coverage.
+
+With the tree and the coverage the complexity is dominated by `O(m log n)` where *m* is the query count and *n* the interval count. The storage complexity is obviously `O(n)`.
+
+The solution runs in under 1 ms on my inputs, which is perfectly fine. Let’s call it a win!
+
+```bash
+❯ make run
+go run ./aoc5.go < input.txt
+862 357907198933892
+```
+
+### How is it going?
+
+After putting a lot of effort into day 2, I’m quite happy with the total time budget for the first five days: **10.1 ms**.
