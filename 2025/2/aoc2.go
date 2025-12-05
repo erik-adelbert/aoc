@@ -39,13 +39,13 @@ func main() {
 
 			switch {
 			case a >= 1_000_000_000:
-				const seed1, seed2 = 100_001, 101_010_101
+				const seed1, seed2, lcm = 100_001, 101_010_101, 1_111_111_111
 
 				// sum all multiples of seed1
 				sub1 += sumMultiples(a, b, seed1)
 
 				// sum multiples of seed2, subtracting common multiples already counted in sub1
-				sub2 += sumMultiples(a, b, seed2) - sumMultiples(a, b, lcm(seed2, seed1))
+				sub2 += sumMultiples(a, b, seed2) - sumMultiples(a, b, lcm)
 			case a >= 100_000_000:
 				const seed2a, seed2b = 1_001_001, 111_111_111
 
@@ -56,17 +56,17 @@ func main() {
 
 				sub1 += sumMultiples(a, b, seed1)
 
-				sub2 += sumMultiples(a, b, seed2) - sumMultiples(a, b, lcm(seed2, seed1))
+				sub2 += sumMultiples(a, b, seed2)
 			case a >= 1_000_000:
 				const seed2 = 1_111_111
 
 				sub2 += sumMultiples(a, b, seed2)
 			case a >= 100_000:
-				const seed1, seed2 = 1_001, 10_101
+				const seed1, seed2, lcm = 1_001, 10_101, 111_111
 
 				sub1 += sumMultiples(a, b, seed1)
 
-				sub2 += sumMultiples(a, b, seed2) - sumMultiples(a, b, lcm(seed2, seed1))
+				sub2 += sumMultiples(a, b, seed2) - sumMultiples(a, b, lcm)
 			case a >= 10_000:
 				const seed2 = 11_111
 
@@ -137,19 +137,6 @@ func sumMultiples(a, b, x int) int {
 
 	// sum using arithmetic series
 	return count * (first + last) / 2
-}
-
-// gcd computes the greatest common divisor of a and b
-func gcd(a, b int) int {
-	for b != 0 {
-		a, b = b, a%b
-	}
-	return a
-}
-
-// lcm computes the least common multiple of a and b
-func lcm(a, b int) int {
-	return a * b / gcd(a, b)
 }
 
 // strconv.Atoi simplified core loop

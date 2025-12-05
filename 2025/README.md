@@ -55,7 +55,7 @@ The password method <span title='CLICK'><code>0x434C49434B</code></span> actuall
 
 ### Third Approach
 
-As AoC is a gathering, I usually keep a back channel open with my fellow programmer and friend **hm** (pending link). From the very beginning, he had been insisting on how fast the generation of the numbers we are tasked to find in today’s challenge could be. He was convinced from the start that, given their regular nature, they were natural candidates for efficient generation… and it turns out he was right.
+As AoC is a gathering, I usually keep a back channel open with my fellow programmer and friend **[hm](https://blog.izissise.net/)**. From the very beginning, he had been insisting on how fast the generation of the numbers we are tasked to find in today’s challenge could be. He was convinced from the start that, given their regular nature, they were natural candidates for efficient generation… and it turns out he was right.
 
 I must admit I wasn’t convinced at first, but once we saw [Tim Visée’s solution](https://github.com/timvisee/advent-of-code-2025/blob/master/day02b/src/main.rs)—which does exactly the opposite by sieving the repeating numbers statically—the challenge was on.
 
@@ -223,3 +223,22 @@ go run ./aoc5.go < input.txt
 ### How is it going?
 
 After putting a lot of effort into day 2, I’m quite happy with the total time budget for the first five days: **5.4ms**.
+
+```bash
+cloc 1 2 3 4 5
+      26 text files.
+      23 unique files.
+       3 files ignored.
+
+github.com/AlDanial/cloc v 2.06  T=0.03 s (821.8 files/s, 260665.6 lines/s)
+-------------------------------------------------------------------------------
+Language                     files          blank        comment           code
+-------------------------------------------------------------------------------
+Text                            10              2              0           6339
+Go                               6            153            126            653
+Markdown                         5              0              0             20
+make                             2              0              0              2
+-------------------------------------------------------------------------------
+SUM:                            23            155            126           7014
+-------------------------------------------------------------------------------
+```

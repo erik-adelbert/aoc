@@ -172,3 +172,82 @@ func TestSumMultiples(t *testing.T) {
 		})
 	}
 }
+
+func TestLCM(t *testing.T) {
+	tests := []struct {
+		name     string
+		a, b     int
+		expected int
+	}{
+		{
+			name:     "lcm of 1 and any number",
+			a:        1,
+			b:        5,
+			expected: 5,
+		},
+		{
+			name:     "lcm of same numbers",
+			a:        7,
+			b:        7,
+			expected: 7,
+		},
+		{
+			name:     "lcm of coprime numbers",
+			a:        3,
+			b:        5,
+			expected: 15,
+		},
+		{
+			name:     "lcm of numbers with common factor",
+			a:        6,
+			b:        9,
+			expected: 18,
+		},
+		{
+			name:     "lcm where one divides the other",
+			a:        4,
+			b:        12,
+			expected: 12,
+		},
+		{
+			name:     "lcm of larger numbers",
+			a:        15,
+			b:        20,
+			expected: 60,
+		},
+		{
+			name:     "lcm with zero (edge case)",
+			a:        0,
+			b:        5,
+			expected: 0,
+		},
+		{
+			name:     "lcm of powers of 2",
+			a:        8,
+			b:        16,
+			expected: 16,
+		},
+		{
+			name:     "lcm of large primes",
+			a:        97,
+			b:        101,
+			expected: 9797,
+		},
+		{
+			name:     "lcm order independence",
+			a:        12,
+			b:        8,
+			expected: 24,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lcm(tt.a, tt.b)
+			if result != tt.expected {
+				t.Errorf("lcm(%d, %d) = %d, expected %d",
+					tt.a, tt.b, result, tt.expected)
+			}
+		})
+	}
+}
