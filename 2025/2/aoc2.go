@@ -16,10 +16,9 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"iter"
 	"os"
 )
-
-const MaxDigits = 10 // maximum digit count for our inputs
 
 func main() {
 	var acc1, acc2 int // parts 1 and 2 accumulators
@@ -34,10 +33,8 @@ func main() {
 
 		a, b := atoi(bufA), atoi(bufB)
 
-		spans := splitSpan(a, b) // split into subranges
-
-		sub1, sub2 := 0, 0 // partial sums for this span
-		for _, span := range spans {
+		sub1, sub2 := 0, 0                      // partial sums for this span
+		for span := range allSplitSpans(a, b) { // split into subranges
 			a, b := span[0], span[1]
 
 			switch {
@@ -97,9 +94,35 @@ func main() {
 	fmt.Println(acc1, acc2)
 }
 
+// allSplitSpans iterates over subranges of [a, b] split at ten powers boundaries
+func allSplitSpans(a, b int) iter.Seq[[2]int] {
+	return func(yield func([2]int) bool) {
+		var splitPoints = [...]int{
+			10, 100, 1_000, 10_000, 100_000, 1_000_000,
+			10_000_000, 100_000_000, 1_000_000_000,
+		}
+
+		start := a
+
+		for _, x := range splitPoints {
+			if x > start && x <= b {
+				if !yield([2]int{start, x - 1}) {
+					return
+				}
+				start = x
+			}
+		}
+
+		// yield the final range [last_split, b] and return anyway
+		if start <= b {
+			yield([2]int{start, b})
+		}
+	}
+}
+
 // sumMultiples computes the sum of all multiples of x in the range [a, b]
 func sumMultiples(a, b, x int) int {
-	var first int
+	var first, last int // first and last multiples of x in [a, b]
 
 	// first multiple: ceiling(a/x) * x
 	if first = ((a + x - 1) / x) * x; first > b {
@@ -107,42 +130,13 @@ func sumMultiples(a, b, x int) int {
 	}
 
 	// last multiple: floor(b/x) * x
-	last := (b / x) * x
+	last = (b / x) * x
 
 	// count of multiples
 	count := (last-first)/x + 1
 
 	// sum using arithmetic series
 	return count * (first + last) / 2
-}
-
-// splitSpan divides the range [a, b] into subranges based on splitPoints
-func splitSpan(a, b int) [][2]int {
-	var splitPoints = [...]int{
-		10, 100, 1_000, 10_000, 100_000, 1_000_000,
-		10_000_000, 100_000_000, 1_000_000_000,
-	}
-
-	var splits [][2]int
-
-	// start with the beginning of the range
-	start := a
-
-	// create subranges for each split point
-	for _, x := range splitPoints {
-		if x > start && x <= b {
-			// add range [start, x)
-			splits = append(splits, [2]int{start, x - 1})
-			start = x
-		}
-	}
-
-	// add the final range [last_split, b]
-	if start <= b {
-		splits = append(splits, [2]int{start, b})
-	}
-
-	return splits
 }
 
 // gcd computes the greatest common divisor of a and b
