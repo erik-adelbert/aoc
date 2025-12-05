@@ -41,10 +41,10 @@ func main() {
 			case a >= 1_000_000_000:
 				const seed1, seed2 = 100_001, 101_010_101
 
-				// sum multiples of seed1
+				// sum all multiples of seed1
 				sub1 += sumMultiples(a, b, seed1)
 
-				// sum multiples of seed2, excluding common multiples already counted in sub1
+				// sum multiples of seed2, subtracting common multiples already counted in sub1
 				sub2 += sumMultiples(a, b, seed2) - sumMultiples(a, b, lcm(seed2, seed1))
 			case a >= 100_000_000:
 				const seed2a, seed2b = 1_001_001, 111_111_111
