@@ -121,11 +121,12 @@ func main() {
 	fmt.Println(acc1, acc2)
 }
 
-// atoi converts a byte slice representing a decimal integer to int
-func atoi(s []byte) int {
-	n := 0
+// strconv.Atoi simplified core loop
+// s is ^\d+$
+func atoi(s []byte) (n int) {
 	for i := range s {
-		n = n*10 + int(s[i]-'0')
+		n = 10*n + int(s[i]-'0')
 	}
-	return n
+
+	return
 }

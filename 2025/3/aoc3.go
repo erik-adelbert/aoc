@@ -52,7 +52,7 @@ func main() {
 	fmt.Println(sum1, sum2)
 }
 
-// seq is a sequence of digits with greedy removal
+// seq is a sequence of digits with greedy removal of k digits
 // to keep it lexicographically largest
 type seq struct {
 	digits []byte
@@ -60,8 +60,8 @@ type seq struct {
 	krem   int // remaining removals
 }
 
-// newSeq creates a new preallocated sequence
-// the sequence should be reset for use/reuse
+// newSeq creates a new preallocated maximizing sequence.
+// Call [seq.reset] prior to using/reusing the sequence.
 func newSeq() *seq {
 	return &seq{
 		digits: make([]byte, 0, MaxDigits), // preallocate
@@ -81,7 +81,6 @@ func (s *seq) reset(size, inputSize int) {
 // push a new digit, removing larger trailing digits if possible
 // to keep the sequence lexicographically largest
 func (s *seq) push(c byte) {
-
 	// remove larger trailing digits while we can
 	for s.krem > 0 && !s.empty() && c > s.peek() {
 		last := len(s.digits) - 1
@@ -99,6 +98,7 @@ func (s *seq) val() (n int) {
 	for i := range s.digits[:s.size] {
 		n = 10*n + ctoi(s.digits[i])
 	}
+
 	return
 }
 
@@ -109,10 +109,6 @@ func (s *seq) peek() byte {
 	return s.digits[last]
 }
 
-func (s *seq) empty() bool {
-	return len(s.digits) == 0
-}
+func (s *seq) empty() bool { return len(s.digits) == 0 }
 
-func ctoi(c byte) int {
-	return int(c - '0')
-}
+func ctoi(c byte) int { return int(c - '0') }

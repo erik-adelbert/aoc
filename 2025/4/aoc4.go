@@ -23,7 +23,7 @@ const (
 )
 
 func main() {
-	var part1, part2 int
+	var acc1, acc2 int // parts 1 and 2 accumulators
 
 	grid := newGrid(MaxGridSize)
 
@@ -125,10 +125,10 @@ func main() {
 		}
 
 		// update counts
-		if part1 == 0 {
-			part1 = nremove // first removal count
+		if acc1 == 0 {
+			acc1 = nremove // first removal count
 		}
-		part2 += nremove
+		acc2 += nremove
 
 		// prepare for next iteration
 		if nremove == 0 {
@@ -138,7 +138,7 @@ func main() {
 		queue0, seen0 = queue1, seen1
 	}
 
-	fmt.Println(part1, part2)
+	fmt.Println(acc1, acc2)
 	// fmt.Println(grid) // uncomment to see the final grid
 }
 

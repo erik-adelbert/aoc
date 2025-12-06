@@ -23,7 +23,7 @@ const (
 )
 
 func main() {
-	var count1, count2 int // parts 1 and 2 counts
+	var acc1, acc2 int // parts 1 and 2 counts
 
 	// read spans and queries
 	input := bufio.NewScanner(os.Stdin)
@@ -42,7 +42,7 @@ func main() {
 
 			// calculate total coverage from merged intervals
 			// and populate the span tree
-			count2 = cover(tree, spans)
+			acc2 = cover(tree, spans)
 
 			state = ReadQueries
 		case state == ReadSpans:
@@ -56,12 +56,12 @@ func main() {
 
 			// query spans containing v
 			if len(tree.query(v)) > 0 {
-				count1++
+				acc1++
 			}
 		}
 	}
 
-	fmt.Println(count1, count2)
+	fmt.Println(acc1, acc2)
 }
 
 // cover merges overlapping intervals and calculates total coverage

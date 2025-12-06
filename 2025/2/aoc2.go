@@ -145,5 +145,6 @@ func atoi(s []byte) (n int) {
 	for i := range s {
 		n = 10*n + int(s[i]-'0')
 	}
+
 	return
 }

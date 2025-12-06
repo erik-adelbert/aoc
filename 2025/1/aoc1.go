@@ -19,7 +19,7 @@ import (
 const MaxDial = 100
 
 func main() {
-	var pwd1, pwd2 int // passwords
+	var acc1, acc2 int // passwords for parts 1 and 2
 
 	old, cur := MaxDial/2, MaxDial/2 // dial starts at 50
 
@@ -31,7 +31,7 @@ func main() {
 		dir, n := buf[0], atoi(buf[1:]) // parse direction and number
 
 		// handle large movements
-		pwd2 += n / MaxDial // count full wraps
+		acc2 += n / MaxDial // count full wraps
 		n %= MaxDial        // reduce to within one wrap
 
 		// move dial: default to left turn
@@ -46,22 +46,22 @@ func main() {
 
 		switch {
 		case old == 0:
-			// cannot reach or cross zero from zero in one move
+			// cannot reach or cross zero from zero in less than a wrap
 			// count nothing
 		case cur == 0:
 			// part1: count turns landing on zero
-			pwd1++
+			acc1++
 		case (old < cur) == (dir == 'L'), // position increased when turning left
 			(old > cur) == (dir == 'R'): // position decreased when turning right
 			// part2: count turns crossing zero
-			pwd2++
+			acc2++
 		}
 
 		old = cur // update
 	}
-	pwd2 += pwd1 // part2 includes part1
+	acc2 += acc1 // part2 includes part1
 
-	fmt.Println(pwd1, pwd2) // output passwords
+	fmt.Println(acc1, acc2) // output passwords
 }
 
 // strconv.Atoi simplified core loop
@@ -70,5 +70,6 @@ func atoi(s []byte) (n int) {
 	for i := range s {
 		n = 10*n + int(s[i]-'0')
 	}
+
 	return
 }
