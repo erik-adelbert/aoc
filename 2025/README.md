@@ -249,6 +249,75 @@ SUM:                            23            155            126           7014
 -------------------------------------------------------------------------------
 ```
 
+## A 5mn crash-introduction to cache and GC friendly solutions
+
+I solved the Day 4 challenge without losing sight of the [Go memory model](https://go.dev/ref/mem) and, more broadly, how [memory is managed](https://en.wikipedia.org/wiki/Virtual_memory) in our computers (or at least the much simpler real-life version of it—bear with me). I approached it this way because I strongly believe that [mechanical sympathy](https://newsletter.appliedgo.net/archive/2025-11-30-mechanical-sympathy/) improves program efficiency without requiring any energy beyond the effort of thought.
+
+I’m not going to elaborate on what mechanical sympathy is or what it might mean for us to possess it. In everyday life, it’s much simpler than it sounds. Suppose—purely for the sake of demonstration—you need the best possible performance when thinning a cellular automaton through repeated application of the same rule. Everything works: your logic is flawless, and the result is correct. Naturally, Go slices are extremely useful here and well-suited to the task.
+
+Now, let’s talk about two of the eight benchmarks that you can [find](https://github.com/erik-adelbert/aoc/tree/main/2025/4) alongside the Day 4 solution.
+
+First, let’s look at this one:
+
+```Go
+// BenchmarkPreallocatedWithCopy shows the efficient approach for copying
+func BenchmarkPreallocatedWithCopy(b *testing.B) {
+    src := slices.Repeat([]byte{1}, 1024)
+    buf := make([]byte, 1024) // GOOD: allocate once
+
+    for b.Loop() {
+        // GOOD: just copy to pre-allocated buffer
+        copy(buf, src)
+
+        // Prevent optimization
+        sink = buf
+    }
+}
+```
+
+The goal is to create a fresh working copy of a source slice at each iteration of a loop. In this example, everything is fine: the buffers exist at the same scope level, and aside from resetting the contents of `buf` each iteration, nothing never changes. We never need to modify their size, nor do we need to worry about how memory management might behave, because we’re using them consistently. Right?
+
+But the thing is, in real life we often fixate on small details and lose sight of the bigger picture—and that’s when patterns like this can appear:
+
+```Go
+// BenchmarkCarelessAllocations demonstrates the performance impact of allocating
+// in tight loops - this is what NOT to do in performance-critical code
+func BenchmarkCarelessAllocations(b *testing.B) {
+    for b.Loop() {
+        // BAD: allocating inside the loop
+        buf := make([]byte, 1024)
+
+        // Fill buffer with 1s
+        for i := range 1024 {
+            buf[i] = 1
+        }
+
+        // Prevent optimization by assigning to global
+        sink = buf
+    }
+}
+```
+
+The point is the same as before and surely the result is correct. But this time, the code applies maximum pressure by claiming short lived memory at a very high pace in its core loop.
+
+What the hell does this mean? Actually, It means this:
+
+```bash
+❯ go test -bench="BenchmarkCarelessAllocations$|BenchmarkPreallocatedWithCopy$" -benchmem
+goos: darwin
+goarch: arm64
+pkg: github.com/erik-adelbert/aoc/2025/4
+cpu: Apple M1
+BenchmarkCarelessAllocations-8           2109789               489.6 ns/op          1024 B/op          1 allocs/op
+BenchmarkPreallocatedWithCopy-8         84923436                13.77 ns/op            0 B/op          0 allocs/op
+PASS
+ok      github.com/erik-adelbert/aoc/2025/4     2.434s
+```
+
+Never having to think about the right place to declare a buffer can lead to a 30× slowdown—wasting at least some electricity for no real benefit in return.
+
+If you’re interested in reviewing your own solutions for allocation mishaps, you may find the other six benchmarks useful. They illustrate a variety of good and bad patterns you may have used without realizing it, along with an accompanying analysis summarizing the keypoints.
+
 ## Day 6: [Trash Compactor](https://adventofcode.com/2025/day/6)
 
 <div align="center">
