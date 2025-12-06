@@ -29,17 +29,17 @@ func main() {
 		lines = append(lines, bytes.Clone(input.Bytes()))
 	}
 
-	// parse operations from last line
-	ops := lines[len(lines)-1]
+	// parse layout from the last line
+	layout := lines[len(lines)-1]
 
 	// determine column positions and extract operations
-	cols := make([]int, 0, 1000)      // pre-allocate for typical 1000 columns
-	cleanOps := make([]byte, 0, 1000) // pre-allocate for typical 1000 operations
+	cols := make([]int, 0, 1000) // pre-allocate for typical 1000 columns
+	ops := make([]byte, 0, 1000) // pre-allocate for typical 1000 operations
 
-	for i, op := range ops {
+	for i, op := range layout {
 		if op != ' ' {
 			cols = append(cols, i)
-			cleanOps = append(cleanOps, op)
+			ops = append(ops, op)
 		}
 	}
 
@@ -54,11 +54,12 @@ func main() {
 	widths[len(widths)-1] = [2]int{last, size}
 
 	// split lines into columns
-	numRows := len(lines) - 1
-	splits := make([][][]byte, numRows)
+	nrows := len(lines) - 1
+	splits := make([][][]byte, nrows)
 
 	for row := range splits {
 		splits[row] = make([][]byte, len(widths))
+
 		for col, width := range widths {
 			a, b := width[0], width[1]
 			splits[row][col] = lines[row][a : b-1]
@@ -69,7 +70,7 @@ func main() {
 	tokens := make([][][]byte, len(splits[0]))
 
 	for col := range tokens {
-		tokens[col] = make([][]byte, numRows)
+		tokens[col] = make([][]byte, nrows)
 		for row := range splits {
 			tokens[col][row] = splits[row][col]
 		}
@@ -93,7 +94,7 @@ func main() {
 			}
 		}
 
-		switch cleanOps[col] {
+		switch ops[col] {
 		case '+':
 			for row := range token {
 				acc1 += atoi(bytes.TrimSpace(token[row]))
