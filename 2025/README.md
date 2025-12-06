@@ -254,8 +254,8 @@ SUM:                            23            155            126           7014
 
 The challenge presents a problem that’s a perfect opportunity to practice working with Go [slices](https://go.dev/tour/moretypes/7) and understanding how they relate to the [memory management](https://go.dev/tour/moretypes/7) provided by the Go runtime.
 
-The solution is very straightforward and mainly involves retrieving and organizing data from the input byte matrix. The key insight is to extract the matrix layout from the last line: since the operators are left-aligned within their columns, it’s much easier to determine each column’s width from that line than from any other.
+The solution is very straightforward and mainly involves retrieving and organizing data from the input considered as a byte matrix. The key insight is to extract the matrix layout from the last line: since the operators are left-aligned within their columns, it’s much easier to determine each column’s fixed width from that line than from any other, avoiding altogether the “what kind of space is this space?” conundrum.
 
-I also went a step further and transposed the matrix so the numbers are grouped by column. Transposing the column submatrix is also essential for part two.
+I also went a step further and [transposed](https://en.wikipedia.org/wiki/Transpose) the matrix so the numbers are grouped by column. Transposing the column submatrices (i.e., inducing machines to read from top to bottom) is also essential for part two.
 
-The program isn’t the prettiest, but it gets the job done in 86 lines. I believe the code runs in `O(n)` time, where *n* is the number of digits in the matrix. It executes in under 1 ms.
+The program isn’t the prettiest, but it gets the job done in 85 lines. I believe the code runs in `O(n)` time, where *n* is the number of digits in the matrix. It executes in under 1 ms.

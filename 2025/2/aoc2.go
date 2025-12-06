@@ -33,8 +33,8 @@ func main() {
 
 		a, b := atoi(bufA), atoi(bufB)
 
-		sub1, sub2 := 0, 0                      // partial sums for this span
-		for span := range allSplitSpans(a, b) { // split into subranges
+		sub1, sub2 := 0, 0                        // partial sums for this span
+		for span := range allAlignedSpans(a, b) { // split into aligned subranges
 			a, b := span[0], span[1]
 
 			switch {
@@ -94,8 +94,9 @@ func main() {
 	fmt.Println(acc1, acc2)
 }
 
-// allSplitSpans iterates over subranges of [a, b] split at ten powers boundaries
-func allSplitSpans(a, b int) iter.Seq[[2]int] {
+// allAlignedSpans iterates over subranges of [a, b] split at ten powers boundaries
+// e.g., [95, 105] -> [95, 99], [100, 105]
+func allAlignedSpans(a, b int) iter.Seq[[2]int] {
 	return func(yield func([2]int) bool) {
 		var splitPoints = [...]int{
 			10, 100, 1_000, 10_000, 100_000, 1_000_000,

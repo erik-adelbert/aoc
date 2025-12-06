@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestAllSplitSpans(t *testing.T) {
+func TestAllAlignedSpans(t *testing.T) {
 	tests := []struct {
 		name     string
 		a, b     int
@@ -67,7 +67,7 @@ func TestAllSplitSpans(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var result [][2]int
-			for span := range allSplitSpans(tt.a, tt.b) {
+			for span := range allAlignedSpans(tt.a, tt.b) {
 				result = append(result, span)
 			}
 
