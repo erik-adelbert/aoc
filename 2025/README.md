@@ -2,13 +2,13 @@
 
 | Day  | Time (ms) | % of Total |
 |------|----------:|-----------:|
-| 2    |       0.7 |     10.94% |
-| 1    |       0.9 |     14.06% |
-| 3    |       1.0 |     15.62% |
-| 5    |       1.0 |     15.62% |
-| 6    |       1.0 |     15.62% |
-| 4    |       1.8 |     28.13% |
-| Total|       6.4 |    100.00% |
+| 2    |       0.7 |     11.29% |
+| 1    |       0.9 |     14.52% |
+| 3    |       1.0 |     16.13% |
+| 5    |       1.0 |     16.13% |
+| 6    |       1.0 |     16.13% |
+| 4    |       1.6 |     25.81% |
+| Total|       6.2 |    100.00% |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 24.6.0 - go version go1.25.3 darwin/arm64 - hyperfine 1.20.0 - 2025-12
 
@@ -181,7 +181,10 @@ Having an adhoc `seq` type keeps the main intention obvious while [separating co
 
 ### Current Approach
 
-After having seen various solutions online, I have decided to remove the double-buffering and to favor a queue in which updates are stored before being bulk applied between steps. Moreover, the queue-based approach only processes cells that might have changed (neighbors of removed rolls) rather than scanning the entire grid each iteration. This transforms the algorithm from a grid-scanning problem to a change-propagation problem, with a time complexity linear with respect to the total removals.
+After seeing various solutions online, I decided to move the double buffering off the grid in favor of a [double-buffered](https://wiki.osdev.org/Double_Buffering) queue, where updates are stored and removals are bulk-applied between steps. Moreover, the queue-based approach processes only the cells that might have changed (the neighbors of removed rolls) rather than scanning the entire grid on each iteration. This transforms the algorithm from a grid-scanning problem into a change-propagation problem, with a time complexity linear in the number of total removals.
+
+This also means that the general theory now relates to [cellular automata](https://en.wikipedia.org/wiki/Cellular_automaton).
+
 
 The implementation also eliminates the memory overhead of maintaining two grids by collecting removal positions first, then applying them atomically to prevent corruption during neighbor counting. Combined with preallocated queues and direct array indexing instead of hash maps for deduplication, this optimization achieves a **72% performance improvement** over the original double-buffered approach, bringing the runtime down from 6.5ms to 1.8ms.
 

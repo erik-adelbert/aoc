@@ -18,8 +18,9 @@ import (
 )
 
 const (
-	MaxGridSize = 140 // maximum grid size
-	MinRolls    = 4   // minimum roll neighbors to keep roll
+	RemoveSizeHint = 1500 // from previous runs
+	MaxGridSize    = 140  // maximum grid size
+	MinRolls       = 4    // minimum neighbors to keep a cell
 )
 
 func main() {
@@ -30,7 +31,7 @@ func main() {
 	// read input grid
 	input := bufio.NewScanner(os.Stdin)
 
-	for i := 0; input.Scan(); i++ {
+	for i := 0; input.Scan(); i++ { // enumerate input rows
 		buf := input.Bytes()
 
 		grid.size = len(buf)
@@ -39,28 +40,37 @@ func main() {
 	}
 
 	// scan for roll removal using single buffer + queue0 approach
-	queue0 := make([][2]int, 0, MaxGridSize*MaxGridSize) // preallocate queue
-	queue1 := make([][2]int, 0, MaxGridSize*MaxGridSize) // preallocate next queue
-	seen0 := make([]bool, MaxGridSize*MaxGridSize)       // prevent duplicate queue entries
+
+	// preallocate double buffer queues
+	queue0 := make([][2]int, 0, MaxGridSize*MaxGridSize)
+	queue1 := make([][2]int, 0, MaxGridSize*MaxGridSize)
+
+	// preallocate double buffer presence maps
+	seen0 := make([]bool, MaxGridSize*MaxGridSize)
+	seen1 := make([]bool, MaxGridSize*MaxGridSize)
 
 	// initially, queue all roll positions
 	for r := range grid.size {
 		for c := range grid.size {
 			if grid.data[r*grid.size+c] == Roll {
-				pos := [2]int{r, c}
+				nxt := [2]int{r, c} // next candidate position
+
 				i := r*grid.size + c
 				if !seen0[i] {
-					queue0 = append(queue0, pos)
+					queue0 = append(queue0, nxt)
 					seen0[i] = true
 				}
 			}
 		}
 	}
 
-	for len(queue0) > 0 {
-		queue1 = queue1[:0] // reset length, keep capacity
-		seen1 := make([]bool, MaxGridSize*MaxGridSize)
-		var toRemove []int // collect positions to remove
+	toRemove := make([]int, 0, RemoveSizeHint)
+
+	for {
+		clear(seen1) // reset presence map for next queue
+
+		queue1 = queue1[:0]     // reset length, keep capacity
+		toRemove = toRemove[:0] // roll to remove positions
 
 		// process current queue - collect removals without modifying grid
 		for _, pos := range queue0 {
@@ -105,6 +115,7 @@ func main() {
 		for _, i := range toRemove {
 			r, c := i/grid.size, i%grid.size
 
+			// branchless neighbor bounds
 			rmin := max(0, r-1)
 			rmax := min(grid.size-1, r+1)
 			cmin := max(0, c-1)
@@ -113,10 +124,11 @@ func main() {
 			for nr := rmin; nr <= rmax; nr++ {
 				for nc := cmin; nc <= cmax; nc++ {
 					if grid.data[nr*grid.size+nc] == Roll { // only queue remaining rolls
-						nxtPos := [2]int{nr, nc}
+						nxt := [2]int{nr, nc} // next candidate position
+
 						i := nr*grid.size + nc
 						if !seen1[i] {
-							queue1 = append(queue1, nxtPos)
+							queue1 = append(queue1, nxt)
 							seen1[i] = true
 						}
 					}
@@ -135,7 +147,7 @@ func main() {
 			break // no more removals
 		}
 
-		queue0, seen0 = queue1, seen1
+		queue0, seen0 = queue1, seen1 // swap queues and presence maps
 	}
 
 	fmt.Println(acc1, acc2)
