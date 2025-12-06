@@ -251,6 +251,10 @@ SUM:                            23            155            126           7014
 
 ## A 5mn crash-introduction to cache and GC friendly solutions
 
+<div align="center">
+  <img src="./images/StarWars.jpg" alt="Chewbacca saving c3po" width="60%" />
+</div>
+
 I solved the Day 4 challenge without losing sight of the [Go memory model](https://go.dev/ref/mem) and, more broadly, how [memory is managed](https://en.wikipedia.org/wiki/Virtual_memory) in our computers (or at least the much simpler real-life version of it—bear with me). I approached it this way because I strongly believe that [mechanical sympathy](https://newsletter.appliedgo.net/archive/2025-11-30-mechanical-sympathy/) improves program efficiency without requiring any energy beyond the effort of thought.
 
 I’m not going to elaborate on what mechanical sympathy is or what it might mean for us to possess it. In everyday life, it’s much simpler than it sounds. Suppose—purely for the sake of demonstration—you need the best possible performance when thinning a cellular automaton through repeated application of the same rule. Everything works: your logic is flawless, and the result is correct. Naturally, Go slices are extremely useful here and well-suited to the task.
