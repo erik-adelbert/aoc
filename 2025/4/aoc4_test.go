@@ -31,13 +31,12 @@ func BenchmarkPreallocated(b *testing.B) {
 	buf := make([]byte, 1024)
 
 	for b.Loop() {
-		// Reset and fill buffer with 1s
+		// fill buffer with 1s
 		for i := range 1024 {
 			buf[i] = 1
 		}
 
-		// Prevent optimization by assigning to global
-		sink = buf
+		sink = buf // prevent optimization by assigning to global
 	}
 }
 
@@ -46,10 +45,6 @@ func BenchmarkPreallocated(b *testing.B) {
 func BenchmarkCarelessAllocationsWithCopy(b *testing.B) {
 	// GOOD: allocate and fill once outside the loop
 	src := slices.Repeat([]byte{1}, 1024)
-
-	for i := range 1024 {
-		src[i] = 1
-	}
 
 	for b.Loop() {
 		// BAD: allocating and copying inside the loop
@@ -69,8 +64,7 @@ func BenchmarkPreallocatedWithCopy(b *testing.B) {
 		// GOOD: just copy to pre-allocated buffer
 		copy(buf, src)
 
-		// Prevent optimization
-		sink = buf
+		sink = buf // prevent optimization
 	}
 }
 
@@ -81,10 +75,14 @@ func BenchmarkWorstCase(b *testing.B) {
 		tmp := make([]byte, 512)
 		buf := make([]byte, 1024)
 
+		sink = buf // prevent optimization
+
 		// Fill temp with 1s
 		for i := range tmp {
 			tmp[i] = 1
 		}
+
+		sink = tmp // prevent optimization
 
 		// Copy temp twice to fill buffer
 		copy(buf[:512], tmp)
@@ -95,21 +93,6 @@ func BenchmarkWorstCase(b *testing.B) {
 		copy(res, buf)
 
 		sink = res // prevent optimization
-	}
-}
-
-// BenchmarkOptimized shows how the same work can be done efficiently
-func BenchmarkOptimized(b *testing.B) {
-	// EXCELLENT: single allocation, reused across all iterations
-	buf := make([]byte, 1024)
-
-	for b.Loop() {
-		// GOOD: direct filling without intermediate allocations
-		for i := range 1024 {
-			buf[i] = 1
-		}
-
-		sink = buf
 	}
 }
 

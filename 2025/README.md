@@ -216,7 +216,7 @@ I solved the Day 4 challenge without losing sight of the [Go memory model](https
 
 I’m not going to elaborate on what mechanical sympathy is or what it might mean for us to possess it. In everyday life, it’s much simpler than it sounds. Suppose—purely for the sake of demonstration—you need the best possible performance when thinning a cellular automaton through repeated application of the same rule. Everything works: your logic is flawless, and the result is correct. Naturally, Go slices are extremely useful here and well-suited to the task.
 
-Now, let’s talk about two of the eight benchmarks that you can [find](https://github.com/erik-adelbert/aoc/tree/main/2025/4) alongside the Day 4 solution.
+Now, let’s talk about two of the seven benchmarks that you can [find](https://github.com/erik-adelbert/aoc/blob/main/2025/4/aoc4_test.go) alongside the Day 4 solution.
 
 First, let’s look at this one:
 
@@ -275,9 +275,28 @@ PASS
 ok      github.com/erik-adelbert/aoc/2025/4     2.434s
 ```
 
-Never having to think about the right place to declare a buffer can lead to a 30× slowdown—wasting at least some electricity for no real benefit in return.
+Never having to think about the right time and place to declare a buffer can lead to a ×30 slowdown—wasting at least some amount of computing power for no real benefit in return (ie., sub-optimal efficiency).
 
-If you’re interested in reviewing your own solutions for allocation mishaps, you may find the other six benchmarks useful. They illustrate a variety of good and bad patterns you may have used without realizing it, along with an accompanying analysis summarizing the keypoints.
+If you’re interested in reviewing your own solutions for allocation mishaps, you may find the other [five benchmarks](https://github.com/erik-adelbert/aoc/blob/main/2025/4/aoc4_test.go) useful. They illustrate a variety of good and bad patterns you may have used without realizing it, along with an accompanying analysis summarizing the keypoints.
+
+```bash
+Running tool: /usr/local/go/bin/go test -benchmem -run=^$ -coverprofile=/var/folders/9y/jfl_qkbs6_9_8xht9qchxhzw0000gn/T/vscode-gobiPhfa/go-code-cover -bench . github.com/erik-adelbert/aoc/2025/4
+
+goos: darwin
+goarch: arm64
+pkg: github.com/erik-adelbert/aoc/2025/4
+cpu: Apple M1
+BenchmarkCarelessAllocations-8           	 2826324	       463.9 ns/op	    1024 B/op	       1 allocs/op
+BenchmarkPreallocated-8                  	 3608708	       333.2 ns/op	       0 B/op	       0 allocs/op
+BenchmarkCarelessAllocationsWithCopy-8   	11459871	       100.8 ns/op	    1024 B/op	       1 allocs/op
+BenchmarkPreallocatedWithCopy-8          	88135389	        13.84 ns/op	       0 B/op	       0 allocs/op
+BenchmarkWorstCase-8                     	 2897648	       415.0 ns/op	    2560 B/op	       3 allocs/op
+BenchmarkRealWorldBad-8                  	 1684596	       711.1 ns/op	    2144 B/op	      11 allocs/op
+BenchmarkRealWorldGood-8                 	 2646415	       454.0 ns/op	       0 B/op	       0 allocs/op
+PASS
+coverage: 0.0% of statements
+ok  	github.com/erik-adelbert/aoc/2025/4	8.685s
+```
 
 ## Day 5: [Cafeteria](https://adventofcode.com/2025/day/5)
 
@@ -321,8 +340,6 @@ make                             2              0              0              2
 SUM:                            23            155            126           7014
 -------------------------------------------------------------------------------
 ```
-
-
 
 ## Day 6: [Trash Compactor](https://adventofcode.com/2025/day/6)
 
