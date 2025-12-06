@@ -206,49 +206,6 @@ The time complexity of *one scan* is `O(n)`: it is easy to see that each cell is
   <img src="./images/aoc20251204.png" alt="Final grid" width="40%" />
 </div>
 
-## Day 5: [Cafeteria](https://adventofcode.com/2025/day/5)
-
-<div align="center">
-  <img src="./images/SpaceVegetables.jpg" alt="Space Vegetables" width="60%" />
-</div>
-
-I don’t have much to say about today’s challenge. In anticipation of part 2, I used an [interval tree](https://en.wikipedia.org/wiki/Interval_tree). But part 2 ultimately required merging the input ranges and computing the total coverage.
-
-Between the tree querying and the coverage, the time complexity is dominated by `O(m log n)` where *m* is the query count and *n* is the interval count. The storage complexity is, of course, `O(n)`.
-
-The solution runs in under 1 ms on my inputs, which is perfectly fine. Let’s call it a win!
-
-`<EDIT>` The code now populates the interval tree while tallying coverage from the *merged* intervals. This wasn’t necessary—the speedup is marginal—but it feels more *correct*, and it only involved moving a couple of lines around.
-
-```bash
-❯ make run
-go run ./aoc5.go < input.txt
-862 357907198933892
-```
-
-### How is it going?
-
-After putting a lot of effort into day 2, I’m quite happy with the total time budget for the first five days: **5.4ms**.
-
-```bash
-cloc 1 2 3 4 5
-      26 text files.
-      23 unique files.
-       3 files ignored.
-
-github.com/AlDanial/cloc v 2.06  T=0.03 s (821.8 files/s, 260665.6 lines/s)
--------------------------------------------------------------------------------
-Language                     files          blank        comment           code
--------------------------------------------------------------------------------
-Text                            10              2              0           6339
-Go                               6            153            126            653
-Markdown                         5              0              0             20
-make                             2              0              0              2
--------------------------------------------------------------------------------
-SUM:                            23            155            126           7014
--------------------------------------------------------------------------------
-```
-
 ## A 5mn crash-introduction to cache and GC friendly solutions
 
 <div align="center">
@@ -321,6 +278,51 @@ ok      github.com/erik-adelbert/aoc/2025/4     2.434s
 Never having to think about the right place to declare a buffer can lead to a 30× slowdown—wasting at least some electricity for no real benefit in return.
 
 If you’re interested in reviewing your own solutions for allocation mishaps, you may find the other six benchmarks useful. They illustrate a variety of good and bad patterns you may have used without realizing it, along with an accompanying analysis summarizing the keypoints.
+
+## Day 5: [Cafeteria](https://adventofcode.com/2025/day/5)
+
+<div align="center">
+  <img src="./images/SpaceVegetables.jpg" alt="Space Vegetables" width="60%" />
+</div>
+
+I don’t have much to say about today’s challenge. In anticipation of part 2, I used an [interval tree](https://en.wikipedia.org/wiki/Interval_tree). But part 2 ultimately required merging the input ranges and computing the total coverage.
+
+Between the tree querying and the coverage, the time complexity is dominated by `O(m log n)` where *m* is the query count and *n* is the interval count. The storage complexity is, of course, `O(n)`.
+
+The solution runs in under 1 ms on my inputs, which is perfectly fine. Let’s call it a win!
+
+`<EDIT>` The code now populates the interval tree while tallying coverage from the *merged* intervals. This wasn’t necessary—the speedup is marginal—but it feels more *correct*, and it only involved moving a couple of lines around.
+
+```bash
+❯ make run
+go run ./aoc5.go < input.txt
+862 357907198933892
+```
+
+### How is it going?
+
+After putting a lot of effort into day 2, I’m quite happy with the total time budget for the first five days: **5.4ms**.
+
+```bash
+cloc 1 2 3 4 5
+      26 text files.
+      23 unique files.
+       3 files ignored.
+
+github.com/AlDanial/cloc v 2.06  T=0.03 s (821.8 files/s, 260665.6 lines/s)
+-------------------------------------------------------------------------------
+Language                     files          blank        comment           code
+-------------------------------------------------------------------------------
+Text                            10              2              0           6339
+Go                               6            153            126            653
+Markdown                         5              0              0             20
+make                             2              0              0              2
+-------------------------------------------------------------------------------
+SUM:                            23            155            126           7014
+-------------------------------------------------------------------------------
+```
+
+
 
 ## Day 6: [Trash Compactor](https://adventofcode.com/2025/day/6)
 
