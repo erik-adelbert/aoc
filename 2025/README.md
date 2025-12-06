@@ -211,9 +211,11 @@ The time complexity of *one scan* is `O(n)`: it is easy to see that each cell is
 
 I don’t have much to say about today’s challenge. In anticipation of part 2, I used an [interval tree](https://en.wikipedia.org/wiki/Interval_tree). But part 2 ultimately required merging the input ranges and computing the total coverage.
 
-With the tree and the coverage the complexity is dominated by `O(m log n)` where *m* is the query count and *n* the interval count. The storage complexity is obviously `O(n)`.
+Between the tree querying and the coverage, the time complexity is dominated by `O(m log n)` where *m* is the query count and *n* is the interval count. The storage complexity is, of course, `O(n)`.
 
 The solution runs in under 1 ms on my inputs, which is perfectly fine. Let’s call it a win!
+
+`<EDIT>` The code now populates the interval tree while tallying coverage from the *merged* intervals. This wasn’t necessary—the speedup is marginal—but it feels more *correct*, and it only involved moving a couple of lines around.
 
 ```bash
 ❯ make run

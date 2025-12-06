@@ -19,7 +19,7 @@ import (
 )
 
 const (
-	MaxSpanTreeNodes = 187 // maximum span tree nodes
+	MaxSpanTreeNodes = 187 // maximum span tree nodes from previous runs
 )
 
 func main() {
@@ -31,6 +31,7 @@ func main() {
 	tree := newSpanTree(MaxSpanTreeNodes)
 	var spans []span
 
+	// state machine parser
 	state := ReadSpans
 	for input.Scan() {
 		buf := input.Bytes()
@@ -39,16 +40,16 @@ func main() {
 		case len(buf) == 0:
 			// blank line separates spans and queries
 
-			count2 = cover(spans) // calculate total coverage from merged intervals
+			// calculate total coverage from merged intervals
+			// and populate the span tree
+			count2 = cover(tree, spans)
+
 			state = ReadQueries
 		case state == ReadSpans:
 			// parse span
 			start, end, _ := bytes.Cut(buf, []byte("-")) // parse range
 
-			s, e := atoi(start), atoi(end)
-
-			tree.insert(s, e)
-			spans = append(spans, span{s, e})
+			spans = append(spans, span{atoi(start), atoi(end)})
 		case state == ReadQueries:
 			// parse query point
 			v := atoi(buf)
@@ -64,7 +65,7 @@ func main() {
 }
 
 // cover merges overlapping intervals and calculates total coverage
-func cover(spans []span) int {
+func cover(tree *spanTree, spans []span) int {
 	if len(spans) == 0 {
 		return 0
 	}
@@ -74,7 +75,7 @@ func cover(spans []span) int {
 		return a.start - b.start
 	})
 
-	// merge overlapping intervals and count cover
+	// merge overlapping intervals, count cover and populate tree
 	cover := 0
 	cur := spans[0]
 
@@ -87,12 +88,16 @@ func cover(spans []span) int {
 		} else {
 			// non-overlapping interval - add current coverage and start new interval
 			cover += cur.end - cur.start + 1
+			tree.insert(cur.start, cur.end)
+
 			cur = spans[i]
 		}
 	}
 
 	// add the last interval coverage
 	cover += cur.end - cur.start + 1
+	tree.insert(cur.start, cur.end)
+
 	return cover
 }
 
@@ -146,7 +151,7 @@ func (t *spanTree) insert(s, e int) {
 		return
 	}
 
-	// BST insert
+	// first step: BST insert
 	cur := t.root
 
 	for {
@@ -156,6 +161,7 @@ func (t *spanTree) insert(s, e int) {
 				t.left[cur] = i
 				break
 			}
+
 			cur = t.left[cur]
 		} else {
 			// go right
@@ -163,11 +169,12 @@ func (t *spanTree) insert(s, e int) {
 				t.right[cur] = i
 				break
 			}
+
 			cur = t.right[cur]
 		}
 	}
 
-	// update maxEnd
+	// 2nd step: update maxEnd
 	cur = t.root
 	for cur != -1 {
 		if t.maxEnd[cur] < e {
@@ -182,14 +189,14 @@ func (t *spanTree) insert(s, e int) {
 	}
 }
 
-// query returns all spans containing point v
+// query returns all spans containing v
 func (t *spanTree) query(v int) []span {
 	var result []span
 
 	stack := []int{t.root}
 
 	for len(stack) > 0 {
-		n := stack[len(stack)-1]
+		n := stack[len(stack)-1] // pop
 		stack = stack[:len(stack)-1]
 
 		if n == -1 {
