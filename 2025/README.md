@@ -2,12 +2,13 @@
 
 | Day  | Time (ms) | % of Total |
 |------|----------:|-----------:|
-| 2    |       0.7 |     12.96% |
-| 1    |       0.9 |     16.67% |
-| 3    |       1.0 |     18.52% |
-| 5    |       1.0 |     18.52% |
-| 4    |       1.8 |     33.33% |
-| Total|       5.4 |    100.00% |
+| 2    |       0.7 |     10.94% |
+| 1    |       0.9 |     14.06% |
+| 3    |       1.0 |     15.62% |
+| 5    |       1.0 |     15.62% |
+| 6    |       1.0 |     15.62% |
+| 4    |       1.8 |     28.13% |
+| Total|       6.4 |    100.00% |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 24.6.0 - go version go1.25.3 darwin/arm64 - hyperfine 1.20.0 - 2025-12
 
@@ -242,3 +243,17 @@ make                             2              0              0              2
 SUM:                            23            155            126           7014
 -------------------------------------------------------------------------------
 ```
+
+## Day 6: [Trash Compactor](https://adventofcode.com/2025/day/6)
+
+<div align="center">
+  <img src="./images/BoxFactory.jpg" alt="Space Vegetables" width="60%" />
+</div>
+
+The challenge presents a problem that’s a perfect opportunity to practice working with Go [slices](https://go.dev/tour/moretypes/7) and understanding how they relate to the [memory management](https://go.dev/tour/moretypes/7) provided by the Go runtime.
+
+The solution is very straightforward and mainly involves retrieving and organizing data from the input byte matrix. The key insight is to extract the matrix layout from the last line: since the operators are left-aligned within their columns, it’s much easier to determine each column’s width from that line than from any other.
+
+I also went a step further and transposed the matrix so the numbers are grouped by column. Transposing the column submatrix is also essential for part two.
+
+The program isn’t the prettiest, but it gets the job done in 86 lines. I believe the code runs in `O(n)` time, where *n* is the number of digits in the matrix. It executes in under 1 ms.
