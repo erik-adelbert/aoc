@@ -329,7 +329,7 @@ The [solution](https://github.com/erik-adelbert/aoc/blob/main/2025/5/aoc5.go) ru
 
 `<EDIT>` The code now populates the interval tree while tallying coverage from the *merged* intervals. This wasn’t necessary—the speedup is marginal—but it feels more *correct*, and it only required moving a couple of lines around. In the coming days, I’ll remove the tree entirely, since the merged ranges are overlap-free making say a basic binary search perfectly fit for the job.
 
-`<EDIT>` The code now merges the intervals and performs query by bissecting the resulting merged set. It is way lighter this way with no visible improvement in runtime (but it was actually ×2 at the μ-level).
+`<EDIT>` The code now merges the intervals and performs query by bissecting the resulting merged set. It is way lighter now with no visible improvement in runtime (but it was actually ×2 at the μ-level).
 
 ```bash
 ❯ make run
