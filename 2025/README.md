@@ -17,13 +17,14 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
 
 | Day  | Time (ms) | % of Total |
 |------|----------:|-----------:|
-| [2](#day-2-gift-shop-)    |       0.7 |     11.29% |
-| [1](#day-1-secret-entrance-)    |       0.9 |     14.52% |
-| [3](#day-3-lobby-)    |       1.0 |     16.13% |
-| [5](#day-5-cafeteria-)    |       1.0 |     16.13% |
-| [6](#day-6-trash-compactor-)    |       1.0 |     16.13% |
-| [4](#day-4-printing-department-)    |       1.6 |     25.81% |
-| Total|       6.2 |    100.00% |
+| [2](#day-2-gift-shop-)    |       0.7 |     10.00% |
+| [7](#day-7-laboratories-) |       0.8 |     11.43% |
+| [1](#day-1-secret-entrance-)    |       0.9 |     12.86% |
+| [3](#day-3-lobby-)    |       1.0 |     14.29% |
+| [5](#day-5-cafeteria-)    |       1.0 |     14.29% |
+| [6](#day-6-trash-compactor-)    |       1.0 |     14.28% |
+| [4](#day-4-printing-department-)    |       1.6 |     22.86% |
+| Total|       7.0 |    100.00% |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 24.6.0 - go version go1.25.3 darwin/arm64 - hyperfine 1.20.0 - 2025-12
 
@@ -250,7 +251,7 @@ func BenchmarkPreallocatedWithCopy(b *testing.B) {
 }
 ```
 
-The goal is to create a fresh working copy of a source slice at each iteration of a loop. In this example, everything is fine: the buffers exist at the same scope level, and aside from resetting the contents of `buf` each iteration, nothing never changes. We never need to modify their size, nor do we need to worry about how memory management might behave, because we’re using them consistently. Right?
+The goal is to create a fresh working copy of a source slice at each iteration of a loop. In this example, everything is fine: the buffers exist at the same scope level, and aside from resetting the contents of `buf` each iteration, nothing ever changes. We never need to modify their size, nor do we need to worry about how memory management might behave, because we’re using them consistently. Right?
 
 But the thing is, in real life we often fixate on small details and lose sight of the bigger picture—and that’s when patterns like this can appear:
 
@@ -368,3 +369,19 @@ The [solution](https://github.com/erik-adelbert/aoc/blob/main/2025/6/aoc6.go) is
 I also went a step further and [transposed](https://en.wikipedia.org/wiki/Transpose) the matrix so the numbers are grouped by column. Transposing the column submatrices (i.e., inducing machines to read from top to bottom) is also essential for part two.
 
 The program isn’t the prettiest, but it gets the job done in 85 lines. I believe the code runs in `O(n)` time, where *n* is the number of digits in the matrix. It executes in under 1 ms.
+
+## Day 7: [Laboratories](https://adventofcode.com/2025/day/7) [↑](#summary)
+
+<div align="center">
+  <img src="./images/PrismRoom.jpg" alt="Prism Room" width="60%" />
+</div>
+
+Today's challenge presents a path propagation problem that I solved using [Dynamic Programming](https://en.wikipedia.org/wiki/Dynamic_programming) principles. The algorithm tracks how paths split and multiply as they traverse the grid from top to bottom.
+
+The [solution](https://github.com/erik-adelbert/aoc/blob/main/2025/7/aoc7.go) adheres to the narrative: It *simulates* paths starting from position 'S' and splitting at each '^' character encountered. When a path hits a '^', it disappears and creates two new paths at adjacent positions (left and right). The code strictly does that and then Part 1 counts the total number of splits that occur, while Part 2 sums all active paths remaining at the end.
+
+An optimization filters the input to only process lines containing '^' or 'S' characters, reducing the effective number of rows that need processing.
+
+The algorithm runs with `O(n)` time complexity, where *n* is the number of grid cells. Each row is processed exactly once, and for each row, we iterate through all possible path positions. The space complexity is `O(w)` for the paths array were *w* is the grid width, making it quite memory-efficient.
+
+It runs in under 1ms.
