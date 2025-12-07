@@ -24,7 +24,7 @@ func main() {
 	// read spans and queries
 	input := bufio.NewScanner(os.Stdin)
 
-	var spans []span
+	spans := make([]span, 0, SpanCountHint)
 
 	// state machine parser
 	state := ReadSpans
@@ -61,7 +61,7 @@ func merge(spans []span) (int, []span) {
 		return a.start - b.start
 	})
 
-	merged := make([]span, 0, len(spans))
+	merged := make([]span, 0, MergedSpanCountHint) // could also be len(spans)
 
 	// merge overlapping intervals, count cover and populate tree
 	cover, cur := 0, spans[0]
@@ -116,6 +116,12 @@ type span struct {
 const (
 	ReadSpans = iota
 	ReadQueries
+)
+
+const (
+	// hints for pre-allocations from prior runs
+	SpanCountHint       = 187
+	MergedSpanCountHint = 78
 )
 
 // strconv.Atoi simplified core loop
