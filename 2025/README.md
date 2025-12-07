@@ -324,7 +324,7 @@ Between the tree querying and the coverage, the time complexity is dominated by 
 
 The [solution](https://github.com/erik-adelbert/aoc/blob/main/2025/5/aoc5.go) runs in under 1 ms on my inputs, which is perfectly fine. Let’s call it a win!
 
-`<EDIT>` The code now populates the interval tree while tallying coverage from the *merged* intervals. This wasn’t necessary—the speedup is marginal—but it feels more *correct*, and it only involved moving a couple of lines around.
+`<EDIT>` The code now populates the interval tree while tallying coverage from the *merged* intervals. This wasn’t necessary—the speedup is marginal—but it feels more *correct*, and it only required moving a couple of lines around. In the coming days, I’ll remove the tree entirely, since the merged ranges are overlap-free making say a basic binary search perfectly fit for the job.
 
 ```bash
 ❯ make run
