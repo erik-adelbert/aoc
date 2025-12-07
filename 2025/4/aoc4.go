@@ -39,7 +39,7 @@ func main() {
 		copy(grid.data[i*grid.size:], buf)
 	}
 
-	// scan for roll removal using single buffer + queue0 approach
+	// scan for roll removal using single buffer + double-buffered queue approach
 
 	// preallocate double buffer queues
 	queue0 := make([][2]int, 0, MaxGridSize*MaxGridSize)
@@ -134,17 +134,16 @@ func main() {
 		}
 		acc2 += nremove
 
-		// prepare for next iteration
 		if nremove == 0 {
 			break // no more removals
 		}
 
+		// prepare for next iteration
 		clear(seen)           // reset presence map
 		updates = updates[:0] // reset updates
 
 		queue0 = queue1     // swap queues
-		queue1 = queue1[:0] // reset length, keep capacity
-
+		queue1 = queue1[:0] // reset queue1
 	}
 
 	fmt.Println(acc1, acc2)
