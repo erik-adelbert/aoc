@@ -1,18 +1,33 @@
-# Timings
+# Summary
+
+This repository contains optimized solutions for Advent of Code 2025, implemented in Go with a focus on performance and educational value.
+
+## Quick Navigation
+
+- [Timings](#timings-) - Performance metrics and hardware specs
+- [Installation and Benchmark](#installation-and-benchmark-) - Setup and testing instructions
+- [Day 1: Secret Entrance](#day-1-secret-entrance-) - Modulo operations and dial simulation
+- [Day 2: Gift Shop](#day-2-gift-shop-) - Repunit numbers and pattern matching optimization
+- [Day 3: Lobby](#day-3-lobby-) - Greedy stack-based string manipulation
+- [Day 4: Printing Department](#day-4-printing-department-) - Cellular automata and memory optimization
+- [Day 5: Cafeteria](#day-5-cafeteria-) - Interval trees and range merging
+- [Day 6: Trash Compactor](#day-6-trash-compactor-) - Matrix operations and data organization
+
+## Timings [↑](#summary)
 
 | Day  | Time (ms) | % of Total |
 |------|----------:|-----------:|
-| 2    |       0.7 |     11.29% |
-| 1    |       0.9 |     14.52% |
-| 3    |       1.0 |     16.13% |
-| 5    |       1.0 |     16.13% |
-| 6    |       1.0 |     16.13% |
-| 4    |       1.6 |     25.81% |
+| [2](#day-2-gift-shop-)    |       0.7 |     11.29% |
+| [1](#day-1-secret-entrance-)    |       0.9 |     14.52% |
+| [3](#day-3-lobby-)    |       1.0 |     16.13% |
+| [5](#day-5-cafeteria-)    |       1.0 |     16.13% |
+| [6](#day-6-trash-compactor-)    |       1.0 |     16.13% |
+| [4](#day-4-printing-department-)    |       1.6 |     25.81% |
 | Total|       6.2 |    100.00% |
 
 fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 24.6.0 - go version go1.25.3 darwin/arm64 - hyperfine 1.20.0 - 2025-12
 
-## Installation and benchmark
+## Installation and benchmark [↑](#summary)
 
 0. optionally install [gocyclo](https://github.com/fzipp/gocyclo)
 1. install [hyperfine](https://github.com/sharkdp/hyperfine)
@@ -23,7 +38,7 @@ fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbai
 6. `$ make runtime && cat runtime.md`
 7. explore the other `Makefile` goals
 
-## Day 1: [Secret Entrance](https://adventofcode.com/2025/day/1)
+## Day 1: [Secret Entrance](https://adventofcode.com/2025/day/1) [↑](#summary)
 
 *This year, I’m freelancing and available to take on projects—preferably in Go or Python. Please help spread the word!*
 
@@ -48,7 +63,7 @@ The code runs with an overall (optimal) [time complexity](https://en.wikipedia.o
 The password method <span title='CLICK'><code>0x434C49434B</code></span> actually encodes a more sensible name.
 </details>
 
-## Day 2: [Gift Shop](https://adventofcode.com/2025/day/2)
+## Day 2: [Gift Shop](https://adventofcode.com/2025/day/2) [↑](#summary)
 
 <div align="center">
   <img src="./images/Serpiente_alquimica.jpg" alt="Ouroboros" width="60%" />
@@ -156,7 +171,7 @@ PASS
 
 The beauty of [`u/topaz2078`](https://www.reddit.com/user/topaz2078/)’s craftsmanship is that, in this very solution, you’ll see me *simultaneously* relying on Go for the heavy lifting *and* deliberately avoiding it for the ASCII translation. I have the room to exercise my judgment to tilt the solution toward the fast side. For that, I am forever in awe.
 
-## Day 3: [Lobby](https://adventofcode.com/2025/day/3)
+## Day 3: [Lobby](https://adventofcode.com/2025/day/3) [↑](#summary)
 
 <div align="center">
   <img src="./images/Polar_Night_energy.jpg" alt="Polar Night Energy" width="60%" />
@@ -173,7 +188,7 @@ Having an adhoc `seq` type keeps the main intention obvious while [separating co
      200   20200 input.txt
 ```
 
-## Day 4: [Printing Department](https://adventofcode.com/2025/day/4)
+## Day 4: [Printing Department](https://adventofcode.com/2025/day/4) [↑](#summary)
 
 <div align="center">
   <img src="./images/bolas.jpg" alt="Paper for matrix printers" width="60%" />
@@ -205,7 +220,7 @@ The time complexity of *one scan* is `O(n)`: it is easy to see that each cell is
   <img src="./images/aoc20251204.png" alt="Final grid" width="40%" />
 </div>
 
-## A 5mn crash-introduction to cache and GC friendly solutions
+## A 5mn crash-introduction to cache and GC friendly solutions [↑](#summary)
 
 <div align="center">
   <img src="./images/StarWars.jpg" alt="Chewbacca saving c3po" width="60%" />
@@ -258,7 +273,7 @@ func BenchmarkCarelessAllocations(b *testing.B) {
 }
 ```
 
-The point is the same as before and surely the result is correct. But this time, the code applies maximum pressure by claiming short lived memory at a very high pace in its core loop.
+The point is the same as before and surely the result is correct. But this time, the code applies maximum pressure by claiming short lived memory at a very high pace in its core loop. It is said to create *friction* with the Go runtime.
 
 What the hell does this mean? Actually, It means this:
 
@@ -297,7 +312,7 @@ coverage: 0.0% of statements
 ok  	github.com/erik-adelbert/aoc/2025/4	8.685s
 ```
 
-## Day 5: [Cafeteria](https://adventofcode.com/2025/day/5)
+## Day 5: [Cafeteria](https://adventofcode.com/2025/day/5) [↑](#summary)
 
 <div align="center">
   <img src="./images/SpaceVegetables.jpg" alt="Space Vegetables" width="60%" />
@@ -340,7 +355,7 @@ SUM:                            23            155            126           7014
 -------------------------------------------------------------------------------
 ```
 
-## Day 6: [Trash Compactor](https://adventofcode.com/2025/day/6)
+## Day 6: [Trash Compactor](https://adventofcode.com/2025/day/6) [↑](#summary)
 
 <div align="center">
   <img src="./images/BoxFactory.jpg" alt="Space Vegetables" width="60%" />
