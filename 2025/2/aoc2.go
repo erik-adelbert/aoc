@@ -98,14 +98,9 @@ func main() {
 // e.g., [95, 105] -> [95, 99], [100, 105]
 func allAlignedSpans(a, b int) iter.Seq[[2]int] {
 	return func(yield func([2]int) bool) {
-		var splitPoints = [...]int{
-			10, 100, 1_000, 10_000, 100_000, 1_000_000,
-			10_000_000, 100_000_000, 1_000_000_000,
-		}
-
 		start := a
 
-		for _, x := range splitPoints {
+		for x := 10; x <= 1e9; x *= 10 {
 			if x > start && x <= b {
 				if !yield([2]int{start, x - 1}) {
 					return
