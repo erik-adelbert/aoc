@@ -42,19 +42,19 @@ func main() {
 	// scan for roll removal using single buffer + double-buffered queue approach
 
 	// preallocate double buffer queues
-	queue0 := make([][2]int, 0, MaxGridSize*MaxGridSize)
-	queue1 := make([][2]int, 0, MaxGridSize*MaxGridSize)
+	queue0 := make([]int, 0, MaxGridSize*MaxGridSize)
+	queue1 := make([]int, 0, MaxGridSize*MaxGridSize)
 
-	// preallocate double buffer presence maps
+	// preallocate presence maps
 	seen := make([]bool, MaxGridSize*MaxGridSize)
 
 	// initially, queue all roll positions
 	for r := range grid.size {
 		for c := range grid.size {
 			if grid.data[r*grid.size+c] == Roll {
-				pos := [2]int{r, c} // next candidate position
+				i := r*grid.size + c // linear index
 
-				queue0 = append(queue0, pos)
+				queue0 = append(queue0, i)
 			}
 		}
 	}
@@ -63,13 +63,12 @@ func main() {
 
 	for {
 		// process current queue - collect removals without modifying grid
-		for _, pos := range queue0 {
-			r, c := pos[0], pos[1]
-			i := r*grid.size + c
-
+		for _, i := range queue0 {
 			if grid.data[i] != Roll {
 				continue // skip if not a roll
 			}
+
+			r, c := i/grid.size, i%grid.size
 
 			// define neighbor bounds
 			rmin := max(0, r-1)
@@ -116,12 +115,11 @@ func main() {
 			for nr := rmin; nr <= rmax; nr++ {
 				for nc := cmin; nc <= cmax; nc++ {
 					if grid.data[nr*grid.size+nc] == Roll { // only queue remaining rolls
-						pos := [2]int{nr, nc} // next candidate position
+						ni := nr*grid.size + nc // linear index
 
-						i := nr*grid.size + nc
-						if !seen[i] {
-							queue1 = append(queue1, pos)
-							seen[i] = true
+						if !seen[ni] {
+							queue1 = append(queue1, ni)
+							seen[ni] = true
 						}
 					}
 				}

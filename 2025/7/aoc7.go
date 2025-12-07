@@ -17,8 +17,6 @@ import (
 	"os"
 )
 
-const MaxWidth = 141 // maximum grid width from previous runs
-
 func main() {
 	var acc1, acc2 int // parts 1 and 2 accumulators
 
@@ -43,7 +41,7 @@ func main() {
 	// process remaining rows
 	for _, row := range grid[1:] {
 		for i := range paths {
-			if row[i] == '^' {
+			if row[i] == Prism {
 				if paths[i] > 0 {
 					acc1 += 1 // part1: count splits
 				}
@@ -63,3 +61,8 @@ func main() {
 
 	fmt.Println(acc1, acc2)
 }
+
+const (
+	MaxWidth = 141 // maximum grid width from prior runs
+	Prism    = '^'
+)
