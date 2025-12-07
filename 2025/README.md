@@ -12,6 +12,7 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
 - [Day 4: Printing Department](#day-4-printing-department-) - Cellular automata and memory optimization
 - [Day 5: Cafeteria](#day-5-cafeteria-) - Interval trees and range merging
 - [Day 6: Trash Compactor](#day-6-trash-compactor-) - Matrix operations and data organization
+- [Day 7: Laboratories](#day-7-laboratories-) - Path propagation and dynamic programming
 
 ## Timings [↑](#summary)
 
