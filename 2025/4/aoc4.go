@@ -47,7 +47,6 @@ func main() {
 
 	// preallocate double buffer presence maps
 	seen := make([]bool, MaxGridSize*MaxGridSize)
-	// seen1 := make([]bool, MaxGridSize*MaxGridSize)
 
 	// initially, queue all roll positions
 	for r := range grid.size {

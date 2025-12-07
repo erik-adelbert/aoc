@@ -33,7 +33,7 @@ fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbai
 
 On this first day of AoC 2025, the challenge is reasonably tricky. It highlights the sign ambiguity of the [modulo](https://en.wikipedia.org/wiki/Modulo) operation when the remainder is negative.
 
-For today’s solution, I’m reimplementing `mod` so that it always returns a positive value, since the problem includes negative integer data (i.e., left turns). Then, as always — especially when coding for production — I validate the inputs as early as possible. In this case, it allows me to reduce the computation domain to a single wrap of the dial. By doing this consistently, I don’t need to apply any offsets (and neither do you). From there, a switch selects one of the four interesting cases and updates the counts used as passwords for parts 1 and 2.
+For today’s [solution](https://github.com/erik-adelbert/aoc/blob/main/2025/1/aoc1.go), I’m reimplementing `mod` so that it always returns a positive value, since the problem includes negative integer data (i.e., left turns). Then, as always — especially when coding for production — I validate the inputs as early as possible. In this case, it allows me to reduce the computation domain to a single wrap of the dial. By doing this consistently, I don’t need to apply any offsets (and neither do you). From there, a switch selects one of the four interesting cases and updates the counts used as passwords for parts 1 and 2.
 
 `<EDIT>` I've removed `mod()` because it was called only once.
 
@@ -62,7 +62,7 @@ I must admit I wasn’t convinced at first, but once we saw [Tim Visée’s solu
 
 And here it is: possibly **the fastest way** to compute the solution to today’s challenge. It runs in **less than 1 ms**.
 
-This code runs in `O(k)` time, with *k* being the number of ranges. **It shrinks the original 2M+ search space down to only ~1,800 relevant numbers.** It operates in constant memory and evaluates the repeating-number sums using direct arithmetic formulas.
+This [code](https://github.com/erik-adelbert/aoc/blob/main/2025/2/aoc2.go) runs in `O(k)` time, with *k* being the number of ranges. **It shrinks the original 2M+ search space down to only ~1,800 relevant numbers.** It operates in constant memory and evaluates the repeating-number sums using direct arithmetic formulas.
 
 The flow starts by segmenting the input ranges into sub-ranges aligned on `[10, 1e2, ..., 1e9]` so that the appropriate generating seed values are naturally selected (see the second approach below). Thanks to the structure of the input, this results in only a single split once in a while. Put simply, once the ranges are aligned on successive powers of ten (from 1 to 9 digits), all repeating numbers become multiples of 1 or 2 [Repunit](https://en.wikipedia.org/wiki/Repunit) divisors per range.
 
@@ -76,7 +76,7 @@ I have come across a better idea than my original approach and expanded on it. T
 
 For example, between 10 and 99, it’s easy to see that all repeating numbers are multiples of 11.
 
-The resulting code stays within the integer domain, the cost effectively disappears — and the routine now runs in **5.8 ms**!
+The resulting [code](https://github.com/erik-adelbert/aoc/blob/1fd714e7f1a3d37736e4e87a35544bd33a2c852a/2025/2/aoc2.go) stays within the integer domain, the cost effectively disappears — and the routine now runs in **5.8 ms**!
 
 I first saw this idea in [Tim Visée](https://github.com/timvisee/advent-of-code-2025/blob/master/day02b/src/main.rs)’s code.
 Tim is a performance-oriented programmer of the finest caliber, and I warmly recommend following his work.
@@ -97,7 +97,7 @@ For part 2, a doubled slice should contain the original slice as a subslice — 
 
 As a matter of fact, the Go standard `bytes` package uses a combination of techniques, including an ultimate fallback to [Rabin–Karp](https://cs.opensource.google/go/go/+/refs/tags/go1.25.4:src/bytes/bytes.go;l=1389).
 
-The code runs with a time complexity of `k.O(n)` on average, with *n* being the number of digits in the inputs and *k* some big and hard to compute (at least for me) constant. I will get back to this calculation if I don't find a faster idea for this challenge.
+The [code](https://github.com/erik-adelbert/aoc/blob/a89bc57abece8df39e0ea2acbf5d6d4a9eae6924/2025/2/aoc2.go) runs with a time complexity of `k.O(n)` on average, with *n* being the number of digits in the inputs and *k* some big and hard to compute (at least for me) constant. I will get back to this calculation if I don't find a faster idea for this challenge.
 
 It is worth noting that the solution hits the sweet spot where running `part2` *only* if `part1` fails (ie., [predictive branching](https://en.wikipedia.org/wiki/Branch_predictor))— versus *always* running both `part1` and `part2`  — actually hurts the overall runtime.
 
@@ -162,7 +162,7 @@ The beauty of [`u/topaz2078`](https://www.reddit.com/user/topaz2078/)’s crafts
   <img src="./images/Polar_Night_energy.jpg" alt="Polar Night Energy" width="60%" />
 </div>
 
-Today's challenge is quite straightforward: the goal is to build the *lexicographically largest string after **k** removals*. I chose a [greedy](https://en.wikipedia.org/wiki/Greedy_algorithm), [stack-based](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) approach to solve it. The solution is simple, and once again it runs optimally in linear time with respect to the length of the input lines: it is easy  to see that every given digit can only be pushed/popped once.
+Today's challenge is quite straightforward: the goal is to build the *lexicographically largest string after **k** removals*. I chose a [greedy](https://en.wikipedia.org/wiki/Greedy_algorithm), [stack-based](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) approach to solve it. The [solution](https://github.com/erik-adelbert/aoc/blob/main/2025/3/aoc3.go) is simple, and once again it runs optimally in linear time with respect to the length of the input lines: it is easy  to see that every given digit can only be pushed/popped once.
 
 Having an adhoc `seq` type keeps the main intention obvious while [separating concerns](https://en.wikipedia.org/wiki/Separation_of_concerns). The digit-selection logic becomes a mere implementation detail of the solution. ~~The search space is so small that the Go garbage collector has no time to get in the way, even though the code creates two short-lived small buffers per input line~~.
 
@@ -185,8 +185,7 @@ After seeing various solutions online, I decided to move the double buffering of
 
 This also means that the general theory now relates to [cellular automata](https://en.wikipedia.org/wiki/Cellular_automaton).
 
-
-The implementation also eliminates the memory overhead of maintaining two grids by collecting removal positions first, then applying them atomically to prevent corruption during neighbor counting. Combined with preallocated queues and direct array indexing instead of hash maps for deduplication, this optimization achieves a **72% performance improvement** over the original double-buffered approach, bringing the runtime down from 6.5ms to 1.8ms.
+The [implementation](https://github.com/erik-adelbert/aoc/blob/main/2025/4/aoc4.go) also eliminates the memory overhead of maintaining two grids by collecting removal positions first, then applying them atomically to prevent corruption during neighbor counting. Combined with preallocated queues and direct array indexing instead of hash maps for deduplication, this optimization achieves a **72% performance improvement** over the original double-buffered approach, bringing the runtime down from 6.5ms to 1.8ms.
 
 ### First Approach
 
@@ -194,7 +193,7 @@ The implementation also eliminates the memory overhead of maintaining two grids 
 
 This challenge is the perfect opportunity to go fully old-school with the solution. It’s an AoC [classic](https://adventofcode.com/2021/day/20) that pops up regularly. It has nothing to do with mathematics and everything to do with programming efficiently for our machines when [processing images](https://en.wikipedia.org/wiki/Digital_image_processing). **If you're a beginner, you could benefit from working through this problem and studying its [various solutions](https://www.reddit.com/r/adventofcode/comments/1pdr8x6/2025_day_4_solutions/).**
 
-My technique of choice here is to [double-buffer](https://wiki.osdev.org/Double_Buffering) the grid. By doing this, the code kills the removal process with a single [double-stone](https://en.wikipedia.org/wiki/Bolas): it becomes natural to go from one step of the roll removals to the next by updating the *next* buffer from the *current* one and then swapping them.
+My [technique](https://github.com/erik-adelbert/aoc/blob/06ede07387eb9f7ca4c23409e15c569aa844321f/2025/4/aoc4.go) of choice here is to [double-buffer](https://wiki.osdev.org/Double_Buffering) the grid. By doing this, the code kills the removal process with a single [double-stone](https://en.wikipedia.org/wiki/Bolas): it becomes natural to go from one step of the roll removals to the next by updating the *next* buffer from the *current* one and then swapping them.
 
 For the 2D grid itself, nothing beats a [1D grid](https://en.wikipedia.org/wiki/Array_(data_structure)). The code uses two preallocated slices and spatially organizes data on the fly. Except for the initial allocations, the solution once again performs **no memory allocation** on the [hot path](https://en.wikipedia.org/wiki/Hot_spot_(computer_programming)).
 
@@ -308,7 +307,7 @@ I don’t have much to say about today’s challenge. In anticipation of part 2,
 
 Between the tree querying and the coverage, the time complexity is dominated by `O(m log n)` where *m* is the query count and *n* is the interval count. The storage complexity is, of course, `O(n)`.
 
-The solution runs in under 1 ms on my inputs, which is perfectly fine. Let’s call it a win!
+The [solution](https://github.com/erik-adelbert/aoc/blob/main/2025/5/aoc5.go) runs in under 1 ms on my inputs, which is perfectly fine. Let’s call it a win!
 
 `<EDIT>` The code now populates the interval tree while tallying coverage from the *merged* intervals. This wasn’t necessary—the speedup is marginal—but it feels more *correct*, and it only involved moving a couple of lines around.
 
@@ -349,7 +348,7 @@ SUM:                            23            155            126           7014
 
 The challenge presents a problem that’s a perfect opportunity to practice working with Go [slices](https://go.dev/tour/moretypes/7) and understanding how they relate to the [memory management](https://go.dev/tour/moretypes/7) provided by the Go runtime.
 
-The solution is very straightforward and mainly involves retrieving and organizing data from the input considered as a byte matrix. The key insight is to extract the matrix layout from the last line: since the operators are left-aligned within their columns, it’s much easier to determine each column’s fixed width from that line than from any other, avoiding altogether the “what kind of space is this space?” conundrum.
+The [solution](https://github.com/erik-adelbert/aoc/blob/main/2025/6/aoc6.go) is very straightforward and mainly involves retrieving and organizing data from the input considered as a byte matrix. The key insight is to extract the matrix layout from the last line: since the operators are left-aligned within their columns, it’s much easier to determine each column’s fixed width from that line than from any other, avoiding altogether the “what kind of space is this space?” conundrum.
 
 I also went a step further and [transposed](https://en.wikipedia.org/wiki/Transpose) the matrix so the numbers are grouped by column. Transposing the column submatrices (i.e., inducing machines to read from top to bottom) is also essential for part two.
 
