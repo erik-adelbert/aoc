@@ -21,15 +21,15 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
 
 | Day                                 | Time (μs) | % of Total |
 |-------------------------------------|----------:|-----------:|
-| [2](#day-2-gift-shop-)              |         8 |      0.26% |
-| [7](#day-7-laboratories-)           |        39 |      1.26% |
-| [5](#day-5-cafeteria-)              |        98 |      3.18% |
-| [1](#day-1-secret-entrance-)        |       136 |      4.41% |
-| [6](#day-6-trash-compactor-)        |       154 |      4.99% |
-| [3](#day-3-lobby-)                  |       231 |      7.49% |
-| [4](#day-4-printing-department-)    |       764 |     24.78% |
-| [8](#day-8-playground-)             |     1,337 |     43.36% |
-| Total                               |     3,083 |    100.00% |
+| [2](#day-2-gift-shop-)              |         8 |      0.30% |
+| [7](#day-7-laboratories-)           |        39 |      1.47% |
+| [5](#day-5-cafeteria-)              |        98 |      3.70% |
+| [1](#day-1-secret-entrance-)        |       136 |      5.14% |
+| [6](#day-6-trash-compactor-)        |       154 |      5.82% |
+| [3](#day-3-lobby-)                  |       231 |      8.73% |
+| [4](#day-4-printing-department-)    |       764 |     28.88% |
+| [8](#day-8-playground-)             |     1,216 |     45.96% |
+| Total                               |     2,646 |    100.00% |
 
 fastest of 100 runs for part1&2 in μs - mbair M1/16GB - darwin 24.6.0 - go version go1.25.3 darwin/arm64 - 2025-12
 
@@ -419,10 +419,24 @@ The code runs in under `1.3ms`
 
 During AoC I’ve increasingly been comparing my solutions with others written in Rust, and many AoC Rust crates include internal program timers that report raw compute times. On the other hand I have many solutions that are simply to fast for `hyperfine`. Because of this, starting now I will publish **internal timings** instead of external (wall-clock) timings. These internal timings are much more comparable to what Rust and other fast languages report.
 
-For now, my collection of programs solves every day and every part in about **3 ms total**.
+For now, my collection of programs solves every day and every part in about **2.7 ms total**.
 
 ```bash
 ❯ make run
+go run ./aoc1.go < input.txt
+1168 7199 139.792µs
+go run ./aoc2.go < input.txt
+28146997880 40028128307 11.125µs
+go run ./aoc3.go < input.txt
+17324 171846613143331 232.791µs
+go run ./aoc4.go < input.txt
+1474 8910 768.167µs
+go run ./aoc5.go < input.txt
+862 357907198933892 103.959µs
+go run ./aoc6.go < input.txt
+5595593539811 10153315705125 160.625µs
+go run ./aoc7.go < input.txt
+1633 34339203133559 40.292µs
 go run ./aoc8.go < input.txt
-32103 8133642976 1.367917ms
+32103 8133642976 1.257ms
 ```

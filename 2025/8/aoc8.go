@@ -40,7 +40,7 @@ func main() {
 	}
 
 	n := len(points)
-	edges := make([]edge, 0, n*n/2)
+	edges := make([]edge, 0, 6*n) // pre-allocate edge slice
 	// collect all edges below cutoff
 	for i := 0; i < n-1; i++ {
 		for j := i + 1; j < n; j++ {
@@ -89,21 +89,6 @@ func main() {
 type edge struct {
 	dist int // squared distance
 	a, b int
-}
-
-// hp is a min-heap of edges
-type hp []edge
-
-func (h hp) Len() int           { return len(h) }
-func (h hp) Less(i, j int) bool { return h[i].dist < h[j].dist }
-func (h hp) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
-func (h *hp) Push(x any)        { *h = append(*h, x.(edge)) }
-func (h *hp) Pop() any {
-	old := *h
-	n := len(old)
-	x := old[n-1]
-	*h = old[:n-1]
-	return x
 }
 
 // dsu is a disjoint set union (union-find) data structure
