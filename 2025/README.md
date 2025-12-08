@@ -405,7 +405,7 @@ In other words, the solution has a **distance cutoff**: once we know the maximum
 
 By determining this cutoff early, we can **[prune](https://en.wikipedia.org/wiki/Decision_tree_pruning) the edge set from ~500k to ~5k**, dramatically reducing the work.
 
-This greatly improves runtime because Kruskal’s algorithm—along with the heap and the disjoint-set union (DSU)—runs in time proportional to `O(E log E)`, and reducing `E` by two orders of magnitude makes the whole process significantly faster.
+This greatly improves runtime because Kruskal’s algorithm—along with the ~~heap~~ sorting and the disjoint-set union (DSU)—runs in time proportional to `O(E log E)`, and reducing `E` by two orders of magnitude makes the whole process significantly faster.
 
 `<EDIT>` I've replaced the heap by a sort to make the code lighter and actually faster.
 
@@ -417,7 +417,7 @@ The code runs in under `1.3ms`
   <img src="./images/magic-mountains.jpg" alt="a roller coaster" width="60%" />
 </div>
 
-During AoC I’ve increasingly been comparing my solutions with others written in Rust, and many AoC Rust crates include internal program timers that report raw compute times. On the other hand I have many solutions that are simply to fast for `hyperfine`. Because of this, starting now I will publish **internal timings** instead of external (wall-clock) timings. These internal timings are much more comparable to what Rust and other fast languages report.
+During AoC I’ve increasingly been comparing my solutions with others written in Rust, and many AoC Rust crates include internal program timers that report raw compute times. On the other hand I have many solutions that are simply too fast for `hyperfine`. Because of this, starting now I will publish **internal timings** instead of external (wall-clock) timings. These internal timings are much more comparable to what Rust and other fast languages report.
 
 For now, my collection of programs solves every day and every part in about **2.7 ms total**.
 
