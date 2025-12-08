@@ -413,6 +413,10 @@ The code runs in under `1.3ms`
 
 ## Why have I changed the timings? [↑](#summary)
 
+<div align="center">
+  <img src="./images/magic-mountains.jpg" alt="a roller coaster" width="60%" />
+</div>
+
 During AoC I’ve increasingly been comparing my solutions with others written in Rust, and many AoC Rust crates include internal program timers that report raw compute times. On the other hand I have many solutions that are simply to fast for `hyperfine`. Because of this, starting now I will publish **internal timings** instead of external (wall-clock) timings. These internal timings are much more comparable to what Rust and other fast languages report.
 
 For now, my collection of programs solves every day and every part in about **3 ms total**.
