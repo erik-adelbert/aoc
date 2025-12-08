@@ -70,6 +70,7 @@ func main() {
 		case i == 999: // part 1: after 1000 edges
 			seen := make([]bool, n)
 			sizes := make([]int, 0, n)
+
 			for i := range n {
 				root := dsu.find(i)
 				if !seen[root] {

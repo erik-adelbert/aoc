@@ -14,7 +14,7 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
 - [Day 5: Cafeteria](#day-5-cafeteria-) - Range merging
 - [Day 6: Trash Compactor](#day-6-trash-compactor-) - Matrix operations and data organization
 - [Day 7: Laboratories](#day-7-laboratories-) - Path propagation and dynamic programming
-- [Day 8: Playground](#day-8-playground-) - Modified Kruskal's with Distance CutOff
+- [Day 8: Playground](#day-8-playground-) - Modified Kruskal's with distance cutoff
 - [Why have I changed the timings?](#why-have-i-changed-the-timings-) - Timings and evaluation
 
 ## Timings [↑](#summary)
