@@ -15,6 +15,7 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
 - [Day 6: Trash Compactor](#day-6-trash-compactor-) - Matrix operations and data organization
 - [Day 7: Laboratories](#day-7-laboratories-) - Path propagation and dynamic programming
 - [Day 8: Playground](#day-8-playground-) - Modified Kruskal's with Distance CutOff
+- [Why have I changed the timings?](#why-have-i-changed-the-timings-) - Timings and evaluation
 
 ## Timings [↑](#summary)
 
@@ -408,7 +409,7 @@ This greatly improves runtime because Kruskal’s algorithm—along with the hea
 
 The code runs in under `1.6ms`
 
-## Why have I changed the timings?
+## Why have I changed the timings? [↑](#summary)
 
 During AoC I’ve increasingly been comparing my solutions with others written in Rust, and many AoC Rust crates include internal program timers that report raw compute times. On the other hand I have many solution that are simply to fast to obtain a valid measurement using `hyperfine`. Because of this, starting now I will publish **internal timings** instead of external (wall-clock) timings. These internal timings are much more comparable to what Rust and other fast languages report.
 
