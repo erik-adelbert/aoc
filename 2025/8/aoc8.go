@@ -16,7 +16,7 @@ import (
 	"container/heap"
 	"fmt"
 	"os"
-	"sort"
+	"slices"
 	"time"
 )
 
@@ -79,8 +79,8 @@ func main() {
 				}
 			}
 
-			sort.Sort(sort.Reverse(sort.IntSlice(sizes)))
-			acc1 = sizes[0] * sizes[1] * sizes[2] // product of 3 largest components
+			slices.SortFunc(sizes, func(a, b int) int { return b - a }) // reverse sort sizes
+			acc1 = sizes[0] * sizes[1] * sizes[2]                       // product of 3 largest components
 
 		case dsu.size[dsu.find(0)] == n: // part 2: all connected
 			acc2 = int(points[e.a].X) * int(points[e.b].X) // product of X coords of last edge

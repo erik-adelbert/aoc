@@ -403,7 +403,7 @@ The [solution](https://github.com/erik-adelbert/aoc/blob/main/2025/8/aoc8.go) im
 A key observation is that **any edges *after* the one required for Part 2 never affect either answer**.
 In other words, the solution has a **distance cutoff**: once we know the maximum edge weight that could possibly matter, every edge longer than that is irrelevant.
 
-By determining this cutoff early, we can **prune the edge set from ~500k to ~5k**, dramatically reducing the work.
+By determining this cutoff early, we can **[prune](https://en.wikipedia.org/wiki/Decision_tree_pruning) the edge set from ~500k to ~5k**, dramatically reducing the work.
 
 This greatly improves runtime because Kruskal’s algorithm—along with the heap and the disjoint-set union (DSU)—runs in time proportional to `O(E log E)`, and reducing `E` by two orders of magnitude makes the whole process significantly faster.
 
