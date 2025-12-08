@@ -13,7 +13,6 @@ package main
 import (
 	"bufio"
 	"bytes"
-	"container/heap"
 	"fmt"
 	"os"
 	"slices"
@@ -40,27 +39,22 @@ func main() {
 		})
 	}
 
-	// build min-heap of edges
 	n := len(points)
-
-	h := &hp{}
-	heap.Init(h)
-
-	// generate all edges below cutoff
-	for i := range n - 1 {
+	edges := make([]edge, 0, n*n/2)
+	// collect all edges below cutoff
+	for i := 0; i < n-1; i++ {
 		for j := i + 1; j < n; j++ {
 			a, b := points[i], points[j]
-
 			if d := dist2(a, b); d < CutoffDist {
-				heap.Push(h, edge{dist: d, a: i, b: j})
+				edges = append(edges, edge{dist: d, a: i, b: j})
 			}
 		}
 	}
+	// sort edges by distance
+	slices.SortFunc(edges, func(a, b edge) int { return a.dist - b.dist })
 
 	dsu := newDSU(n)
-
-	for i := 0; h.Len() > 0; i++ {
-		e := heap.Pop(h).(edge)
+	for i, e := range edges {
 
 		if dsu.find(e.a) != dsu.find(e.b) {
 			dsu.union(e.a, e.b)

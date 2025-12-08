@@ -28,7 +28,7 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
 | [6](#day-6-trash-compactor-)        |       154 |      4.99% |
 | [3](#day-3-lobby-)                  |       231 |      7.49% |
 | [4](#day-4-printing-department-)    |       764 |     24.78% |
-| [8](#day-8-playground-)             |     1,653 |     53.62% |
+| [8](#day-8-playground-)             |     1,337 |     43.36% |
 | Total                               |     3,083 |    100.00% |
 
 fastest of 100 runs for part1&2 in μs - mbair M1/16GB - darwin 24.6.0 - go version go1.25.3 darwin/arm64 - 2025-12
@@ -407,7 +407,9 @@ By determining this cutoff early, we can **[prune](https://en.wikipedia.org/wiki
 
 This greatly improves runtime because Kruskal’s algorithm—along with the heap and the disjoint-set union (DSU)—runs in time proportional to `O(E log E)`, and reducing `E` by two orders of magnitude makes the whole process significantly faster.
 
-The code runs in under `1.6ms`
+`<EDIT>` I've replaced the heap by a sort to make the code lighter and actually faster.
+
+The code runs in under `1.3ms`
 
 ## Why have I changed the timings? [↑](#summary)
 
@@ -418,5 +420,5 @@ For now, my collection of programs solves every day and every part in about **3 
 ```bash
 ❯ make run
 go run ./aoc8.go < input.txt
-32103 8133642976 1.692334ms
+32103 8133642976 1.367917ms
 ```
