@@ -14,32 +14,33 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
 - [Day 5: Cafeteria](#day-5-cafeteria-) - Range merging
 - [Day 6: Trash Compactor](#day-6-trash-compactor-) - Matrix operations and data organization
 - [Day 7: Laboratories](#day-7-laboratories-) - Path propagation and dynamic programming
+- [Day 8: Playground](#day-8-playground-) - Modified Kruskal's with Distance CutOff
 
 ## Timings [↑](#summary)
 
-| Day  | Time (ms) | % of Total |
-|------|----------:|-----------:|
-| [2](#day-2-gift-shop-)    |       0.7 |     10.00% |
-| [7](#day-7-laboratories-) |       0.8 |     11.43% |
-| [1](#day-1-secret-entrance-)    |       0.9 |     12.86% |
-| [3](#day-3-lobby-)    |       1.0 |     14.29% |
-| [5](#day-5-cafeteria-)    |       1.0 |     14.29% |
-| [6](#day-6-trash-compactor-)    |       1.0 |     14.28% |
-| [4](#day-4-printing-department-)    |       1.6 |     22.86% |
-| Total|       7.0 |    100.00% |
+| Day                                 | Time (μs) | % of Total |
+|-------------------------------------|----------:|-----------:|
+| [2](#day-2-gift-shop-)              |         8 |      0.26% |
+| [7](#day-7-laboratories-)           |        39 |      1.26% |
+| [5](#day-5-cafeteria-)              |        98 |      3.18% |
+| [1](#day-1-secret-entrance-)        |       136 |      4.41% |
+| [6](#day-6-trash-compactor-)        |       154 |      4.99% |
+| [3](#day-3-lobby-)                  |       231 |      7.49% |
+| [4](#day-4-printing-department-)    |       764 |     24.78% |
+| [8](#day-8-playground-)             |     1,653 |     53.62% |
+| Total                               |     3,083 |    100.00% |
 
-fastest end-to-end timing minus `cat` time of 100+ runs for part1&2 in ms - mbair M1/16GB - darwin 24.6.0 - go version go1.25.3 darwin/arm64 - hyperfine 1.20.0 - 2025-12
+fastest of 100 runs for part1&2 in μs - mbair M1/16GB - darwin 24.6.0 - go version go1.25.3 darwin/arm64 - 2025-12
 
 ## Installation and benchmark [↑](#summary)
 
 0. optionally install [gocyclo](https://github.com/fzipp/gocyclo)
-1. install [hyperfine](https://github.com/sharkdp/hyperfine)
-2. `git clone` this repository somewhere in your `$GOPATH`
-3. `export` envar `$SESSION` with your AoC `session` value (get it from the cookie stored in your browser)
-4. `$ cd 2025`
-5. `$ make`
-6. `$ make runtime && cat runtime.md`
-7. explore the other `Makefile` goals
+1. `git clone` this repository somewhere in your `$GOPATH`
+2. `export` envar `$SESSION` with your AoC `session` value (get it from the cookie stored in your browser)
+3. `$ cd 2025`
+4. `$ make`
+5. `$ make run`
+6. explore the other `Makefile` goals
 
 ## Day 1: [Secret Entrance](https://adventofcode.com/2025/day/1) [↑](#summary)
 
@@ -389,3 +390,26 @@ An optimization filters the input to only process lines containing '^' or 'S' ch
 The algorithm runs with `O(n)` time complexity, where *n* is the number of grid cells. Each row is processed exactly once, and for each row, we iterate through all possible path positions. The space complexity is `O(w)` for the paths array were *w* is the grid width, making it quite memory-efficient.
 
 It runs in under 1ms.
+
+## Day 8: [Playground](https://adventofcode.com/2025/day/8) [↑](#summary)
+
+<div align="center">
+  <img src="./images/Xmas_Snowball.jpg" alt="Prism Room" width="60%" />
+</div>
+
+The [solution](https://github.com/erik-adelbert/aoc/blob/main/2025/8/aoc8.go) implements a variant of [Kruskal’s algorithm](https://en.wikipedia.org/wiki/Kruskal%27s_algorithm) for computing a [Minimum Spanning Tree](https://en.wikipedia.org/wiki/Minimum_spanning_tree), but with problem-specific optimizations.
+
+A key observation is that **any edges *after* the one required for Part 2 never affect either answer**.
+In other words, the solution has a **distance cutoff**: once we know the maximum edge weight that could possibly matter, every edge longer than that is irrelevant.
+
+By determining this cutoff early, we can **shrink the edge set from ~500k to ~5k**, dramatically reducing the work.
+
+This greatly improves runtime because Kruskal’s algorithm—along with the heap and the disjoint-set union (DSU)—runs in time proportional to `O(E + V)`, and reducing `E` by two orders of magnitude makes the whole process significantly faster.
+
+The code runs in under `1.6ms`
+
+## Why have I changed the timings?
+
+During AoC I’ve increasingly been comparing my solutions with others written in Rust, and many AoC Rust crates include internal program timers that report raw compute times. On the other hand I have many solution that are simply to fast to obtain a valid measurement using `hyperfine`. Because of this, starting now I will publish **internal timings** instead of external (wall-clock) timings. These internal timings are much more comparable to what Rust and other fast languages report.
+
+For now, my collection of programs solves every day and every part in about **3 ms total**.

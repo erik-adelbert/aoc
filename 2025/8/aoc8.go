@@ -1,0 +1,176 @@
+// aoc8.go --
+// advent of code 2025 day 8
+//
+// https://adventofcode.com/2025/day/8
+// https://github.com/erik-adelbert/aoc
+//
+// (ɔ) Erik Adelbert - erik_AT_adelbert_DOT_fr
+// -------------------------------------------
+// 2025-12-8: initial commit
+
+package main
+
+import (
+	"bufio"
+	"bytes"
+	"container/heap"
+	"fmt"
+	"os"
+	"sort"
+	"time"
+)
+
+const CutoffDist = 195_000_000 // edge squared distance cutoff from prior runs
+
+func main() {
+	t0 := time.Now()
+
+	var acc1, acc2 int // parts 1 and 2 accumulators
+
+	points := make([]point, 0, 1000)
+
+	input := bufio.NewScanner(os.Stdin)
+
+	for input.Scan() {
+		b := bytes.Split(input.Bytes(), []byte(","))
+		points = append(points, point{
+			X: atoi(b[0]),
+			Y: atoi(b[1]),
+			Z: atoi(b[2]),
+		})
+	}
+
+	// build min-heap of edges
+	n := len(points)
+
+	h := &hp{}
+	heap.Init(h)
+
+	// generate all edges below cutoff
+	for i := range n - 1 {
+		for j := i + 1; j < n; j++ {
+			a, b := points[i], points[j]
+
+			if d := dist2(a, b); d < CutoffDist {
+				heap.Push(h, edge{dist: d, a: i, b: j})
+			}
+		}
+	}
+
+	dsu := newDSU(n)
+
+	for i := 0; h.Len() > 0; i++ {
+		e := heap.Pop(h).(edge)
+
+		if dsu.find(e.a) != dsu.find(e.b) {
+			dsu.union(e.a, e.b)
+		}
+
+		switch {
+		case i == 999: // part 1: after 1000 edges
+			seen := make([]bool, n)
+			sizes := make([]int, 0, n)
+			for i := range n {
+				root := dsu.find(i)
+				if !seen[root] {
+					seen[root] = true
+					sizes = append(sizes, dsu.size[root])
+				}
+			}
+
+			sort.Sort(sort.Reverse(sort.IntSlice(sizes)))
+			acc1 = sizes[0] * sizes[1] * sizes[2] // product of 3 largest components
+
+		case dsu.size[dsu.find(0)] == n: // part 2: all connected
+			acc2 = int(points[e.a].X) * int(points[e.b].X) // product of X coords of last edge
+			fmt.Println(acc1, acc2, time.Since(t0))        // output results
+
+			return
+		}
+	}
+}
+
+// edge represents an edge between two points with a squared distance
+type edge struct {
+	dist int // squared distance
+	a, b int
+}
+
+// hp is a min-heap of edges
+type hp []edge
+
+func (h hp) Len() int           { return len(h) }
+func (h hp) Less(i, j int) bool { return h[i].dist < h[j].dist }
+func (h hp) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+func (h *hp) Push(x any)        { *h = append(*h, x.(edge)) }
+func (h *hp) Pop() any {
+	old := *h
+	n := len(old)
+	x := old[n-1]
+	*h = old[:n-1]
+	return x
+}
+
+// dsu is a disjoint set union (union-find) data structure
+type dsu struct {
+	parent []int
+	size   []int
+}
+
+// newDSU creates a new DSU with n elements
+func newDSU(n int) *dsu {
+	p := make([]int, n)
+	sz := make([]int, n)
+	for i := range p {
+		p[i] = i
+		sz[i] = 1
+	}
+	return &dsu{p, sz}
+}
+
+// find returns the root of the set containing x, with path compression
+func (d *dsu) find(x int) int {
+	root := x
+	// Find the root
+	for d.parent[root] != root {
+		root = d.parent[root]
+	}
+	// Path compression: make all nodes on path point directly to root
+	for d.parent[x] != x {
+		next := d.parent[x]
+		d.parent[x] = root
+		x = next
+	}
+	return root
+}
+
+// union merges the sets containing a and b
+func (d *dsu) union(a, b int) {
+	ra, rb := d.find(a), d.find(b)
+	if ra == rb {
+		return
+	}
+	if d.size[ra] < d.size[rb] {
+		ra, rb = rb, ra
+	}
+	d.parent[rb] = ra
+	d.size[ra] += d.size[rb]
+}
+
+// point represents a 3D point
+type point struct{ X, Y, Z int }
+
+// dist2 returns the squared distance between points a and b
+func dist2(a, b point) int {
+	dx, dy, dz := a.X-b.X, a.Y-b.Y, a.Z-b.Z
+	return dx*dx + dy*dy + dz*dz
+}
+
+// atoi converts a byte slice representing a non-negative integer to int
+func atoi(s []byte) (n int) {
+	for _, c := range s {
+		n = 10*n + int(c-'0')
+	}
+
+	return
+}

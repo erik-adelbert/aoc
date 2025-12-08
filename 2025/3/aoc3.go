@@ -14,16 +14,12 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-)
-
-const (
-	MaxDigits = 30 // maximum digit count for our inputs
-
-	Part1 = 2  // keep 2 digits for part 1
-	Part2 = 12 // keep 12 digits for part 2
+	"time"
 )
 
 func main() {
+	t0 := time.Now() // start timer
+
 	var (
 		sum1, sum2 int // sums for parts 1 and 2
 	)
@@ -49,8 +45,15 @@ func main() {
 		sum2 += seq2.val()
 	}
 
-	fmt.Println(sum1, sum2)
+	fmt.Println(sum1, sum2, time.Since(t0))
 }
+
+const (
+	MaxDigits = 30 // maximum digit count for our inputs
+
+	Part1 = 2  // keep 2 digits for part 1
+	Part2 = 12 // keep 12 digits for part 2
+)
 
 // seq is a sequence of digits with greedy removal of k digits
 // to keep it lexicographically largest

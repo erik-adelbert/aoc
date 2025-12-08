@@ -14,16 +14,14 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"slices"
 	"strings"
-)
-
-const (
-	RemoveSizeHint = 1500 // from previous runs
-	MaxGridSize    = 140  // maximum grid size
-	MinRolls       = 4    // minimum neighbors to keep a cell
+	"time"
 )
 
 func main() {
+	t0 := time.Now() // start timer
+
 	var acc1, acc2 int // parts 1 and 2 accumulators
 
 	grid := newGrid(MaxGridSize)
@@ -36,41 +34,38 @@ func main() {
 
 		grid.size = len(buf)
 
-		copy(grid.data[i*grid.size:], buf)
+		copy(grid.data[i*grid.size:], buf) // flat copy into grid
 	}
 
 	// scan for roll removal using single buffer + double-buffered queue approach
 
 	// preallocate double buffer queues
-	queue0 := make([]int, 0, MaxGridSize*MaxGridSize)
-	queue1 := make([]int, 0, MaxGridSize*MaxGridSize)
+	queue0 := make([]int, 0, sq(grid.size)) // read queue
+	queue1 := make([]int, 0, sq(grid.size)) // write queue
 
 	// preallocate presence maps
-	seen := make([]bool, MaxGridSize*MaxGridSize)
+	seen := make([]bool, sq(grid.size))
 
 	// initially, queue all roll positions
-	for r := range grid.size {
-		for c := range grid.size {
-			if grid.data[r*grid.size+c] == Roll {
-				i := r*grid.size + c // linear index
-
-				queue0 = append(queue0, i)
-			}
+	for i := range sq(grid.size) {
+		if grid.data[i] == Roll {
+			queue0 = append(queue0, i)
 		}
 	}
 
-	updates := make([]int, 0, RemoveSizeHint) // roll delete list
+	// preallocate roll delete list
+	updates := make([]int, 0, RemoveSizeHint)
 
 	for {
 		// process current queue - collect removals without modifying grid
-		for _, i := range queue0 {
+		for i := range slices.Values(queue0) {
 			if grid.data[i] != Roll {
 				continue // skip if not a roll
 			}
 
 			r, c := i/grid.size, i%grid.size
 
-			// define neighbor bounds
+			// branchless neighbor bounds
 			rmin := max(0, r-1)
 			rmax := min(grid.size-1, r+1)
 			cmin := max(0, c-1)
@@ -79,9 +74,9 @@ func main() {
 			// scan neighbors -- including center roll
 			nrolls := 0
 
-			for nr := rmin; nr <= rmax; nr++ {
-				for nc := cmin; nc <= cmax; nc++ {
-					i := nr*grid.size + nc
+			for r = rmin; r <= rmax; r++ {
+				for c = cmin; c <= cmax; c++ {
+					i := r*grid.size + c
 
 					if grid.data[i] == Roll {
 						nrolls++
@@ -98,28 +93,28 @@ func main() {
 		nremove := len(updates)
 
 		// apply all removals at once
-		for _, i := range updates { // indirect addressing of data
+		for i := range slices.Values(updates) { // indirect addressing of data
 			grid.data[i] = Empty
 		}
 
 		// queue neighbors of removed rolls for next iteration
-		for _, i := range updates {
+		for i := range slices.Values(updates) { // indirect addressing of data
 			r, c := i/grid.size, i%grid.size
 
-			// branchless neighbor bounds
+			// neighbor bounds
 			rmin := max(0, r-1)
 			rmax := min(grid.size-1, r+1)
 			cmin := max(0, c-1)
 			cmax := min(grid.size-1, c+1)
 
-			for nr := rmin; nr <= rmax; nr++ {
-				for nc := cmin; nc <= cmax; nc++ {
-					if grid.data[nr*grid.size+nc] == Roll { // only queue remaining rolls
-						ni := nr*grid.size + nc // linear index
+			for r = rmin; r <= rmax; r++ {
+				for c = cmin; c <= cmax; c++ {
+					i := r*grid.size + c // linear index
 
-						if !seen[ni] {
-							queue1 = append(queue1, ni)
-							seen[ni] = true
+					if grid.data[i] == Roll { // only queue remaining rolls
+						if !seen[i] {
+							queue1 = append(queue1, i)
+							seen[i] = true
 						}
 					}
 				}
@@ -144,9 +139,15 @@ func main() {
 		queue1 = queue1[:0] // reset queue1
 	}
 
-	fmt.Println(acc1, acc2)
+	fmt.Println(acc1, acc2, time.Since(t0))
 	// fmt.Println(grid) // uncomment to see the final grid
 }
+
+const (
+	RemoveSizeHint = 1500 // from previous runs
+	MaxGridSize    = 140  // maximum grid size
+	MinRolls       = 4    // minimum neighbors to keep a cell
+)
 
 // sugars
 const (
@@ -177,4 +178,8 @@ func (g *grid) String() string {
 	}
 
 	return sb.String()
+}
+
+func sq(n int) int {
+	return n * n
 }

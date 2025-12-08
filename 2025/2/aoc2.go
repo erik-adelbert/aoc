@@ -18,71 +18,73 @@ import (
 	"fmt"
 	"iter"
 	"os"
+	"time"
 )
 
 func main() {
+	t0 := time.Now() // start timer
+
 	var acc1, acc2 int // parts 1 and 2 accumulators
 
 	input := bufio.NewScanner(os.Stdin)
 	input.Scan()
 
-	line := bytes.TrimSpace(input.Bytes()) // single line input
+	// iterate over all spans
+	spans := bytes.SplitSeq(input.Bytes(), []byte(","))
 
-	for span := range bytes.SplitSeq(line, []byte(",")) {
+	for span := range spans {
 		bufA, bufB, _ := bytes.Cut(span, []byte("-")) // parse range
 
 		a, b := atoi(bufA), atoi(bufB)
 
-		sub1, sub2 := 0, 0                        // partial sums for this span
-		for span := range allAlignedSpans(a, b) { // split into aligned subranges
-			a, b := span[0], span[1]
-
+		sub1, sub2 := 0, 0                 // partial sums for this span
+		for a, b := range allSpans(a, b) { // split into aligned subranges
 			switch {
 			case a >= 1_000_000_000:
 				const seed1, seed2, lcm = 100_001, 101_010_101, 1_111_111_111
 
-				// sum all multiples of seed1
-				sub1 += sumMultiples(a, b, seed1)
+				// sum all multiples of seed1 over [a, b]
+				sub1 += sm(a, b, seed1)
 
-				// sum multiples of seed2, subtracting common seed multiples already counted in sub1
-				sub2 += sumMultiples(a, b, seed2) - sumMultiples(a, b, lcm)
+				// sum multiples of seed2, subtracting common multiples of seed1&2 already counted in sub1
+				sub2 += sm(a, b, seed2) - sm(a, b, lcm)
 			case a >= 100_000_000:
 				const seed2a, seed2b = 1_001_001, 111_111_111
 
-				sub2 += sumMultiples(a, b, seed2a)
-				sub2 += sumMultiples(a, b, seed2b)
+				sub2 += sm(a, b, seed2a)
+				sub2 += sm(a, b, seed2b)
 			case a >= 10_000_000:
 				const seed1, seed2 = 10_001, 11_111_111
 
-				sub1 += sumMultiples(a, b, seed1)
+				sub1 += sm(a, b, seed1)
 
-				sub2 += sumMultiples(a, b, seed2)
+				sub2 += sm(a, b, seed2)
 			case a >= 1_000_000:
 				const seed2 = 1_111_111
 
-				sub2 += sumMultiples(a, b, seed2)
+				sub2 += sm(a, b, seed2)
 			case a >= 100_000:
 				const seed1, seed2, lcm = 1_001, 10_101, 111_111
 
-				sub1 += sumMultiples(a, b, seed1)
+				sub1 += sm(a, b, seed1)
 
-				sub2 += sumMultiples(a, b, seed2) - sumMultiples(a, b, lcm)
+				sub2 += sm(a, b, seed2) - sm(a, b, lcm)
 			case a >= 10_000:
 				const seed2 = 11_111
 
-				sub2 += sumMultiples(a, b, seed2)
+				sub2 += sm(a, b, seed2)
 			case a >= 1_000:
 				const seed1 = 101
 
-				sub1 += sumMultiples(a, b, seed1)
+				sub1 += sm(a, b, seed1)
 			case a >= 100:
 				const seed2 = 111
 
-				sub2 += sumMultiples(a, b, seed2)
+				sub2 += sm(a, b, seed2)
 			case a >= 10:
 				const seed1 = 11
 
-				sub1 += sumMultiples(a, b, seed1)
+				sub1 += sm(a, b, seed1)
 			}
 		}
 
@@ -91,48 +93,49 @@ func main() {
 	}
 	acc2 += acc1 // part 2 includes part 1
 
-	fmt.Println(acc1, acc2)
+	fmt.Println(acc1, acc2, time.Since(t0))
 }
 
-// allAlignedSpans iterates over subranges of [a, b] split at ten powers boundaries
+// allSpans iterates over subranges of [a, b] split at ten powers boundaries
 // e.g., [95, 105] -> [95, 99], [100, 105]
-func allAlignedSpans(a, b int) iter.Seq[[2]int] {
-	return func(yield func([2]int) bool) {
+func allSpans(a, b int) iter.Seq2[int, int] {
+	return func(yield func(int, int) bool) {
 		start := a
 
 		for x := 10; x <= 1e9; x *= 10 {
 			if x > start && x <= b {
-				if !yield([2]int{start, x - 1}) {
+				if !yield(start, x-1) { // [start, x-1]
 					return
 				}
+
 				start = x
 			}
 		}
 
 		// yield the final range [last_split, b] and return anyway
 		if start <= b {
-			yield([2]int{start, b})
+			yield(start, b)
 		}
 	}
 }
 
-// sumMultiples computes the sum of all multiples of x in the range [a, b]
-func sumMultiples(a, b, x int) int {
-	var first, last int // first and last multiples of x in [a, b]
+// sm computes the sum of all multiples of x in the range [l, r]
+func sm(l, r, x int) int {
+	var α, ω int // first and last multiples of x in [l, r]
 
-	// first multiple: ceiling(a/x) * x
-	if first = ((a + x - 1) / x) * x; first > b {
+	// first multiple: ⎡l/x⎤ * x
+	if α = ((l + x - 1) / x) * x; α > r {
 		return 0 // no multiples in range
 	}
 
-	// last multiple: floor(b/x) * x
-	last = (b / x) * x
+	// last multiple: ⎣r/x⎦ * x
+	ω = (r / x) * x
 
-	// count of multiples
-	count := (last-first)/x + 1
+	// count of multiples of x in [α, ω]
+	n := (ω-α)/x + 1
 
-	// sum using arithmetic series
-	return count * (first + last) / 2
+	// sum all multiples using arithmetic series
+	return n * (α + ω) / 2
 }
 
 // strconv.Atoi simplified core loop

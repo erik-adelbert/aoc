@@ -16,9 +16,12 @@ import (
 	"fmt"
 	"os"
 	"slices"
+	"time"
 )
 
 func main() {
+	t0 := time.Now() // start timer
+
 	var acc1, acc2 int // parts 1 and 2 counts
 
 	// read spans and queries
@@ -51,7 +54,7 @@ func main() {
 		}
 	}
 
-	fmt.Println(acc1, acc2)
+	fmt.Println(acc1, acc2, time.Since(t0))
 }
 
 // merge merges overlapping intervals and calculates total coverage

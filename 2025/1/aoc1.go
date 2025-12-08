@@ -14,11 +14,12 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"time"
 )
 
-const MaxDial = 100
-
 func main() {
+	t0 := time.Now()
+
 	var acc1, acc2 int // passwords for parts 1 and 2
 
 	old, cur := MaxDial/2, MaxDial/2 // dial starts at 50
@@ -51,8 +52,7 @@ func main() {
 		case cur == 0:
 			// part1: count turns landing on zero
 			acc1++
-		case (old < cur) == (dir == 'L'), // position increased when turning left
-			(old > cur) == (dir == 'R'): // position decreased when turning right
+		case (old < cur) == (dir == 'L'): // position increased/decreased when turning left/right
 			// part2: count turns crossing zero
 			acc2++
 		}
@@ -61,8 +61,10 @@ func main() {
 	}
 	acc2 += acc1 // part2 includes part1
 
-	fmt.Println(acc1, acc2) // output passwords
+	fmt.Println(acc1, acc2, time.Since(t0)) // output passwords
 }
+
+const MaxDial = 100
 
 // strconv.Atoi simplified core loop
 // s is ^\d+$

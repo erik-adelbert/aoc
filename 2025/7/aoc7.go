@@ -15,9 +15,12 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"time"
 )
 
 func main() {
+	t0 := time.Now() // start timer
+
 	var acc1, acc2 int // parts 1 and 2 accumulators
 
 	grid := make([][]byte, 0, MaxWidth)
@@ -35,7 +38,7 @@ func main() {
 		}
 	}
 
-	i := bytes.Index(grid[0], []byte("S")) // find starting position 'S' in first line
+	i := bytes.Index(grid[0], []byte("S")) // find starting position 'S' in first row
 	paths[i] = 1                           // start with 1 path at S
 
 	// process remaining rows
@@ -59,7 +62,7 @@ func main() {
 		acc2 += paths[i]
 	}
 
-	fmt.Println(acc1, acc2)
+	fmt.Println(acc1, acc2, time.Since(t0))
 }
 
 const (

@@ -3,21 +3,14 @@ GO = go build
 TARGETS := bench binrun build check clean header run
 
 SUBDIRS := $(wildcard */.)
-SUBDIRS := $(filter-out download/. header/. runtime/., images/., $(SUBDIRS))
+SUBDIRS := $(filter-out download/. header/. runtime/. images/., $(SUBDIRS))
 
+# Default recursive targets
 $(TARGETS): $(SUBDIRS)
 $(SUBDIRS):
-		@$(MAKE) -C $@ $(MAKECMDGOALS)
+	@$(MAKE) -C $@ $(MAKECMDGOALS)
 
-cyclo:
-	@gocyclo -ignore "download|images|header|runtime" -top 10 -avg .
-
-lines:
-	@find . -name '*go' \( -not -iname "main.go" \) | grep -v 'v1' | xargs wc -l | sort
-
-runtime:
-	@./runtime.sh | sort -n -k 4 > runtime.md
-
+# Special handling for day target
 day:
 	@day="$(filter-out day,$(MAKECMDGOALS))"; \
 	if [ -z "$$day" ]; then \
@@ -47,9 +40,20 @@ day:
 	echo "  - Directory: $$day/" && \
 	echo "  - File: $$day/aoc$$day.go (with header)" && \
 	echo "  - File: $$day/Makefile"
+cyclo:
+	@gocyclo -ignore "download|images|header|runtime" -top 10 -avg .
 
-# Prevent make from treating day numbers as targets
+lines:
+	@find . -name '*go' \( -not -iname "main.go" \) | grep -v 'v1' | xargs wc -l | sort
+
+runtime:
+	@./runtime.sh | sort -n -k 4 > runtime.md
+
+# Prevent make from treating day numbers as targets when used with day
+# But allow numbers as directory targets for recursive execution
+ifneq ($(filter day,$(MAKECMDGOALS)),)
 %:
 	@:
+endif
 
 .PHONY: $(TARGETS) $(SUBDIRS) cyclo lines runtime day

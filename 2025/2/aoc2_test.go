@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestAllAlignedSpans(t *testing.T) {
+func TestAllSpans(t *testing.T) {
 	tests := []struct {
 		name     string
 		a, b     int
@@ -67,8 +67,8 @@ func TestAllAlignedSpans(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var result [][2]int
-			for span := range allAlignedSpans(tt.a, tt.b) {
-				result = append(result, span)
+			for a, b := range allSpans(tt.a, tt.b) {
+				result = append(result, [2]int{a, b})
 			}
 
 			if len(result) != len(tt.expected) {
@@ -164,7 +164,7 @@ func TestSumMultiples(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := sumMultiples(tt.a, tt.b, tt.x)
+			result := sm(tt.a, tt.b, tt.x)
 			if result != tt.expected {
 				t.Errorf("sumMultiples(%d, %d, %d) = %d, expected %d",
 					tt.a, tt.b, tt.x, result, tt.expected)

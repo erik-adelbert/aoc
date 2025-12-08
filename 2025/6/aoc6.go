@@ -15,9 +15,12 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"time"
 )
 
 func main() {
+	t0 := time.Now() // start timer
+
 	var acc1, acc2 int // parts 1 and 2 accumulators
 
 	input := bufio.NewScanner(os.Stdin)
@@ -85,10 +88,11 @@ func main() {
 
 	// compute results
 	for col, token := range tokens {
-		transLen := len(token[0])
 
 		// transpose for part 2
-		for row := range transLen {
+		w, h := len(token), len(token[0]) // width and height of the transposed token
+
+		for row := range h {
 			for j := range token {
 				trans[row][j] = token[j][row]
 			}
@@ -100,8 +104,8 @@ func main() {
 				acc1 += atoi(bytes.TrimSpace(token[row]))
 			}
 
-			for row := range transLen {
-				acc2 += atoi(bytes.TrimSpace(trans[row][:len(token)]))
+			for row := range h {
+				acc2 += atoi(bytes.TrimSpace(trans[row][:w]))
 			}
 		case '*':
 			prod := 1
@@ -111,14 +115,14 @@ func main() {
 			acc1 += prod
 
 			prod = 1
-			for row := range transLen {
-				prod *= atoi(bytes.TrimSpace(trans[row][:len(token)]))
+			for row := range h {
+				prod *= atoi(bytes.TrimSpace(trans[row][:w]))
 			}
 			acc2 += prod
 		}
 	}
 
-	fmt.Println(acc1, acc2)
+	fmt.Println(acc1, acc2, time.Since(t0))
 }
 
 // strconv.Atoi simplified core loop
