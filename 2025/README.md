@@ -55,7 +55,7 @@ On this first day of AoC 2025, the challenge is reasonably tricky. It highlights
 
 For today’s [solution](https://github.com/erik-adelbert/aoc/blob/main/2025/1/aoc1.go), I’m reimplementing `mod` so that it always returns a positive value, since the problem includes negative integer data (i.e., left turns). Then, as always — especially when coding for production — I validate the inputs as early as possible. In this case, it allows me to reduce the computation domain to a single wrap of the dial. By doing this consistently, I don’t need to apply any offsets (and neither do you). From there, a switch selects one of the four interesting cases and updates the counts used as passwords for parts 1 and 2.
 
-`<EDIT>` I've removed `mod()` because it was called only once.
+`<EDIT>` I removed `mod()` because it was called only once.
 
 `<EDIT>` I’ve used  `if` [short statements](https://go.dev/tour/flowcontrol/6) fairly liberally as a stylistic choice.
 
@@ -407,7 +407,7 @@ By determining this cutoff early, we can **[prune](https://en.wikipedia.org/wiki
 
 This greatly improves runtime because Kruskal’s algorithm—along with the ~~heap~~ sorting and the disjoint-set union (DSU)—runs in time proportional to `O(E log E)`, and reducing `E` by two orders of magnitude makes the whole process significantly faster.
 
-`<EDIT>` I've replaced the heap by a sort to make the code lighter and actually faster.
+`<EDIT>` I replaced the heap by a sort to make the code lighter and actually faster.
 
 The code runs in under `1.3ms`
 
