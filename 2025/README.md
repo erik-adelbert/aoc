@@ -525,6 +525,10 @@ This recurrence is also more proof of [`u/topaz2078`](https://www.reddit.com/use
 
 Today I reached the **1000-LOC** milestone, the collection runs in **3,683 μs**, and we’ve clearly moved past the self-patting comfort zone of `O(n)` into far more adventurous territory. Let the final stretch begin!
 
+<div align="center">
+  <img src="./images/golang.png" alt="Flash Gopher from https://wx-chevalier.github.io/books/awesome-lists/01.cs/language/go/gopher-list/" width="10%" />
+</div>
+
 ```bash
 ❯ cloc 1 2 3 4 5 6 7 8 9
       46 text files.
@@ -543,3 +547,4 @@ make                             2              0              0              2
 SUM:                            39            309            242           9079
 -------------------------------------------------------------------------------
 ```
+
