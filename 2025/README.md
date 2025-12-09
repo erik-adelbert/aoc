@@ -466,7 +466,7 @@ The [prefix sum table](https://www.geeksforgeeks.org/dsa/prefix-sum-array-implem
 
 `sums[i][j]=grid[i][j]+sums[i−1][j]+sums[i][j−1]−sums[i−1][j−1]`
 
-It lets us quickly check whether a rectangle is fully inside the polygon (i.e., all its cells are 1), or count how many cells are inside, without scanning every cell in the rectangle. And after doing so much preprocessing, we might as well throw everything we have at the problem—treating (the best 2D matrix is a 1D matrix kind of thing) wherever possible, and so on.
+It lets us quickly check whether a rectangle is fully inside the polygon (i.e., all its cells are 1), or count how many cells are inside, without scanning every cell in the rectangle. And after doing so much preprocessing, we might as well throw everything we have at the problem —the best 2D matrix is a 1D matrix, what if `uint32`?, ... kind of things— wherever possible, and so on.
 
 At last the resulting code runs in under `1.5ms±0.5` and the best runs are in under `1ms`.
 
