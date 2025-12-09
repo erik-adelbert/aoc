@@ -16,20 +16,22 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
 - [Day 7: Laboratories](#day-7-laboratories-) - Path propagation and dynamic programming
 - [Day 8: Playground](#day-8-playground-) - Modified Kruskal's with distance cutoff
 - [Why have I changed the timings?](#why-have-i-changed-the-timings-) - Timings and evaluation
+- [Day 9: Movie Theater](#day-9-movie-theater-) - Modified Kruskal's with distance cutoff
 
 ## Timings [↑](#summary)
 
 | Day                                 | Time (μs) | % of Total |
 |-------------------------------------|----------:|-----------:|
-| [2](#day-2-gift-shop-)              |         8 |      0.30% |
-| [7](#day-7-laboratories-)           |        39 |      1.47% |
-| [5](#day-5-cafeteria-)              |        98 |      3.70% |
-| [1](#day-1-secret-entrance-)        |       136 |      5.14% |
-| [6](#day-6-trash-compactor-)        |       154 |      5.82% |
-| [3](#day-3-lobby-)                  |       231 |      8.73% |
-| [4](#day-4-printing-department-)    |       764 |     28.88% |
-| [8](#day-8-playground-)             |     1,216 |     45.96% |
-| Total                               |     2,646 |    100.00% |
+| [2](#day-2-gift-shop-)              |         8 |      0.22% |
+| [7](#day-7-laboratories-)           |        39 |      1.06% |
+| [5](#day-5-cafeteria-)              |        98 |      2.66% |
+| [1](#day-1-secret-entrance-)        |       136 |      3.69% |
+| [6](#day-6-trash-compactor-)        |       154 |      4.18% |
+| [3](#day-3-lobby-)                  |       231 |      6.27% |
+| [4](#day-4-printing-department-)    |       764 |     20.75% |
+| [9](#day-9-movie-theater-)          |     1,037 |     28.17% |
+| [8](#day-8-playground-)             |     1,216 |     33.04% |
+| Total                               |     3,683 |    100.00% |
 
 fastest of 100 runs for part1&2 in μs - mbair M1/16GB - darwin 24.6.0 - go version go1.25.3 darwin/arm64 - 2025-12
 
@@ -439,4 +441,45 @@ go run ./aoc7.go < input.txt
 1633 34339203133559 40.292µs
 go run ./aoc8.go < input.txt
 32103 8133642976 1.257ms
+```
+
+## Day 9: [Movie Theater](https://adventofcode.com/2025/day/9) [↑](#summary)
+
+<div align="center">
+  <img src="./images/industrial_compressor.jpg" alt="An Industrial Compressor" width="60%" />
+</div>
+
+Today, we’re tackling the problem of finding the largest rectangle inside a rectilinear polyline. Suffice it to say, I’m not a big fan of this type of problem—these puzzles usually end up with a [solution](https://github.com/erik-adelbert/aoc/blob/main/2025/9/aoc9.go) that’s tedious, and today is no exception.
+
+As I see it, there’s no option other than generating all pairs of polyline points. This results in a program that runs in `O(n²)`, where *n* is the number of points—about 500² (250,000) pairs. The good news (yippee!) is that this step dominates everything else we do with the data. The bad news is that we have to keep the core loop as lightweight as possible to avoid a disastrous runtime that would undermine everything we’ve done up to this point. After browsing [various posts](https://www.reddit.com/r/adventofcode/comments/1phywvn/2025_day_9_solutions/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button) today, I've settled to a prefix sum table over compressed coordinates of the polyline, mainly because I am unfamiliar with these techniques.
+
+Namely, today the code must:
+
+- Parse the input `O(n)` where *n* is the point count
+- Sort and compact the coordinates `O(nlogn)`
+- Build a compress coordinate map `O(m)` where *m* is the number of unique coordinates
+- Scanline fill the polyline `O(R·C)` where *R·C* is the number of grid cells
+- Build a prefix sum table `O(R·C)`
+- Finally query all pairs of point against this table `O(n²)` (☜ core loop here)
+
+The [prefix sum table](https://www.geeksforgeeks.org/dsa/prefix-sum-array-implementation-applications-competitive-programming/) is built so that each cell at position (i, j) contains the sum of all cells in the rectangle from (0, 0) to (i, j). This is done using the recurrence:
+
+`sums[i][j]=grid[i][j]+sums[i−1][j]+sums[i][j−1]−sums[i−1][j−1]`
+
+It lets us quickly check whether a rectangle is fully inside the polygon (i.e., all its cells are 1), or count how many cells are inside, without scanning every cell in the rectangle. And after doing so much preprocessing, we might as well throw everything we have at the problem—treating (the best 2D matrix is a 1D matrix kind of thing) wherever possible, and so on.
+
+At last the resulting code runs in under `1.5ms±0.5` and the best runs are in under `1ms`.
+
+```bash
+❯ best=999999999; for i in {1..100}; do t=$( (make run 2>&1 | grep -oE '[0-9]+\.[0-9]+ms' | head -1 | sed 's/ms//') ); if [ "$(echo "$t < $best" | bc)" -eq 1 ]; then best=$t; fi; done; echo "Best time: $best ms"
+Best time: 1.037333 ms
+❯ make run
+go run ./aoc9.go < input.txt
+Parsed input... 27µs
+Sorted coordinates... 96.792µs
+Built coordinate maps... 158.292µs
+Completed scanline fill... 186µs
+Built bitmask... 417.333µs
+Built prefix sums... 1.200042ms
+4294831030 1644094530 1.714583ms
 ```

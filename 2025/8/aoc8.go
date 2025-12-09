@@ -53,8 +53,8 @@ func main() {
 	// sort edges by distance
 	slices.SortFunc(edges, func(a, b edge) int { return a.dist - b.dist })
 
-	unions := 0
 	dsu := newDSU(n)
+	unions := 0 // count of unions performed
 	for i, e := range edges {
 
 		if dsu.find(e.a) != dsu.find(e.b) {
@@ -113,28 +113,34 @@ func newDSU(n int) *dsu {
 // find returns the root of the set containing x, with path compression
 func (d *dsu) find(x int) int {
 	root := x
+
 	// Find the root
 	for d.parent[root] != root {
 		root = d.parent[root]
 	}
+
 	// Path compression: make all nodes on path point directly to root
 	for d.parent[x] != x {
 		next := d.parent[x]
 		d.parent[x] = root
 		x = next
 	}
+
 	return root
 }
 
 // union merges the sets containing a and b
 func (d *dsu) union(a, b int) {
 	ra, rb := d.find(a), d.find(b)
+
 	if ra == rb {
 		return
 	}
+
 	if d.size[ra] < d.size[rb] {
 		ra, rb = rb, ra
 	}
+
 	d.parent[rb] = ra
 	d.size[ra] += d.size[rb]
 }
@@ -145,6 +151,7 @@ type point struct{ X, Y, Z int }
 // dist2 returns the squared distance between points a and b
 func dist2(a, b point) int {
 	dx, dy, dz := a.X-b.X, a.Y-b.Y, a.Z-b.Z
+
 	return dx*dx + dy*dy + dz*dz
 }
 

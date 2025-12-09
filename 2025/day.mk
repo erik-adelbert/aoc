@@ -35,7 +35,7 @@ header:
 input.txt:
 	@go run $(DOWNLOAD)
 
-go.mod: 
+go.mod:
 	@go mod init 2>/dev/null
 
 gobench: go.mod input.txt
