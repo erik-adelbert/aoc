@@ -6,8 +6,6 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
 
 ### Daily Visual Index
 
-### Daily Visual Index
-
 <table>
   <tr>
     <td><a href="#day-1-secret-entrance-"><img src="./images/1606_Mercator_Hondius_Map_of_the_Arctic_(First_Map_of_the_North_Pole)_-_Geographicus_-_NorthPole-mercator-1606.jpg" alt="Day 1" width="80"/></a></td>
