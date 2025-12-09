@@ -80,7 +80,7 @@ The password method <span title='CLICK'><code>0x434C49434B</code></span> actuall
 
 As AoC is a gathering, I usually keep a back channel open with my fellow programmer and friend **[hm](https://blog.izissise.net/)**. From the very beginning, he had been insisting on how fast the generation of the numbers we are tasked to find in today’s challenge could be. He was convinced from the start that, given their regular nature, they were natural candidates for efficient generation… and it turns out he was right.
 
-I must admit I wasn’t convinced at first, but once we saw [Tim Visée’s solution](https://github.com/timvisee/advent-of-code-2025/blob/master/day02b/src/main.rs)—which does exactly the opposite by sieving the repeating numbers statically—the challenge was on.
+I must admit I wasn’t convinced at first, but once we saw [Tim Visée’s solution](https://github.com/timvisee/advent-of-code-2025/blob/4292ba336b685270886129ee58311943cef5ce63/day02b/src/main.rs)—which does exactly the opposite by sieving the repeating numbers statically—the challenge was on.
 
 And here it is: possibly **the fastest way** to compute the solution to today’s challenge. It runs in **less than 1 ms**.
 
@@ -100,7 +100,7 @@ For example, between 10 and 99, it’s easy to see that all repeating numbers ar
 
 The resulting [code](https://github.com/erik-adelbert/aoc/blob/1fd714e7f1a3d37736e4e87a35544bd33a2c852a/2025/2/aoc2.go) stays within the integer domain, the cost effectively disappears — and the routine now runs in **5.8 ms**!
 
-I first saw this idea in [Tim Visée](https://github.com/timvisee/advent-of-code-2025/blob/master/day02b/src/main.rs)’s code.
+I first saw this idea in [Tim Visée](https://github.com/timvisee/advent-of-code-2025/blob/4292ba336b685270886129ee58311943cef5ce63/day02b/src/main.rs)’s code.
 Tim is a performance-oriented programmer of the finest caliber, and I warmly recommend following his work.
 
 As a final note, this solution uses `fallthrough`, which helps improve runtime.
