@@ -4,6 +4,12 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
 
 ## Quick Navigation
 
+### Daily Visual Index
+
+| [![Day 1](./images/1606_Mercator_Hondius_Map_of_the_Arctic_(First_Map_of_the_North_Pole)_-_Geographicus_-_NorthPole-mercator-1606.jpg)](#day-1-secret-entrance-) | [![Day 2](./images/Serpiente_alquimica.jpg)](#day-2-gift-shop-) | [![Day 3](./images/Polar_Night_energy.jpg)](#day-3-lobby-) | [![Day 4](./images/bolas.jpg)](#day-4-printing-department-) | [![Day 5](./images/SpaceVegetables.jpg)](#day-5-cafeteria-) | [![Day 6](./images/BoxFactory.jpg)](#day-6-trash-compactor-) | [![Day 7](./images/PrismRoom.jpg)](#day-7-laboratories-) | [![Day 8](./images/Xmas_Snowball.jpg)](#day-8-playground-) | [![Day 9](./images/industrial_compressor.jpg)](#day-9-movie-theater-) |
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| Day 1 | Day 2 | Day 3 | Day 4 | Day 5 | Day 6 | Day 7 | Day 8 | Day 9 |
+
 - [Timings](#timings-) - Performance metrics and hardware specs
 - [Installation and Benchmark](#installation-and-benchmark-) - Setup and testing instructions
 - [Day 1: Secret Entrance](#day-1-secret-entrance-) - Modulo operations and dial simulation
