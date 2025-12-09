@@ -460,7 +460,7 @@ Namely, today the code must:
 - Build a compress coordinate map `O(m)` where *m* is the number of unique coordinates
 - Scanline fill the polyline `O(R·C)` where *R·C* is the number of grid cells
 - Build a prefix sum table `O(R·C)`
-- Finally query all pairs of point against this table `O(n²)` (☜ core loop here)
+- Query all pairs of point against this table `O(n²)` (☜ core loop here)
 
 The [prefix sum table](https://www.geeksforgeeks.org/dsa/prefix-sum-array-implementation-applications-competitive-programming/) is built so that each cell at position (i, j) contains the sum of all cells in the rectangle from (0, 0) to (i, j). This is done using the recurrence:
 
