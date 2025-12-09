@@ -510,3 +510,36 @@ Built bitmask... 417.333µs
 Built prefix sums... 1.200042ms
 4294831030 1644094530 1.714583ms
 ```
+
+### How is it going?
+
+Even if—or maybe because—it’s a 12-day edition, this year’s AoC feels great and keeps motivating me to improve my tooling. The results I’m getting are much easier to compare with other performance-oriented solutions out there, and it’s a ton of fun.
+
+I’ve always seen coding as a way to balance time and space, and to take advantage of that balance. That’s why I love the recurring appearance of intervals throughout this journey—they keep reminding me of *space* every now and then, while every day for a full hour I’m trading everything for *speed*.
+
+This recurrence is also more proof of [`u/topaz2078`](https://www.reddit.com/user/topaz2078/)’s grand wizardry: it’s his way of having us practice *kata (型)*. *Kata* refers to fixed forms or patterns that embody a principle. By practicing many different kata, we gradually internalize the underlying concepts. And then there’s *Shu–Ha–Ri (守破離)*, which I think is the perfect way to describe the stages of mastery:
+
+- *Shu (守)* — obey the forms (learn the kata)
+- *Ha (破)* — break the forms (experiment, adapt)
+- *Ri (離)* — transcend the forms (create your own)
+
+Today I reached the **1000-LOC** milestone, the collection runs in **3,683 μs**, and we’ve clearly moved past the self-patting comfort zone of `O(n)` into far more adventurous territory. Let the final stretch begin!
+
+```bash
+❯ cloc 1 2 3 4 5 6 7 8 9
+      46 text files.
+      39 unique files.
+       7 files ignored.
+
+github.com/AlDanial/cloc v 2.06  T=0.04 s (891.9 files/s, 220230.5 lines/s)
+-------------------------------------------------------------------------------
+Language                     files          blank        comment           code
+-------------------------------------------------------------------------------
+Text                            18              2              0           8030
+Go                              11            307            242           1015
+Markdown                         8              0              0             32
+make                             2              0              0              2
+-------------------------------------------------------------------------------
+SUM:                            39            309            242           9079
+-------------------------------------------------------------------------------
+```
