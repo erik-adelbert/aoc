@@ -16,7 +16,7 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
 - [Day 7: Laboratories](#day-7-laboratories-) - Path propagation and dynamic programming
 - [Day 8: Playground](#day-8-playground-) - Modified Kruskal's with distance cutoff
 - [Why have I changed the timings?](#why-have-i-changed-the-timings-) - Timings and evaluation
-- [Day 9: Movie Theater](#day-9-movie-theater-) - Modified Kruskal's with distance cutoff
+- [Day 9: Movie Theater](#day-9-movie-theater-) - Prefix sums and 2D compress coordinates
 
 ## Timings [↑](#summary)
 
