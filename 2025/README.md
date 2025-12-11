@@ -55,17 +55,18 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
 
 | Day                                 | Time (μs) | % of Total |
 |-------------------------------------|----------:|-----------:|
-| [2](#day-2-gift-shop-)              |         8 |      0.20% |
-| [7](#day-7-laboratories-)           |        39 |      0.96% |
-| [5](#day-5-cafeteria-)              |        98 |      2.42% |
-| [1](#day-1-secret-entrance-)        |       136 |      3.36% |
-| [6](#day-6-trash-compactor-)        |       154 |      3.80% |
-| [3](#day-3-lobby-)                  |       231 |      5.70% |
-| [11](#day-11-reactor-)              |       369 |      9.11% |
-| [4](#day-4-printing-department-)    |       764 |     18.87% |
-| [9](#day-9-movie-theater-)          |     1,037 |     25.61% |
-| [8](#day-8-playground-)             |     1,216 |     30.04% |
-| Total                               |     4,052 |    100.07% |
+| [**2**](#day-2-gift-shop-)          |         8 |      0.09% |
+| [7](#day-7-laboratories-)           |        39 |      0.44% |
+| [5](#day-5-cafeteria-)              |        98 |      1.10% |
+| [1](#day-1-secret-entrance-)        |       136 |      1.52% |
+| [6](#day-6-trash-compactor-)        |       154 |      1.72% |
+| [3](#day-3-lobby-)                  |       231 |      2.58% |
+| [11](#day-11-reactor-)              |       369 |      4.12% |
+| [4](#day-4-printing-department-)    |       764 |      8.55% |
+| [9](#day-9-movie-theater-)          |     1,037 |     11.59% |
+| [8](#day-8-playground-)             |     1,216 |     13.60% |
+| [**10**](#day-10-factory-)          |     4,892 |     54.70% |
+| Total                               |     8,944 |    100.01% |
 
 fastest of 100 runs for part1&2 in μs - mbair M1/16GB - darwin 24.6.0 - go version go1.25.3 darwin/arm64 - 2025-12
 
@@ -561,29 +562,26 @@ SUM:                            39            309            242           9079
   <img src="./images/hp48.png" alt="A HP48 calculator connected to a PC" width="60%" />
 </div>
 
-incoming embedded ILP solver for part2
+Upon reading today's challenge, Part 2, I immediately recognized it as an [ILP](https://en.wikipedia.org/wiki/Integer_programming) problem, but I had no idea how I could compose a solver simply. Relying on [Z3](https://github.com/Z3Prover/z3) or any other general-purpose solver/prover would have been a total disaster for runtime.
+
+So I studied the domain and came up with an approach for what to do and how to do it. Then I browsed solutions hoping to find a skillful reference implementation—and here it was: `u/RussellDash332` had [one](https://github.com/RussellDash332/advent-of-code/blob/main/aoc-2025%2FDay-10%2FPython%2Fmain.py)!
+
+Today's [program](https://github.com/erik-adelbert/aoc/blob/main/2025/10/aoc10.go) tackles Part 1 with a neat BFS and includes a fast, compact solver using [simplex](https://en.wikipedia.org/wiki/Simplex_algorithm) and [branch-and-bound](https://en.wikipedia.org/wiki/Branch_and_bound) for Part 2. It runs in under **5 ms**, which is an order of magnitude faster than typical runtimes in the solution megathread.
 
 ```bash
 ❯ make run
 go run ./aoc10.go < input.txt
-part1 time: 549.75µs
-498 0 765.292µs
+498 17133 5.632792ms
+❯ best=999999999
+for i in {1..100}; do
+  t=$(make run 2>&1 | grep -v part1 | grep -oE '[0-9]+\.[0-9]+ms' | head -1 | sed 's/ms//')
+  if [ -n "$t" ] && [ "$(echo "$t < $best" | bc)" -eq 1 ]; then
+    best=$t
+  fi
+done
+echo "Best time: $best ms"
+Best time: 4.892125 ms
 ```
-
-### Update
-
-```bash
-❯ make sample
-go run ./aoc10.go < sample.txt
-part1 time: 3.792µs
-7 33 40.875µs
-❯ make run
-go run ./aoc10.go < input.txt
-part1 time: 525.709µs
-498 12913 4.85425ms
-```
-
-It still under evaluates part 2 but I've got this!
 
 ## Day 11: [Reactor](https://adventofcode.com/2025/day/10) [↑](#summary)
 
