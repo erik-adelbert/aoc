@@ -595,6 +595,8 @@ Today I needed to move quickly through composing the [solution](https://github.c
 
 To this end, I used [recursive](https://en.wikipedia.org/wiki/Recursion) [DFS](https://en.wikipedia.org/wiki/Depth-first_search) and [DP](https://en.wikipedia.org/wiki/Dynamic_programming) to solve parts 1 and 2, because they are fast to compose and the part 1 result clearly shows that part 2 would otherwise require an intractable search space. I also translated all three-letter tags into fixed indices so I could perform all searches in the integer domain. Believe it or not, there’s still room for additional micro-optimizations like iterate computations, and at some point I’ll come back to implement them.
 
+`<EDIT>` part 1 is iterative now but I think I'll leave part 2 alone because it won't stay as neat otherwise.
+
 ```bash
 ❯ make run
 go run ./aoc11.go < input.txt

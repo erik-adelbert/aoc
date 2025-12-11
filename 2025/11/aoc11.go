@@ -29,13 +29,12 @@ func main() {
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
-		line := input.Text()
-		parts := strings.Split(line, ":")
-		src := parts[0]
-		dst := strings.Fields(parts[1])
+		parts := strings.Split(input.Text(), ":")
+
+		src, dst := parts[0], strings.Fields(parts[1])
 
 		if _, ok := IDs[src]; !ok {
-			IDs[src] = nextID
+			IDs[src] = nextID // assign new ID
 			nextID++
 		}
 
@@ -52,23 +51,22 @@ func main() {
 	// part 1 use DFS to count all paths
 	you, out := IDs["you"], IDs["out"]
 
-	var recount func(cur int, seen []int) int
-	recount = func(cur int, seen []int) int {
+	q := make([]int, 0, MaxIDHint)
+
+	// var q []int
+	q = append(q, you)
+	for len(q) > 0 {
+		cur := q[len(q)-1]
+		q = q[:len(q)-1]
+
 		if cur == out {
-			return 1
+			acc1++
+			continue
 		}
 
-		seen[cur]++
-		defer func() { seen[cur]-- }()
-
-		count := 0
 		for _, nxt := range edges[cur] {
-			if seen[nxt] == 0 {
-				count += recount(nxt, seen)
-			}
+			q = append(q, nxt)
 		}
-
-		return count
 	}
 
 	// part 2 use DP to count all paths from 'svr' to 'out' that contain both 'dac' and 'fft'
@@ -81,9 +79,9 @@ func main() {
 	}
 	dp := make(map[key]int)
 
-	var recountWithNodes func(cur int, seen []int, hasDac, hasFft bool) int
+	var recount func(cur int, seen []int, hasDac, hasFft bool) int
 
-	recountWithNodes = func(cur int, seen []int, hasDac, hasFft bool) int {
+	recount = func(cur int, seen []int, hasDac, hasFft bool) int {
 		key := key{cur, hasDac, hasFft}
 
 		if seen[cur] > 0 {
@@ -102,12 +100,12 @@ func main() {
 		}
 
 		seen[cur]++
-		defer func() { seen[cur]-- }()
+		defer func() { seen[cur]-- }() // backtrack on return
 
 		count := 0
 		for _, nxt := range edges[cur] {
 			if seen[nxt] == 0 {
-				count += recountWithNodes(
+				count += recount(
 					nxt,
 					seen,
 					hasDac || nxt == dac,
@@ -120,8 +118,7 @@ func main() {
 		return count
 	}
 
-	acc1 = recount(you, make([]int, MaxIDHint))
-	acc2 = recountWithNodes(svr, make([]int, MaxIDHint), svr == dac, svr == fft)
+	acc2 = recount(svr, make([]int, MaxIDHint), svr == dac, svr == fft)
 
 	fmt.Println(acc1, acc2, time.Since(t0))
 }
