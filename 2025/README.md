@@ -17,6 +17,8 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
     <td><a href="#day-7-laboratories-"><img src="./images/PrismRoom.jpg" alt="Day 7" width="80"/></a></td>
     <td><a href="#day-8-playground-"><img src="./images/Xmas_Snowball.jpg" alt="Day 8" width="80"/></a></td>
     <td><a href="#day-9-movie-theater-"><img src="./images/industrial_compressor.jpg" alt="Day 9" width="80"/></a></td>
+    <td><a href="#day-10-factory-"><img src="./images/hp48.png" alt="Day 10" width="80"/></a></td>
+    <td><a href="#day-11-reactor-"><img src="./images/jetcar.jpg" alt="Day 10" width="80"/></a></td>
   </tr>
   <tr>
     <td align="center">Day 1</td>
@@ -28,6 +30,8 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
     <td align="center">Day 7</td>
     <td align="center">Day 8</td>
     <td align="center">Day 9</td>
+    <td align="center">Day 10</td>
+    <td align="center">Day 11</td>
   </tr>
 </table>
 
@@ -44,21 +48,24 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
 - [Day 8: Playground](#day-8-playground-) - Modified Kruskal's with distance cutoff
 - [Why have I changed the timings?](#why-have-i-changed-the-timings-) - Timings and evaluation
 - [Day 9: Movie Theater](#day-9-movie-theater-) - Prefix sums, 2D compress coordinates and cache optimization
+- [Day 10: Factory](#day-10-factory-) - ILP solver
+- [Day 11: Reactor](#day-11-reactor-) - Graph DFS, DP
 
 ## Timings [↑](#summary)
 
 | Day                                 | Time (μs) | % of Total |
 |-------------------------------------|----------:|-----------:|
-| [2](#day-2-gift-shop-)              |         8 |      0.22% |
-| [7](#day-7-laboratories-)           |        39 |      1.06% |
-| [5](#day-5-cafeteria-)              |        98 |      2.66% |
-| [1](#day-1-secret-entrance-)        |       136 |      3.69% |
-| [6](#day-6-trash-compactor-)        |       154 |      4.18% |
-| [3](#day-3-lobby-)                  |       231 |      6.27% |
-| [4](#day-4-printing-department-)    |       764 |     20.75% |
-| [9](#day-9-movie-theater-)          |     1,037 |     28.17% |
-| [8](#day-8-playground-)             |     1,216 |     33.04% |
-| Total                               |     3,683 |    100.00% |
+| [2](#day-2-gift-shop-)              |         8 |      0.20% |
+| [7](#day-7-laboratories-)           |        39 |      0.96% |
+| [5](#day-5-cafeteria-)              |        98 |      2.41% |
+| [1](#day-1-secret-entrance-)        |       136 |      3.35% |
+| [6](#day-6-trash-compactor-)        |       154 |      3.78% |
+| [3](#day-3-lobby-)                  |       231 |      5.68% |
+| [11](#day-11-reactor-)              |       370 |      9.09% |
+| [4](#day-4-printing-department-)    |       764 |     18.77% |
+| [9](#day-9-movie-theater-)          |     1,037 |     25.51% |
+| [8](#day-8-playground-)             |     1,216 |     30.00% |
+| Total                               |     4,053 |    100.00% |
 
 fastest of 100 runs for part1&2 in μs - mbair M1/16GB - darwin 24.6.0 - go version go1.25.3 darwin/arm64 - 2025-12
 
@@ -548,3 +555,42 @@ SUM:                            39            309            242           9079
 -------------------------------------------------------------------------------
 ```
 
+## Day 10: [Factory](https://adventofcode.com/2025/day/10) [↑](#summary)
+
+<div align="center">
+  <img src="./images/hp48.png" alt="A HP48 calculator connected to a PC" width="60%" />
+</div>
+
+incoming embedded ILP solver for part2
+
+```bash
+❯ make run
+go run ./aoc10.go < input.txt
+part1 time: 549.75µs
+498 0 765.292µs
+```
+
+## Day 11: [Reactor](https://adventofcode.com/2025/day/10) [↑](#summary)
+
+<div align="center">
+  <img src="./images/jetcar.jpg" alt="An old jetcar in B&W" width="60%" />
+</div>
+
+Today I needed to move quickly through composing the [solution](https://github.com/erik-adelbert/aoc/blob/main/2025/11/aoc11.go), so this reactor comes at a perfect time. Yesterday I wasn’t able to finish a tiny—and hopefully fast—ILP solver, and I wanted to deliver it this morning.
+
+I used [DFS](https://en.wikipedia.org/wiki/Depth-first_search) and [DP](https://en.wikipedia.org/wiki/Dynamic_programming) to solve parts 1 and 2, because the part 1 result clearly shows that part 2 would otherwise require an intractable search space. I also translated all three-letter tags into fixed indices so I could perform all searches in the integer domain. Believe it or not, there’s still room for additional micro-optimizations, and at some point I’ll come back to implement them.
+
+```bash
+❯ make run
+go run ./aoc11.go < input.txt
+615 303012373210128 447.5µs
+❯ best=999999999
+for i in {1..100}; do
+  t=$(make run 2>&1 | grep -oE '[0-9]+\.[0-9]+µs' | head -1 | sed 's/µs//')
+  if [ -n "$t" ] && [ "$(echo "$t < $best" | bc)" -eq 1 ]; then
+    best=$t
+  fi
+done
+echo "Best time: $best µs"
+Best time: 370.084 µs
+```

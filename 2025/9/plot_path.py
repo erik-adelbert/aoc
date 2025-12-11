@@ -1,13 +1,25 @@
+"""
+Plot the 2D path defined by waypoints in a text file.
+Advent of Code 2025 - Day 9
+
+Each line in the input file is a comma-separated X,Y coordinate.
+The script visualizes the path as a green polygon (filled and edged) with thin red waypoints.
+
+Usage:
+    python3 plot_path.py [filename]
+If no filename is given, defaults to 'input.txt'.
+"""
+
+import sys
 import matplotlib.pyplot as plt
 
-# Read coordinates from input.txt
+filename = sys.argv[1] if len(sys.argv) > 1 else "input.txt"
 xs, ys = [], []
-with open("input.txt") as f:
+with open(filename, encoding="utf-8") as f:
     for line in f:
         x, y = map(int, line.strip().split(","))
         xs.append(x)
         ys.append(y)
-
 # Close the path if it's a polygon
 if xs[0] != xs[-1] or ys[0] != ys[-1]:
     xs.append(xs[0])

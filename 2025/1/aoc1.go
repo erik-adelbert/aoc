@@ -36,7 +36,7 @@ func main() {
 		n %= MaxDial        // reduce to within one wrap
 
 		// move dial: default to left turn
-		if cur = old - n; dir == 'R' {
+		if cur = old - n; dir == Right {
 			cur = old + n // adjust for right turn
 		}
 
@@ -52,7 +52,7 @@ func main() {
 		case cur == 0:
 			// part1: count turns landing on zero
 			acc1++
-		case (old < cur) == (dir == 'L'): // position increased/decreased when turning left/right
+		case (old < cur) == (dir == Left): // position increased/decreased when turning left/right
 			// part2: count turns crossing zero
 			acc2++
 		}
@@ -65,6 +65,11 @@ func main() {
 }
 
 const MaxDial = 100
+
+const (
+	Left  = 'L'
+	Right = 'R'
+)
 
 // strconv.Atoi simplified core loop
 // s is ^\d+$

@@ -15,7 +15,7 @@ func main() {
 
 	var acc1, acc2 uint32 // parts 1 and 2 accumulators
 
-	points := make([]point, 0, SizeHint)
+	path := make([]point, 0, SizeHint)
 
 	xraw := make([]uint32, 2*SizeHint)
 	yraw := make([]uint32, 2*SizeHint)
@@ -25,7 +25,7 @@ func main() {
 		bufX, bufY, _ := bytes.Cut(input.Bytes(), []byte(","))
 		X, Y := atoi(bufX), atoi(bufY)
 
-		points = append(points, point{X: X, Y: Y})
+		path = append(path, point{X: X, Y: Y})
 
 		xraw = append(xraw, X, X+1) // add +1 for edge handling
 		yraw = append(yraw, Y, Y+1)
@@ -62,9 +62,9 @@ func main() {
 	R, C := uint32(len(Xs)), uint32(len(Ys))
 	edges := make([]uint32, R*C)
 
-	for i := range points {
-		x1, y1 := points[i].X, points[i].Y
-		x2, y2 := points[(i+1)%len(points)].X, points[(i+1)%len(points)].Y
+	for i := range path {
+		x1, y1 := path[i].X, path[i].Y
+		x2, y2 := path[(i+1)%len(path)].X, path[(i+1)%len(path)].Y
 
 		x1, x2 = xmap[x1], xmap[x2]
 		x1, x2 = min(x1, x2), max(x1, x2)
@@ -111,11 +111,11 @@ func main() {
 	// fmt.Println("Built prefix sum table...", time.Since(t0))
 
 	// evaluate all rectangles
-	for i, j := range allIndexPairs(points) {
-		x1, x2 := points[i].X, points[j].X
+	for i, j := range allIndexPairs(path) {
+		x1, x2 := path[i].X, path[j].X
 		x1, x2 = min(x1, x2), max(x1, x2)
 
-		y1, y2 := points[i].Y, points[j].Y
+		y1, y2 := path[i].Y, path[j].Y
 		y1, y2 = min(y1, y2), max(y1, y2)
 
 		area := (x2 - x1 + 1) * (y2 - y1 + 1)
