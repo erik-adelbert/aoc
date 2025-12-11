@@ -385,14 +385,6 @@ func parseInput(input *bufio.Scanner) ([][]uint16, []uint16, [][]int) {
 
 const ε = 1e-9
 
-func lt(a, b float64) bool {
-	return b-a < ε
-}
-
-func eq(a, b float64) bool {
-	return math.Abs(a-b) < ε
-}
-
 func atoi(s []byte) (n int) {
 	for _, c := range s {
 		n = 10*n + int(c-'0')
