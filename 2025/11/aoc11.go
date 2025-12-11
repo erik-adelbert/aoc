@@ -52,19 +52,19 @@ func main() {
 	// part 1 use DFS to count all paths
 	you, out := IDs["you"], IDs["out"]
 
-	var recount func(curr int, seen []int) int
-	recount = func(curr int, seen []int) int {
-		if curr == out {
+	var recount func(cur int, seen []int) int
+	recount = func(cur int, seen []int) int {
+		if cur == out {
 			return 1
 		}
 
-		seen[curr]++
-		defer func() { seen[curr]-- }()
+		seen[cur]++
+		defer func() { seen[cur]-- }()
 
 		count := 0
-		for _, next := range edges[curr] {
-			if seen[next] == 0 {
-				count += recount(next, seen)
+		for _, nxt := range edges[cur] {
+			if seen[nxt] == 0 {
+				count += recount(nxt, seen)
 			}
 		}
 
@@ -105,13 +105,13 @@ func main() {
 		defer func() { seen[cur]-- }()
 
 		count := 0
-		for _, next := range edges[cur] {
-			if seen[next] == 0 {
+		for _, nxt := range edges[cur] {
+			if seen[nxt] == 0 {
 				count += recountWithNodes(
-					next,
+					nxt,
 					seen,
-					hasDac || next == dac,
-					hasFft || next == fft,
+					hasDac || nxt == dac,
+					hasFft || nxt == fft,
 				)
 			}
 		}
