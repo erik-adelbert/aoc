@@ -57,15 +57,15 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
 |-------------------------------------|----------:|-----------:|
 | [2](#day-2-gift-shop-)              |         8 |      0.20% |
 | [7](#day-7-laboratories-)           |        39 |      0.96% |
-| [5](#day-5-cafeteria-)              |        98 |      2.41% |
-| [1](#day-1-secret-entrance-)        |       136 |      3.35% |
-| [6](#day-6-trash-compactor-)        |       154 |      3.78% |
-| [3](#day-3-lobby-)                  |       231 |      5.68% |
-| [11](#day-11-reactor-)              |       370 |      9.09% |
-| [4](#day-4-printing-department-)    |       764 |     18.77% |
-| [9](#day-9-movie-theater-)          |     1,037 |     25.51% |
-| [8](#day-8-playground-)             |     1,216 |     30.00% |
-| Total                               |     4,053 |    100.00% |
+| [5](#day-5-cafeteria-)              |        98 |      2.42% |
+| [1](#day-1-secret-entrance-)        |       136 |      3.36% |
+| [6](#day-6-trash-compactor-)        |       154 |      3.80% |
+| [3](#day-3-lobby-)                  |       231 |      5.70% |
+| [11](#day-11-reactor-)              |       369 |      9.11% |
+| [4](#day-4-printing-department-)    |       764 |     18.87% |
+| [9](#day-9-movie-theater-)          |     1,037 |     25.61% |
+| [8](#day-8-playground-)             |     1,216 |     30.04% |
+| Total                               |     4,052 |    100.07% |
 
 fastest of 100 runs for part1&2 in μs - mbair M1/16GB - darwin 24.6.0 - go version go1.25.3 darwin/arm64 - 2025-12
 
@@ -570,6 +570,21 @@ part1 time: 549.75µs
 498 0 765.292µs
 ```
 
+### Update
+
+```bash
+❯ make sample
+go run ./aoc10.go < sample.txt
+part1 time: 3.792µs
+7 33 40.875µs
+❯ make run
+go run ./aoc10.go < input.txt
+part1 time: 525.709µs
+498 12913 4.85425ms
+```
+
+It still under evaluates part 2 but I've got this!
+
 ## Day 11: [Reactor](https://adventofcode.com/2025/day/10) [↑](#summary)
 
 <div align="center">
@@ -578,7 +593,7 @@ part1 time: 549.75µs
 
 Today I needed to move quickly through composing the [solution](https://github.com/erik-adelbert/aoc/blob/main/2025/11/aoc11.go), so this reactor comes at a perfect time. Yesterday I wasn’t able to finish a tiny—and hopefully fast—ILP solver, and I wanted to deliver it this morning.
 
-To this end, I used recursive [DFS](https://en.wikipedia.org/wiki/Depth-first_search) and [DP](https://en.wikipedia.org/wiki/Dynamic_programming) to solve parts 1 and 2, because they are fast to compose and the part 1 result clearly shows that part 2 would otherwise require an intractable search space. I also translated all three-letter tags into fixed indices so I could perform all searches in the integer domain. Believe it or not, there’s still room for additional micro-optimizations like iterate computations, and at some point I’ll come back to implement them.
+To this end, I used [recursive](https://en.wikipedia.org/wiki/Recursion) [DFS](https://en.wikipedia.org/wiki/Depth-first_search) and [DP](https://en.wikipedia.org/wiki/Dynamic_programming) to solve parts 1 and 2, because they are fast to compose and the part 1 result clearly shows that part 2 would otherwise require an intractable search space. I also translated all three-letter tags into fixed indices so I could perform all searches in the integer domain. Believe it or not, there’s still room for additional micro-optimizations like iterate computations, and at some point I’ll come back to implement them.
 
 ```bash
 ❯ make run
