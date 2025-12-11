@@ -48,8 +48,8 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
 - [Day 8: Playground](#day-8-playground-) - Modified Kruskal's with distance cutoff
 - [Why have I changed the timings?](#why-have-i-changed-the-timings-) - Timings and evaluation
 - [Day 9: Movie Theater](#day-9-movie-theater-) - Prefix sums, 2D compress coordinates and cache optimization
-- [Day 10: Factory](#day-10-factory-) - ILP solver
-- [Day 11: Reactor](#day-11-reactor-) - Graph DFS, DP
+- [Day 10: Factory](#day-10-factory-) - BFS and ILP solver
+- [Day 11: Reactor](#day-11-reactor-) - Graph DFS and DP
 
 ## Timings [↑](#summary)
 
@@ -268,7 +268,7 @@ The time complexity of *one scan* is `O(n)`: it is easy to see that each cell is
   <img src="./images/StarWars.jpg" alt="Chewbacca saving c3po" width="60%" />
 </div>
 
-I solved the Day 4 challenge without losing sight of the [Go memory model](https://go.dev/ref/mem) and, more broadly, how [memory is managed](https://en.wikipedia.org/wiki/Virtual_memory) in our computers (or at least the much simpler real-life version of it—bear with me). I approached it this way because I strongly believe that [mechanical sympathy](https://newsletter.appliedgo.net/archive/2025-11-30-mechanical-sympathy/) improves program efficiency without requiring any energy beyond the effort of thought.
+I solved the Day 4 challenge without losing sight of the [Go GC model](https://go.dev/doc/gc-guide) and, more broadly, how [memory is managed](https://en.wikipedia.org/wiki/Virtual_memory) in our computers (or at least the much simpler real-life version of it—bear with me). I approached it this way because I strongly believe that [mechanical sympathy](https://newsletter.appliedgo.net/archive/2025-11-30-mechanical-sympathy/) improves program efficiency without requiring any energy beyond the effort of thought.
 
 I’m not going to elaborate on what mechanical sympathy is or what it might mean for us to possess it. In everyday life, it’s much simpler than it sounds. Suppose—purely for the sake of demonstration—you need the best possible performance when thinning a cellular automaton through repeated application of the same rule. Everything works: your logic is flawless, and the result is correct. Naturally, Go slices are extremely useful here and well-suited to the task.
 
@@ -589,7 +589,7 @@ Best time: 4.892125 ms
   <img src="./images/jetcar.jpg" alt="An old jetcar in B&W" width="60%" />
 </div>
 
-Today I needed to move quickly through composing the [solution](https://github.com/erik-adelbert/aoc/blob/main/2025/11/aoc11.go), so this reactor comes at a perfect time. Yesterday I wasn’t able to finish a tiny—and hopefully fast—ILP solver, and I wanted to deliver it this morning.
+Today I needed to move quickly through composing the [solution](https://github.com/erik-adelbert/aoc/blob/main/2025/11/aoc11.go), so this reactor comes at a perfect time (TL;DR Yesterday morning I wasn’t able to finish a tiny—and hopefully fast—ILP solver, and I wanted to deliver it today).
 
 To this end, I used [recursive](https://en.wikipedia.org/wiki/Recursion) [DFS](https://en.wikipedia.org/wiki/Depth-first_search) and [DP](https://en.wikipedia.org/wiki/Dynamic_programming) to solve parts 1 and 2, because they are fast to compose and the part 1 result clearly shows that part 2 would otherwise require an intractable search space. I also translated all three-letter tags into fixed indices so I could perform all searches in the integer domain. Believe it or not, there’s still room for additional micro-optimizations like iterate computations, and at some point I’ll come back to implement them.
 

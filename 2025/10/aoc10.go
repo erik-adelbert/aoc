@@ -195,9 +195,10 @@ func simplex(M [][]float64, C []float64) (float64, []float64) {
 	T[h] = make([]float64, w+2)
 	copy(T[h], C)
 
+	// zeros
 	T[h][w] = 0
 	T[h][w+1] = 0
-	T[h+1] = make([]float64, w+2) // zeros
+	T[h+1] = make([]float64, w+2)
 
 	// Swap last two columns in constraint rows
 	for i := range h {
