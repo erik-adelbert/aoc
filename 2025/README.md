@@ -657,6 +657,12 @@ Day 2 and Day 10 are the highlights of this year’s collection. To finally solv
 
 I chose the pictures as a way to convey my feelings about the subject; it’s a stream-of-thought–style attempt.
 
+Last, but not least:
+
+<div align="center">
+  <img src="./images/leaderboard.png" alt="1st place on my leaderboard" width="80%" />
+</div>
+
 All in all, it's been fun.
 
 Happy coding!
