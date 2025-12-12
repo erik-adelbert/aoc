@@ -41,7 +41,7 @@ day:
 	echo "  - File: $$day/aoc$$day.go (with header)" && \
 	echo "  - File: $$day/Makefile"
 cyclo:
-	@gocyclo -ignore "download|images|header|runtime" -top 10 -avg .
+	@gocyclo -ignore "download|images|header|runtime" -top 24 -avg .
 
 lines:
 	@find . -name '*go' \( -not -iname "main.go" \) | grep -v 'v1' | xargs wc -l | sort

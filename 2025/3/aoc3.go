@@ -20,9 +20,7 @@ import (
 func main() {
 	t0 := time.Now() // start timer
 
-	var (
-		sum1, sum2 int // sums for parts 1 and 2
-	)
+	var acc1, acc2 int // sums for parts 1 and 2
 
 	seq1, seq2 := newSeq(), newSeq() // maximizing sequences for parts 1 and 2
 
@@ -41,11 +39,11 @@ func main() {
 			seq2.push(c)
 		}
 
-		sum1 += seq1.val()
-		sum2 += seq2.val()
+		acc1 += seq1.val()
+		acc2 += seq2.val()
 	}
 
-	fmt.Println(sum1, sum2, time.Since(t0))
+	fmt.Println(acc1, acc2, time.Since(t0))
 }
 
 const (

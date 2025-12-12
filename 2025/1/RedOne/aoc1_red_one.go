@@ -30,17 +30,18 @@ func main() {
 
 	go readin(cmds) // start input reader
 
-	// initial state
+	// initial state channel
 	in := make(chan int, 3)
 
+	// inject initial state
 	in <- MaxDial / 2 // position
 	in <- 0           // part 1 accumulator value
 	in <- 0           // part 2 accumulator value
 
-	// chain dial goroutines
+	// launch goroutines
 	for cmd := range cmds {
-		out := make(chan int, 3)
-		go dial(cmd, in, out)
+		out := make(chan int, 3) // buffered channel to avoid blocking
+		go dial(cmd, in, out)    // pipeline stage
 		in = out
 	}
 

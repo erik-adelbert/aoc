@@ -1,6 +1,6 @@
 # Summary
 
-This repository contains optimized solutions for Advent of Code 2025, implemented in Go with a focus on performance and educational value.
+TThis repository contains optimized solutions for **Advent of Code 2025**, implemented in Go with a focus on performance and educational value. This collection runs all days and all parts in about `9ms`.
 
 ## Quick Navigation
 
@@ -19,6 +19,7 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
     <td><a href="#day-9-movie-theater-"><img src="./images/industrial_compressor.jpg" alt="Day 9" width="80"/></a></td>
     <td><a href="#day-10-factory-"><img src="./images/hp48.png" alt="Day 10" width="80"/></a></td>
     <td><a href="#day-11-reactor-"><img src="./images/jetcar.jpg" alt="Day 10" width="80"/></a></td>
+     <td><a href="#day-12-christmas-tree-farm-"><img src="./images/kfpshifu.jpg" alt="Day 12" width="80"/></a></td>
   </tr>
   <tr>
     <td align="center">Day 1</td>
@@ -32,6 +33,7 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
     <td align="center">Day 9</td>
     <td align="center">Day 10</td>
     <td align="center">Day 11</td>
+    <td align="center">Day 12</td>
   </tr>
 </table>
 
@@ -50,23 +52,28 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
 - [Day 9: Movie Theater](#day-9-movie-theater-) - Prefix sums, 2D compress coordinates and cache optimization
 - [Day 10: Factory](#day-10-factory-) - BFS and ILP solver
 - [Day 11: Reactor](#day-11-reactor-) - Graph DFS and DP
+- [Day 12: Christmas Tree Farm](#day-12-christmas-tree-farm-) - Heuristic
+- [How was it?](#how-was-it-)
+- [More Metrics](#more-metrics-)
 
 ## Timings [↑](#summary)
 
-| Day                                 | Time (μs) | % of Total |
-|-------------------------------------|----------:|-----------:|
-| [**2**](#day-2-gift-shop-)          |         8 |      0.09% |
-| [7](#day-7-laboratories-)           |        39 |      0.44% |
-| [5](#day-5-cafeteria-)              |        98 |      1.10% |
-| [1](#day-1-secret-entrance-)        |       136 |      1.52% |
-| [6](#day-6-trash-compactor-)        |       154 |      1.72% |
-| [3](#day-3-lobby-)                  |       231 |      2.58% |
-| [11](#day-11-reactor-)              |       369 |      4.12% |
-| [4](#day-4-printing-department-)    |       764 |      8.55% |
-| [9](#day-9-movie-theater-)          |     1,037 |     11.59% |
-| [8](#day-8-playground-)             |     1,216 |     13.60% |
-| [**10**](#day-10-factory-)          |     4,892 |     54.70% |
-| Total                               |     8,944 |    100.01% |
+| Day                                 | Time (μs) | % of Total  |
+|-------------------------------------|----------:|------------:|
+| [**2**](#day-2-gift-shop-)          |         8 |       0.09% |
+| [7](#day-7-laboratories-)           |        39 |       0.43% |
+| [5](#day-5-cafeteria-)              |        98 |       1.08% |
+| [12](#day-12-christmas-tree-farm-)  |       119 |       1.31% |
+| [1](#day-1-secret-entrance-)        |       136 |       1.50% |
+| [6](#day-6-trash-compactor-)        |       154 |       1.70% |
+| [3](#day-3-lobby-)                  |       231 |       2.55% |
+| [11](#day-11-reactor-)              |       369 |       4.07% |
+| [4](#day-4-printing-department-)    |       764 |       8.43% |
+| [9](#day-9-movie-theater-)          |     1,037 |      11.44% |
+| [8](#day-8-playground-)             |     1,216 |      13.42% |
+| [**10**](#day-10-factory-)          |     4,892 |      53.98% |
+| **Total**                           | **9,063** | **100.00%** |
+
 
 fastest of 100 runs for part1&2 in μs - mbair M1/16GB - darwin 24.6.0 - go version go1.25.3 darwin/arm64 - 2025-12
 
@@ -609,3 +616,117 @@ done
 echo "Best time: $best µs"
 Best time: 370.084 µs
 ```
+
+## Day 12: [Christmas Tree Farm](https://adventofcode.com/2025/day/12) [↑](#summary)
+
+<div align="center">
+  <img src="./images/kfpshifu.jpg" alt="Kumg Fu Panda Shifu" width="60%" />
+</div>
+
+Oh my gosh! What a roller coaster today. When I first read the challenge, I was feeling overwhelmed and needed a break—so I sat down with a nice breakfast and tried to estimate the computational difficulty on the back of an envelope.
+
+For example, if I wanted to choreograph the solution using Algorithm X or even an MILP, I’d need a matrix with one column per constraint, which for all the polyominoes would mean basically **4 rotations × ~45 occurrences × 6 pieces ≈ 1000 columns**. And we had something like a thousand such grids to solve!
+
+So I already knew that solving it that way was off the table. But that was actually good news: the whole point was to see through the fog of the narrative. It’s the last day—AoC surely doesn’t want to knock us all out right at the end. We’re meant to celebrate, after all.
+
+I needed something simple—something I could search and test on the sample, but that would also scale cleanly to the full input. **I won’t spoil what my solution is today**; I can’t even guarantee that it will work for you, but I can explain why it should. And here’s the good news:
+
+```bash
+❯ best=999999999
+for i in {1..100}; do
+  t=$(make run 2>&1 | grep -oE '[0-9]+\.[0-9]+µs' | head -1 | sed 's/µs//')
+  if [ -n "$t" ] && [ "$(echo "$t < $best" | bc)" -eq 1 ]; then
+    best=$t
+  fi
+done
+echo "Best time: $best µs"
+Best time: 118.916 µs
+```
+
+My collection runs all problems for the entire year in roughly `~9ms`.
+
+## How was it? [↑](#summary)
+
+<div align="center">
+  <img src="./images/skidoo.jpg" alt="An acrobatic skidoo jump" width="60%" />
+</div>
+
+It’s fast, but it still has all the ups and downs (yes, Day 10) of a classic past edition nonetheless. I’m quite happy with the result this year, and keeping my coding time limited — and actually coding at an early hour — has been really good for me. I guess this year, the experience from past years kicked in, and 1–2 hours per day was enough to focus on delivering a strong version the first time (except for Day 2).
+
+Day 2 and Day 10 are the highlights of this year’s collection. To finally solve Day 2 the fastest and definitive way possible, I had to keep an open mind while discussing various solutions for the problem and then recognize and seize a good opportunity, even if it proved me wrong the first time. Day 10 was more of a hunch and a desperate attempt to keep the overall runtime low, and I’m really happy it turned out favorably.
+
+I chose the pictures as a way to convey my feelings about the subject; it’s a stream-of-thought–style attempt.
+
+All in all, it's been fun.
+
+Happy coding!
+
+PS. I’m trying to compete in the `Red(One)` part of AoC, namely for Day 1. Stay tuned.
+
+## More Metrics [↑](#summary)
+
+<div align="center">
+  <img src="./images/lumon.jpg" alt="A Severance Lumon OS screen" width="60%" />
+</div>
+
+### LOC
+
+| Day | Go Lines |
+|:----|---------:|
+|   7 |       43 |
+|   3 |       67 |
+|  12 |       67 |
+|   5 |       85 |
+|  11 |       86 |
+|   6 |       87 |
+|   8 |      112 |
+|   1 |      114 |
+|   9 |      116 |
+|   4 |      203 |
+|   2 |      258 |
+|  10 |      281 |
+
+```bash
+❯ ❯ cloc 1 2 3 4 5 6 7 8 9 10 11 12
+      62 text files.
+      52 unique files.
+      10 files ignored.
+
+github.com/AlDanial/cloc v 2.06  T=0.04 s (1259.0 files/s, 297974.4 lines/s)
+-------------------------------------------------------------------------------
+Language                     files          blank        comment           code
+-------------------------------------------------------------------------------
+Text                            26             14              0           9903
+Go                              15            455            338           1519
+Markdown                         8              0              0             32
+Python                           1              9             13             22
+make                             2              0              0              2
+-------------------------------------------------------------------------------
+SUM:                            52            478            351          11478
+-------------------------------------------------------------------------------
+```
+
+### Cyclomatic complexity over 10
+
+```bash
+❯ make cyclo
+41 main simplex 10/aoc10.go:168:1
+19 main main 6/aoc6.go:21:1
+19 main main 4/aoc4.go:22:1
+17 main main 11/aoc11.go:21:1
+16 main main 9/aoc9.go:13:1
+12 main main 2/aoc2.go:24:1
+11 main main 8/aoc8.go:24:1
+Average: 5.27
+```
+
+It’s no wonder the [simplex algorithm](https://en.wikipedia.org/wiki/Simplex_algorithm) is rated so highly. Implementing one is not easy and introduces challenges ranging from structural design to numerical instability. It’s a sophisticated technique developed in the mid-20th century that reached peak prominence in the late 1990s. With recent progress in applying [linear programming](https://en.wikipedia.org/wiki/Linear_programming) to AI, it’s seeing a revival in certain hybrid AI [planning](https://arxiv.org/abs/2509.21014) pipelines.
+
+Complexity in [10-20] always ends up in main(). It’s proof that I focused on speed this year, but hopefully the solutions are still easy to read. Still I am quite happy with an average of 5.27.
+
+| Cyclomatic Complexity | Associated Risk         |
+|----------------------|------------------------|
+| 1–5                  | Low (simple, easy to test)      |
+| 6–10                 | Moderate (manageable, some risk)|
+| 11–20                | High (complex, error-prone)     |
+| 21+                  | Very High (difficult to maintain/test) |
