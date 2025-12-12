@@ -643,7 +643,7 @@ echo "Best time: $best µs"
 Best time: 118.916 µs
 ```
 
-My collection runs all problems for the entire year in roughly `~9ms`.
+My collection runs all problems for the entire edition in roughly `~9ms`.
 
 ## How was it? [↑](#summary)
 
