@@ -1,6 +1,6 @@
 # Summary
 
-TThis repository contains optimized solutions for **Advent of Code 2025**, implemented in Go with a focus on performance and educational value. This collection runs all days and all parts in about `9ms`.
+This repository contains optimized solutions for Advent of Code 2025, implemented in Go with a focus on performance and educational value. The whole collection runs all days and all parts in about 9ms. Each day is solved in a single, dependency-free Go file.
 
 ## Quick Navigation
 
