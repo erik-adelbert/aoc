@@ -27,7 +27,7 @@ func main() {
 
 	cmds := make(chan cmd)
 
-	go reader(cmds) // start input reader
+	go parser(cmds) // start input parser
 
 	// initial state channel
 	in := make(chan int, 3) // buffer for position and accumulators
@@ -54,8 +54,8 @@ func main() {
 	fmt.Println(acc1, acc2, time.Since(t0)) // output passwords
 }
 
-// reader reads all input lines and sends them to the channel
-func reader(cmds chan<- cmd) {
+// parser reads all input lines and sends them to the channel
+func parser(cmds chan<- cmd) {
 	input := bufio.NewScanner(os.Stdin)
 
 	for input.Scan() {
