@@ -14,7 +14,7 @@ The ultimate stage is reached in `main()`, when the program [receives the result
 
     ┌────────────┐                       - each box is a goroutine
     │    main    │                       - each arrow is a Go channel
-    │            │                       - cmds are simplified a bit
+    │            │                       - cmds are wired to goroutines (simplified a bit)
     │         ┌────────┐ cmds
     │         │ parser │──┐
     │         └────────┘  │
@@ -31,10 +31,10 @@ The ultimate stage is reached in `main()`, when the program [receives the result
     .            .  .     .
     │            │  ↓     │
     │         ┌─────────┐ │
-    │         │ dialerx │─┘ last cmd
-    │         └─────────┘
-    │            │  │
-    │  results ←────┘
+    │     ┌───│ dialerx │─┘ last cmd
+    │     │   └─────────┘
+    │     ↓      │
+    │  results   │
     │            │
     └────────────┘
 
