@@ -91,7 +91,7 @@ fastest of 100 runs for part1&2 in μs - mbair M1/16GB - darwin 24.6.0 - go vers
 *This year, I’m freelancing and available to take on projects—preferably in Go or Python. Please help spread the word!*
 
 <div align="center">
-  <img src="./images/1606_Mercator_Hondius_Map_of_the_Arctic_(First_Map_of_the_North_Pole)_-_Geographicus_-_NorthPole-mercator-1606.jpg" alt="North Pole Map" width="60%" />
+  <img src="./images/1606_Mercator_Hondius_Map_of_the_Arctic_(First_Map_of_the_North_Pole)_-_Geographicus_-_NorthPole-mercator-1606.jpg" alt="1606 Mercator Hondius Map of the Arctic (First Map of the North Pole)" width="60%" />
 </div>
 
 On this first day of AoC 2025, the challenge is reasonably tricky. It highlights the sign ambiguity of the [modulo](https://en.wikipedia.org/wiki/Modulo) operation when the remainder is negative.
@@ -114,7 +114,7 @@ The password method <span title='CLICK'><code>0x434C49434B</code></span> actuall
 ## Day 2: [Gift Shop](https://adventofcode.com/2025/day/2) [↑](#summary)
 
 <div align="center">
-  <img src="./images/Serpiente_alquimica.jpg" alt="Ouroboros" width="60%" />
+  <img src="./images/Serpiente_alquimica.jpg" alt="Ouroboros is a mystical symbol don't miss its link below" width="60%" />
 </div>
 
 ### Third Approach
@@ -222,7 +222,7 @@ The beauty of [`u/topaz2078`](https://www.reddit.com/user/topaz2078/)’s crafts
 ## Day 3: [Lobby](https://adventofcode.com/2025/day/3) [↑](#summary)
 
 <div align="center">
-  <img src="./images/Polar_Night_energy.jpg" alt="Polar Night Energy" width="60%" />
+  <img src="./images/Polar_Night_energy.jpg" alt="A Polar Night Energy monolith that seems to be one giant powerbank built on the side of a car park" width="60%" />
 </div>
 
 Today's challenge is quite straightforward: the goal is to build the *lexicographically largest string after **k** removals*. I chose a [greedy](https://en.wikipedia.org/wiki/Greedy_algorithm), [stack-based](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) approach to solve it. The [solution](https://github.com/erik-adelbert/aoc/blob/main/2025/3/aoc3.go) is simple, and once again it runs optimally in linear time with respect to the length of the input lines: it is easy  to see that every given digit can only be pushed/popped once.
@@ -239,7 +239,7 @@ Having an adhoc `seq` type keeps the main intention obvious while [separating co
 ## Day 4: [Printing Department](https://adventofcode.com/2025/day/4) [↑](#summary)
 
 <div align="center">
-  <img src="./images/bolas.jpg" alt="Paper for matrix printers" width="60%" />
+  <img src="./images/bolas.jpg" alt="A double steel ball ninja bolas" width="60%" />
 </div>
 
 ### Current Approach
@@ -265,13 +265,13 @@ I didn't add a blank border to the grid because it would interfere with the inde
 The time complexity of *one scan* is `O(n)`: it is easy to see that each cell is processed only once per scan. The total runtime depends on the input, its roll count, and the relative positions. For my input, wich contains 64% of rolls, it takes 70 loops to reduce the grid.
 
 <div align="center">
-  <img src="./images/aoc20251204.png" alt="Final grid" width="40%" />
+  <img src="./images/aoc20251204.png" alt="The final grid displayed in my terminal (scaled-down)" width="40%" />
 </div>
 
 ## A 5mn crash-introduction to cache and GC friendly solutions [↑](#summary)
 
 <div align="center">
-  <img src="./images/StarWars.jpg" alt="Chewbacca saving c3po" width="60%" />
+  <img src="./images/StarWars.jpg" alt="Chewbacca carries broken c3po on his back to save him later. Moment captured on the movie set." width="60%" />
 </div>
 
 I solved the Day 4 challenge without losing sight of the [Go GC model](https://go.dev/doc/gc-guide) and, more broadly, how [memory is managed](https://en.wikipedia.org/wiki/Virtual_memory) in our computers (or at least the much simpler real-life version of it—bear with me). I approached it this way because I strongly believe that [mechanical sympathy](https://newsletter.appliedgo.net/archive/2025-11-30-mechanical-sympathy/) improves program efficiency without requiring any energy beyond the effort of thought.
@@ -363,7 +363,7 @@ ok  	github.com/erik-adelbert/aoc/2025/4	8.685s
 ## Day 5: [Cafeteria](https://adventofcode.com/2025/day/5) [↑](#summary)
 
 <div align="center">
-  <img src="./images/SpaceVegetables.jpg" alt="Space Vegetables" width="60%" />
+  <img src="./images/SpaceVegetables.jpg" alt="Vegetables growing in a space greenhouse aboard an orbital station" width="60%" />
 </div>
 
 I don’t have much to say about today’s challenge. In anticipation of part 2, I used an [interval tree](https://en.wikipedia.org/wiki/Interval_tree). But part 2 ultimately required merging the input ranges and computing the total coverage.
@@ -408,7 +408,7 @@ SUM:                            23            155            126           7014
 ## Day 6: [Trash Compactor](https://adventofcode.com/2025/day/6) [↑](#summary)
 
 <div align="center">
-  <img src="./images/BoxFactory.jpg" alt="Space Vegetables" width="60%" />
+  <img src="./images/BoxFactory.jpg" alt="A factory’s cardboard conveyor line moving packages" width="60%" />
 </div>
 
 The challenge presents a problem that’s a perfect opportunity to practice working with Go [slices](https://go.dev/tour/moretypes/7) and understanding how they relate to the [memory management](https://go.dev/doc/gc-guide) provided by the Go runtime.
@@ -422,7 +422,7 @@ The program isn’t the prettiest, but it gets the job done in 85 lines. I belie
 ## Day 7: [Laboratories](https://adventofcode.com/2025/day/7) [↑](#summary)
 
 <div align="center">
-  <img src="./images/PrismRoom.jpg" alt="Prism Room" width="60%" />
+  <img src="./images/PrismRoom.jpg" alt="A room with an overwhelming prism-like architecture" width="60%" />
 </div>
 
 Today's challenge presents a path propagation problem that I solved using [Dynamic Programming](https://en.wikipedia.org/wiki/Dynamic_programming) principles. The algorithm tracks how paths split and multiply as they traverse the grid from top to bottom.
@@ -436,7 +436,7 @@ It runs in under 1ms.
 ## Day 8: [Playground](https://adventofcode.com/2025/day/8) [↑](#summary)
 
 <div align="center">
-  <img src="./images/Xmas_Snowball.jpg" alt="Prism Room" width="60%" />
+  <img src="./images/Xmas_Snowball.jpg" alt="A Christmas snow globe, featuring a decorated Christmas tree inside, rests on the snow outside on a magical, snowy night" width="60%" />
 </div>
 
 The [solution](https://github.com/erik-adelbert/aoc/blob/main/2025/8/aoc8.go) implements a variant of [Kruskal’s algorithm](https://en.wikipedia.org/wiki/Kruskal%27s_algorithm) for computing a [Minimum Spanning Tree](https://en.wikipedia.org/wiki/Minimum_spanning_tree), but with problem-specific optimizations.
@@ -455,7 +455,7 @@ The code runs in under `1.3ms`
 ## Why have I changed the timings? [↑](#summary)
 
 <div align="center">
-  <img src="./images/magic-mountains.jpg" alt="a roller coaster" width="60%" />
+  <img src="./images/magic-mountains.jpg" alt="A giant roller coaster with crowded cars whizzing past" width="60%" />
 </div>
 
 During AoC I’ve increasingly been comparing my solutions with others written in Rust, and many AoC Rust crates include internal program timers that report raw compute times. On the other hand I have many solutions that are simply too fast for `hyperfine`. Because of this, starting now I will publish **internal timings** instead of external (wall-clock) timings. These internal timings are much more comparable to what Rust and other fast languages report.
@@ -485,7 +485,7 @@ go run ./aoc8.go < input.txt
 ## Day 9: [Movie Theater](https://adventofcode.com/2025/day/9) [↑](#summary)
 
 <div align="center">
-  <img src="./images/industrial_compressor.jpg" alt="An Industrial Compressor" width="60%" />
+  <img src="./images/industrial_compressor.jpg" alt="An industrial compressor in full, intricate detail" width="60%" />
 </div>
 
 Today, we’re tackling the problem of finding the largest rectangle inside a rectilinear polyline. Suffice it to say, I’m not a big fan of this type of problem—these puzzles usually end up with a [solution](https://github.com/erik-adelbert/aoc/blob/main/2025/9/aoc9.go) that’s tedious, and today is no exception.
@@ -563,7 +563,7 @@ SUM:                            39            309            242           9079
 ## Day 10: [Factory](https://adventofcode.com/2025/day/10) [↑](#summary)
 
 <div align="center">
-  <img src="./images/hp48.png" alt="A HP48 calculator connected to a PC" width="60%" />
+  <img src="./images/hp48.png" alt="A HP48 calculator screen close-up: it says CHIP8" width="60%" />
 </div>
 
 Upon reading today's challenge, Part 2, I immediately recognized it as an [ILP](https://en.wikipedia.org/wiki/Integer_programming) problem, but I had no idea how I could compose a solver simply. Relying on [Z3](https://github.com/Z3Prover/z3) or any other general-purpose solver/prover would have been a total disaster for runtime.
@@ -590,7 +590,7 @@ Best time: 4.892125 ms
 ## Day 11: [Reactor](https://adventofcode.com/2025/day/10) [↑](#summary)
 
 <div align="center">
-  <img src="./images/jetcar.jpg" alt="An old jetcar in B&W" width="60%" />
+  <img src="./images/jetcar.jpg" alt="An old jetcar racing by in B&W" width="60%" />
 </div>
 
 Today I needed to move quickly through composing the [solution](https://github.com/erik-adelbert/aoc/blob/main/2025/11/aoc11.go), so this reactor comes at a perfect time (TL;DR Yesterday morning I wasn’t able to finish a tiny—and hopefully fast—ILP solver, and I wanted to deliver it today).
@@ -617,7 +617,7 @@ Best time: 370.084 µs
 ## Day 12: [Christmas Tree Farm](https://adventofcode.com/2025/day/12) [↑](#summary)
 
 <div align="center">
-  <img src="./images/kfpshifu.jpg" alt="Kumg Fu Panda Shifu" width="60%" />
+  <img src="./images/kfpshifu.jpg" alt="Kung Fu Panda’s Master Shifu sitting in a lotus pose under a tree" width="60%" />
 </div>
 
 Oh my gosh! What a roller coaster today. When I first read the challenge, I was feeling overwhelmed and needed a break—so I sat down with a nice breakfast and tried to estimate the computational difficulty on the back of an envelope.
@@ -669,7 +669,7 @@ PS. I’m trying to compete in the `Red(One)` part of AoC, namely for Day 1. Sta
 ## More Metrics [↑](#summary)
 
 <div align="center">
-  <img src="./images/lumon.jpg" alt="A Severance Lumon OS screen" width="60%" />
+  <img src="./images/lumon.jpg" alt="A Severance Lumon OS screen displaying numbers" width="60%" />
 </div>
 
 ### LOC
