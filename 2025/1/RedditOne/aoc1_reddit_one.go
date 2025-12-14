@@ -1,4 +1,4 @@
-// aoc1_red_one.go --
+// aoc1_reddit_one.go --
 // advent of code 2025 day 1
 //
 // https://adventofcode.com/2025/day/1
@@ -15,7 +15,6 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"slices"
 	"time"
 )
 
@@ -26,23 +25,25 @@ func main() {
 
 	var acc1, acc2 int // passwords for parts 1 and 2
 
-	cmds := make(chan []byte)
+	cmds := make(chan cmd)
 
-	go readin(cmds) // start input reader
+	go reader(cmds) // start input reader
 
 	// initial state channel
-	in := make(chan int, 3)
+	in := make(chan int, 3) // buffer for position and accumulators
 
 	// inject initial state
 	in <- MaxDial / 2 // position
 	in <- 0           // part 1 accumulator value
 	in <- 0           // part 2 accumulator value
 
-	// launch goroutines
+	// launch goroutine pipeline
 	for cmd := range cmds {
-		out := make(chan int, 3) // buffered channel to avoid blocking
-		go dial(cmd, in, out)    // pipeline stage
-		in = out
+		out := make(chan int, 3) // new output channel
+
+		go dialer(cmd, in, out) // new pipeline stage
+
+		in = out // advance input channel
 	}
 
 	// collect final results
@@ -53,31 +54,31 @@ func main() {
 	fmt.Println(acc1, acc2, time.Since(t0)) // output passwords
 }
 
-// readin reads all input lines and sends them to the channel
-func readin(ch chan<- []byte) {
+// reader reads all input lines and sends them to the channel
+func reader(cmds chan<- cmd) {
 	input := bufio.NewScanner(os.Stdin)
 
 	for input.Scan() {
-		ch <- slices.Clone(input.Bytes())
+		buf := input.Bytes()
+		cmds <- cmd{dir: buf[0], n: atoi(buf[1:])}
 	}
 
-	close(ch)
+	close(cmds)
 }
 
-// dial processes a single dial command
-func dial(cmd []byte, in <-chan int, out chan<- int) {
-	dir, n := cmd[0], atoi(cmd[1:])     // parse direction and number
+// dialer processes a single dialer command
+func dialer(cmd cmd, in <-chan int, out chan<- int) { // parse direction and number
 	old, acc1, acc2 := <-in, <-in, <-in // get current position and accumulators
 
 	// handle large movements
-	acc2 += n / MaxDial // count full wraps
-	n %= MaxDial        // reduce to within one wrap
+	acc2 += cmd.n / MaxDial // count full wraps
+	cmd.n %= MaxDial        // reduce to within one wrap
 
 	var cur int
 
 	// move dial: default to left turn
-	if cur = old - n; dir == Right {
-		cur = old + n // adjust for right turn
+	if cur = old - cmd.n; cmd.dir == Right {
+		cur = old + cmd.n // adjust for right turn
 	}
 
 	// handle circular dial (0-99)
@@ -92,8 +93,7 @@ func dial(cmd []byte, in <-chan int, out chan<- int) {
 	case cur == 0:
 		// part1: count turns landing on zero
 		acc1++
-
-	case (old < cur) == (dir == Left): // position increased/decreased when turning left/right
+	case (old < cur) == (cmd.dir == Left): // position increased/decreased when turning left/right
 		// part2: count turns crossing zero
 		acc2++
 	}
@@ -102,6 +102,11 @@ func dial(cmd []byte, in <-chan int, out chan<- int) {
 	out <- cur
 	out <- acc1
 	out <- acc2
+}
+
+type cmd struct {
+	dir byte
+	n   int
 }
 
 // direction constants
