@@ -45,6 +45,7 @@ Concurrency aside, Go is also **on par** with Rust (and similar languages) in te
 This is my very first submission to the AoC Community Fun contest, and no matter what, I’m glad I can present it to you all. Many virtual hugs, and many thanks, to the AoC team and this community!
 
 Happy coding!
+
 <div align="left">
-  <img src="./images/golang.png" alt="Flash Gopher from https://wx-chevalier.github.io/books/awesome-lists/01.cs/language/go/gopher-list/" width="10%" />
+  <img src="https://github.com/erik-adelbert/aoc/blob/main/2025/1/RedditOne/golang.png" alt="Flash Gopher from https://wx-chevalier.github.io/books/awesome-lists/01.cs/language/go/gopher-list/" width="10%" />
 </div>
