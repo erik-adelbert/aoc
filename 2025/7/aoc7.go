@@ -41,7 +41,7 @@ func main() {
 				if paths[i] > 0 {
 					acc1 += 1 // part1: count splits
 
-					// adding paths count to acc2 here is miai with #L55-57 below
+					// adding paths count to acc2 here is miai with #L61-63 below
 					// acc2 += paths[i]
 				}
 
@@ -56,7 +56,7 @@ func main() {
 	}
 
 	// part 2: sum all active path counts
-	// batch adding here is faster than adding one-by-one at #L43
+	// batch adding here is faster than adding one-by-one at #L45
 	// because it is optimally sequential memory access
 	for i := range paths {
 		acc2 += paths[i]
