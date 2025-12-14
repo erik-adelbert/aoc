@@ -40,7 +40,7 @@ The ultimate stage is reached in `main()`, when the program [receives the result
 
 It does everything in 71 lines of standard Go and runs in under 2.3ms (M1/16GB) for about 5K cmds.
 
-Concurrency aside, for AoC, Go is also **on par** with Rust (and similar languages) in terms of its purely numerical capabilities, flexibility, efficiency, and performance—and this is usually the kind of support I’m looking for when doing AoC.
+Concurrency aside, for AoC, Go is also **on par** with Rust (and similar languages) in terms of its purely numerical capabilities, flexibility, efficiency, and performance—and this is usually the kind of support I’m looking for when solving the puzzles.
 
 This is my very first submission to the AoC Community Fun contest, and no matter what, I’m glad I can present it to you all. Many virtual hugs, and many thanks, to the AoC team and this community!
 
