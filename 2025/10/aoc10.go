@@ -116,7 +116,7 @@ func part2(switches [][]uint16, jolts [][]int) uint16 {
 	return acc2
 }
 
-// solve solves the ILP defined by matrix m and coefficients c
+// solve solves the ILP defined by matrix M and coefficients C
 func solve(M [][]float64, C []float64) uint16 {
 	best := math.Inf(1) // best value found
 

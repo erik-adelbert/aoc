@@ -1,6 +1,6 @@
 # Summary
 
-This repository contains optimized solutions for Advent of Code 2025, implemented in Go with a focus on performance and educational value. The whole collection runs all days and all parts in about 9ms. Each day is solved in a single, dependency-free Go file.
+This repository contains optimized solutions for Advent of Code 2025, implemented in [Go](https://en.wikipedia.org/wiki/Go_(programming_language)) with a focus on performance and educational value. The whole collection runs all days and all parts in about 9ms. Each day is solved in a single, dependency-free [Go](https://go.dev) file.
 
 ## Quick Navigation
 
@@ -61,19 +61,18 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
 | Day                                 | Time (μs) | % of Total  |
 |-------------------------------------|----------:|------------:|
 | [**2**](#day-2-gift-shop-)          |         8 |       0.09% |
-| [7](#day-7-laboratories-)           |        39 |       0.43% |
+| [7](#day-7-laboratories-)           |        34 |       0.38% |
 | [5](#day-5-cafeteria-)              |        98 |       1.08% |
 | [12](#day-12-christmas-tree-farm-)  |       119 |       1.31% |
 | [1](#day-1-secret-entrance-)        |       136 |       1.50% |
 | [6](#day-6-trash-compactor-)        |       154 |       1.70% |
 | [3](#day-3-lobby-)                  |       231 |       2.55% |
-| [11](#day-11-reactor-)              |       369 |       4.07% |
-| [4](#day-4-printing-department-)    |       764 |       8.43% |
-| [9](#day-9-movie-theater-)          |     1,037 |      11.44% |
-| [8](#day-8-playground-)             |     1,216 |      13.42% |
-| [**10**](#day-10-factory-)          |     4,892 |      53.98% |
-| **Total**                           | **9,063** | **100.00%** |
-
+| [11](#day-11-reactor-)              |       369 |       4.08% |
+| [4](#day-4-printing-department-)    |       764 |       8.44% |
+| [9](#day-9-movie-theater-)          |     1,037 |      11.46% |
+| [8](#day-8-playground-)             |     1,216 |      13.43% |
+| [**10**](#day-10-factory-)          |     4,892 |      54.02% |
+| **Total**                           | **9,058** | **100.04%** |
 
 fastest of 100 runs for part1&2 in μs - mbair M1/16GB - darwin 24.6.0 - go version go1.25.3 darwin/arm64 - 2025-12
 
@@ -124,7 +123,7 @@ As AoC is a gathering, I usually keep a back channel open with my fellow program
 
 I must admit I wasn’t convinced at first, but once we saw [Tim Visée’s solution](https://github.com/timvisee/advent-of-code-2025/blob/4292ba336b685270886129ee58311943cef5ce63/day02b/src/main.rs)—which does exactly the opposite by sieving the repeating numbers statically—the challenge was on.
 
-And here it is: possibly **the fastest way** to compute the solution to today’s challenge. It runs in **less than 1 ms**.
+And here it is: possibly **the fastest way** to compute the solution to today’s challenge. It runs in under **8 μs**.
 
 This [code](https://github.com/erik-adelbert/aoc/blob/main/2025/2/aoc2.go) runs in `O(k)` time, with *k* being the number of ranges. **It shrinks the original 2M+ search space down to only ~1,800 relevant numbers.** It operates in constant memory and evaluates the repeating-number sums using direct arithmetic formulas.
 
@@ -412,7 +411,7 @@ SUM:                            23            155            126           7014
   <img src="./images/BoxFactory.jpg" alt="Space Vegetables" width="60%" />
 </div>
 
-The challenge presents a problem that’s a perfect opportunity to practice working with Go [slices](https://go.dev/tour/moretypes/7) and understanding how they relate to the [memory management](https://go.dev/tour/moretypes/7) provided by the Go runtime.
+The challenge presents a problem that’s a perfect opportunity to practice working with Go [slices](https://go.dev/tour/moretypes/7) and understanding how they relate to the [memory management](https://go.dev/doc/gc-guide) provided by the Go runtime.
 
 The [solution](https://github.com/erik-adelbert/aoc/blob/main/2025/6/aoc6.go) is very straightforward and mainly involves retrieving and organizing data from the input considered as a byte matrix. The key insight is to extract the matrix layout from the last line: since the operators are left-aligned within their columns, it’s much easier to determine each column’s fixed width from that line than from any other, avoiding altogether the “what kind of space is this space?” conundrum.
 
@@ -429,8 +428,6 @@ The program isn’t the prettiest, but it gets the job done in 85 lines. I belie
 Today's challenge presents a path propagation problem that I solved using [Dynamic Programming](https://en.wikipedia.org/wiki/Dynamic_programming) principles. The algorithm tracks how paths split and multiply as they traverse the grid from top to bottom.
 
 The [solution](https://github.com/erik-adelbert/aoc/blob/main/2025/7/aoc7.go) adheres to the narrative: It *simulates* paths starting from position 'S' and splitting at each '^' character encountered. When a path hits a '^', it disappears and creates two new paths at adjacent positions (left and right). The code strictly does that and then Part 1 counts the total number of splits that occur, while Part 2 sums all active paths remaining at the end.
-
-An optimization filters the input to only process lines containing '^' or 'S' characters, reducing the effective number of rows that need processing.
 
 The algorithm runs with `O(n)` time complexity, where *n* is the number of grid cells. Each row is processed exactly once, and for each row, we iterate through all possible path positions. The space complexity is `O(w)` for the paths array were *w* is the grid width, making it quite memory-efficient.
 

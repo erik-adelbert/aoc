@@ -104,11 +104,7 @@ func (s *seq) val() (n int) {
 }
 
 // peek returns the last digit of the sequence
-func (s *seq) peek() byte {
-	last := len(s.digits) - 1
-
-	return s.digits[last]
-}
+func (s *seq) peek() byte { return s.digits[len(s.digits)-1] }
 
 func (s *seq) empty() bool { return len(s.digits) == 0 }
 

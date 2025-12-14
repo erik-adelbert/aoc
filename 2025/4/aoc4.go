@@ -66,16 +66,16 @@ func main() {
 			r, c := i/grid.size, i%grid.size
 
 			// branchless neighbor bounds
-			rmin := max(0, r-1)
-			rmax := min(grid.size-1, r+1)
-			cmin := max(0, c-1)
-			cmax := min(grid.size-1, c+1)
+			rα := max(0, r-1)
+			rω := min(grid.size-1, r+1)
+			cα := max(0, c-1)
+			cω := min(grid.size-1, c+1)
 
 			// scan neighbors -- including center roll
 			nrolls := 0
 
-			for r = rmin; r <= rmax; r++ {
-				for c = cmin; c <= cmax; c++ {
+			for r = rα; r <= rω; r++ {
+				for c = cα; c <= cω; c++ {
 					i := r*grid.size + c
 
 					if grid.data[i] == Roll {
@@ -102,13 +102,13 @@ func main() {
 			r, c := i/grid.size, i%grid.size
 
 			// neighbor bounds
-			rmin := max(0, r-1)
-			rmax := min(grid.size-1, r+1)
-			cmin := max(0, c-1)
-			cmax := min(grid.size-1, c+1)
+			rα := max(0, r-1)
+			rω := min(grid.size-1, r+1)
+			cα := max(0, c-1)
+			cω := min(grid.size-1, c+1)
 
-			for r = rmin; r <= rmax; r++ {
-				for c = cmin; c <= cmax; c++ {
+			for r = rα; r <= rω; r++ {
+				for c = cα; c <= cω; c++ {
 					i := r*grid.size + c // linear index
 
 					if grid.data[i] == Roll { // only queue remaining rolls

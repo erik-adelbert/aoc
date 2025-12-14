@@ -53,7 +53,6 @@ func main() {
 
 	q := make([]int, 0, MaxIDHint)
 
-	// var q []int
 	q = append(q, you)
 	for len(q) > 0 {
 		cur := q[len(q)-1]

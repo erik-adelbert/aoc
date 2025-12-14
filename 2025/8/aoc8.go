@@ -41,8 +41,9 @@ func main() {
 
 	n := len(points)
 	edges := make([]edge, 0, 6*n) // pre-allocate edge slice
+
 	// collect all edges below cutoff
-	for i := 0; i < n-1; i++ {
+	for i := range n - 1 {
 		for j := i + 1; j < n; j++ {
 			a, b := points[i], points[j]
 			if d := dist2(a, b); d < CutoffDist {

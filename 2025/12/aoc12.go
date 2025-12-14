@@ -55,7 +55,7 @@ func main() {
 
 		default:
 			// processing grid line: "WxH: n1 n2 n3 ..."
-			lhs, rhs, _ := bytes.Cut(buf, []byte(": ")) // ["WxH", " n1 n2 n3 ..."]
+			lhs, rhs, _ := bytes.Cut(buf, []byte(": ")) // ["WxH", "n1 n2 n3 ..."]
 			w, h, _ := bytes.Cut(lhs, []byte("x"))      // ["W", "H"]
 
 			area := atoi(w) * atoi(h)

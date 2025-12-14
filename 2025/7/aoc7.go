@@ -23,33 +23,31 @@ func main() {
 
 	var acc1, acc2 int // parts 1 and 2 accumulators
 
-	grid := make([][]byte, 0, MaxWidth)
-
 	paths := make([]int, MaxWidth) // count of paths at each position
 
 	input := bufio.NewScanner(os.Stdin)
+	input.Scan()
 
-	// read all input lines, filtering out empty dot lines because they are not contributing
+	// get started with first row
+	i := bytes.Index(input.Bytes(), []byte("S")) // find starting position 'S'
+	paths[i] = 1                                 // start with 1 path at S
+
+	// process all remaining rows
 	for input.Scan() {
 		buf := input.Bytes()
 
-		if bytes.ContainsAny(buf, "^S") {
-			grid = append(grid, bytes.Clone(buf))
-		}
-	}
-
-	i := bytes.Index(grid[0], []byte("S")) // find starting position 'S' in first row
-	paths[i] = 1                           // start with 1 path at S
-
-	// process remaining rows
-	for _, row := range grid[1:] {
-		for i := range paths {
-			if row[i] == Prism {
+		for i := range buf {
+			if buf[i] == Prism {
 				if paths[i] > 0 {
 					acc1 += 1 // part1: count splits
+
+					// adding paths count to acc2 here is miai with #L55-57 below
+					// acc2 += paths[i]
 				}
 
 				// split paths to left and right
+				// always splitting is faster than including it inside #L41 test
+				// because of the speculative execution
 				paths[i-1] += paths[i] // add to left
 				paths[i+1] += paths[i] // add to right
 				paths[i] = 0           // clear paths at split position
@@ -57,7 +55,9 @@ func main() {
 		}
 	}
 
-	// part 2: sum all path counts
+	// part 2: sum all active path counts
+	// batch adding here is faster than adding one-by-one at #L43
+	// because it is optimally sequential memory access
 	for i := range paths {
 		acc2 += paths[i]
 	}
