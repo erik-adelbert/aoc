@@ -12,9 +12,9 @@ Today’s [entry](https://github.com/erik-adelbert/aoc/blob/main/2025/1/RedditOn
 
 The ultimate stage is reached in `main()`, when the program [receives the results back from the pipeline and outputs them](https://github.com/erik-adelbert/aoc/blob/main/2025/1/RedditOne/aoc1_reddit_one.go#L50-L54). It is a [canonical implementation](https://go.dev/test/chan/sieve1.go) of a (inefficient but illustrative) Go pipeline.
 
-    ┌────────────┐
-    │    main    │
-    │            │
+    ┌────────────┐                       - each box is a goroutine
+    │    main    │                       - each arrow is a Go channel
+    │            │                       - cmds are simplified a bit
     │         ┌────────┐ cmds
     │         │ parser │──┐
     │         └────────┘  │
