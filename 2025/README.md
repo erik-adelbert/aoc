@@ -92,7 +92,7 @@ fastest of 100 runs for part1&2 in μs - mbair M1/16GB - darwin 24.6.0 - go vers
 *This year, I’m freelancing and available to take on projects—preferably in Go or Python. Please help spread the word!*
 
 <div align="center">
-  <img src="./images/1606_Mercator_Hondius_Map_of_the_Arctic_(First_Map_of_the_North_Pole)_-_Geographicus_-_NorthPole-mercator-1606.jpg" alt="1606 Mercator Hondius Map of the Arctic (First Map of the North Pole)" width="60%" />
+  <img src="./images/1606_Mercator_Hondius_Map_of_the_Arctic_(First_Map_of_the_North_Pole)_-_Geographicus_-_NorthPole-mercator-1606.jpg" alt="1606 Mercator Hondius Map of the Arctic (First Map of the North Pole). First day of AoC is always the start of a great journey to the North Pole! We have a map now." width="60%" />
 </div>
 
 On this first day of AoC 2025, the challenge is reasonably tricky. It highlights the sign ambiguity of the [modulo](https://en.wikipedia.org/wiki/Modulo) operation when the remainder is negative.
@@ -115,7 +115,8 @@ The password method <span title='CLICK'><code>0x434C49434B</code></span> actuall
 ## Day 2: [Gift Shop](https://adventofcode.com/2025/day/2) [↑](#summary)
 
 <div align="center">
-  <img src="./images/Serpiente_alquimica.jpg" alt="Ouroboros is a mystical symbol don't miss its link below" width="60%" />
+  <img src="./images/Serpiente_alquimica.jpg" alt="Ouroboros is a mystical symbol—don't miss its link below. To me, it celebrates the magic that surrounds us. One of my good friends always says that we, as programmers, are closer than ever to magicians. Some of us write code that, if seen from the past, would be indistinguishable from spells.
+" width="60%" />
 </div>
 
 ### Third Approach
@@ -223,7 +224,7 @@ The beauty of [`u/topaz2078`](https://www.reddit.com/user/topaz2078/)’s crafts
 ## Day 3: [Lobby](https://adventofcode.com/2025/day/3) [↑](#summary)
 
 <div align="center">
-  <img src="./images/Polar_Night_energy.jpg" alt="A Polar Night Energy monolith that seems to be one giant powerbank built on the side of a car park" width="60%" />
+  <img src="./images/Polar_Night_energy.jpg" alt="A Polar Night Energy monolith that looks like one giant power bank built on the side of a car park. It's straightforward: today I felt like building the largest battery possible out of a stock of batteries. It made me want to see a monolith like in the old days." width="60%" />
 </div>
 
 Today's challenge is quite straightforward: the goal is to build the *lexicographically largest string after **k** removals*. I chose a [greedy](https://en.wikipedia.org/wiki/Greedy_algorithm), [stack-based](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) approach to solve it. The [solution](https://github.com/erik-adelbert/aoc/blob/main/2025/3/aoc3.go) is simple, and once again it runs optimally in linear time with respect to the length of the input lines: it is easy  to see that every given digit can only be pushed/popped once.
@@ -240,7 +241,7 @@ Having an adhoc `seq` type keeps the main intention obvious while [separating co
 ## Day 4: [Printing Department](https://adventofcode.com/2025/day/4) [↑](#summary)
 
 <div align="center">
-  <img src="./images/bolas.jpg" alt="A double steel ball ninja bolas" width="60%" />
+  <img src="./images/fire.jpg" alt="People juggling with fire bolas. Bolas is what I felt I was throwing at the problem with my double-buffer idea, which I managed to maintain no matter what." width="60%" />
 </div>
 
 ### Current Approach
@@ -272,7 +273,7 @@ The time complexity of *one scan* is `O(n)`: it is easy to see that each cell is
 ## A 5mn crash-introduction to cache and GC friendly solutions [↑](#summary)
 
 <div align="center">
-  <img src="./images/StarWars.jpg" alt="Chewbacca carries broken c3po on his back to save him later. Moment captured on the movie set." width="60%" />
+  <img src="./images/StarWars.jpg" alt="Chewbacca carries a broken C-3PO on his back to save him later—a moment captured on the movie set. This reflects the idea that if you bring broken or inefficient code into good care, it can eventually perform!" width="60%" />
 </div>
 
 I solved the Day 4 challenge without losing sight of the [Go GC model](https://go.dev/doc/gc-guide) and, more broadly, how [memory is managed](https://en.wikipedia.org/wiki/Virtual_memory) in our computers (or at least the much simpler real-life version of it—bear with me). I approached it this way because I strongly believe that [mechanical sympathy](https://newsletter.appliedgo.net/archive/2025-11-30-mechanical-sympathy/) improves program efficiency without requiring any energy beyond the effort of thought.
@@ -364,7 +365,7 @@ ok  	github.com/erik-adelbert/aoc/2025/4	8.685s
 ## Day 5: [Cafeteria](https://adventofcode.com/2025/day/5) [↑](#summary)
 
 <div align="center">
-  <img src="./images/SpaceVegetables.jpg" alt="Vegetables growing in a space greenhouse aboard an orbital station" width="60%" />
+  <img src="./images/SpaceVegetables.jpg" alt="Vegetables growing in a space greenhouse aboard an orbital station. Merging food storage units of today's challenge spells SPACE to me." width="60%" />
 </div>
 
 I don’t have much to say about today’s challenge. In anticipation of part 2, I used an [interval tree](https://en.wikipedia.org/wiki/Interval_tree). But part 2 ultimately required merging the input ranges and computing the total coverage.
@@ -409,7 +410,7 @@ SUM:                            23            155            126           7014
 ## Day 6: [Trash Compactor](https://adventofcode.com/2025/day/6) [↑](#summary)
 
 <div align="center">
-  <img src="./images/BoxFactory.jpg" alt="A factory’s cardboard conveyor line moving packages" width="60%" />
+  <img src="./images/BoxFactory.jpg" alt="A factory’s cardboard conveyor line moving packages. Yeah! I felt like packaging numbers today, lots of numbers!" width="60%" />
 </div>
 
 The challenge presents a problem that’s a perfect opportunity to practice working with Go [slices](https://go.dev/tour/moretypes/7) and understanding how they relate to the [memory management](https://go.dev/doc/gc-guide) provided by the Go runtime.
@@ -423,7 +424,7 @@ The program isn’t the prettiest, but it gets the job done in 85 lines. I belie
 ## Day 7: [Laboratories](https://adventofcode.com/2025/day/7) [↑](#summary)
 
 <div align="center">
-  <img src="./images/PrismRoom.jpg" alt="A room with an overwhelming prism-like architecture" width="60%" />
+  <img src="./images/PrismRoom.jpg" alt="A room with overwhelming, prism-like architecture. If you don't step back from today's challenge to view it fully, your mind could feel like crushed by this design." width="60%" />
 </div>
 
 Today's challenge presents a path propagation problem that I solved using [Dynamic Programming](https://en.wikipedia.org/wiki/Dynamic_programming) principles. The algorithm tracks how paths split and multiply as they traverse the grid from top to bottom.
@@ -437,7 +438,7 @@ It runs in under 1ms.
 ## Day 8: [Playground](https://adventofcode.com/2025/day/8) [↑](#summary)
 
 <div align="center">
-  <img src="./images/Xmas_Snowball.jpg" alt="A Christmas snow globe, featuring a decorated Christmas tree inside, rests on the snow outside on a magical, snowy night" width="60%" />
+  <img src="./images/Xmas_Snowball.jpg" alt="A Christmas snow globe, featuring a decorated Christmas tree inside, rests on the snow outside on a magical, snowy night. It is a mise-en-abîme of today's challenge: surround and then capture!" width="60%" />
 </div>
 
 The [solution](https://github.com/erik-adelbert/aoc/blob/main/2025/8/aoc8.go) implements a variant of [Kruskal’s algorithm](https://en.wikipedia.org/wiki/Kruskal%27s_algorithm) for computing a [Minimum Spanning Tree](https://en.wikipedia.org/wiki/Minimum_spanning_tree), but with problem-specific optimizations.
@@ -456,7 +457,7 @@ The code runs in under `1.3ms`
 ## Why have I changed the timings? [↑](#summary)
 
 <div align="center">
-  <img src="./images/magic-mountains.jpg" alt="A giant roller coaster with crowded cars whizzing past" width="60%" />
+  <img src="./images/magic-mountains.jpg" alt="A giant roller coaster with crowded cars whizzing past. My point with Hyperfine was to measure whether code performance suffered from the sheer cost of naively copying the input to stdout. Now, the timings are much more comparable with some strong Rust solutions out there, and this illustrates my point: Go is suitable for more than just building web services or infrastructure." width="60%" />
 </div>
 
 During AoC I’ve increasingly been comparing my solutions with others written in Rust, and many AoC Rust crates include internal program timers that report raw compute times. On the other hand I have many solutions that are simply too fast for `hyperfine`. Because of this, starting now I will publish **internal timings** instead of external (wall-clock) timings. These internal timings are much more comparable to what Rust and other fast languages report.
@@ -486,7 +487,7 @@ go run ./aoc8.go < input.txt
 ## Day 9: [Movie Theater](https://adventofcode.com/2025/day/9) [↑](#summary)
 
 <div align="center">
-  <img src="./images/industrial_compressor.jpg" alt="An industrial compressor in full, intricate detail" width="60%" />
+  <img src="./images/industrial_compressor.jpg" alt="An industrial compressor in full, intricate detail. It is what it is, but this solution surely produces its fair share of gas." width="60%" />
 </div>
 
 Today, we’re tackling the problem of finding the largest rectangle inside a rectilinear polyline. Suffice it to say, I’m not a big fan of this type of problem—these puzzles usually end up with a [solution](https://github.com/erik-adelbert/aoc/blob/main/2025/9/aoc9.go) that’s tedious, and today is no exception.
@@ -564,7 +565,7 @@ SUM:                            39            309            242           9079
 ## Day 10: [Factory](https://adventofcode.com/2025/day/10) [↑](#summary)
 
 <div align="center">
-  <img src="./images/hp48.png" alt="A HP48 calculator screen close-up: it says CHIP8" width="60%" />
+  <img src="./images/hp48.png" alt="A close-up of an HP48 calculator screen: it says CHIP8. Today, it was back-to-school time! Here it is, my fellow pocket computer from that era." width="60%" />
 </div>
 
 ### Current Approach
@@ -599,7 +600,7 @@ Best time: 4.892125 ms
 ## Day 11: [Reactor](https://adventofcode.com/2025/day/10) [↑](#summary)
 
 <div align="center">
-  <img src="./images/jetcar.jpg" alt="An old jetcar racing by in B&W" width="60%" />
+  <img src="./images/jetcar.jpg" alt="An old jet car racing by in black and white. Today, I sped through the problem because I was more interested in Day 10. Still, it was fun to be given a reactor by the challenge." width="60%" />
 </div>
 
 Today I needed to move quickly through composing the [solution](https://github.com/erik-adelbert/aoc/blob/main/2025/11/aoc11.go), so this reactor comes at a perfect time (TL;DR Yesterday morning I wasn’t able to finish a tiny—and hopefully fast—ILP solver, and I wanted to deliver it today).
@@ -626,7 +627,7 @@ Best time: 370.084 µs
 ## Day 12: [Christmas Tree Farm](https://adventofcode.com/2025/day/12) [↑](#summary)
 
 <div align="center">
-  <img src="./images/kfpshifu.jpg" alt="Kung Fu Panda’s Master Shifu sitting in a lotus pose under a tree" width="60%" />
+  <img src="./images/kfpshifu.jpg" alt="Kung Fu Panda’s Master Shifu sitting in a lotus pose under a tree. Today, I did not panic because it was not my first AoC edition, but I still laugh thinking about the Piano Guys' faces. What a finish!" width="60%" />
 </div>
 
 Oh my gosh! What a roller coaster today. When I first read the challenge, I was feeling overwhelmed and needed a break—so I sat down with a nice breakfast and tried to estimate the computational difficulty on the back of an envelope.
@@ -654,7 +655,7 @@ My collection runs all problems for the entire edition in roughly ~~`~9ms`~~ `4.
 ## How was it? [↑](#summary)
 
 <div align="center">
-  <img src="./images/skidoo.jpg" alt="An acrobatic skidoo jump" width="60%" />
+  <img src="./images/skidoo.jpg" alt="An acrobatic skidoo jump. That's It!" width="60%" />
 </div>
 
 It’s fast, but it still has all the ups and downs (yes, Day 10) of a classic past edition nonetheless. I’m quite happy with the result this year, and keeping my coding time limited — and actually coding at an early hour — has been really good for me. I guess this year, the experience from past years kicked in, and 1–2 hours per day was enough to focus on delivering a strong version the first time (except for Day 2).
@@ -685,36 +686,36 @@ PS. I’m trying to compete in the `Red(One)` part of AoC, namely for Day 1. Sta
 
 | Day | Go Lines |
 |:----|---------:|
-|   7 |       43 |
-|   3 |       67 |
-|  12 |       67 |
+|   7 |       38 |
+|   3 |       64 |
+|  12 |       61 |
 |   5 |       85 |
 |  11 |       86 |
 |   6 |       87 |
 |   8 |      112 |
-|   1 |      114 |
+|   1 |      117 |
 |   9 |      116 |
 |   4 |      203 |
 |   2 |      258 |
-|  10 |      281 |
+|  10 |      381 |
 
 ```bash
-❯ ❯ cloc 1 2 3 4 5 6 7 8 9 10 11 12
-      62 text files.
-      52 unique files.
-      10 files ignored.
+❯ cloc 1 2 3 4 5 6 7 8 9 10 11 12
+      63 text files.
+      53 unique files.
+      12 files ignored.
 
-github.com/AlDanial/cloc v 2.06  T=0.04 s (1259.0 files/s, 297974.4 lines/s)
+github.com/AlDanial/cloc v 2.06  T=0.05 s (1119.8 files/s, 265075.6 lines/s)
 -------------------------------------------------------------------------------
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
 Text                            26             14              0           9903
-Go                              15            455            338           1519
-Markdown                         8              0              0             32
+Go                              15            507            385           1608
+Markdown                         9             12              0             71
 Python                           1              9             13             22
 make                             2              0              0              2
 -------------------------------------------------------------------------------
-SUM:                            52            478            351          11478
+SUM:                            53            542            398          11606
 -------------------------------------------------------------------------------
 ```
 
@@ -722,19 +723,24 @@ SUM:                            52            478            351          11478
 
 ```bash
 ❯ make cyclo
-41 main simplex 10/aoc10.go:168:1
 19 main main 6/aoc6.go:21:1
 19 main main 4/aoc4.go:22:1
 17 main main 11/aoc11.go:21:1
+17 main min3D 10/aoc10.go:386:1
 16 main main 9/aoc9.go:13:1
+16 main part2 10/aoc10.go:115:1
+13 main hnf 10/aoc10.go:205:1
 12 main main 2/aoc2.go:24:1
+12 main min2D 10/aoc10.go:318:1
 11 main main 8/aoc8.go:24:1
-Average: 5.27
+Average: 4.92
 ```
 
-It’s no wonder the [simplex algorithm](https://en.wikipedia.org/wiki/Simplex_algorithm) is rated so highly. Implementing one is not easy and introduces challenges ranging from structural design to numerical instability. It’s a sophisticated technique developed in the mid-20th century that reached peak prominence in the late 1990s. With recent progress in applying [linear programming](https://en.wikipedia.org/wiki/Linear_programming) to AI, it’s seeing a revival in certain hybrid AI [planning](https://arxiv.org/abs/2509.21014) pipelines.
+Day 10 is a major contributor in this table, and implementing [BLAS](https://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms) algorithms is certainly quite sophisticated. For instance, they are usually as huge (LOC-wise) as they are fast; this means that the code bails out at the first opportunity, leading to a mechanical increase in cyclomatic complexity. It’s no wonder the [simplex algorithm](https://en.wikipedia.org/wiki/Simplex_algorithm) of my first approach was rated 41. Implementing one is not easy and introduces challenges ranging from structural design to numerical instability. It’s a sophisticated technique developed in the mid-20th century that reached peak prominence in the late 1990s. With recent progress in applying [linear programming](https://en.wikipedia.org/wiki/Linear_programming) to AI, it’s seeing a revival in certain hybrid AI [planning](https://arxiv.org/abs/2509.21014) pipelines.
 
-Complexity in [10-20] always ends up in main(). It’s proof that I focused on speed this year, but hopefully the solutions are still easy to read. Still I am quite happy with an average of 5.27.
+Complexity in [10-20] always ends up in main(). It’s proof that I focused on speed this year, but hopefully the solutions are still easy to read. Still I am quite happy with an average of 4.92.
+
+[Cyclomatic complexity](https://en.wikipedia.org/wiki/Cyclomatic_complexity) is debatable, but as I see it, it is a convenient way to classify the kind of [testing](https://en.wikipedia.org/wiki/Software_testing) needed to prove [correctness](https://en.wikipedia.org/wiki/Correctness_(computer_science)).
 
 | Cyclomatic Complexity | Associated Risk         |
 |----------------------|------------------------|
@@ -742,3 +748,11 @@ Complexity in [10-20] always ends up in main(). It’s proof that I focused on s
 | 6–10                 | Moderate (manageable, some risk)|
 | 11–20                | High (complex, error-prone)     |
 | 21+                  | Very High (difficult to maintain/test) |
+
+<br>
+<br>
+<br>
+
+<div align="center">
+  <img src="./images/calendar.png" alt="AoC 2025 ASCII Art" width="60%" />
+</div>
