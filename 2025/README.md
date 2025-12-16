@@ -60,19 +60,19 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
 
 | Day                                 | Time (μs) | % of Total  |
 |-------------------------------------|----------:|------------:|
-| [**2**](#day-2-gift-shop-)          |         8 |       0.09% |
-| [7](#day-7-laboratories-)           |        34 |       0.38% |
-| [5](#day-5-cafeteria-)              |        98 |       1.08% |
-| [12](#day-12-christmas-tree-farm-)  |       119 |       1.31% |
-| [1](#day-1-secret-entrance-)        |       136 |       1.50% |
-| [6](#day-6-trash-compactor-)        |       154 |       1.70% |
-| [3](#day-3-lobby-)                  |       231 |       2.55% |
-| [11](#day-11-reactor-)              |       369 |       4.08% |
-| [4](#day-4-printing-department-)    |       764 |       8.44% |
-| [9](#day-9-movie-theater-)          |     1,037 |      11.46% |
-| [8](#day-8-playground-)             |     1,216 |      13.43% |
-| [**10**](#day-10-factory-)          |     4,892 |      54.02% |
-| **Total**                           | **9,058** | **100.04%** |
+| [**2**](#day-2-gift-shop-)          |         8 |       0.17% |
+| [7](#day-7-laboratories-)           |        34 |       0.74% |
+| [5](#day-5-cafeteria-)              |        98 |       2.12% |
+| [12](#day-12-christmas-tree-farm-)  |       119 |       2.58% |
+| [1](#day-1-secret-entrance-)        |       136 |       2.95% |
+| [6](#day-6-trash-compactor-)        |       154 |       3.34% |
+| [3](#day-3-lobby-)                  |       231 |       5.01% |
+| [11](#day-11-reactor-)              |       369 |       8.00% |
+| [10](#day-10-factory-)              |       447 |       9.69% |
+| [4](#day-4-printing-department-)    |       764 |      16.56% |
+| [9](#day-9-movie-theater-)          |     1,037 |      22.48% |
+| [8](#day-8-playground-)             |     1,216 |      26.36% |
+| **Total**                           | **4,613** | **100.00%** |
 
 fastest of 100 runs for part1&2 in μs - mbair M1/16GB - darwin 24.6.0 - go version go1.25.3 darwin/arm64 - 2025-12
 
@@ -566,11 +566,19 @@ SUM:                            39            309            242           9079
   <img src="./images/hp48.png" alt="A HP48 calculator screen close-up: it says CHIP8" width="60%" />
 </div>
 
+### Current Approach
+
+You will find the rationale for what is done in the current [solution](https://github.com/erik-adelbert/aoc/blob/main/2025/10/aoc10.go) in this [post](https://www.reddit.com/r/adventofcode/comments/1plzhps/2025_day_10_part_2_pivot_your_way_to_victory/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button), and in particular this [answer](https://www.reddit.com/r/adventofcode/comments/1plzhps/comment/ntx2ggc/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button). The discussion goes back and forth between two of the strongest performance-oriented programmers. [`u/maneatingape`](https://www.reddit.com/user/maneatingape/), for instance, runs all days and all parts ever in under 1 second. The code features a parallelized variation of the aforementioned HNF-based solution to Part 2. It runs in under 447μs.
+
+### First Approach
+
+**For the following discussion please checkout commit [f04f7e8](https://github.com/erik-adelbert/aoc/blob/f04f7e8e4e39fd28936e1b9a076d1b6d54d40b81/2025/10/aoc10.go)**
+
 Upon reading today's challenge, Part 2, I immediately recognized it as an [ILP](https://en.wikipedia.org/wiki/Integer_programming) problem, but I had no idea how I could compose a solver simply. Relying on [Z3](https://github.com/Z3Prover/z3) or any other general-purpose solver/prover would have been a total disaster for runtime.
 
 So I studied the domain and came up with an approach for what to do and how to do it. Then I browsed solutions hoping to find a skillful reference implementation—and here it was: `u/RussellDash332` had [one](https://github.com/RussellDash332/advent-of-code/blob/main/aoc-2025%2FDay-10%2FPython%2Fmain.py)!
 
-Today's [program](https://github.com/erik-adelbert/aoc/blob/main/2025/10/aoc10.go) tackles Part 1 with a neat BFS and includes a fast, compact solver using [simplex](https://en.wikipedia.org/wiki/Simplex_algorithm) and [branch-and-bound](https://en.wikipedia.org/wiki/Branch_and_bound) for Part 2. It runs in under **5 ms**, which is an order of magnitude faster than typical runtimes in the solution megathread.
+Today's [program](https://github.com/erik-adelbert/aoc/blob/f04f7e8e4e39fd28936e1b9a076d1b6d54d40b81/2025/10/aoc10.go) tackles Part 1 with a neat BFS and includes a fast, compact solver using [simplex](https://en.wikipedia.org/wiki/Simplex_algorithm) and [branch-and-bound](https://en.wikipedia.org/wiki/Branch_and_bound) for Part 2. It runs in under **5 ms**, which is an order of magnitude faster than typical runtimes in the solution megathread.
 
 ```bash
 ❯ make run

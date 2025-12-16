@@ -14,318 +14,441 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"iter"
 	"math"
-	"math/bits"
 	"os"
 	"slices"
+	"sync"
 	"time"
 )
+
+const nsolver = 8 // number of parallel solvers
 
 func main() {
 	t0 := time.Now()
 
+	var wg sync.WaitGroup // wait group for solvers
+
+	in := make(chan mach)   // input machines into solvers
+	out := make(chan parts) // output part results from solvers
+
+	// each solver processes machines from the input channel for parts 1 and 2
+	solver := func() {
+		for m := range in { // for each machine
+			out <- parts{
+				part1(m.switches, m.light), // min presses to reach light pattern
+				part2(m.switches, m.jolts), // min presses to reach joltage targets
+			}
+		}
+	}
+
+	// watchdog to close output channel when all solvers are done
+	closer := func() {
+		wg.Wait()
+		close(out)
+	}
+
+	// iterate over parsed machines and send them to input channel
+	parser := func() {
+		for m := range parse(bufio.NewScanner(os.Stdin)) {
+			in <- m
+		}
+		close(in)
+	}
+
+	// start worker pool
+	for range nsolver {
+		wg.Go(solver) // Go 1.25+
+	}
+
+	go closer() // launch watchdog
+
+	go parser() // launch feeder
+
 	var acc1, acc2 uint16 // part 1 & 2 accumulators
 
-	switches, lights, jolts := parseInput(bufio.NewScanner(os.Stdin))
-	_ = jolts
+	// collect results
+	for r := range out {
+		acc1 += r.p1
+		acc2 += r.p2
+	}
 
-	acc1 = part1(switches, lights)
-	acc2 = part2(switches, jolts)
+	fmt.Printf("%d %d %dμs\n", acc1, acc2, time.Since(t0).Microseconds())
+}
 
-	fmt.Println(acc1, acc2, time.Since(t0))
+type parts struct{ p1, p2 uint16 }
+type mach struct {
+	switches []uint16
+	jolts    []int32
+	light    uint16
 }
 
 // Part 1: bitmask BFS
-func part1(switches [][]uint16, lights []uint16) uint16 {
-	var acc1 uint16
+func part1(switches []uint16, light uint16) uint16 {
+	w := switches[len(switches)-1]        // width of bitmask
+	switches = switches[:len(switches)-1] // remove bounding switch
 
-	for i, row := range switches {
-		w := 0 // width of bitmask
-		for _, s := range row {
-			w = max(w, bits.Len16(s))
-		}
+	// Build bitmask BFS table
+	bmasks := slices.Repeat([]uint16{math.MaxUint16}, 1<<w)
+	bmasks[0] = 0
 
-		// Build bitmask BFS table
-		bmasks := slices.Repeat([]int{-1}, 1<<w)
-		bmasks[0] = 0
+	// BFS over bitmasks
+	q := []uint16{0}
+	for i := 0; i < len(q); i++ {
+		u := q[i]
+		for _, v := range switches {
+			nxt := u ^ v
 
-		// BFS over bitmasks
-		q := []uint16{0}
-		for i := 0; i < len(q); i++ {
-			u := q[i]
-			for _, v := range row {
-				nxt := u ^ v
-
-				if bmasks[nxt] != -1 {
-					continue
-				}
-
-				bmasks[nxt] = bmasks[u] + 1
-				q = append(q, nxt)
-			}
-		}
-
-		acc1 += uint16(bmasks[lights[i]])
-	}
-
-	return acc1
-}
-
-// Part 2: ILP branch-and-bound
-func part2(switches [][]uint16, jolts [][]int) uint16 {
-	var acc2 uint16
-
-	for i := range switches {
-		sw, jo := switches[i], jolts[i]
-
-		n := len(sw)
-
-		w := 0
-		for _, s := range sw {
-			w = max(w, bits.Len16(s))
-		}
-
-		// build constraint matrix
-		M := make([][]float64, 2*w+n)
-		for r := range M {
-			M[r] = make([]float64, n+1)
-		}
-
-		// left-hand side
-		for j, s := range sw {
-			i := (2*w + len(sw)) - 1 - j
-			M[i][j] = -1
-
-			for b := 0; b < w; b++ {
-				if s&(1<<b) != 0 {
-					M[b][j] = 1
-					M[b+w][j] = -1
-				}
-			}
-		}
-
-		// right-hand side
-		for i := range w {
-			M[i][n] = float64(jo[i])
-			M[i+w][n] = -float64(jo[i])
-		}
-
-		acc2 += solve(M, slices.Repeat([]float64{1}, n))
-	}
-
-	return acc2
-}
-
-// solve solves the ILP defined by matrix M and coefficients C
-func solve(M [][]float64, C []float64) uint16 {
-	best := math.Inf(1) // best value found
-
-	n := len(M[0]) - 1 // number of variables
-
-	var rebranch func(M [][]float64)
-
-	rebranch = func(M [][]float64) {
-		val, x := simplex(M, C)
-
-		if val+ε >= best || math.IsInf(val, -1) {
-			return // infeasible
-		}
-
-		k, v := -1, 0
-		for i, e := range x {
-			if math.Abs(e-math.Round(e)) > ε {
-				k = i
-				v = int(e)
-				break
-			}
-		}
-
-		if k == -1 { // all integer
-			if val+ε < best {
-				best = val
-			}
-		} else {
-			// first branch: x_k >= ceil(v)
-			s := make([]float64, n+1)
-			s[n] = float64(v)
-			s[k] = 1
-			rebranch(append(M, s))
-
-			// second branch: x_k <= floor(v)
-			s = make([]float64, n+1)
-			s[n] = float64(^v) // bitwise NOT, same as -v-1 for integers
-			s[k] = -1
-			rebranch(append(M, s))
-		}
-	}
-
-	rebranch(M)
-
-	return uint16(math.Round(best))
-}
-
-// simplex solves the LP defined by matrix M and coefficients C
-func simplex(M [][]float64, C []float64) (float64, []float64) {
-	h := len(M)
-	w := len(M[0]) - 1
-
-	// N: non-basic variable indices
-	N := make([]int, w+1)
-	for i := range w {
-		N[i] = i
-	}
-	N[w] = -1
-
-	// B: basic variable indices
-	B := make([]int, h)
-	for i := range h {
-		B[i] = w + i
-	}
-
-	// T: tableau
-	T := make([][]float64, h+2)
-
-	for i := range h {
-		T[i] = make([]float64, w+2)
-		T[i][w+1] = -1
-		copy(T[i], M[i])
-
-	}
-
-	T[h] = make([]float64, w+2)
-	copy(T[h], C)
-
-	// zeros
-	T[h][w] = 0
-	T[h][w+1] = 0
-	T[h+1] = make([]float64, w+2)
-
-	// Swap last two columns in constraint rows
-	for i := range h {
-		T[i][w], T[i][w+1] = T[i][w+1], T[i][w]
-	}
-	T[h+1][w] = 1
-
-	// Gauss-Jordan pivoting
-	pivot := func(r, c int) {
-		k := 1.0 / T[r][c] // pivot element
-
-		// eliminate column c in all other rows
-		for i := range h + 2 {
-			if i == r {
+			if bmasks[nxt] != math.MaxUint16 {
 				continue
 			}
-			for j := range w + 2 {
-				if j != c {
-					T[i][j] -= T[r][j] * T[i][c] * k
-				}
-			}
-		}
 
-		// adjust pivot row
-		for i := range w + 2 {
-			T[r][i] *= k
-		}
-
-		// adjust pivot column
-		for i := range h + 2 {
-			T[i][c] *= -k
-		}
-
-		T[r][c] = k // set pivot element
-
-		// swap basic and non-basic variables
-		B[r], N[c] = N[c], B[r]
-	}
-
-	// find optimal
-	find := func(p int) bool {
-		for {
-			// find s
-			s := -1
-			smin := math.Inf(1)
-			for i := range w + 1 {
-				if p != 0 || N[i] != -1 {
-					val := T[h+p][i]
-					if val < smin || (val == smin && N[i] < N[s]) {
-						s = i
-						smin = val
-					}
-				}
-			}
-
-			if T[h+p][s] > -ε {
-				return true // optimal
-			}
-
-			// find r
-			r := -1
-			rmin := math.Inf(1)
-			for i := range h {
-				if T[i][s] > ε {
-					ratio := T[i][w+1] / T[i][s]
-					if ratio < rmin || (ratio == rmin && B[i] < B[r]) {
-						r = i
-						rmin = ratio
-					}
-				}
-			}
-
-			if r == -1 {
-				return false // unbounded
-			}
-
-			pivot(r, s)
+			bmasks[nxt] = bmasks[u] + 1
+			q = append(q, nxt)
 		}
 	}
 
-	// Initialization
-	r := 0
-	vmin := T[0][w+1]
-	for i := 1; i < h; i++ {
-		if T[i][w+1] < vmin {
-			r = i
-			vmin = T[i][w+1]
+	return uint16(bmasks[light])
+}
+
+// Part 2: solve linear system in GF(2) with Hermite Normal Form
+func part2(switches []uint16, jolts []int32) uint16 {
+	switches = switches[:len(switches)-1] // remove bounding switch
+
+	m := len(jolts)    // equations (columns)
+	n := len(switches) // variables (rows)
+
+	// build transposed constraint matrix
+	M := make([][]int32, n)
+	for i := range M {
+		M[i] = make([]int32, m)
+
+		for j := range M[i] {
+			M[i][j] = int32((switches[i] >> j) & 1) // variable i affects joltage j
 		}
 	}
 
-	if T[r][w+1] < -ε {
-		pivot(r, w)
-		if !find(1) || T[h+1][w+1] < -ε {
-			return math.Inf(-1), nil
-		}
+	var K kern // kernel vectors
+	for i := range K {
+		K[i] = make([]int32, n)
 	}
 
-	for i := range h {
-		if B[i] == -1 {
-			// Find s
-			s := 0
-			vmin := T[i][0]
-			for j := 1; j < w; j++ {
-				if T[i][j] < vmin || (T[i][j] == vmin && N[j] < N[s]) {
-					s = j
-					vmin = T[i][j]
-				}
+	// hermite normal form
+	x0, kdim := hnf(K, M, jolts) // base solution + kernel dimension
+
+	// base sum
+	var sum0 int32
+	for i := range x0 {
+		sum0 += x0[i]
+	}
+
+	if kdim == 0 {
+		// no free variables, return base sum
+		return uint16(sum0)
+	}
+
+	// compute δs for each kernel vector
+	// δi = sum of elements in kernel vector i
+	// tells how much the total sum of variables changes when moving
+	// one step in that kernel direction
+	δs := make([]int32, kdim)
+	for i := range δs {
+		k := K[i]
+
+		var δ int32
+		for j := range k {
+			δ += k[j]
+		}
+
+		// pretend all step are positive (no negative presses)
+		if δ < 0 {
+			δ = -δ
+			for j := range k {
+				k[j] = -k[j]
 			}
-			pivot(i, s)
 		}
+
+		δs[i] = δ
 	}
 
-	if find(0) {
-		x := make([]float64, w)
-		for i := range h {
-			if B[i] >= 0 && B[i] < w {
-				x[B[i]] = T[i][w+1]
+	// compute variable upper limits including joltage constraints
+	lims := make([]int32, n)
+	for i := range n {
+		var lim int32 = math.MaxInt32 // upper limit for variable i
+
+		for j := range m {
+			if (switches[i] & (1 << j)) != 0 {
+				lim = min(lim, jolts[j]) // variable i can be used to increment joltage j
 			}
 		}
 
-		sum := 0.0
-		for i := range w {
-			sum += C[i] * x[i]
-		}
-		return sum, x
+		lims[i] = lim
 	}
-	return math.Inf(-1), nil
+
+	switch kdim { // count of free variables
+	case 1:
+		return min1D(x0, sum0, δs[0], K[0])
+	case 2:
+		return min2D(x0, sum0, δs[:2], K[:2], lims, false)
+	case 3:
+		return min3D(x0, sum0, δs[:3], K[:3], lims)
+	}
+
+	// no more than 3 free variables in the input
+	panic("unreached")
+}
+
+// kernel type has a maximum of 3 free variables
+type kern = [3][]int32
+
+// hnf computes the Hermite Normal Form of M and extracts the kernel vectors into K.
+func hnf(K kern, M [][]int32, rhs []int32) ([]int32, int) {
+	m, n := len(M[0]), len(M)
+
+	// unimodular matrix lower rows contain the integer solutions to Mx=0
+	// during x0 construction for M.x0=rhs, U tracks the transformations of rhs
+	// under those same row operations as M.
+	// because det(U) = ±1 with integer entries, solutions preserves the set of
+	// integer solutions.
+	U := make([][]int32, n) // start as identity matrix
+	for i := range n {
+		U[i] = make([]int32, n)
+		U[i][i] = 1
+	}
+
+	// perform HNF on M
+	rank := 0
+	var pivs [16]int // pivot columns
+
+	for c := 0; c < m && rank < n; c++ {
+		r := rank
+
+		for r < n && M[r][c] == 0 {
+			r++
+		}
+
+		if r == n {
+			continue
+		}
+
+		pivs[rank] = c
+
+		if r != rank {
+			M[rank], M[r] = M[r], M[rank]
+			U[rank], U[r] = U[r], U[rank]
+		}
+
+		mr := M[rank]
+		ur := U[rank]
+
+		for i := rank + 1; i < n; i++ {
+			var mi, ui []int32
+
+			if mi, ui = M[i], U[i]; mi[c] == 0 {
+				continue
+			}
+
+			u, v := mr[c], mi[c]
+
+			gcd, x, y := egcd(u, v)
+
+			u /= gcd
+			v /= gcd
+
+			linc(mr, mi, x, y, -v, u)
+			linc(ur, ui, x, y, -v, u)
+		}
+
+		rank++
+	}
+
+	// extract kernel vectors
+	kdim := n - rank
+
+	for i := range kdim {
+		copy(K[i], U[rank+i])
+	}
+
+	// compute particular solution
+	x0 := make([]int32, n)
+
+	var s [16]int32 // solution for rank variables
+	for r := 0; r < rank; r++ {
+		c := pivs[r] // pivot column
+
+		n := rhs[c]
+		for i := range r {
+			n -= M[i][c] * s[i]
+		}
+
+		s[r] = n / M[r][c]
+
+		axpy(s[r], U[r], x0) // x0 += s[r] * U[r]
+	}
+
+	return x0, kdim // return base solution and kernel dimension
+}
+
+// min1D computes the minimal solution in 1D kernel space
+func min1D(x []int32, sum0, δ0 int32, K []int32) uint16 {
+	var min0, max0 int32 = math.MinInt32, math.MaxInt32
+
+	// minimize over k0*x[i] + ... constraints
+	for i := range x {
+		k0 := K[i]
+
+		switch {
+		case k0 > 0:
+			min0 = max(min0, cdiv(-x[i], k0))
+		case k0 < 0:
+			max0 = min(max0, fdiv(x[i], -k0))
+		}
+	}
+
+	if min0 > max0 {
+		// infeasible
+		return math.MaxUint16
+	}
+
+	// optimal at min0
+	return uint16(sum0 + min0*δ0)
+}
+
+// min2D computes the minimal solution in 2D kernel space
+func min2D(x []int32, sum0 int32, δs []int32, K [][]int32, lims []int32, safe bool) uint16 {
+	var min0, max0 int32 = math.MinInt32 / 2, math.MaxInt32 / 2
+	var min1, max1 int32 = math.MinInt32 / 2, math.MaxInt32 / 2
+
+	for i := range x {
+		k0, k1 := K[0][i], K[1][i]
+
+		lim := lims[i]
+
+		switch {
+		case k0 != 0 && k1 == 0:
+			limit(&min0, &max0, k0, x[i], lim)
+		case k0 == 0 && k1 != 0:
+			limit(&min1, &max1, k1, x[i], lim)
+		}
+	}
+
+	range0 := max0 - min0
+	range1 := max1 - min1
+
+	// use smaller range as primary
+	if range0 > range1 {
+		// use range1 as primary
+		min0, max0 = min1, max1
+
+		// swap 0,1 -> 1,0
+		δs[0], δs[1] = δs[1], δs[0]
+		K[0], K[1] = K[1], K[0]
+
+		defer func() {
+			// restore original order for caller
+
+			// reswap 0,1 -> 1,0
+			δs[0], δs[1] = δs[1], δs[0]
+			K[0], K[1] = K[1], K[0]
+		}()
+	}
+
+	if safe {
+		// work on a copy to avoid modifying caller's x
+		// not needed if min2D is terminal
+		x = slices.Clone(x)
+	}
+
+	for i := range x {
+		x[i] += min0 * K[0][i]
+	}
+
+	// move along primary
+	best := min1D(x, sum0+min0*δs[0], δs[1], K[1])
+	for i := min0 + 1; i <= max0; i++ {
+		for j := range x {
+			x[j] += K[0][j]
+		}
+
+		// minimize along secondary
+		m := min1D(x, sum0+i*δs[0], δs[1], K[1])
+		if m > best {
+			break
+		}
+
+		best = m
+	}
+
+	return best
+}
+
+// min3D computes the minimal solution in 3D kernel space
+func min3D(x []int32, sum0 int32, δs []int32, K [][]int32, limits []int32) uint16 {
+	var min0, max0 int32 = math.MinInt32 / 2, math.MaxInt32 / 2
+	var min1, max1 int32 = math.MinInt32 / 2, math.MaxInt32 / 2
+	var min2, max2 int32 = math.MinInt32 / 2, math.MaxInt32 / 2
+
+	for i := range x {
+		k0, k1, k2 := K[0][i], K[1][i], K[2][i]
+
+		lim := limits[i]
+
+		switch {
+		case k0 != 0 && k1 == 0 && k2 == 0:
+			limit(&min0, &max0, k0, x[i], lim)
+		case k0 == 0 && k1 != 0 && k2 == 0:
+			limit(&min1, &max1, k1, x[i], lim)
+		case k0 == 0 && k1 == 0 && k2 != 0:
+			limit(&min2, &max2, k2, x[i], lim)
+		}
+	}
+
+	range0 := max0 - min0
+	range1 := max1 - min1
+	range2 := max2 - min2
+
+	// use smallest range as primary
+	switch min(range0, range1, range2) {
+	case range0:
+		// do nothing more
+
+	case range1:
+		min0, max0 = min1, max1
+
+		// swap 0, 1, 2 -> 1, 0, 2
+		δs[0], δs[1] = δs[1], δs[0]
+		K[0], K[1] = K[1], K[0]
+
+		// don't restore order because min3D is terminal
+
+	case range2:
+		min0, max0 = min2, max2
+
+		// swap 0, 1, 2 -> 2, 1, 0
+		δs[0], δs[2] = δs[2], δs[0]
+		K[0], K[2] = K[2], K[0]
+
+		// don't restore order because min3D is terminal
+	}
+
+	// primary is in 0
+	// work directly on x because min3D is terminal
+	for i := range x {
+		x[i] += min0 * K[0][i]
+	}
+
+	// move along primary hyperplane
+	best := min2D(x, sum0+min0*δs[0], δs[1:3], K[1:3], limits, true)
+	for i := min0 + 1; i <= max0; i++ {
+		for j := range x {
+			x[j] += K[0][j]
+		}
+
+		// minimize along secondary hyperplane
+		best = min(best, min2D(x, sum0+i*δs[0], δs[1:3], K[1:3], limits, true))
+	}
+
+	return best
 }
 
 const (
@@ -333,62 +456,132 @@ const (
 	On  = '#'
 )
 
-func parseInput(input *bufio.Scanner) ([][]uint16, []uint16, [][]int) {
-	var switches [][]uint16
-	var lights []uint16
-	var jolts [][]int
+// parse input into machines
+func parse(input *bufio.Scanner) iter.Seq[mach] {
+	return func(yield func(mach) bool) {
 
-	for input.Scan() {
-		buf := input.Bytes()
-		fields := bytes.Split(buf, []byte(" "))
+		for input.Scan() {
+			buf := input.Bytes()
+			fields := bytes.Split(buf, []byte(" "))
 
-		// lights
-		lfield := fields[0]
-		lfield = lfield[1 : len(lfield)-1] // trim brackets
+			// lights
+			lfield := fields[0]
+			lfield = lfield[1 : len(lfield)-1] // trim brackets
 
-		light := uint16(0)
-		for i, c := range lfield {
-			if c == On {
-				light |= 1 << i
-			}
-		}
-
-		lights = append(lights, light)
-
-		// switches
-		sfields := fields[1 : len(fields)-1]
-
-		row := make([]uint16, len(sfields))
-		for i, f := range sfields {
-			f = f[1 : len(f)-1] // trim brackets
-
-			for buf := range bytes.SplitSeq(f, []byte(",")) {
-				row[i] |= uint16(1 << atoi(buf))
+			light := uint16(0)
+			for i, c := range lfield {
+				if c == On {
+					light |= 1 << i
+				}
 			}
 
-		}
-		switches = append(switches, row)
+			// switches
+			sfields := fields[1 : len(fields)-1]
 
-		// joltages
-		jfield := fields[len(fields)-1]
-		jfield = jfield[1 : len(jfield)-1] // trim brackets
-		jsets := bytes.Split(jfield, []byte(","))
+			switches := make([]uint16, len(sfields)+1)
 
-		jolt := make([]int, len(jsets))
-		for i := range jolt {
-			jolt[i] = atoi(jsets[i])
+			var w int32 // width of bitmask
+			for i, f := range sfields {
+				f = f[1 : len(f)-1] // trim brackets
+
+				for b := range bytes.SplitSeq(f, []byte(",")) {
+					n := atoi(b)
+					w = max(w, n)
+					switches[i] |= uint16(1 << n)
+				}
+			}
+			// add dummy switch for bounding
+			switches[len(sfields)] = uint16(w + 1)
+
+			// joltages
+			jfield := fields[len(fields)-1]
+			jfield = jfield[1 : len(jfield)-1] // trim brackets
+			jsets := bytes.Split(jfield, []byte(","))
+
+			jolts := make([]int32, len(jsets))
+			for i := range jolts {
+				jolts[i] = atoi(jsets[i])
+			}
+
+			if !yield(mach{switches, jolts, light}) {
+				return
+			}
 		}
-		jolts = append(jolts, jolt)
 	}
-
-	return switches, lights, jolts
 }
 
-const ε = 1e-9
+// Helper functions
 
-func atoi(s []byte) (n int) {
+// cdiv: ceiling division a/b
+func cdiv(a, b int32) int32 {
+	if a >= 0 {
+		return (a + b - 1) / b
+	}
+	return a / b
+}
+
+// fdiv: floor division a/b
+func fdiv(a, b int32) int32 {
+	if a >= 0 {
+		return a / b
+	}
+	return (a - (b - 1)) / b
+}
+
+// limit min/max bounds based on k*x + ... constraints
+func limit(mini, maxi *int32, k, x, lim int32) {
+	switch {
+	case k > 0:
+		// k*min >= -x  and  k*max <= lim - x
+		*mini = max(*mini, cdiv(-x, k))
+		*maxi = min(*maxi, fdiv(lim-x, k))
+	case k < 0:
+		// k*min <= lim - x  and  k*max >= -x
+		*mini = max(*mini, cdiv(x-lim, -k))
+		*maxi = min(*maxi, fdiv(x, -k))
+	}
+}
+
+// extended gcd returns gcd(a,b) and x,y such that ax+by=gcd(a,b)
+func egcd(a, b int32) (int32, int32, int32) {
+	var x0, x1 int32 = 1, 0
+	var y0, y1 int32 = 0, 1
+
+	for b != 0 {
+		q := a / b
+
+		a, b = b, a%b
+
+		x0, x1 = x1, x0-q*x1
+		y0, y1 = y1, y0-q*y1
+	}
+
+	return a, x0, y0
+}
+
+// linc performs a linear combination:
+// x <- a*x + b*y
+// y <- c*x + d*y
+func linc(x, y []int32, a, b, c, d int32) {
+	for i := range x {
+		xi, yi := x[i], y[i]
+
+		x[i] = a*xi + b*yi
+		y[i] = c*xi + d*yi
+	}
+}
+
+// axpy performs the operation y <- y + a*x
+func axpy(a int32, x, y []int32) {
+	for i := range y {
+		y[i] += x[i] * a
+	}
+}
+
+// atoi: convert byte slice to integer
+func atoi(s []byte) (n int32) {
 	for _, c := range s {
-		n = 10*n + int(c-'0')
+		n = 10*n + int32(c-'0')
 	}
 	return
 }
