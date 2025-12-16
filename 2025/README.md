@@ -674,7 +674,7 @@ All in all, it's been fun.
 
 Happy coding!
 
-PS. I’m trying to compete in the `Red(One)` part of AoC, namely for Day 1. Stay tuned.
+PS. I’m trying to compete in the `Red(dit) One` part of AoC, namely for [Day 1](https://www.reddit.com/r/adventofcode/comments/1pb3y8p/comment/ntzpvto/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button). Stay tuned.
 
 ## More Metrics [↑](#summary)
 
