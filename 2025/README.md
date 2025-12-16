@@ -11,7 +11,7 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
     <td><a href="#day-1-secret-entrance-"><img src="./images/1606_Mercator_Hondius_Map_of_the_Arctic_(First_Map_of_the_North_Pole)_-_Geographicus_-_NorthPole-mercator-1606.jpg" alt="Day 1" width="80"/></a></td>
     <td><a href="#day-2-gift-shop-"><img src="./images/Serpiente_alquimica.jpg" alt="Day 2" width="80"/></a></td>
     <td><a href="#day-3-lobby-"><img src="./images/Polar_Night_energy.jpg" alt="Day 3" width="80"/></a></td>
-    <td><a href="#day-4-printing-department-"><img src="./images/bolas.jpg" alt="Day 4" width="80"/></a></td>
+    <td><a href="#day-4-printing-department-"><img src="./images/fire.jpg" alt="Day 4" width="80"/></a></td>
     <td><a href="#day-5-cafeteria-"><img src="./images/SpaceVegetables.jpg" alt="Day 5" width="80"/></a></td>
     <td><a href="#day-6-trash-compactor-"><img src="./images/BoxFactory.jpg" alt="Day 6" width="80"/></a></td>
     <td><a href="#day-7-laboratories-"><img src="./images/PrismRoom.jpg" alt="Day 7" width="80"/></a></td>
