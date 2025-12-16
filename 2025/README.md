@@ -410,7 +410,7 @@ SUM:                            23            155            126           7014
 ## Day 6: [Trash Compactor](https://adventofcode.com/2025/day/6) [↑](#summary)
 
 <div align="center">
-  <img src="./images/BoxFactory.jpg" alt="A factory’s cardboard conveyor line moving packages. Yeah! I felt like packaging numbers today, lots of numbers!" width="60%" />
+  <img src="./images/BoxFactory.jpg" alt="A factory’s cardboard conveyor line moving packages. In the top left corner a logo says Process Idea. Yeah! I felt like packaging numbers today, lots of numbers!" width="60%" />
 </div>
 
 The challenge presents a problem that’s a perfect opportunity to practice working with Go [slices](https://go.dev/tour/moretypes/7) and understanding how they relate to the [memory management](https://go.dev/doc/gc-guide) provided by the Go runtime.
@@ -565,7 +565,7 @@ SUM:                            39            309            242           9079
 ## Day 10: [Factory](https://adventofcode.com/2025/day/10) [↑](#summary)
 
 <div align="center">
-  <img src="./images/hp48.png" alt="A close-up of an HP48 calculator screen: it says CHIP8. Today, it was back-to-school time! Here it is, my fellow pocket computer from that era." width="60%" />
+  <img src="./images/hp48.png" alt="A close-up of an HP48 calculator screen: it says CHIP8 in a frame everything is line-drawned. Today, it was back-to-school time! Here it is, my fellow pocket computer from that era." width="60%" />
 </div>
 
 ### Current Approach
@@ -755,4 +755,13 @@ Complexity in [10-20] always ends up in main(). It’s proof that I focused on s
 
 <div align="center">
   <img src="./images/calendar.png" alt="AoC 2025 ASCII Art" width="60%" />
+</div>
+
+
+<br>
+<br>
+<br>
+
+<div align="center">
+  <img src="./images/1938-beck-steinway-grand-piano-patent-print-blueprint-greg-edwards.jpg" alt="A Steinway grand piano blueprint, you know!" width="60%" />
 </div>
