@@ -29,8 +29,8 @@ func main() {
 
 	var wg sync.WaitGroup // wait group for solvers
 
-	in := make(chan mach)   // input machines into solvers
-	out := make(chan parts) // output part results from solvers
+	in := make(chan mach, nsolver)   // input machines into solvers
+	out := make(chan parts, nsolver) // output part results from solvers
 
 	// each solver processes machines from the input channel for parts 1 and 2
 	solver := func() {
@@ -56,14 +56,14 @@ func main() {
 		close(in)
 	}
 
+	go parser() // launch feeder
+
 	// start worker pool
 	for range nsolver {
 		wg.Go(solver) // Go 1.25+
 	}
 
 	go closer() // launch watchdog
-
-	go parser() // launch feeder
 
 	var acc1, acc2 uint16 // part 1 & 2 accumulators
 
