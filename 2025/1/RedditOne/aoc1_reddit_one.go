@@ -68,7 +68,7 @@ func parser(cmds chan<- cmd) {
 
 // dialer processes a single dialer command
 func dialer(cmd cmd, in <-chan int, out chan<- int) { // parse direction and number
-	old, acc1, acc2 := <-in, <-in, <-in // get current position and accumulators
+	old, acc1, acc2 := <-in, <-in, <-in // get old position and accumulators
 
 	// handle large movements
 	acc2 += cmd.n / MaxDial // count full wraps
