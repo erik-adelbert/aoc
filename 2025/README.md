@@ -539,7 +539,7 @@ This recurrence is also more proof of [`u/topaz2078`](https://www.reddit.com/use
 
 Today I reached the **1000-LOC** milestone, the collection runs in **3,683 μs**, and we’ve clearly moved past the self-patting comfort zone of `O(n)` into far more adventurous territory. Let the final stretch begin!
 
-<div align="center">
+<div align="right">
   <img src="./images/golang.png" alt="Flash Gopher from https://wx-chevalier.github.io/books/awesome-lists/01.cs/language/go/gopher-list/" width="10%" />
 </div>
 
