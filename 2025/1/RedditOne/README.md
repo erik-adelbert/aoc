@@ -2,7 +2,7 @@
 
 ![We need guns. Lots of guns.](https://github.com/erik-adelbert/aoc/blob/main/2025/1/RedditOne//lots-of-guns.jpg)
 
-*As a matter of fact, this submission has an optional [soundtrack](https://www.youtube.com/watch?v=LxRgU1NoDCI).*
+*As a matter of fact, this submission has an optional [soundtrack](https://www.youtube.com/watch?v=LxRgU1NoDCI "An interview of Rob Pike and Robert Griesmer, the creators of Go").*
 
 As soon as I discovered the [Commander](https://github.com/robpike)’s [work](http://www.r-5.org/files/books/computers/internals/unix/Francisco_Ballesteros-Notes_on_the_Plan_9_Kernel_Source-EN.pdf), I knew I was interested in the [same side aspects](https://theswissbay.ch/pdf/Gentoomen%20Library/Software%20Engineering/B.W.Kernighan%2C%20R.Pike%20-%20The%20Practice%20of%20Programming.pdf) of coding that he was exploring. And he and his [fellow coders](https://developers.googleblog.com/en/go-a-new-programming-language/), being who they were, brought their entire world to us—[again](https://9fans.github.io/plan9port/)!
 
@@ -46,6 +46,6 @@ This is my very first submission to the AoC Community Fun contest, and no matter
 
 Happy coding!
 
-<div align="left">
+<div align="right">
   <img src="https://github.com/erik-adelbert/aoc/blob/main/2025/1/RedditOne/golang.png" alt="Flash Gopher from https://wx-chevalier.github.io/books/awesome-lists/01.cs/language/go/gopher-list/" width="10%" />
 </div>
