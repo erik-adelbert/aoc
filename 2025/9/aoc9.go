@@ -17,9 +17,10 @@ func main() {
 
 	path := make([]point, 0, SizeHint)
 
-	xraw := make([]uint32, 0, 2*SizeHint)
-	yraw := make([]uint32, 0, 2*SizeHint)
+	Xs := make([]uint32, 0, 2*SizeHint)
+	Ys := make([]uint32, 0, 2*SizeHint)
 
+	// read input points
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
 		bufX, bufY, _ := bytes.Cut(input.Bytes(), []byte(","))
@@ -27,20 +28,20 @@ func main() {
 
 		path = append(path, point{X: X, Y: Y})
 
-		xraw = append(xraw, X, X+1) // add +1 for edge handling
-		yraw = append(yraw, Y, Y+1)
+		Xs = append(Xs, X, X+1) // add +1 for edge handling
+		Ys = append(Ys, Y, Y+1)
 	}
 
-	slices.Sort(xraw)
-	slices.Sort(yraw)
+	// compute coordinate sets
+	slices.Sort(Xs)
+	slices.Sort(Ys)
 
-	// coordinate sets
-	Xs := slices.Compact(xraw)
-	Ys := slices.Compact(yraw)
-
-	xmax, ymax := Xs[len(Xs)-1], Ys[len(Ys)-1]
+	Xs = slices.Compact(Xs)
+	Ys = slices.Compact(Ys)
 
 	// compact coordinates mapping
+	xmax, ymax := Xs[len(Xs)-1], Ys[len(Ys)-1]
+
 	xmap := make([]uint32, xmax+1)
 	ymap := make([]uint32, ymax+1)
 
@@ -106,13 +107,13 @@ func main() {
 
 	// evaluate all rectangles
 	for i, j := range allIndexPairs(path) {
-		x1, x2 := path[i].X, path[j].X
-		if x1 > x2 {
+		var x1, x2, y1, y2 uint32
+
+		if x1, x2 = path[i].X, path[j].X; x1 > x2 {
 			x1, x2 = x2, x1
 		}
 
-		y1, y2 := path[i].Y, path[j].Y
-		if y1 > y2 {
+		if y1, y2 = path[i].Y, path[j].Y; y1 > y2 {
 			y1, y2 = y2, y1
 		}
 
