@@ -231,7 +231,7 @@ Today's challenge is quite straightforward: the goal is to build the *lexicograp
 
 Having an adhoc `seq` type keeps the main intention obvious while [separating concerns](https://en.wikipedia.org/wiki/Separation_of_concerns). The digit-selection logic becomes a mere implementation detail of the solution. ~~The search space is so small that the Go garbage collector has no time to get in the way, even though the code creates two short-lived small buffers per input line~~.
 
-`<EDIT>` As I wanted to emphasize the `O(1)` space complexity alongside the `O(n)` time complexity of the solution—and to nullify the [Go garbage collector](https://go.dev/doc/gc-guide) pressure altogether—the code now reuses the *same* sequences repeatedly.
+`<EDIT>` As I wanted to emphasize the `O(1)` space complexity alongside the `O(n)` time complexity of the solution—and to nullify the [Go garbage collector](https://go.dev/doc/gc-guide) pressure altogether—the code now reuses the *same* storage repeatedly.
 
 ```bash
 ❯ wc -lc input.txt # how many lines and cars?
@@ -507,9 +507,9 @@ The [prefix sum table](https://www.geeksforgeeks.org/dsa/prefix-sum-array-implem
 
 `sums[i][j]=grid[i][j]+sums[i−1][j]+sums[i][j−1]−sums[i−1][j−1]`
 
-It lets us quickly check whether a rectangle is fully inside the polygon (i.e., all its cells are 1), or count how many cells are inside, without scanning every cell in the rectangle. And after doing so much preprocessing, we might as well throw everything we have at the problem —the best 2D matrix is a 1D matrix, what if `uint32`?, ... kind of things— wherever possible, and so on.
+It lets us quickly check whether a rectangle is fully inside the polygon (i.e., all its cells are 1), or count how many cells are inside, without scanning every cell in the rectangle. And after doing so much preprocessing, we might as well throw everything we have at the problem —the best 2D matrix is a 1D matrix, ... kind of things— wherever possible, and so on.
 
-At last the resulting code runs in under `1.5ms±0.5` and the best runs are in under `1ms`.
+At last the resulting code runs in under `1.5ms±0.5` average and the best runs are in under `1ms`.
 
 ```bash
 ❯ best=999999999; for i in {1..100}; do t=$( (make run 2>&1 | grep -oE '[0-9]+\.[0-9]+ms' | head -1 | sed 's/ms//') ); if [ "$(echo "$t < $best" | bc)" -eq 1 ]; then best=$t; fi; done; echo "Best time: $best ms"

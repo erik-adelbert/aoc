@@ -13,12 +13,12 @@ import (
 func main() {
 	t0 := time.Now()
 
-	var acc1, acc2 uint32 // parts 1 and 2 accumulators
+	var acc1, acc2 int // parts 1 and 2 accumulators
 
 	path := make([]point, 0, SizeHint)
 
-	xraw := make([]uint32, 2*SizeHint)
-	yraw := make([]uint32, 2*SizeHint)
+	xraw := make([]uint32, 0, 2*SizeHint)
+	yraw := make([]uint32, 0, 2*SizeHint)
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
@@ -31,12 +31,8 @@ func main() {
 		yraw = append(yraw, Y, Y+1)
 	}
 
-	// fmt.Println("Parsed input...", time.Since(t0))
-
 	slices.Sort(xraw)
 	slices.Sort(yraw)
-
-	// fmt.Println("Sorted coordinates...", time.Since(t0))
 
 	// coordinate sets
 	Xs := slices.Compact(xraw)
@@ -56,18 +52,20 @@ func main() {
 		ymap[y] = uint32(i)
 	}
 
-	// fmt.Println("Built coordinate maps...", time.Since(t0))
-
 	// scanline fill
 	R, C := uint32(len(Xs)), uint32(len(Ys))
 	edges := make([]uint32, R*C)
 
-	for i := range path {
-		x1, y1 := path[i].X, path[i].Y
-		x2, y2 := path[(i+1)%len(path)].X, path[(i+1)%len(path)].Y
+	for i1 := range path {
+		x1, y1 := path[i1].X, path[i1].Y
+
+		i2 := (i1 + 1) % len(path)
+		x2, y2 := path[i2].X, path[i2].Y
 
 		x1, x2 = xmap[x1], xmap[x2]
-		x1, x2 = min(x1, x2), max(x1, x2)
+		if x1 > x2 {
+			x1, x2 = x2, x1
+		}
 
 		y1, y2 = ymap[y1], ymap[y2]
 
@@ -95,9 +93,7 @@ func main() {
 		}
 	}
 
-	// fmt.Println("Completed scanline fill...", time.Since(t0))
-
-	θ := func(i, j uint32) int { return int(i*(C+1) + j) } // linear index
+	θ := func(i, j uint32) uint32 { return uint32(i)*(C+1) + uint32(j) } // linear index
 
 	sums := make([]uint32, (R+1)*(C+1))
 	for i := range R {
@@ -108,36 +104,37 @@ func main() {
 		}
 	}
 
-	// fmt.Println("Built prefix sum table...", time.Since(t0))
-
 	// evaluate all rectangles
 	for i, j := range allIndexPairs(path) {
 		x1, x2 := path[i].X, path[j].X
-		x1, x2 = min(x1, x2), max(x1, x2)
-
-		y1, y2 := path[i].Y, path[j].Y
-		y1, y2 = min(y1, y2), max(y1, y2)
-
-		area := (x2 - x1 + 1) * (y2 - y1 + 1)
-
-		// remap to compressed coordinates
-		xr1, xr2 := xmap[x1], xmap[x2]+1
-		yr1, yr2 := ymap[y1], ymap[y2]+1
-
-		// part 2
-		all := (xr2 - xr1) * (yr2 - yr1) // total area
-
-		// count insiders using prefix sums
-		insiders := sums[θ(xr2, yr2)] - sums[θ(xr2, yr1)] - sums[θ(xr1, yr2)] + sums[θ(xr1, yr1)]
-
-		// part 1
-		if area > acc1 {
-			acc1 = area
+		if x1 > x2 {
+			x1, x2 = x2, x1
 		}
 
+		y1, y2 := path[i].Y, path[j].Y
+		if y1 > y2 {
+			y1, y2 = y2, y1
+		}
+
+		δx, δy := int(x2-x1), int(y2-y1)
+		area := (δx + 1) * (δy + 1)
+
+		// remap to compressed coordinates
+		x1, x2 = xmap[x1], xmap[x2]+1
+		y1, y2 = ymap[y1], ymap[y2]+1
+
 		// part 2
-		if all == insiders && area > acc2 {
-			acc2 = area
+		all := (x2 - x1) * (y2 - y1) // total area
+
+		// count insiders using prefix sums
+		insiders := sums[θ(x2, y2)] - sums[θ(x2, y1)] - sums[θ(x1, y2)] + sums[θ(x1, y1)]
+
+		// part 1
+		acc1 = max(acc1, area)
+
+		// part 2
+		if all == insiders {
+			acc2 = max(acc2, area)
 		}
 	}
 
