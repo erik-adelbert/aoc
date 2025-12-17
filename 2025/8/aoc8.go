@@ -32,11 +32,12 @@ func main() {
 	input := bufio.NewScanner(os.Stdin)
 
 	for input.Scan() {
-		b := bytes.Split(input.Bytes(), []byte(","))
+		fields := bytes.Split(input.Bytes(), []byte(","))
+
 		points = append(points, point{
-			X: atoi(b[0]),
-			Y: atoi(b[1]),
-			Z: atoi(b[2]),
+			X: atoi(fields[0]),
+			Y: atoi(fields[1]),
+			Z: atoi(fields[2]),
 		})
 	}
 
@@ -47,8 +48,8 @@ func main() {
 	for i := range n - 1 {
 		for j := i + 1; j < n; j++ {
 			a, b := points[i], points[j]
-			if d := dist2(a, b); d < CutoffDist {
-				edges = append(edges, edge{dist: d, i: i, j: j})
+			if d := dist2(a, b); d < CutoffDist { // cutoff heuristic
+				edges = append(edges, edge{dist: d, i: uint32(i), j: uint32(j)})
 			}
 		}
 	}
@@ -69,10 +70,11 @@ func main() {
 		case i == n-1: // part 1: after 1000 edges
 			seen := make([]bool, n)
 
-			var max1, max2, max3 int // sliding top 3 sizes
+			var max1, max2, max3 uint32 // sliding top 3 sizes
 
 			for i := range n {
-				root := dsu.find(i)
+				root := dsu.find(uint32(i))
+
 				if !seen[root] {
 					seen[root] = true
 
@@ -87,7 +89,7 @@ func main() {
 				}
 			}
 
-			acc1 = max1 * max2 * max3 // product of 3 largest components
+			acc1 = int(max1 * max2 * max3) // product of 3 largest components
 
 		case unions == n-1: // part 2: after 1000 unions, spanning tree is complete
 			acc2 = points[e.i].X * points[e.j].X // product of X coords of last edge
@@ -101,23 +103,23 @@ func main() {
 
 // edge represents an edge between two points with a squared distance
 type edge struct {
-	dist int // squared distance
-	i, j int
+	dist int    // squared distance
+	i, j uint32 // point indices
 }
 
 // dsu is a disjoint set union (union-find) data structure
 type dsu struct {
-	parent []int
-	size   []int
+	parent []uint32
+	size   []uint32
 }
 
 // newDSU creates a new DSU with n elements
 func newDSU(n int) *dsu {
-	p := make([]int, n)
-	sz := make([]int, n)
+	p := make([]uint32, n)
+	sz := make([]uint32, n)
 
 	for i := range p {
-		p[i] = i
+		p[i] = uint32(i)
 		sz[i] = 1
 	}
 
@@ -125,7 +127,7 @@ func newDSU(n int) *dsu {
 }
 
 // find returns the root of the set containing x, with path compression
-func (d *dsu) find(x int) int {
+func (d *dsu) find(x uint32) uint32 {
 	root := x
 
 	// Find the root
@@ -144,7 +146,7 @@ func (d *dsu) find(x int) int {
 }
 
 // union merges the sets containing a and b
-func (d *dsu) union(a, b int) {
+func (d *dsu) union(a, b uint32) {
 	ra, rb := d.find(a), d.find(b)
 
 	if ra == rb {
