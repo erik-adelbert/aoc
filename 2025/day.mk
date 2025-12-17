@@ -48,7 +48,7 @@ memprof: build
 	./$(BIN) -memprofile=$(BIN).mem.prof < $(IN)
 
 run: input.txt
-	go run ./$(SRC) < $(IN)
+	GODEBUG=greenteagc=1 go run ./$(SRC) < $(IN)
 
 sample:
 	go run ./$(SRC) < $(EX)

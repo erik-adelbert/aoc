@@ -19,14 +19,15 @@ import (
 	"time"
 )
 
-const CutoffDist = 195_000_000 // edge squared distance cutoff from prior runs
+const N = 1000                 // challenge threshold
+const CutoffDist = 196_000_000 // edge squared distance cutoff from prior runs
 
 func main() {
 	t0 := time.Now()
 
 	var acc1, acc2 int // parts 1 and 2 accumulators
 
-	points := make([]point, 0, 1000)
+	points := make([]point, 0, N)
 
 	input := bufio.NewScanner(os.Stdin)
 
@@ -47,7 +48,7 @@ func main() {
 		for j := i + 1; j < n; j++ {
 			a, b := points[i], points[j]
 			if d := dist2(a, b); d < CutoffDist {
-				edges = append(edges, edge{dist: d, a: i, b: j})
+				edges = append(edges, edge{dist: d, i: i, j: j})
 			}
 		}
 	}
@@ -55,33 +56,43 @@ func main() {
 	slices.SortFunc(edges, func(a, b edge) int { return a.dist - b.dist })
 
 	dsu := newDSU(n)
+
 	unions := 0 // count of unions performed
 	for i, e := range edges {
 
-		if dsu.find(e.a) != dsu.find(e.b) {
-			dsu.union(e.a, e.b)
+		if dsu.find(e.i) != dsu.find(e.j) {
+			dsu.union(e.i, e.j)
 			unions++
 		}
 
 		switch {
 		case i == n-1: // part 1: after 1000 edges
 			seen := make([]bool, n)
-			sizes := make([]int, 0, n)
+
+			var max1, max2, max3 int // sliding top 3 sizes
 
 			for i := range n {
 				root := dsu.find(i)
 				if !seen[root] {
 					seen[root] = true
-					sizes = append(sizes, dsu.size[root])
+
+					switch sz := dsu.size[root]; {
+					case sz > max1:
+						max3, max2, max1 = max2, max1, sz
+					case sz > max2:
+						max3, max2 = max2, sz
+					case sz > max3:
+						max3 = sz
+					}
 				}
 			}
 
-			slices.SortFunc(sizes, func(a, b int) int { return b - a }) // reverse sort sizes
-			acc1 = sizes[0] * sizes[1] * sizes[2]                       // product of 3 largest components
+			acc1 = max1 * max2 * max3 // product of 3 largest components
 
 		case unions == n-1: // part 2: after 1000 unions, spanning tree is complete
-			acc2 = int(points[e.a].X) * int(points[e.b].X) // product of X coords of last edge
-			fmt.Println(acc1, acc2, time.Since(t0))        // output results
+			acc2 = points[e.i].X * points[e.j].X // product of X coords of last edge
+
+			fmt.Println(acc1, acc2, time.Since(t0)) // output results
 
 			return
 		}
@@ -91,7 +102,7 @@ func main() {
 // edge represents an edge between two points with a squared distance
 type edge struct {
 	dist int // squared distance
-	a, b int
+	i, j int
 }
 
 // dsu is a disjoint set union (union-find) data structure
@@ -104,10 +115,12 @@ type dsu struct {
 func newDSU(n int) *dsu {
 	p := make([]int, n)
 	sz := make([]int, n)
+
 	for i := range p {
 		p[i] = i
 		sz[i] = 1
 	}
+
 	return &dsu{p, sz}
 }
 

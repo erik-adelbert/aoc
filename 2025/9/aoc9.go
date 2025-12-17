@@ -124,8 +124,8 @@ func main() {
 		x1, x2 = xmap[x1], xmap[x2]+1
 		y1, y2 = ymap[y1], ymap[y2]+1
 
-		// part 2
-		all := (x2 - x1) * (y2 - y1) // total area
+		// total area
+		all := (x2 - x1) * (y2 - y1)
 
 		// count insiders using prefix sums
 		insiders := sums[θ(x2, y2)] - sums[θ(x2, y1)] - sums[θ(x1, y2)] + sums[θ(x1, y1)]
@@ -145,7 +145,7 @@ func main() {
 const SizeHint = 497
 
 const (
-	Left = 1 + iota
+	Left = 1 << iota
 	Right
 	OnEdge
 )
