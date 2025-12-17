@@ -32,7 +32,7 @@ func main() {
 		Ys = append(Ys, Y, Y+1)
 	}
 
-	// compute coordinate sets
+	// compute coordinate sets by sort | uniq
 	slices.Sort(Xs)
 	slices.Sort(Ys)
 
@@ -130,13 +130,13 @@ func main() {
 		// count insiders using prefix sums
 		insiders := sums[θ(x2, y2)] - sums[θ(x2, y1)] - sums[θ(x1, y2)] + sums[θ(x1, y1)]
 
-		// part 1
-		acc1 = max(acc1, area)
-
 		// part 2
 		if all == insiders {
 			acc2 = max(acc2, area)
 		}
+
+		// part 1
+		acc1 = max(acc1, area)
 	}
 
 	fmt.Println(acc1, acc2, time.Since(t0))

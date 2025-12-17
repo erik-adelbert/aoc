@@ -17,20 +17,21 @@ import (
 	"iter"
 	"math"
 	"os"
+	"runtime"
 	"slices"
 	"sync"
 	"time"
 )
 
-const nsolver = 8 // number of parallel solvers
+var nsolver = runtime.NumCPU() // number of parallel solvers
 
 func main() {
 	t0 := time.Now()
 
 	var wg sync.WaitGroup // wait group for solvers
 
-	in := make(chan mach, nsolver)   // input machines into solvers
-	out := make(chan parts, nsolver) // output part results from solvers
+	in := make(chan mach, 2*nsolver)   // input machines into solvers
+	out := make(chan parts, 2*nsolver) // output part results from solvers
 
 	// each solver processes machines from the input channel for parts 1 and 2
 	solver := func() {
