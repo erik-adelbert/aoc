@@ -88,7 +88,7 @@ func part1(switches []uint16, light uint16) uint16 {
 	w := switches[len(switches)-1]        // width of bitmask
 	switches = switches[:len(switches)-1] // remove bounding switch
 
-	// Build bitmask BFS table
+	// build bitmask BFS table
 	bmasks := slices.Repeat([]uint16{math.MaxUint16}, 1<<w)
 	bmasks[0] = 0
 
@@ -111,14 +111,24 @@ func part1(switches []uint16, light uint16) uint16 {
 	return uint16(bmasks[light])
 }
 
-// Part 2: solve linear system in GF(2) with Hermite Normal Form
+// Part 2 solves an integer linear system M x = rhs using a row-Hermite Normal Form.
+// The matrix is small and structured, so we:
+//  1. compute a particular integer solution,
+//  2. extract a small integer kernel (≤ 3 dimensions),
+//  3. search the affine solution space for the minimal feasible solution.
+//
+// This is exact arithmetic; no floating point or Gaussian elimination is used.
+// This approach is exact and fast for our inputs. It is not intended as a general-purpose
+// integer linear optimizer.
 func part2(switches []uint16, jolts []int32) uint16 {
 	switches = switches[:len(switches)-1] // remove bounding switch
 
 	m := len(jolts)    // equations (columns)
 	n := len(switches) // variables (rows)
 
-	// build transposed constraint matrix
+	// M is built with variables as rows and constraints as columns.
+	// Row operations therefore preserve the integer solution set of M x = rhs
+	// and allow kernel vectors to be read directly from the unimodular transform.
 	M := make([][]int32, n)
 	for i := range M {
 		M[i] = make([]int32, m)
@@ -133,7 +143,7 @@ func part2(switches []uint16, jolts []int32) uint16 {
 		K[i] = make([]int32, n)
 	}
 
-	// hermite normal form
+	// row-Hermite Normal Form
 	x0, kdim := hnf(K, M, jolts) // base solution + kernel dimension
 
 	// base sum
@@ -147,10 +157,9 @@ func part2(switches []uint16, jolts []int32) uint16 {
 		return uint16(sum0)
 	}
 
-	// compute δs for each kernel vector
-	// δi = sum of elements in kernel vector i
-	// tells how much the total sum of variables changes when moving
-	// one step in that kernel direction
+	// Each kernel vector shifts the solution within the affine space.
+	// δi is the change in the total sum when moving one step along kernel vector i.
+	// Signs are normalized so that δi ≥ 0 for minimization.
 	δs := make([]int32, kdim)
 	for i := range δs {
 		k := K[i]
@@ -171,7 +180,8 @@ func part2(switches []uint16, jolts []int32) uint16 {
 		δs[i] = δ
 	}
 
-	// compute variable upper limits including joltage constraints
+	// Variable upper bounds induced by joltage constraints.
+	// These bounds restrict feasible movement along kernel directions.
 	lims := make([]int32, n)
 	for i := range n {
 		var lim int32 = math.MaxInt32 // upper limit for variable i
@@ -201,16 +211,23 @@ func part2(switches []uint16, jolts []int32) uint16 {
 // kernel type has a maximum of 3 free variables
 type kern = [3][]int32
 
-// hnf computes the Hermite Normal Form of M and extracts the kernel vectors into K.
+// hnf computes a *row* Hermite Normal Form of M using integer row operations.
+// U tracks the unimodular transformation such that:
+//
+//	U * M = H
+//
+// where H is in row-HNF. Rows below 'rank' in H are zero rows, and the
+// corresponding rows in U form an integer basis of ker(M).
+//
+// A particular solution to M x = rhs is reconstructed by applying the same
+// transformations to rhs via U.
 func hnf(K kern, M [][]int32, rhs []int32) ([]int32, int) {
 	m, n := len(M[0]), len(M)
 
-	// unimodular matrix lower rows contain the integer solutions to Mx=0
-	// during x0 construction for M.x0=rhs, U tracks the transformations of rhs
-	// under those same row operations as M.
-	// because det(U) = ±1 with integer entries, solutions preserves the set of
-	// integer solutions.
-	U := make([][]int32, n) // start as identity matrix
+	// U starts as the identity and accumulates the same row operations as M.
+	// Because U is unimodular (det = ±1), it preserves the set of integer solutions.
+	// Lower rows of U span ker(M), upper rows map pivot variables to solution space.
+	U := make([][]int32, n)
 	for i := range n {
 		U[i] = make([]int32, n)
 		U[i][i] = 1
@@ -220,6 +237,10 @@ func hnf(K kern, M [][]int32, rhs []int32) ([]int32, int) {
 	rank := 0
 	var pivs [16]int // pivot columns
 
+	// Invariant:
+	//   - Rows [0:rank) form a triangular system on pivot columns pivs[0:rank)
+	//   - Rows [rank:] are unconstrained
+	//   - All transformations are unimodular row operations
 	for c := 0; c < m && rank < n; c++ {
 		r := rank
 
@@ -241,6 +262,8 @@ func hnf(K kern, M [][]int32, rhs []int32) ([]int32, int) {
 		mr := M[rank]
 		ur := U[rank]
 
+		// Eliminate M[i][c] using an extended-GCD-based unimodular transform.
+		// This keeps entries small and guarantees exact integer arithmetic.
 		for i := rank + 1; i < n; i++ {
 			var mi, ui []int32
 
@@ -262,14 +285,19 @@ func hnf(K kern, M [][]int32, rhs []int32) ([]int32, int) {
 		rank++
 	}
 
-	// extract kernel vectors
+	// Rows below 'rank' are zero rows in H.
+	// Their corresponding rows in U form an integer basis of ker(M).
+	// Kernel dimension is guaranteed small (≤ 3) for this input.
 	kdim := n - rank
 
 	for i := range kdim {
 		copy(K[i], U[rank+i])
 	}
 
-	// compute particular solution
+	// Reconstruct a particular integer solution.
+	// The triangular structure guarantees exact divisibility here for valid inputs.
+	// s[r] is the coefficient for the r-th pivot variable in the transformed system.
+	// NOTE: No consistency check is performed, solvability is expected.
 	x0 := make([]int32, n)
 
 	var s [16]int32 // solution for rank variables
@@ -289,7 +317,8 @@ func hnf(K kern, M [][]int32, rhs []int32) ([]int32, int) {
 	return x0, kdim // return base solution and kernel dimension
 }
 
-// min1D computes the minimal solution in 1D kernel space
+// min1D finds the minimum of the objective over a 1D integer affine subspace
+// subject to non-negativity and implicit feasibility constraints.
 func min1D(x []int32, sum0, δ0 int32, K []int32) uint16 {
 	var min0, max0 int32 = math.MinInt32, math.MaxInt32
 
@@ -314,7 +343,9 @@ func min1D(x []int32, sum0, δ0 int32, K []int32) uint16 {
 	return uint16(sum0 + min0*δ0)
 }
 
-// min2D computes the minimal solution in 2D kernel space
+// min2D performs a bounded search in a 2D kernel space.
+// One dimension is chosen as primary based on the smallest feasible range.
+// This is not a general ILP solver; it relies on small kernel dimension.
 func min2D(x []int32, sum0 int32, δs []int32, K [][]int32, lims []int32, safe bool) uint16 {
 	var min0, max0 int32 = math.MinInt32 / 2, math.MaxInt32 / 2
 	var min1, max1 int32 = math.MinInt32 / 2, math.MaxInt32 / 2
@@ -382,7 +413,8 @@ func min2D(x []int32, sum0 int32, δs []int32, K [][]int32, lims []int32, safe b
 	return best
 }
 
-// min3D computes the minimal solution in 3D kernel space
+// min3D reduces the 3D kernel problem to nested 2D searches.
+// This is terminal and allowed to modify x in-place.
 func min3D(x []int32, sum0 int32, δs []int32, K [][]int32, limits []int32) uint16 {
 	var min0, max0 int32 = math.MinInt32 / 2, math.MaxInt32 / 2
 	var min1, max1 int32 = math.MinInt32 / 2, math.MaxInt32 / 2
@@ -432,9 +464,8 @@ func min3D(x []int32, sum0 int32, δs []int32, K [][]int32, limits []int32) uint
 	}
 
 	// primary is in 0
-	// work directly on x because min3D is terminal
 	for i := range x {
-		x[i] += min0 * K[0][i]
+		x[i] += min0 * K[0][i] // in-place because min3D is terminal
 	}
 
 	// move along primary hyperplane
