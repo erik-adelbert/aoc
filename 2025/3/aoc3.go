@@ -82,13 +82,15 @@ func (s *seq) reset(size, inputSize int) {
 // push a new digit, removing larger trailing digits if possible
 // to keep the sequence lexicographically largest
 func (s *seq) push(c byte) {
-	// remove larger trailing digits while we can
-	for s.krem > 0 && !s.empty() && c > s.peek() {
-		last := len(s.digits) - 1
-
-		s.digits = s.digits[:last] // ditch last digit
-		s.krem--                   // use up a removal
+	// find how many trailing digits to remove
+	sz, n := len(s.digits), 0
+	for s.krem > n && sz-n > 0 && c > s.peek(n) {
+		n++
 	}
+
+	// remove trailing digits
+	s.digits = s.digits[:sz-n]
+	s.krem -= n // use up removals
 
 	// add new digit
 	s.digits = append(s.digits, c)
@@ -103,9 +105,7 @@ func (s *seq) val() (n int) {
 	return
 }
 
-// peek returns the last digit of the sequence
-func (s *seq) peek() byte { return s.digits[len(s.digits)-1] }
-
-func (s *seq) empty() bool { return len(s.digits) == 0 }
+// peek returns the ith last digit of the sequence
+func (s *seq) peek(i int) byte { return s.digits[len(s.digits)-1-i] }
 
 func ctoi(c byte) int { return int(c - '0') }
