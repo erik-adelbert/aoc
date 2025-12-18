@@ -37,7 +37,6 @@ func main() {
 
 		a, b := atoi(bufA), atoi(bufB)
 
-		// sub1, sub2 := 0, 0                 // partial sums for this span
 		for a, b := range allSpans(a, b) { // split into aligned subranges
 			switch {
 			case a >= 1e9:
@@ -57,7 +56,6 @@ func main() {
 				const seed1, seed2 = 10_001, 11_111_111
 
 				acc1 += sm(a, b, seed1)
-
 				acc2 += sm(a, b, seed2)
 			case a >= 1e6:
 				const seed2 = 1_111_111
@@ -86,9 +84,6 @@ func main() {
 				acc1 += sm(a, b, seed1)
 			}
 		}
-
-		// acc1 += sub1
-		// acc2 += sub2
 	}
 	acc2 += acc1 // part 2 includes part 1
 
