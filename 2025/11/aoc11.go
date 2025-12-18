@@ -24,16 +24,16 @@ func main() {
 
 	// mapping from 3-letter tags to unique integer IDs
 	var IDs [26 * 26 * 26]int // map [a..z][a..z][a..z] to integer ID --- 17576 possible IDs
-	var nextID = 1            // next available ID
+	var nextID int            // next available ID
 
 	// id returns the unique integer ID for a 3-letter tags
 	id := func(s string) int {
 		k := idh(s) // compute hash key
 
 		// lazily assign ID
-		if IDs[k] == 0 { // check if not assigned yet
-			IDs[k] = nextID // assign new ID
+		if IDs[k] == NullID { // check if not assigned yet
 			nextID++        // advance next ID
+			IDs[k] = nextID // assign new ID
 		}
 
 		return IDs[k]
@@ -135,8 +135,11 @@ func main() {
 	fmt.Println(acc1, acc2, time.Since(t0))
 }
 
-// MaxID is the maximum number of unique 3-letter IDs
-const MaxID = 616
+const (
+	// MaxID is the maximum number of unique 3-letter IDs expected in input
+	MaxID  = 616
+	NullID = 0 // null ID value is invalid
+)
 
 // idh computes a hash for a 3-letter string
 func idh(s string) int {
