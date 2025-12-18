@@ -18,6 +18,8 @@ import (
 	"time"
 )
 
+const BufSizeHint = 1 << 10 // 1 K buffer size
+
 func main() {
 	t0 := time.Now() // start timer
 
@@ -36,8 +38,8 @@ func main() {
 	layout := lines[len(lines)-1]
 
 	// determine column positions and extract operations
-	cols := make([]int, 0, 1000) // pre-allocate for typical 1000 columns
-	ops := make([]byte, 0, 1000) // pre-allocate for typical 1000 operations
+	cols := make([]int, 0, BufSizeHint) // pre-allocate for typical columns
+	ops := make([]byte, 0, BufSizeHint) // pre-allocate for typical operations
 
 	for i, op := range layout {
 		if op != ' ' {
@@ -52,71 +54,71 @@ func main() {
 	for i := range len(cols) - 1 {
 		widths[i] = [2]int{cols[i], cols[i+1]}
 	}
-	// add last column width
+	// add last column
 	last, size := cols[len(cols)-1], len(lines[0])+1
 	widths[len(widths)-1] = [2]int{last, size}
 
-	// split lines into columns
+	// split lines into cells
 	nrows := len(lines) - 1
-	splits := make([][][]byte, nrows)
+	cells := make([][][]byte, nrows)
 
-	for row := range splits {
-		splits[row] = make([][]byte, len(widths))
+	for r := range cells {
+		cells[r] = make([][]byte, len(widths))
 
-		for col, width := range widths {
-			a, b := width[0], width[1]
-			splits[row][col] = lines[row][a : b-1]
+		for c, w := range widths {
+			α, ω := w[0], w[1] // start and end of column
+			cells[r][c] = lines[r][α : ω-1]
 		}
 	}
 
 	// transpose columns for easier processing
-	tokens := make([][][]byte, len(splits[0]))
+	tokens := make([][][]byte, len(cells[0]))
 
-	for col := range tokens {
-		tokens[col] = make([][]byte, nrows)
-		for row := range splits {
-			tokens[col][row] = splits[row][col]
+	for c := range tokens {
+		tokens[c] = make([][]byte, nrows)
+
+		for r := range cells {
+			tokens[c][r] = cells[r][c]
 		}
 	}
 
-	// pre-allocate transpose matrix
-	trans := make([][]byte, len(tokens[0]))
+	// pre-allocate number transpose matrix
+	nekot := make([][]byte, len(tokens[0]))
 
-	for row := range trans {
-		trans[row] = make([]byte, len(tokens[0]))
+	for i := range nekot {
+		nekot[i] = make([]byte, len(tokens))
 	}
 
 	// compute results
-	for col, token := range tokens {
+	for c, token := range tokens {
+		h, w := len(token), len(token[0])
 
 		// transpose for part 2
-		w, h := len(token), len(token[0]) // width and height of the transposed token
-
-		for row := range h {
-			for j := range token {
-				trans[row][j] = token[j][row]
+		for i := range w {
+			for j := range h {
+				nekot[i][j] = token[j][i]
 			}
 		}
 
-		switch ops[col] {
+		switch ops[c] {
 		case '+':
-			for row := range token {
-				acc1 += atoi(bytes.TrimSpace(token[row]))
+			for r := range h {
+				acc1 += atoi(bytes.TrimSpace(token[r][:w]))
 			}
 
-			for row := range h {
-				acc2 += atoi(bytes.TrimSpace(trans[row][:w]))
+			for c := range w {
+				acc2 += atoi(bytes.TrimSpace(nekot[c][:h]))
 			}
 		case '*':
 			prod := 1
-			for row := range token {
-				prod *= atoi(bytes.TrimSpace(token[row]))
+			for r := range h {
+				prod *= atoi(bytes.TrimSpace(token[r][:w]))
 			}
 			acc1 += prod
 
 			prod = 1
-			for row := range h {
-				prod *= atoi(bytes.TrimSpace(trans[row][:w]))
+			for c := range w {
+				prod *= atoi(bytes.TrimSpace(nekot[c][:h]))
 			}
 			acc2 += prod
 		}
