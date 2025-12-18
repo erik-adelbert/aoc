@@ -19,8 +19,8 @@ import (
 )
 
 const (
-	PolyominoCount = 6
-	PolyominoDim   = 3
+	PolyCount = 6
+	PolyDim   = 3
 )
 
 func main() {
@@ -28,30 +28,30 @@ func main() {
 
 	var acc1 int // part 1 accumulator
 
-	polys := make([]polyomino, 0, PolyominoCount)
-	block := make([][]byte, 0, PolyominoDim)
+	polys := make([]int, 0, PolyCount) // poliyomino areas
+	block := make([][]byte, 0, PolyDim)
 
 	// read all input lines
 	input := bufio.NewScanner(os.Stdin)
 
 	for i := 0; input.Scan(); i++ {
 		buf := input.Bytes()
-		maxPoly := PolyominoCount * (PolyominoDim + 2)
+
+		maxPoly := PolyCount * (PolyDim + 2)
 
 		switch {
 		case len(buf) == 0:
+
 			// end of polyomino block
 			if i < maxPoly && len(block) > 0 {
 				polys = append(polys, parse(block))
 				block = block[:0]
 			}
 
-		case i < maxPoly && i%(PolyominoDim+2) == 0:
-			// skip header line with index
-
 		case i < maxPoly:
-			// polyomino line
-			block = append(block, buf)
+			if i%(PolyDim+2) != 0 {
+				block = append(block, buf) // polyomino line
+			}
 
 		default:
 			// processing grid line: "WxH: n1 n2 n3 ..."
@@ -63,7 +63,7 @@ func main() {
 			// compute total required cells
 			size := 0
 			for j, n := range bytes.Fields(rhs) {
-				size += atoi(n) * polys[j].area
+				size += atoi(n) * polys[j]
 			}
 
 			// apply empirical 87% heuristic
@@ -76,18 +76,13 @@ func main() {
 	fmt.Println(acc1, time.Since(t0))
 }
 
-// polyomino represents a polyomino by its area
-type polyomino struct {
-	area int
-}
-
 // parse counts '#' in the block and returns a polyomino with that area
-func parse(block [][]byte) polyomino {
+func parse(block [][]byte) int {
 	area := 0
 	for _, row := range block {
 		area += bytes.Count(row, []byte{'#'})
 	}
-	return polyomino{area}
+	return area
 }
 
 func atoi(s []byte) (n int) {
