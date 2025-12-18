@@ -28,63 +28,83 @@ func main() {
 
 	var acc1 int // part 1 accumulator
 
-	polys := make([]int, 0, PolyCount) // poliyomino areas
-	block := make([][]byte, 0, PolyDim)
+	block := make([]byte, 0, sq(PolyDim)) // current polyomino block (flattened)
+	cells := make([]int, 0, PolyCount)    // polyomino cell counts
 
-	// read all input lines
+	// flushBlock appends current block cell count to polys
+	flushBlock := func() {
+		if len(block) > 0 {
+			cells = append(cells, bytes.Count(block, []byte("#")))
+			block = block[:0]
+		}
+	}
+
+	state := Poly // input state
+
 	input := bufio.NewScanner(os.Stdin)
 
-	for i := 0; input.Scan(); i++ {
+	for input.Scan() {
 		buf := input.Bytes()
 
-		maxPoly := PolyCount * (PolyDim + 2)
+		// ---- polyomino processing phase ----
+		if state == Poly {
+			switch {
+			case bytes.Contains(buf, []byte("x")):
+				// grid layout line indicates end of polyominoes
+				flushBlock()
+				state = Grid
 
-		switch {
-		case len(buf) == 0:
+			case len(buf) == 0:
+				// end of current block
+				flushBlock()
+				continue // proceed to next line
 
-			// end of polyomino block
-			if i < maxPoly && len(block) > 0 {
-				polys = append(polys, parse(block))
-				block = block[:0]
+			case buf[0] == '#' || buf[0] == '.':
+				// polyomino block line
+				block = append(block, buf...) // accumulate block lines
+				continue                      // proceed to next line
 			}
+		}
 
-		case i < maxPoly:
-			if i%(PolyDim+2) != 0 {
-				block = append(block, buf) // polyomino line
-			}
+		// ---- grid processing phase ----
+		// line format: "WxH: n0 n1 n2 n3 n4 n5"
 
-		default:
-			// processing grid line: "WxH: n1 n2 n3 ..."
-			lhs, rhs, _ := bytes.Cut(buf, []byte(": ")) // ["WxH", "n1 n2 n3 ..."]
-			w, h, _ := bytes.Cut(lhs, []byte("x"))      // ["W", "H"]
+		lhs, rhs, ok := bytes.Cut(buf, []byte(": ")) // [WxH] [n0 n1 n2 n3 n4 n5]
+		if !ok {
+			continue
+		}
 
-			area := atoi(w) * atoi(h)
+		// parse grid line and calculate area
+		w, h, _ := bytes.Cut(lhs, []byte("x")) // [W] [H]
+		area := atoi(w) * atoi(h)
 
-			// compute total required cells
-			size := 0
-			for j, n := range bytes.Fields(rhs) {
-				size += atoi(n) * polys[j]
-			}
+		// parse polyomino counts and calculate total cell count
+		ncell := 0
+		for j, n := range bytes.Fields(rhs) { // enumerate [n0 n1 n2 n3 n4 n5]
+			ncell += atoi(n) * cells[j] // total cells += count * poly cell size
+		}
 
-			// apply empirical 87% heuristic
-			if size*23 < area*20 {
-				acc1++
-			}
+		// apply empirical 87% heuristic
+		if ncell*23 < area*20 {
+			acc1++
 		}
 	}
 
 	fmt.Println(acc1, time.Since(t0))
 }
 
-// parse counts '#' in the block and returns a polyomino with that area
-func parse(block [][]byte) int {
-	area := 0
-	for _, row := range block {
-		area += bytes.Count(row, []byte{'#'})
-	}
-	return area
+// input states
+const (
+	Poly bool = (iota == 0)
+	Grid
+)
+
+// sq returns the square of n
+func sq(n int) int {
+	return n * n
 }
 
+// atoi converts a byte slice representing a non-negative integer to int
 func atoi(s []byte) (n int) {
 	for _, c := range s {
 		n = 10*n + int(c-'0')
