@@ -98,17 +98,8 @@ func query(spans []span, v int) bool {
 		return a.start - b.start
 	})
 
-	// check spans that could contain v (working backwards from found position)
-	for j := i - 1; j >= 0; j-- {
-		switch {
-		case spans[j].end < v:
-			return false // spans are sorted by start, so no earlier spans can contain v
-		case spans[j].start <= v && v <= spans[j].end:
-			return true
-		}
-	}
-
-	return false
+	// check if v is contained in the span just before the insertion point
+	return i > 0 && spans[i-1].start <= v && v <= spans[i-1].end
 }
 
 // span is an interval [start, end]
