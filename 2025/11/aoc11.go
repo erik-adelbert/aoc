@@ -22,10 +22,11 @@ func main() {
 	t0 := time.Now()   // start timer
 	var acc1, acc2 int // parts 1 and 2 accumulators
 
-	var IDs [26 * 26 * 26]int // map [a..z][a..z][a..z] to integer ID
+	// mapping from 3-letter tags to unique integer IDs
+	var IDs [26 * 26 * 26]int // map [a..z][a..z][a..z] to integer ID --- 17576 possible IDs
 	var nextID = 1            // next available ID
 
-	// id returns the unique integer ID for a 3-letter string
+	// id returns the unique integer ID for a 3-letter tags
 	id := func(s string) int {
 		k := idh(s) // compute hash key
 

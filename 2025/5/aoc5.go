@@ -30,7 +30,7 @@ func main() {
 	spans := make([]span, 0, SpanCountHint)
 
 	// state machine parser
-	state := ReadSpans
+	state := Span
 	for input.Scan() {
 		buf := input.Bytes()
 
@@ -40,15 +40,17 @@ func main() {
 
 			acc2, spans = merge(spans) // merge intervals and calculate total coverage
 
-			state = ReadQueries
-		case state == ReadSpans:
+			state = Query
+
+		case state == Span:
 			start, end, _ := bytes.Cut(buf, []byte("-")) // parse range
 
 			spans = append(spans, span{atoi(start), atoi(end)})
-		case state == ReadQueries:
-			v := atoi(buf) // parse query point
 
-			if query(spans, v) {
+		case state == Query:
+			qp := atoi(buf) // parse query point
+
+			if query(spans, qp) {
 				acc1++
 			}
 		}
@@ -108,8 +110,8 @@ type span struct {
 }
 
 const (
-	ReadSpans = iota
-	ReadQueries
+	Span = iota
+	Query
 )
 
 const (
