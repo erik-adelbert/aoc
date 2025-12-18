@@ -47,6 +47,10 @@ func main() {
 		buf := input.Bytes()
 
 		// ---- polyomino processing phase ----
+		// ex with ncells=6:
+		// .#.
+		// ###
+		// ##.
 		if state == Poly {
 			switch {
 			case bytes.Contains(buf, []byte("x")):
