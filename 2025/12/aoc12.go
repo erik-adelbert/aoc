@@ -47,7 +47,7 @@ func main() {
 		buf := input.Bytes()
 
 		// ---- polyomino processing phase ----
-		// ex with ncells=6:
+		// ex. buf format with ncells=6:
 		// .#.
 		// ###
 		// ##.
@@ -57,6 +57,7 @@ func main() {
 				// grid layout line indicates end of polyominoes
 				flushBlock()
 				state = Grid
+				// proceed to grid processing phase
 
 			case len(buf) == 0:
 				// end of current block
@@ -71,14 +72,10 @@ func main() {
 		}
 
 		// ---- grid processing phase ----
-		// line format: "WxH: n0 n1 n2 n3 n4 n5"
+		// buf format: "WxH: n0 n1 n2 n3 n4 n5"
+		lhs, rhs, _ := bytes.Cut(buf, []byte(": ")) // [WxH] [n0 n1 n2 n3 n4 n5]
 
-		lhs, rhs, ok := bytes.Cut(buf, []byte(": ")) // [WxH] [n0 n1 n2 n3 n4 n5]
-		if !ok {
-			continue
-		}
-
-		// parse grid line and calculate area
+		// parse grid dimensions and calculate area
 		w, h, _ := bytes.Cut(lhs, []byte("x")) // [W] [H]
 		area := atoi(w) * atoi(h)
 
