@@ -22,8 +22,17 @@ func main() {
 	t0 := time.Now()   // start timer
 	var acc1, acc2 int // parts 1 and 2 accumulators
 
-	var nextID int
-	IDs := make(map[string]int, MaxIDHint)
+	var IDs [26 * 26 * 26]int // map string hash to integer ID
+	var nextID = 1
+
+	id := func(s string) int {
+		if IDs[h(s)] == 0 {
+			IDs[h(s)] = nextID // assign new ID
+			nextID++
+		}
+
+		return IDs[h(s)]
+	}
 
 	edges := make([][]int, MaxIDHint)
 
@@ -33,23 +42,13 @@ func main() {
 
 		src, dst := parts[0], strings.Fields(parts[1])
 
-		if _, ok := IDs[src]; !ok {
-			IDs[src] = nextID // assign new ID
-			nextID++
-		}
-
 		for _, d := range dst {
-			if _, ok := IDs[d]; !ok {
-				IDs[d] = nextID
-				nextID++
-			}
-
-			edges[IDs[src]] = append(edges[IDs[src]], IDs[d])
+			edges[id(src)] = append(edges[id(src)], id(d))
 		}
 	}
 
 	// part 1 use DFS to count all paths
-	you, out := IDs["you"], IDs["out"]
+	you, out := id("you"), id("out")
 
 	q := make([]int, 0, MaxIDHint)
 
@@ -69,25 +68,23 @@ func main() {
 	}
 
 	// part 2 use DP to count all paths from 'svr' to 'out' that contain both 'dac' and 'fft'
-	svr, dac, fft := IDs["svr"], IDs["dac"], IDs["fft"]
+	svr, dac, fft := id("svr"), id("dac"), id("fft")
 
-	type key struct {
-		cur    int
-		hasDac bool
-		hasFft bool
-	}
-	dp := make(map[key]int)
+	dp := make(map[uint32]int)
 
-	var recount func(cur int, seen []int, hasDac, hasFft bool) int
+	// presence map to avoid cycles
+	seen := make([]int, MaxIDHint)
 
-	recount = func(cur int, seen []int, hasDac, hasFft bool) int {
-		key := key{cur, hasDac, hasFft}
+	var recount func(cur int, hasDac, hasFft bool) int
+
+	recount = func(cur int, hasDac, hasFft bool) int {
+		k := hk(cur, hasDac, hasFft)
 
 		if seen[cur] > 0 {
 			return 0
 		}
 
-		if v, ok := dp[key]; ok {
+		if v, ok := dp[k]; ok {
 			return v
 		}
 
@@ -106,20 +103,34 @@ func main() {
 			if seen[nxt] == 0 {
 				count += recount(
 					nxt,
-					seen,
 					hasDac || nxt == dac,
 					hasFft || nxt == fft,
 				)
 			}
 		}
 
-		dp[key] = count
+		dp[k] = count
 		return count
 	}
 
-	acc2 = recount(svr, make([]int, MaxIDHint), svr == dac, svr == fft)
+	acc2 = recount(svr, svr == dac, svr == fft)
 
 	fmt.Println(acc1, acc2, time.Since(t0))
 }
 
-const MaxIDHint = 615
+const MaxIDHint = 616
+
+func h(s string) int {
+	return int(s[0]-'a')*26*26 + int(s[1]-'a')*26 + int(s[2]-'a')
+}
+
+func hk(cur int, hasDac, hasFft bool) uint32 {
+	k := uint32(cur) << 2
+	if hasDac {
+		k |= 1 << 1
+	}
+	if hasFft {
+		k |= 1
+	}
+	return k
+}

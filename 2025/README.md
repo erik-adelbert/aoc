@@ -51,8 +51,8 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
 - [Why have I changed the timings?](#why-have-i-changed-the-timings-) - Timings and evaluation
 - [Day 9: Movie Theater](#day-9-movie-theater-) - Prefix sums, 2D compress coordinates and cache optimization
 - [Day 10: Factory](#day-10-factory-) - BFS and ILP solver
-- [Day 11: Reactor](#day-11-reactor-) - Graph DFS and DP
-- [Day 12: Christmas Tree Farm](#day-12-christmas-tree-farm-) - Heuristic
+- [Day 11: Reactor](#day-11-reactor-) - Graph DFS and DP, Hashing
+- [Day 12: Christmas Tree Farm](#day-12-christmas-tree-farm-) - Parsing and Heuristic
 - [How was it?](#how-was-it-)
 - [More Metrics](#more-metrics-)
 
@@ -611,6 +611,8 @@ Today I needed to move quickly through composing the [solution](https://github.c
 To this end, I used [recursive](https://en.wikipedia.org/wiki/Recursion) [DFS](https://en.wikipedia.org/wiki/Depth-first_search) and [DP](https://en.wikipedia.org/wiki/Dynamic_programming) to solve parts 1 and 2, because they are fast to compose and the part 1 result clearly shows that part 2 would otherwise require an intractable search space. I also translated all three-letter tags into fixed indices so I could perform all searches in the integer domain. Believe it or not, there’s still room for additional micro-optimizations like iterate computations, and at some point I’ll come back to implement them.
 
 `<EDIT>` part 1 is iterative now but I think I'll leave part 2 alone because it won't stay as neat otherwise.
+
+`<EDIT>` I’ve upped the ante by speeding up the maps. For the three-letter tags, I eliminated the map entirely thanks to the small hash space. For the DP state, I converted it to a uint32 using an ad-hoc hashing routine. It runs in under 285µs.
 
 ```bash
 ❯ make run
