@@ -32,7 +32,9 @@ func main() {
 	for i := 0; input.Scan(); i++ { // enumerate input rows
 		buf := input.Bytes()
 
-		grid.size = len(buf)
+		if i == 0 {
+			grid.size = len(buf)
+		}
 
 		copy(grid.data[i*grid.size:], buf) // flat copy into grid
 	}
@@ -164,7 +166,7 @@ type grid struct {
 // newGrid creates a new grid of given size
 func newGrid(size int) *grid {
 	return &grid{
-		data: make([]byte, MaxGridSize*MaxGridSize),
+		data: make([]byte, sq(MaxGridSize)),
 		size: size,
 	}
 }
