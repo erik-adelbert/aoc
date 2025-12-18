@@ -612,21 +612,15 @@ To this end, I used [recursive](https://en.wikipedia.org/wiki/Recursion) [DFS](h
 
 `<EDIT>` part 1 is iterative now but I think I'll leave part 2 alone because it won't stay as neat otherwise.
 
-`<EDIT>` I’ve upped the ante by speeding up the maps. For the three-letter tags, I eliminated the map entirely thanks to the small hash space. For the DP state, I converted it to a uint32 using an ad-hoc hashing routine. It runs in under 285µs.
+`<EDIT>` I’ve upped the ante by speeding up the maps. For the three-letter tags, I eliminated the map entirely thanks to the small hash space. For the DP state, I converted it to a uint32 using an ad-hoc hashing routine. It runs in under 281µs.
 
 ```bash
-❯ make run
-go run ./aoc11.go < input.txt
-615 303012373210128 447.5µs
-❯ best=999999999
-for i in {1..100}; do
-  t=$(make run 2>&1 | grep -oE '[0-9]+\.[0-9]+µs' | head -1 | sed 's/µs//')
-  if [ -n "$t" ] && [ "$(echo "$t < $best" | bc)" -eq 1 ]; then
-    best=$t
-  fi
-done
-echo "Best time: $best µs"
-Best time: 370.084 µs
+❯ make bench
+go build aoc11.go
+../bench.sh aoc11
+Best time: 280.583 µs
+go clean
+rm -f aoc11
 ```
 
 ## Day 12: [Christmas Tree Farm](https://adventofcode.com/2025/day/12) [↑](#summary)
@@ -644,15 +638,12 @@ So I already knew that solving it that way was off the table. But that was actua
 I needed something simple—something I could search and test on the sample, but that would also scale cleanly to the full input. **I won’t spoil what my solution is today**; I can’t even guarantee that it will work for you, but I can explain why it should. And here’s the good news:
 
 ```bash
-❯ best=999999999
-for i in {1..100}; do
-  t=$(make run 2>&1 | grep -oE '[0-9]+\.[0-9]+µs' | head -1 | sed 's/µs//')
-  if [ -n "$t" ] && [ "$(echo "$t < $best" | bc)" -eq 1 ]; then
-    best=$t
-  fi
-done
-echo "Best time: $best µs"
-Best time: 118.916 µs
+❯ make bench
+go build aoc12.go
+../bench.sh aoc12
+Best time: 119.375 µs
+go clean
+rm -f aoc12
 ```
 
 My collection runs all problems for the entire edition in roughly ~~`~9ms`~~ `4.6ms`.

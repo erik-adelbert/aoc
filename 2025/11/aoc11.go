@@ -22,48 +22,59 @@ func main() {
 	t0 := time.Now()   // start timer
 	var acc1, acc2 int // parts 1 and 2 accumulators
 
-	var IDs [26 * 26 * 26]int // map string hash to integer ID
-	var nextID = 1
+	var IDs [26 * 26 * 26]int // map [a..z][a..z][a..z] to integer ID
+	var nextID = 1            // next available ID
 
+	// id returns the unique integer ID for a 3-letter string
 	id := func(s string) int {
-		if IDs[h(s)] == 0 {
-			IDs[h(s)] = nextID // assign new ID
-			nextID++
+		k := idh(s) // compute hash key
+
+		// lazily assign ID
+		if IDs[k] == 0 { // check if not assigned yet
+			IDs[k] = nextID // assign new ID
+			nextID++        // advance next ID
 		}
 
-		return IDs[h(s)]
+		return IDs[k]
 	}
 
-	edges := make([][]int, MaxIDHint)
+	// read graph edges as adjacency lists
+	edges := make([][]int, MaxID)
 
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
+		// parse line: "src: dst1 dst2 dst3 ..."
 		parts := strings.Split(input.Text(), ":")
 
-		src, dst := parts[0], strings.Fields(parts[1])
+		// src and [dst1 dst2 ...]
+		src, dsts := parts[0], strings.Fields(parts[1]) // car and cons
 
-		for _, d := range dst {
-			edges[id(src)] = append(edges[id(src)], id(d))
+		// add edges
+		for _, d := range dsts {
+			sk, dk := id(src), id(d)
+
+			edges[sk] = append(edges[sk], dk)
 		}
 	}
 
-	// part 1 use DFS to count all paths
+	// part 1 use DFS to count all paths from 'you' to 'out'
 	you, out := id("you"), id("out")
 
-	q := make([]int, 0, MaxIDHint)
+	stack := make([]int, 0, MaxID)
 
-	q = append(q, you)
-	for len(q) > 0 {
-		cur := q[len(q)-1]
-		q = q[:len(q)-1]
+	stack = append(stack, you)
+	for len(stack) > 0 {
+		cur := stack[len(stack)-1] // pop
+		stack = stack[:len(stack)-1]
 
 		if cur == out {
 			acc1++
-			continue
+			continue // don't expand further
 		}
 
+		// expand
 		for _, nxt := range edges[cur] {
-			q = append(q, nxt)
+			stack = append(stack, nxt)
 		}
 	}
 
@@ -73,34 +84,38 @@ func main() {
 	dp := make(map[uint32]int)
 
 	// presence map to avoid cycles
-	seen := make([]int, MaxIDHint)
+	seen := make([]int, MaxID)
 
 	var recount func(cur int, hasDac, hasFft bool) int
 
 	recount = func(cur int, hasDac, hasFft bool) int {
-		k := hk(cur, hasDac, hasFft)
+		k := dpk(cur, hasDac, hasFft) // unique key
 
+		// cycle detection
 		if seen[cur] > 0 {
 			return 0
 		}
 
+		// memoization check
 		if v, ok := dp[k]; ok {
 			return v
 		}
 
+		// base case
 		if cur == out {
 			if hasDac && hasFft {
-				return 1
+				return 1 // valid path
 			}
 			return 0
 		}
 
-		seen[cur]++
+		seen[cur]++                    // mark current node as seen
 		defer func() { seen[cur]-- }() // backtrack on return
 
+		// explore neighbors
 		count := 0
 		for _, nxt := range edges[cur] {
-			if seen[nxt] == 0 {
+			if seen[nxt] == 0 { // recurse only if not already visited
 				count += recount(
 					nxt,
 					hasDac || nxt == dac,
@@ -109,6 +124,7 @@ func main() {
 			}
 		}
 
+		// memoize and return
 		dp[k] = count
 		return count
 	}
@@ -118,19 +134,25 @@ func main() {
 	fmt.Println(acc1, acc2, time.Since(t0))
 }
 
-const MaxIDHint = 616
+// MaxID is the maximum number of unique 3-letter IDs
+const MaxID = 616
 
-func h(s string) int {
+// idh computes a hash for a 3-letter string
+func idh(s string) int {
 	return int(s[0]-'a')*26*26 + int(s[1]-'a')*26 + int(s[2]-'a')
 }
 
-func hk(cur int, hasDac, hasFft bool) uint32 {
+// dpk computes a unique key for DP memoization
+func dpk(cur int, hasDac, hasFft bool) uint32 {
 	k := uint32(cur) << 2
+
 	if hasDac {
 		k |= 1 << 1
 	}
+
 	if hasFft {
 		k |= 1
 	}
+
 	return k
 }
