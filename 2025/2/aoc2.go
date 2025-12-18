@@ -37,59 +37,58 @@ func main() {
 
 		a, b := atoi(bufA), atoi(bufB)
 
-		sub1, sub2 := 0, 0                 // partial sums for this span
+		// sub1, sub2 := 0, 0                 // partial sums for this span
 		for a, b := range allSpans(a, b) { // split into aligned subranges
 			switch {
-			case a >= 1_000_000_000:
+			case a >= 1e9:
 				const seed1, seed2, lcm = 100_001, 101_010_101, 1_111_111_111
 
 				// sum all multiples of seed1 over [a, b]
-				sub1 += sm(a, b, seed1)
+				acc1 += sm(a, b, seed1)
 
 				// sum multiples of seed2, subtracting common multiples of seed1&2 already counted in sub1
-				sub2 += sm(a, b, seed2) - sm(a, b, lcm)
-			case a >= 100_000_000:
+				acc2 += sm(a, b, seed2) - sm(a, b, lcm)
+			case a >= 1e8:
 				const seed2a, seed2b = 1_001_001, 111_111_111
 
-				sub2 += sm(a, b, seed2a)
-				sub2 += sm(a, b, seed2b)
-			case a >= 10_000_000:
+				acc2 += sm(a, b, seed2a)
+				acc2 += sm(a, b, seed2b)
+			case a >= 1e7:
 				const seed1, seed2 = 10_001, 11_111_111
 
-				sub1 += sm(a, b, seed1)
+				acc1 += sm(a, b, seed1)
 
-				sub2 += sm(a, b, seed2)
-			case a >= 1_000_000:
+				acc2 += sm(a, b, seed2)
+			case a >= 1e6:
 				const seed2 = 1_111_111
 
-				sub2 += sm(a, b, seed2)
-			case a >= 100_000:
+				acc2 += sm(a, b, seed2)
+			case a >= 1e5:
 				const seed1, seed2, lcm = 1_001, 10_101, 111_111
 
-				sub1 += sm(a, b, seed1)
-
-				sub2 += sm(a, b, seed2) - sm(a, b, lcm)
-			case a >= 10_000:
+				acc1 += sm(a, b, seed1)
+				acc2 += sm(a, b, seed2) - sm(a, b, lcm)
+			case a >= 1e4:
 				const seed2 = 11_111
 
-				sub2 += sm(a, b, seed2)
-			case a >= 1_000:
+				acc2 += sm(a, b, seed2)
+			case a >= 1e3:
 				const seed1 = 101
 
-				sub1 += sm(a, b, seed1)
-			case a >= 100:
+				acc1 += sm(a, b, seed1)
+			case a >= 1e2:
 				const seed2 = 111
 
-				sub2 += sm(a, b, seed2)
-			case a >= 10:
+				acc2 += sm(a, b, seed2)
+			case a >= 1e1:
 				const seed1 = 11
 
-				sub1 += sm(a, b, seed1)
+				acc1 += sm(a, b, seed1)
 			}
 		}
 
-		acc1 += sub1
-		acc2 += sub2
+		// acc1 += sub1
+		// acc2 += sub2
 	}
 	acc2 += acc1 // part 2 includes part 1
 

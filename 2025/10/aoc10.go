@@ -74,7 +74,7 @@ func main() {
 		acc2 += r.p2
 	}
 
-	fmt.Printf("%d %d %dμs\n", acc1, acc2, time.Since(t0).Microseconds())
+	fmt.Println(acc1, acc2, time.Since(t0))
 }
 
 type parts struct{ p1, p2 uint16 }
