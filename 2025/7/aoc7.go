@@ -37,26 +37,27 @@ func main() {
 		buf := input.Bytes()
 
 		for i := range buf {
-			if buf[i] == Prism {
-				if paths[i] > 0 {
-					acc1 += 1 // part1: count splits
-
-					// adding paths count to acc2 here is miai with #L61-63 below
-					// acc2 += paths[i]
-				}
-
-				// split paths to left and right
-				// always splitting is faster than including it inside #L41 test
-				// because of the speculative execution
-				paths[i-1] += paths[i] // add to left
-				paths[i+1] += paths[i] // add to right
-				paths[i] = 0           // clear paths at split position
+			if buf[i] != Prism {
+				continue // only process prisms '^'
 			}
+
+			if paths[i] > 0 {
+				acc1 += 1 // part1: count splits
+
+				// adding paths count to acc2 here is miai with #L62-64 below
+			}
+
+			// split paths to left and right
+			// always splitting is faster than including it inside #L41 test
+			// because of the speculative execution
+			paths[i-1] += paths[i] // add to left
+			paths[i+1] += paths[i] // add to right
+			paths[i] = 0           // clear paths at split position
 		}
 	}
 
 	// part 2: sum all active path counts
-	// batch adding here is faster than adding one-by-one at #L45
+	// batch adding here is faster than adding one-by-one at #L47
 	// because it is optimally sequential memory access
 	for i := range paths {
 		acc2 += paths[i]
