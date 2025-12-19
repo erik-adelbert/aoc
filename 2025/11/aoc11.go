@@ -85,7 +85,7 @@ func main() {
 	dp := make(map[uint32]int)
 
 	// presence map to avoid cycles
-	seen := make([]int, MaxID)
+	seen := make([]uint8, MaxID)
 
 	var recount func(cur int, hasDac, hasFft bool) int
 
@@ -93,13 +93,13 @@ func main() {
 		k := dpk(cur, hasDac, hasFft) // unique key
 
 		// cycle detection
-		if seen[cur] > 0 {
+		if seen[cur] == Seen {
 			return 0
 		}
 
 		// memoization check
-		if v, ok := dp[k]; ok {
-			return v
+		if count, ok := dp[k]; ok {
+			return count
 		}
 
 		// base case
@@ -110,13 +110,13 @@ func main() {
 			return 0
 		}
 
-		seen[cur]++                    // mark current node as seen
-		defer func() { seen[cur]-- }() // backtrack on return
+		seen[cur] = Seen                      // mark current node as seen
+		defer func() { seen[cur] = Unseen }() // backtrack on return
 
 		// explore neighbors
 		count := 0
 		for _, nxt := range edges[cur] {
-			if seen[nxt] == 0 { // recurse only if not already visited
+			if seen[nxt] == Unseen { // recurse only if not already visited
 				count += recount(
 					nxt,
 					hasDac || nxt == dac,
@@ -134,6 +134,12 @@ func main() {
 
 	fmt.Println(acc1, acc2, time.Since(t0))
 }
+
+const (
+	// sugars for presence map
+	Unseen = iota
+	Seen
+)
 
 const (
 	// MaxID is the maximum number of unique 3-letter IDs expected in input

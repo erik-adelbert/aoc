@@ -1,6 +1,6 @@
 # Summary
 
-This repository contains optimized solutions for Advent of Code 2025, implemented in [Go](https://en.wikipedia.org/wiki/Go_(programming_language)) with a focus on performance and educational value. The whole collection runs all days and all parts in about ~~9~~ 4.5ms. Each day is solved in a single, dependency-free [Go](https://go.dev) file.
+This repository contains optimized solutions for Advent of Code 2025, implemented in [Go](https://en.wikipedia.org/wiki/Go_(programming_language)) with a focus on performance and educational value. The whole collection runs all days and all parts in about 4.3 ms. Each day is solved in a single, dependency-free [Go](https://go.dev) file.
 
 ## Quick Navigation
 
@@ -64,19 +64,19 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
 
 | Day                                 | Time (μs) | % of Total  |
 |-------------------------------------|----------:|------------:|
-| [**2**](#day-2-gift-shop-)          |         8 |       0.18% |
-| [7](#day-7-laboratories-)           |        34 |       0.76% |
-| [5](#day-5-cafeteria-)              |        96 |       2.14% |
-| [12](#day-12-christmas-tree-farm-)  |       119 |       2.65% |
-| [1](#day-1-secret-entrance-)        |       136 |       3.03% |
-| [6](#day-6-trash-compactor-)        |       151 |       3.36% |
-| [3](#day-3-lobby-)                  |       228 |       5.08% |
-| [10](#day-10-factory-)              |       366 |       8.15% |
-| [11](#day-11-reactor-)              |       368 |       8.20% |
-| [4](#day-4-printing-department-)    |       762 |      16.97% |
-| [9](#day-9-movie-theater-)          |     1,037 |      23.09% |
-| [8](#day-8-playground-)             |     1,187 |      26.45% |
-| **Total**                           | **4,491** | **100.00%** |
+| [**2**](#day-2-gift-shop-)          |         8 |       0.19% |
+| [7](#day-7-laboratories-)           |        30 |       0.70% |
+| [5](#day-5-cafeteria-)              |        95 |       2.20% |
+| [12](#day-12-christmas-tree-farm-)  |       119 |       2.76% |
+| [1](#day-1-secret-entrance-)        |       134 |       3.11% |
+| [6](#day-6-trash-compactor-)        |       150 |       3.48% |
+| [3](#day-3-lobby-)                  |       199 |       4.62% |
+| [11](#day-11-reactor-)              |       270 |       6.26% |
+| [10](#day-10-factory-)              |       366 |       8.49% |
+| [4](#day-4-printing-department-)    |       760 |      17.63% |
+| [9](#day-9-movie-theater-)          |     1,037 |      24.07% |
+| [8](#day-8-playground-)             |     1,142 |      26.49% |
+| **Total**                           | **4,310** | **100.00%** |
 
 fastest of 100 runs for part1&2 in μs - mbair M1/16GB - darwin 24.6.0 - go1.25.3 darwin/arm64 with greentea GC - 2025-12
 
@@ -612,7 +612,7 @@ To this end, I used [recursive](https://en.wikipedia.org/wiki/Recursion) [DFS](h
 
 `<EDIT>` part 1 is iterative now but I think I'll leave part 2 alone because it won't stay as neat otherwise.
 
-`<EDIT>` I’ve upped the ante by speeding up the maps. For the three-letter tags, I eliminated the map entirely thanks to the small hash space. For the DP state, I converted it to a uint32 using an ad-hoc hashing routine. It runs in under 281µs.
+`<EDIT>` I’ve upped the ante by speeding up the maps. For the three-letter tags, I eliminated the map entirely thanks to the small hash space. For the DP state, I converted it to a uint32 using an ad-hoc hashing routine. It runs in under 270µs.
 
 ```bash
 ❯ make bench
@@ -678,63 +678,79 @@ PS. I’m trying to compete in the `Red(dit) One` part of AoC, namely for [Day 1
   <img src="./images/lumon.jpg" alt="A Severance Lumon OS screen displaying numbers" width="60%" />
 </div>
 
+### Inputs
+
+| Day  | Lines | Chars | Type    |
+|:-----|------:|------:|---------|
+| 1    |    5K |   20K | numbers |
+| 2    |     1 |   500 | numbers |
+| 3    |   200 |   20K | strings |
+| 4    |   150 |   20K | grid    |
+| 5    |    1K |   20K | numbers |
+| 6    |    10 |   20K | grid    |
+| 7    |   200 |   20K | grid    |
+| 8    |    1K |   20K | numbers |
+| 9    |   500 |    6K | numbers |
+| 10   |   200 |   20K | tokens  |
+| 11   |    1K |   10K | strings |
+| 12   |    1K |   20K | hybrid  |
+
 ### LOC
 
 | Day | Go Lines |
 |:----|---------:|
-|   7 |       38 |
-|   3 |       64 |
-|  12 |       61 |
-|   5 |       85 |
-|  11 |       86 |
-|   6 |       87 |
-|   8 |      112 |
-|   1 |      117 |
-|   9 |      116 |
-|   4 |      203 |
-|   2 |      258 |
-|  10 |      381 |
+| 7   |       39 |
+| 3   |       64 |
+| 12  |       66 |
+| 5   |       77 |
+| 6   |       88 |
+| 11  |      102 |
+| 1   |      117 |
+| 8   |      119 |
+| 9   |      121 |
+| 2   |      255 |
+| 4   |      205 |
+| 10  |      382 |
 
 ```bash
 ❯ cloc 1 2 3 4 5 6 7 8 9 10 11 12
-      63 text files.
-      53 unique files.
+      64 text files.
+      54 unique files.
       12 files ignored.
 
-github.com/AlDanial/cloc v 2.06  T=0.05 s (1119.8 files/s, 265075.6 lines/s)
+github.com/AlDanial/cloc v 2.06  T=0.05 s (1100.1 files/s, 260793.0 lines/s)
 -------------------------------------------------------------------------------
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
 Text                            26             14              0           9903
-Go                              15            507            385           1608
+Go                              15            522            439           1635
+Python                           2             29             35            139
 Markdown                         9             12              0             71
-Python                           1              9             13             22
 make                             2              0              0              2
 -------------------------------------------------------------------------------
-SUM:                            53            542            398          11606
+SUM:                            54            577            474          11750
 -------------------------------------------------------------------------------
 ```
 
 ### Cyclomatic complexity over 10
 
 ```bash
-❯ make cyclo
-19 main main 6/aoc6.go:21:1
-19 main main 4/aoc4.go:22:1
-17 main main 11/aoc11.go:21:1
-17 main min3D 10/aoc10.go:386:1
-16 main main 9/aoc9.go:13:1
-16 main part2 10/aoc10.go:115:1
-13 main hnf 10/aoc10.go:205:1
+20 main main 4/aoc4.go:22:1
+19 main main 6/aoc6.go:23:1
+17 main main 9/aoc9.go:13:1
+17 main min3D 10/aoc10.go:419:1
+16 main main 11/aoc11.go:21:1
+16 main part2 10/aoc10.go:124:1
+14 main main 8/aoc8.go:25:1
+13 main hnf 10/aoc10.go:225:1
 12 main main 2/aoc2.go:24:1
-12 main min2D 10/aoc10.go:318:1
-11 main main 8/aoc8.go:24:1
-Average: 4.92
+12 main min2D 10/aoc10.go:350:1
+Average: 4.91
 ```
 
 Day 10 is a major contributor in this table, and implementing [BLAS](https://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms) algorithms is certainly quite sophisticated. For instance, they are usually as huge (LOC-wise) as they are fast; this means that the code bails out at the first opportunity, leading to a mechanical increase in cyclomatic complexity. It’s no wonder the [simplex algorithm](https://en.wikipedia.org/wiki/Simplex_algorithm) of my first approach was rated 41. Implementing one is not easy and introduces challenges ranging from structural design to numerical instability. It’s a sophisticated technique developed in the mid-20th century that reached peak prominence in the late 1990s. With recent progress in applying [linear programming](https://en.wikipedia.org/wiki/Linear_programming) to AI, it’s seeing a revival in certain hybrid AI [planning](https://arxiv.org/abs/2509.21014) pipelines.
 
-Complexity in [10-20] always ends up in main(). It’s proof that I focused on speed this year, but hopefully the solutions are still easy to read. Still I am quite happy with an average of 4.92.
+Complexity in [10-20] always ends up in main(). It’s proof that I focused on speed this year, but hopefully the solutions are still easy to read. Still I am quite happy with an average of 4.91.
 
 [Cyclomatic complexity](https://en.wikipedia.org/wiki/Cyclomatic_complexity) is debatable, but as I see it, it is a convenient way to classify the kind of [testing](https://en.wikipedia.org/wiki/Software_testing) needed to prove [correctness](https://en.wikipedia.org/wiki/Correctness_(computer_science)).
 
@@ -752,7 +768,6 @@ Complexity in [10-20] always ends up in main(). It’s proof that I focused on s
 <div align="center">
   <img src="./images/calendar.png" alt="AoC 2025 ASCII Art" width="60%" />
 </div>
-
 
 <br>
 <br>
