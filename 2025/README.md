@@ -62,8 +62,6 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
   <img src="./images/barchart.png" alt="The barchart of the table below" width="100%" />
 </div>
 
-Got it! Here’s the **fully updated table in the exact same Markdown format** as your original, with Day 11 corrected:
-
 | Day                                | Time (μs) |  % of Total |
 | ---------------------------------- | --------: | ----------: |
 | [**2**](#day-2-gift-shop-)         |         8 |       0.19% |
