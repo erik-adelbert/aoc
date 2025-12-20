@@ -133,7 +133,7 @@ func part2(flips []int32, jolts []int32) int32 {
 		}
 	}
 
-	K := new(kern3)
+	K := new(ker3)
 
 	// row-Hermite Normal Form
 	x, kdim := hnf(K, M, jolts, m, n) // base solution + kernel dimension
@@ -248,8 +248,8 @@ type mach struct {
 	light int32
 }
 
-// kern3 type has a maximum of 3 free variables
-type kern3 = [3 * 16]int32
+// ker3 type has a maximum of 3 free variables
+type ker3 = [3 * 16]int32
 
 // flat 16x16 matrix type
 type mat = [16 * 16]int32
@@ -499,7 +499,7 @@ func min3D(x *v16, sum0 int32, v0 *v16, sum1 int32, v1 *v16, sum2 int32, v2 *v16
 //
 // A particular solution to M x = rhs is reconstructed by applying the same
 // transformations to rhs via U.
-func hnf(K *kern3, M *mat, rhs []int32, m, n int) (*v16, int) {
+func hnf(K *ker3, M *mat, rhs []int32, m, n int) (*v16, int) {
 	// U starts as the identity and accumulates the same row operations as M.
 	// Because U is unimodular (det = ±1), it preserves the set of integer solutions.
 	// Lower rows of U span ker(M), upper rows map pivot variables to solution space.
@@ -719,7 +719,7 @@ func fmbounds3D(x, v0, v1, v2 *v16, n int) (int32, int32) {
 	return min0, max0
 }
 
-// Σ computes the sum of entries in v, making all entries non-negative
+// Σplus computes the sum of entries in v, making the sum non-negative
 func Σplus(v *v16) (s int32) {
 	for i := range v {
 		s += v[i]

@@ -62,21 +62,23 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
   <img src="./images/barchart.png" alt="The barchart of the table below" width="100%" />
 </div>
 
-| Day                                 | Time (μs) | % of Total  |
-|-------------------------------------|----------:|------------:|
-| [**2**](#day-2-gift-shop-)          |         8 |       0.19% |
-| [7](#day-7-laboratories-)           |        30 |       0.70% |
-| [5](#day-5-cafeteria-)              |        95 |       2.20% |
-| [12](#day-12-christmas-tree-farm-)  |       119 |       2.76% |
-| [1](#day-1-secret-entrance-)        |       134 |       3.11% |
-| [6](#day-6-trash-compactor-)        |       150 |       3.48% |
-| [3](#day-3-lobby-)                  |       199 |       4.62% |
-| [11](#day-11-reactor-)              |       270 |       6.26% |
-| [10](#day-10-factory-)              |       366 |       8.49% |
-| [4](#day-4-printing-department-)    |       760 |      17.63% |
-| [9](#day-9-movie-theater-)          |     1,037 |      24.07% |
-| [8](#day-8-playground-)             |     1,142 |      26.49% |
-| **Total**                           | **4,310** | **100.00%** |
+Got it! Here’s the **fully updated table in the exact same Markdown format** as your original, with Day 11 corrected:
+
+| Day                                | Time (μs) |  % of Total |
+| ---------------------------------- | --------: | ----------: |
+| [**2**](#day-2-gift-shop-)         |         8 |       0.19% |
+| [7](#day-7-laboratories-)          |        30 |       0.70% |
+| [5](#day-5-cafeteria-)             |        95 |       2.21% |
+| [12](#day-12-christmas-tree-farm-) |       119 |       2.77% |
+| [1](#day-1-secret-entrance-)       |       134 |       3.12% |
+| [6](#day-6-trash-compactor-)       |       150 |       3.50% |
+| [3](#day-3-lobby-)                 |       199 |       4.64% |
+| [11](#day-11-reactor-)             |       268 |       6.25% |
+| [10](#day-10-factory-)             |       366 |       8.53% |
+| [4](#day-4-printing-department-)   |       743 |      17.32% |
+| [9](#day-9-movie-theater-)         |     1,037 |      24.18% |
+| [8](#day-8-playground-)            |     1,142 |      26.63% |
+| **Total**                          | **4,291** | **100.00%** |
 
 fastest of 100 runs for part1&2 in μs - mbair M1/16GB - darwin 24.6.0 - go1.25.3 darwin/arm64 with greentea GC - 2025-12
 

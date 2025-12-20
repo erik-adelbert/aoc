@@ -42,8 +42,8 @@ func main() {
 	// scan for roll removal using single buffer + double-buffered queue approach
 
 	// preallocate double buffer queues
-	queue0 := make([]int, 0, sq(grid.size)) // read queue
-	queue1 := make([]int, 0, sq(grid.size)) // write queue
+	queue0 := make([]int, 0, 4*sq(grid.size)/5) // read queue
+	queue1 := make([]int, 0, 4*sq(grid.size)/5) // write queue
 
 	// preallocate presence maps
 	seen := make([]bool, sq(grid.size))
@@ -95,12 +95,12 @@ func main() {
 		nremove := len(updates)
 
 		// apply all removals at once
-		for i := range slices.Values(updates) { // indirect addressing of data
+		for i := range slices.Values(updates) { // indirect addressing of updates
 			grid.data[i] = Empty
 		}
 
 		// queue neighbors of removed rolls for next iteration
-		for i := range slices.Values(updates) { // indirect addressing of data
+		for i := range slices.Values(updates) { // indirect addressing of updates
 			r, c := i/grid.size, i%grid.size
 
 			// neighbor bounds
@@ -159,14 +159,13 @@ const (
 
 // grid represents a 2D grid of bytes in row-major order
 type grid struct {
-	data []byte // flat data
+	data [MaxGridSize * MaxGridSize]byte // flat data
 	size int
 }
 
 // newGrid creates a new grid of given size
 func newGrid(size int) *grid {
 	return &grid{
-		data: make([]byte, sq(MaxGridSize)),
 		size: size,
 	}
 }
