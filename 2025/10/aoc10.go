@@ -464,12 +464,11 @@ func min2D(x *v16, sum0 int32, v0 *v16, sum1 int32, v1 *v16, n int, best int32) 
 func min3D(x *v16, sum0 int32, v0 *v16, sum1 int32, v1 *v16, sum2 int32, v2 *v16, n int) int32 {
 	min0, max0 := fmbounds3D(x, v0, v1, v2, n)
 
-	// x = slices.Clone(x) // work on a copy of x
 	for i := range x {
 		x[i] += min0 * v0[i]
 	}
 
-	var xx v16 = *x // backup x
+	var xx v16 = *x // working copy
 	sum := min0 * sum0
 
 	best := sum + min2D(&xx, sum1, v1, sum2, v2, n, math.MaxInt16)

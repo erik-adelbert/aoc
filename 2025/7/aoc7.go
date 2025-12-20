@@ -23,7 +23,7 @@ func main() {
 
 	var acc1, acc2 int // parts 1 and 2 accumulators
 
-	paths := make([]int, MaxWidth) // count of paths at each position
+	var paths [MaxWidth]int // count of paths at each position
 
 	input := bufio.NewScanner(os.Stdin)
 	input.Scan()
