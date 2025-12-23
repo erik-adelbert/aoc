@@ -70,13 +70,13 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
 | [12](#day-12-christmas-tree-farm-) |       119 |       2.90% |
 | [1](#day-1-secret-entrance-)       |       134 |       3.26% |
 | [6](#day-6-trash-compactor-)       |       150 |       3.65% |
-| [11](#day-11-reactor-)             |       157 |       3.82% |
-| [3](#day-3-lobby-)                 |       199 |       4.84% |
+| [11](#day-11-reactor-)             |       157 |       3.83% |
+| [3](#day-3-lobby-)                 |       195 |       4.75% |
 | [10](#day-10-factory-)             |       366 |       8.91% |
-| [4](#day-4-printing-department-)   |       743 |      18.08% |
-| [9](#day-9-movie-theater-)         |     1,037 |      25.24% |
-| [8](#day-8-playground-)            |     1,130 |      27.50% |
-| **Total**                          | **4,108** | **100.00%** |
+| [4](#day-4-printing-department-)   |       743 |      18.10% |
+| [9](#day-9-movie-theater-)         |     1,037 |      25.27% |
+| [8](#day-8-playground-)            |     1,130 |      27.53% |
+| **Total**                          | **4,104** | **100.00%** |
 
 fastest of 100 runs for part1&2 in μs - mbair M1/16GB - darwin 24.6.0 - go1.25.3 darwin/arm64 with greentea GC - 2025-12
 
@@ -100,7 +100,7 @@ fastest of 100 runs for part1&2 in μs - mbair M1/16GB - darwin 24.6.0 - go1.25.
 
 On this first day of AoC 2025, the challenge is reasonably tricky. It highlights the sign ambiguity of the [modulo](https://en.wikipedia.org/wiki/Modulo) operation when the remainder is negative.
 
-For today’s [solution](https://github.com/erik-adelbert/aoc/blob/main/2025/1/aoc1.go), I’m reimplementing `mod` so that it always returns a positive value, since the problem includes negative integer data (i.e., left turns). Then, as always — especially when coding for production — I validate the inputs as early as possible. In this case, it allows me to reduce the computation domain to a single wrap of the dial. By doing this consistently, I don’t need to apply any offsets (and neither do you). From there, a switch selects one of the four interesting cases and updates the counts used as passwords for parts 1 and 2.
+For today’s [solution](https://github.com/erik-adelbert/aoc/blob/main/2025/1/aoc1.go), I’m reimplementing `mod` so that it always returns a positive value, since the problem includes negative integer data (i.e., left turns). Then I validate the inputs and in this case, it allows me to reduce the computation domain to a single wrap of the dial. By doing this consistently, I don’t need to apply any offsets (and neither do you). From there, a switch selects one of the four interesting cases and updates the counts used as passwords for parts 1 and 2.
 
 `<EDIT>` I removed `mod()` because it was called only once.
 

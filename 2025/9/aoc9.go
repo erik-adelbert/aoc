@@ -94,7 +94,7 @@ func main() {
 		}
 	}
 
-	θ := func(i, j uint32) uint32 { return uint32(i)*(C+1) + uint32(j) } // linear index
+	θ := func(i, j uint32) uint32 { return i*(C+1) + j } // linear index
 
 	sums := make([]uint32, (R+1)*(C+1))
 	for i := range R {

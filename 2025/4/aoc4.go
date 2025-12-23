@@ -42,8 +42,8 @@ func main() {
 	// scan for roll removal using single buffer + double-buffered queue approach
 
 	// preallocate double buffer queues
-	queue0 := make([]int, 0, 4*sq(grid.size)/5) // read queue
-	queue1 := make([]int, 0, 4*sq(grid.size)/5) // write queue
+	queue0 := make([]int, 0, 7*sq(grid.size)/10) // read queue
+	queue1 := make([]int, 0, 7*sq(grid.size)/10) // write queue
 
 	// preallocate presence maps
 	seen := make([]bool, sq(grid.size))
