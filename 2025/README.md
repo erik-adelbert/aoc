@@ -62,21 +62,20 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
   <img src="./images/barchart.png" alt="The barchart of the table below" width="100%" />
 </div>
 
-| Day                                | Time (μs) |  % of Total |
 | ---------------------------------- | --------: | ----------: |
-| [**2**](#day-2-gift-shop-)         |         8 |       0.19% |
+| [**2**](#day-2-gift-shop-)         |         8 |       0.20% |
 | [7](#day-7-laboratories-)          |        30 |       0.73% |
-| [5](#day-5-cafeteria-)             |        95 |       2.31% |
+| [5](#day-5-cafeteria-)             |        95 |       2.32% |
 | [12](#day-12-christmas-tree-farm-) |       119 |       2.90% |
-| [1](#day-1-secret-entrance-)       |       134 |       3.26% |
-| [6](#day-6-trash-compactor-)       |       150 |       3.65% |
+| [1](#day-1-secret-entrance-)       |       134 |       3.27% |
+| [6](#day-6-trash-compactor-)       |       150 |       3.66% |
 | [11](#day-11-reactor-)             |       157 |       3.83% |
-| [3](#day-3-lobby-)                 |       195 |       4.75% |
-| [10](#day-10-factory-)             |       366 |       8.91% |
-| [4](#day-4-printing-department-)   |       743 |      18.10% |
-| [9](#day-9-movie-theater-)         |     1,037 |      25.27% |
-| [8](#day-8-playground-)            |     1,130 |      27.53% |
-| **Total**                          | **4,104** | **100.00%** |
+| [3](#day-3-lobby-)                 |       188 |       4.59% |
+| [10](#day-10-factory-)             |       366 |       8.93% |
+| [4](#day-4-printing-department-)   |       743 |      18.13% |
+| [9](#day-9-movie-theater-)         |     1,037 |      25.30% |
+| [8](#day-8-playground-)            |     1,130 |      27.57% |
+| **Total**                          | **4,097** | **100.00%** |
 
 fastest of 100 runs for part1&2 in μs - mbair M1/16GB - darwin 24.6.0 - go1.25.3 darwin/arm64 with greentea GC - 2025-12
 

@@ -85,14 +85,14 @@ func (s *seq) push(c byte) {
 	sz := len(s.digits)
 
 	// find how many trailing digits to remove
-	i := 0
-	for s.krem > i && sz-i > 0 && c > s.peek(i) {
-		i++
+	i := sz
+	for s.krem > sz-i && i > 0 && c > s.digits[i-1] {
+		i--
 	}
 
-	s.digits = s.digits[:sz-(i-1)] // slice out trailing digits
-	s.digits[sz-i] = c             // add new digit at the end
-	s.krem -= i                    // use up removals
+	s.digits = s.digits[:i+1] // slice out trailing digits
+	s.digits[i] = c           // add new digit at the end
+	s.krem -= sz - i          // use up removals
 }
 
 // val returns the integer value of the sequence
@@ -103,8 +103,5 @@ func (s *seq) val() (n int) {
 
 	return
 }
-
-// peek returns the ith last digit of the sequence
-func (s *seq) peek(i int) byte { return s.digits[len(s.digits)-1-i] }
 
 func ctoi(c byte) int { return int(c - '0') }
