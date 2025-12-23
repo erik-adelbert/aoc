@@ -15,72 +15,73 @@ import (
 	"fmt"
 	"os"
 	"slices"
-	"strings"
 	"time"
 )
 
 func main() {
 	t0 := time.Now() // start timer
 
-	var acc1, acc2 int // parts 1 and 2 accumulators
-
-	grid := newGrid(MaxGridSize)
+	var (
+		acc1, acc2 int  // parts 1 and 2 accumulators
+		grid       grid // input grid
+	)
 
 	// read input grid
 	input := bufio.NewScanner(os.Stdin)
 
+	sz := 0
 	for i := 0; input.Scan(); i++ { // enumerate input rows
 		buf := input.Bytes()
 
 		if i == 0 {
-			grid.size = len(buf)
+			sz = len(buf)
 		}
 
-		copy(grid.data[i*grid.size:], buf) // flat copy into grid
+		copy(grid[i*sz:], buf) // flat copy into grid
 	}
 
-	// scan for roll removal using single buffer + double-buffered queue approach
+	// scan for roll removal using single buffer + double-buffered queue
 
 	// preallocate double buffer queues
-	queue0 := make([]int, 0, 7*sq(grid.size)/10) // read queue
-	queue1 := make([]int, 0, 7*sq(grid.size)/10) // write queue
+	queue0 := make([]int, 0, 7*sq(sz)/10) // read queue
+	queue1 := make([]int, 0, 7*sq(sz)/10) // write queue
 
 	// preallocate presence maps
-	seen := make([]bool, sq(grid.size))
-
-	// initially, queue all roll positions
-	for i := range sq(grid.size) {
-		if grid.data[i] == Roll {
-			queue0 = append(queue0, i)
-		}
-	}
+	seen := make([]uint8, sq(sz))
 
 	// preallocate roll delete list
 	updates := make([]int, 0, RemoveSizeHint)
 
-	for {
-		// process current queue - collect removals without modifying grid
+	// initially, queue all roll positions
+	for i := range sq(sz) {
+		if grid[i] == Roll {
+			queue0 = append(queue0, i)
+		}
+	}
+
+	// removal loop
+	for gid := uint8(1); ; gid++ { // removal generation
+		// collect removals
 		for i := range slices.Values(queue0) {
-			if grid.data[i] != Roll {
+			if grid[i] != Roll {
 				continue // skip if not a roll
 			}
 
-			r, c := i/grid.size, i%grid.size
-
+			r, c := i/sz, i%sz
 			// branchless neighbor bounds
 			rα := max(0, r-1)
-			rω := min(grid.size-1, r+1)
+			rω := min(sz-1, r+1)
 			cα := max(0, c-1)
-			cω := min(grid.size-1, c+1)
+			cω := min(sz-1, c+1)
 
 			// scan neighbors -- including center roll
 			nrolls := 0
 
 			for r = rα; r <= rω; r++ {
 				for c = cα; c <= cω; c++ {
-					i := r*grid.size + c
+					i := r*sz + c
 
-					if grid.data[i] == Roll {
+					if grid[i] == Roll {
 						nrolls++
 					}
 				}
@@ -93,34 +94,8 @@ func main() {
 		}
 
 		nremove := len(updates)
-
-		// apply all removals at once
-		for i := range slices.Values(updates) { // indirect addressing of updates
-			grid.data[i] = Empty
-		}
-
-		// queue neighbors of removed rolls for next iteration
-		for i := range slices.Values(updates) { // indirect addressing of updates
-			r, c := i/grid.size, i%grid.size
-
-			// neighbor bounds
-			rα := max(0, r-1)
-			rω := min(grid.size-1, r+1)
-			cα := max(0, c-1)
-			cω := min(grid.size-1, c+1)
-
-			for r = rα; r <= rω; r++ {
-				for c = cα; c <= cω; c++ {
-					i := r*grid.size + c // linear index
-
-					if grid.data[i] == Roll { // only queue remaining rolls
-						if !seen[i] {
-							queue1 = append(queue1, i)
-							seen[i] = true
-						}
-					}
-				}
-			}
+		if nremove == 0 {
+			break // no more removals, all done!
 		}
 
 		// update counts
@@ -129,20 +104,43 @@ func main() {
 		}
 		acc2 += nremove
 
-		if nremove == 0 {
-			break // no more removals
+		// apply all removals atomically
+		for i := range slices.Values(updates) { // indirect addressing of updates
+			grid[i] = Empty
+		}
+
+		// queue neighbors of removed rolls for next iteration
+		for i := range slices.Values(updates) { // indirect addressing of updates
+			r, c := i/sz, i%sz
+
+			// neighbor bounds
+			rα := max(0, r-1)
+			rω := min(sz-1, r+1)
+			cα := max(0, c-1)
+			cω := min(sz-1, c+1)
+
+			for r = rα; r <= rω; r++ {
+				for c = cα; c <= cω; c++ {
+					i := r*sz + c // linear index
+
+					if grid[i] != Roll { // only queue remaining rolls
+						continue
+					}
+
+					if seen[i] != gid {
+						queue1 = append(queue1, i)
+						seen[i] = gid
+					}
+				}
+			}
 		}
 
 		// prepare for next iteration
-		clear(seen)           // reset presence map
-		updates = updates[:0] // reset updates
-
-		queue0 = queue1     // swap queues
-		queue1 = queue1[:0] // reset queue1
+		updates = updates[:0]               // reset updates
+		queue0, queue1 = queue1, queue0[:0] // swap queues, reset write queue
 	}
 
 	fmt.Println(acc1, acc2, time.Since(t0))
-	// fmt.Println(grid) // uncomment to see the final grid
 }
 
 const (
@@ -158,28 +156,7 @@ const (
 )
 
 // grid represents a 2D grid of bytes in row-major order
-type grid struct {
-	data [MaxGridSize * MaxGridSize]byte // flat data
-	size int
-}
-
-// newGrid creates a new grid of given size
-func newGrid(size int) *grid {
-	return &grid{
-		size: size,
-	}
-}
-
-func (g *grid) String() string {
-	var sb strings.Builder
-
-	for r := range g.size {
-		sb.Write(g.data[r*g.size : (r+1)*g.size])
-		sb.WriteByte('\n')
-	}
-
-	return sb.String()
-}
+type grid = [MaxGridSize * MaxGridSize]byte // flat data
 
 func sq(n int) int {
 	return n * n

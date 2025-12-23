@@ -1,6 +1,6 @@
 # Summary
 
-This repository contains optimized solutions for Advent of Code 2025, implemented in [Go](https://en.wikipedia.org/wiki/Go_(programming_language)) with a focus on performance and educational value. The whole collection runs all days and all parts in about 4.2 ms. Each day is solved in a single, dependency-free [Go](https://go.dev) file.
+This repository contains optimized solutions for Advent of Code 2025, implemented in [Go](https://en.wikipedia.org/wiki/Go_(programming_language)) with a focus on performance and educational value. The whole collection runs all days and all parts in about 4.1 ms. Each day is solved in a single, dependency-free [Go](https://go.dev) file.
 
 ## Quick Navigation
 
@@ -65,18 +65,18 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
 | Day                                | Time (μs) | % of Total  |
 | ---------------------------------- | --------: | ----------: |
 | [**2**](#day-2-gift-shop-)         |         8 |       0.20% |
-| [7](#day-7-laboratories-)          |        30 |       0.74% |
-| [5](#day-5-cafeteria-)             |        95 |       2.34% |
-| [12](#day-12-christmas-tree-farm-) |       119 |       2.93% |
-| [1](#day-1-secret-entrance-)       |       134 |       3.30% |
-| [6](#day-6-trash-compactor-)       |       150 |       3.69% |
-| [11](#day-11-reactor-)             |       157 |       3.87% |
-| [3](#day-3-lobby-)                 |       199 |       4.90% |
-| [10](#day-10-factory-)             |       248 |       6.11% |
-| [4](#day-4-printing-department-)   |       743 |      18.30% |
-| [9](#day-9-movie-theater-)         |     1,037 |      25.55% |
-| [8](#day-8-playground-)            |     1,142 |      28.13% |
-| **Total**                          | **4,062** | **100.00%** |
+| [7](#day-7-laboratories-)          |        30 |       0.75% |
+| [5](#day-5-cafeteria-)             |        95 |       2.37% |
+| [12](#day-12-christmas-tree-farm-) |       119 |       2.97% |
+| [1](#day-1-secret-entrance-)       |       134 |       3.34% |
+| [6](#day-6-trash-compactor-)       |       150 |       3.74% |
+| [11](#day-11-reactor-)             |       157 |       3.91% |
+| [3](#day-3-lobby-)                 |       199 |       4.96% |
+| [10](#day-10-factory-)             |       248 |       6.18% |
+| [4](#day-4-printing-department-)   |       695 |      17.32% |
+| [9](#day-9-movie-theater-)         |     1,037 |      25.84% |
+| [8](#day-8-playground-)            |     1,142 |      28.46% |
+| **Total**                          | **4,014** | **100.00%** |
 
 fastest of 100 runs for part1&2 in μs - mbair M1/16GB - darwin 24.6.0 - go1.25.3 darwin/arm64 with greentea GC - 2025-12
 
@@ -573,7 +573,7 @@ SUM:                            39            309            242           9079
 
 ### Current Approach
 
-You will find the rationale for what is done in the current [solution](https://github.com/erik-adelbert/aoc/blob/main/2025/10/aoc10.go) in this [post](https://www.reddit.com/r/adventofcode/comments/1plzhps/2025_day_10_part_2_pivot_your_way_to_victory/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button), and in particular this [answer](https://www.reddit.com/r/adventofcode/comments/1plzhps/comment/ntx2ggc/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button). The discussion goes back and forth between two of the strongest performance-oriented programmers. [`u/maneatingape`](https://www.reddit.com/user/maneatingape/), for instance, runs all days and all parts ever in under 1 second. The code features a parallelized variation of the aforementioned HNF-based solution to Part 2. It runs in under 396μs.
+You will find the rationale for what is done in the current [solution](https://github.com/erik-adelbert/aoc/blob/main/2025/10/aoc10.go) in this [post](https://www.reddit.com/r/adventofcode/comments/1plzhps/2025_day_10_part_2_pivot_your_way_to_victory/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button), and in particular this [answer](https://www.reddit.com/r/adventofcode/comments/1plzhps/comment/ntx2ggc/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button). The discussion goes back and forth between two of the strongest performance-oriented programmers. [`u/maneatingape`](https://www.reddit.com/user/maneatingape/), for instance, [runs](https://www.reddit.com/r/adventofcode/comments/1hlyocd/500_in_less_than_a_second/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button) all days and all parts ever in under 1 second. The code features a parallelized variation of the aforementioned HNF-based solution to Part 2. It runs in under 248μs with part 1 BFS being the slowest.
 
 ### First Approach
 
@@ -672,6 +672,12 @@ Happy coding!
 
 PS. I’m trying to compete in the `Red(dit) One` part of AoC, namely for [Day 1](https://www.reddit.com/r/adventofcode/comments/1pb3y8p/comment/ntzpvto/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button). Stay tuned.
 
+PS2. I have been [awarded](https://www.reddit.com/r/adventofcode/comments/1prrvfn/introducing_your_2025_reddit_one_winners_and/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button) an **Arch-Elf** title 🥈 for this work. Many thanks to this awesome community!
+
+<div align="center">
+  <img src="./images/Elfo.jpg" alt="A picture of elfo from Disenchantment" width="20%" />
+</div>
+
 ## More Metrics [↑](#summary)
 
 <div align="center">
@@ -704,62 +710,62 @@ PS. I’m trying to compete in the `Red(dit) One` part of AoC, namely for [Day 1
 | 12  |       66 |
 | 5   |       77 |
 | 6   |       88 |
-| 11  |      102 |
+| 11  |       94 |
 | 1   |      117 |
-| 8   |      119 |
+| 8   |      142 |
 | 9   |      121 |
 | 2   |      255 |
-| 4   |      205 |
-| 10  |      550 |
+| 4   |      186 |
+| 10  |      555 |
 
 ```bash
 ❯ cloc 1 2 3 4 5 6 7 8 9 10 11 12
       66 text files.
       56 unique files.
-      12 files ignored.
+      13 files ignored.
 
-github.com/AlDanial/cloc v 2.06  T=0.05 s (1132.7 files/s, 265487.6 lines/s)
+github.com/AlDanial/cloc v 2.06  T=0.05 s (1134.5 files/s, 265457.7 lines/s)
 -------------------------------------------------------------------------------
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
 Text                            26             14              0           9903
-Go                              16            570            421           1816
+Go                              16            564            416           1804
 Markdown                        10             49              0            148
 Python                           2             29             35            139
 make                             2              0              0              2
 -------------------------------------------------------------------------------
-SUM:                            56            662            456          12008
+SUM:                            56            656            451          11996
 -------------------------------------------------------------------------------
 ```
 
 ### Cyclomatic complexity over 10
 
 ```bash
-34 main min2D 10/aoc10.go:308:1
-20 main main 4/aoc4.go:22:1
+33 main min2D 10/aoc10.go:316:1
+20 main main 4/aoc4.go:21:1
 19 main main 6/aoc6.go:23:1
 18 main main 11/aoc11.go:21:1
 17 main main 9/aoc9.go:13:1
-16 main fmbounds3D 10/aoc10.go:638:1
+16 main fmbounds3D 10/aoc10.go:647:1
 14 main main 8/aoc8.go:25:1
-13 main hnf 10/aoc10.go:503:1
+13 main hnf 10/aoc10.go:511:1
 12 main main 2/aoc2.go:24:1
-11 main fmbounds2D 10/aoc10.go:600:1
-Average: 5.11
+11 main fmbounds2D 10/aoc10.go:608:1
+Average: 5.29
 ```
 
 Day 10 is a major contributor in this table, and implementing [BLAS](https://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms) algorithms is certainly quite sophisticated. For instance, they are usually as huge (LOC-wise) as they are fast; this means that the code bails out at the first opportunity, leading to a mechanical increase in cyclomatic complexity. It’s no wonder the [simplex algorithm](https://en.wikipedia.org/wiki/Simplex_algorithm) of my first approach was rated 41. Implementing one is not easy and introduces challenges ranging from structural design to numerical instability. It’s a sophisticated technique developed in the mid-20th century that reached peak prominence in the late 1990s. With recent progress in applying [linear programming](https://en.wikipedia.org/wiki/Linear_programming) to AI, it’s seeing a revival in certain hybrid AI [planning](https://arxiv.org/abs/2509.21014) pipelines.
 
-Complexity in [10-20] always ends up in main(). It’s proof that I focused on speed this year, but hopefully the solutions are still easy to read. Still I am quite happy with an average of 5.11.
+Complexity in [10-20] always ends up in main(). It’s proof that I focused on speed this year, but hopefully the solutions are still easy to read. I am quite happy with an average of ~5.
 
 [Cyclomatic complexity](https://en.wikipedia.org/wiki/Cyclomatic_complexity) is debatable, but as I see it, it is a convenient way to classify the kind of [testing](https://en.wikipedia.org/wiki/Software_testing) needed to prove [correctness](https://en.wikipedia.org/wiki/Correctness_(computer_science)).
 
-| Cyclomatic Complexity | Associated Risk         |
-|----------------------|------------------------|
-| 1–5                  | Low (simple, easy to test)      |
-| 6–10                 | Moderate (manageable, some risk)|
-| 11–20                | High (complex, error-prone)     |
-| 21+                  | Very High (difficult to maintain/test) |
+| Cyclomatic Complexity | Associated Risk                        |
+|-----------------------|----------------------------------------|
+| 1–5                   | Low (simple, easy to test)             |
+| 6–10                  | Moderate (manageable, some risk)       |
+| 11–20                 | High (complex, error-prone)            |
+| 21+                   | Very High (difficult to maintain/test) |
 
 <br>
 <br>
