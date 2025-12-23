@@ -681,7 +681,7 @@ PS2. I have been [awarded](https://www.reddit.com/r/adventofcode/comments/1prrvf
 ## More Metrics [↑](#summary)
 
 <div align="center">
-  <img src="./images/lumon.jpg" alt="A Severance Lumon OS screen displaying numbers" width="60%" />
+  <img src="./images/lumon.png" alt="A Severance Lumon OS screen displaying numbers" width="60%" />
 </div>
 
 ### Inputs
