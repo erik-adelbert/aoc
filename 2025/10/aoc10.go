@@ -217,12 +217,14 @@ func parse(input *bufio.Scanner) iter.Seq[mach] {
 
 				for b := range bytes.SplitSeq(f, []byte(",")) {
 					n := atoi(b)
+
 					w = max(w, n)
 					flips[i] |= 1 << n
 				}
 			}
 			// add dummy switch for bounding
 			flips[len(sfields)] = w + 1
+
 			// joltages
 			jfield := fields[len(fields)-1]
 			jfield = jfield[1 : len(jfield)-1] // trim brackets

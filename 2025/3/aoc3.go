@@ -66,8 +66,6 @@ type seq struct {
 func newSeq() *seq {
 	return &seq{
 		digits: make([]byte, 0, MaxDigits), // preallocate
-		size:   0,
-		krem:   0,
 	}
 }
 
@@ -79,18 +77,20 @@ func (s *seq) reset(size, inputSize int) {
 	s.krem = inputSize - size // authorized removals
 }
 
-// push a new digit, removing larger trailing digits if possible
+// push a new digit, removing lesser trailing digits if possible
 // to keep the sequence lexicographically largest
 func (s *seq) push(c byte) {
+	sz := len(s.digits)
+
 	// find how many trailing digits to remove
-	sz, n := len(s.digits), 0
-	for s.krem > n && sz-n > 0 && c > s.peek(n) {
-		n++
+	i := 0
+	for s.krem > i && sz-i > 0 && c > s.peek(i) {
+		i++
 	}
 
 	// remove trailing digits
-	s.digits = s.digits[:sz-n]
-	s.krem -= n // use up removals
+	s.digits = s.digits[:sz-i]
+	s.krem -= i // use up removals
 
 	// add new digit
 	s.digits = append(s.digits, c)

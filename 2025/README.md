@@ -1,6 +1,6 @@
 # Summary
 
-This repository contains optimized solutions for Advent of Code 2025, implemented in [Go](https://en.wikipedia.org/wiki/Go_(programming_language)) with a focus on performance and educational value. The whole collection runs all days and all parts in about 4.3 ms. Each day is solved in a single, dependency-free [Go](https://go.dev) file.
+This repository contains optimized solutions for Advent of Code 2025, implemented in [Go](https://en.wikipedia.org/wiki/Go_(programming_language)) with a focus on performance and educational value. The whole collection runs all days and all parts in about 4.2 ms. Each day is solved in a single, dependency-free [Go](https://go.dev) file.
 
 ## Quick Navigation
 
@@ -65,18 +65,18 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
 | Day                                | Time (μs) |  % of Total |
 | ---------------------------------- | --------: | ----------: |
 | [**2**](#day-2-gift-shop-)         |         8 |       0.19% |
-| [7](#day-7-laboratories-)          |        30 |       0.70% |
-| [5](#day-5-cafeteria-)             |        95 |       2.21% |
-| [12](#day-12-christmas-tree-farm-) |       119 |       2.77% |
-| [1](#day-1-secret-entrance-)       |       134 |       3.12% |
-| [6](#day-6-trash-compactor-)       |       150 |       3.50% |
-| [3](#day-3-lobby-)                 |       199 |       4.64% |
-| [11](#day-11-reactor-)             |       268 |       6.25% |
-| [10](#day-10-factory-)             |       366 |       8.53% |
-| [4](#day-4-printing-department-)   |       743 |      17.32% |
-| [9](#day-9-movie-theater-)         |     1,037 |      24.18% |
-| [8](#day-8-playground-)            |     1,142 |      26.63% |
-| **Total**                          | **4,291** | **100.00%** |
+| [7](#day-7-laboratories-)          |        30 |       0.73% |
+| [5](#day-5-cafeteria-)             |        95 |       2.31% |
+| [12](#day-12-christmas-tree-farm-) |       119 |       2.90% |
+| [1](#day-1-secret-entrance-)       |       134 |       3.26% |
+| [6](#day-6-trash-compactor-)       |       150 |       3.65% |
+| [11](#day-11-reactor-)             |       157 |       3.82% |
+| [3](#day-3-lobby-)                 |       199 |       4.84% |
+| [10](#day-10-factory-)             |       366 |       8.91% |
+| [4](#day-4-printing-department-)   |       743 |      18.08% |
+| [9](#day-9-movie-theater-)         |     1,037 |      25.24% |
+| [8](#day-8-playground-)            |     1,130 |      27.50% |
+| **Total**                          | **4,108** | **100.00%** |
 
 fastest of 100 runs for part1&2 in μs - mbair M1/16GB - darwin 24.6.0 - go1.25.3 darwin/arm64 with greentea GC - 2025-12
 
@@ -646,7 +646,7 @@ go clean
 rm -f aoc12
 ```
 
-My collection runs all problems for the entire edition in roughly ~~`~9ms`~~ `4.6ms`.
+My collection runs all problems for the entire edition in roughly `4.2ms`.
 
 ## How was it? [↑](#summary)
 

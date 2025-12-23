@@ -28,7 +28,7 @@ func main() {
 
 	// id returns the unique integer ID for a 3-letter tags
 	id := func(s string) int {
-		k := idh(s) // compute hash key
+		k := int(s[0]-'a')*26*26 + int(s[1]-'a')*26 + int(s[2]-'a') // hash
 
 		// lazily assign ID
 		if IDs[k] == NullID { // check if not assigned yet
@@ -39,9 +39,13 @@ func main() {
 		return IDs[k]
 	}
 
-	// read graph edges as adjacency lists
+	// preallocate small adjacency lists
 	edges := make([][]int, MaxID)
+	for i := range edges {
+		edges[i] = make([]int, 0, 8)
+	}
 
+	// read graph edges as adjacency lists
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
 		// parse line: "src: dst1 dst2 dst3 ..."
@@ -82,23 +86,33 @@ func main() {
 	// part 2 use DP to count all paths from 'svr' to 'out' that contain both 'dac' and 'fft'
 	svr, dac, fft := id("svr"), id("dac"), id("fft")
 
-	dp := make(map[uint32]int)
+	// dp := make(map[uint32]int)
 
-	// presence map to avoid cycles
-	seen := make([]uint8, MaxID)
+	var dp [MaxID * 4]int // memoization table
+	for i := range dp {
+		dp[i] = Unknown
+	}
+
+	dpk := func(cur int, hasDac, hasFft bool) int {
+		k := cur << 2
+		if hasDac {
+			k |= 1 << 1
+		}
+
+		if hasFft {
+			k |= 1
+		}
+
+		return k
+	}
 
 	var recount func(cur int, hasDac, hasFft bool) int
 
 	recount = func(cur int, hasDac, hasFft bool) int {
 		k := dpk(cur, hasDac, hasFft) // unique key
 
-		// cycle detection
-		if seen[cur] == Seen {
-			return 0
-		}
-
 		// memoization check
-		if count, ok := dp[k]; ok {
+		if count := dp[k]; count != Unknown {
 			return count
 		}
 
@@ -110,19 +124,14 @@ func main() {
 			return 0
 		}
 
-		seen[cur] = Seen                      // mark current node as seen
-		defer func() { seen[cur] = Unseen }() // backtrack on return
-
 		// explore neighbors
 		count := 0
 		for _, nxt := range edges[cur] {
-			if seen[nxt] == Unseen { // recurse only if not already visited
-				count += recount(
-					nxt,
-					hasDac || nxt == dac,
-					hasFft || nxt == fft,
-				)
-			}
+			count += recount(
+				nxt,
+				hasDac || nxt == dac,
+				hasFft || nxt == fft,
+			)
 		}
 
 		// memoize and return
@@ -135,34 +144,10 @@ func main() {
 	fmt.Println(acc1, acc2, time.Since(t0))
 }
 
-const (
-	// sugars for presence map
-	Unseen = iota
-	Seen
-)
+const Unknown = -1 // unseen DP states
 
 const (
 	// MaxID is the maximum number of unique 3-letter IDs expected in input
 	MaxID  = 616
 	NullID = 0 // null ID value is invalid
 )
-
-// idh computes a hash for a 3-letter string
-func idh(s string) int {
-	return int(s[0]-'a')*26*26 + int(s[1]-'a')*26 + int(s[2]-'a')
-}
-
-// dpk computes a unique key for DP memoization
-func dpk(cur int, hasDac, hasFft bool) uint32 {
-	k := uint32(cur) << 2
-
-	if hasDac {
-		k |= 1 << 1
-	}
-
-	if hasFft {
-		k |= 1
-	}
-
-	return k
-}

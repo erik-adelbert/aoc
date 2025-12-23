@@ -19,7 +19,7 @@ import (
 	"time"
 )
 
-const N = 1000                 // challenge threshold
+const MaxPoints = 1000         // challenge threshold
 const CutoffDist = 196_000_000 // edge squared distance cutoff from prior runs
 
 func main() {
@@ -27,12 +27,12 @@ func main() {
 
 	var acc1, acc2 int // parts 1 and 2 accumulators
 
-	points := make([]point, 0, N)
+	points := make([]point, 0, MaxPoints)
 
 	input := bufio.NewScanner(os.Stdin)
 
 	for input.Scan() {
-		fields := bytes.Split(input.Bytes(), []byte(","))
+		fields := bytes.SplitN(input.Bytes(), []byte(","), 3)
 
 		points = append(points, point{
 			X: atoi(fields[0]),
