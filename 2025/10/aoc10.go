@@ -18,13 +18,12 @@ import (
 	"math"
 	"math/bits"
 	"os"
-	"slices"
 	"sync"
 	"time"
 	"unsafe"
 )
 
-const MaxSolver = 8 // number of parallel solvers -- sweet spot on M1
+var MaxSolver = 16 // number of parallel solvers -- sweet spot on M1
 
 // use this for dynamic max procs
 // var MaxSolver = runtime.GOMAXPROCS(0)
@@ -34,8 +33,8 @@ func main() {
 
 	var wg sync.WaitGroup // wait group for solvers
 
-	in := make(chan mach, 2*MaxSolver)   // input machines into solvers
-	out := make(chan parts, 2*MaxSolver) // output part results from solvers
+	in := make(chan mach, 4*MaxSolver)   // input machines into solvers
+	out := make(chan parts, 4*MaxSolver) // output part results from solvers
 
 	// each solver processes machines from the input channel for parts 1 and 2
 	solver := func() {
@@ -87,11 +86,18 @@ func part1(flips []int32, light int32) int32 {
 	flips = flips[:len(flips)-1] // remove bounding switch
 
 	// build bitmask BFS table
-	bmasks := slices.Repeat([]int32{math.MaxInt16}, 1<<w)
+	N := 1 << w
+
+	bmasks := make([]int32, N)
+	for i := range N {
+		bmasks[i] = math.MaxInt16
+	}
 	bmasks[0] = 0
 
 	// BFS over bitmasks
-	q := []int32{0}
+	q := make([]int32, 0, N)
+
+	q = append(q, 0)
 	for i := 0; i < len(q); i++ {
 		u := q[i]
 		for _, v := range flips {
@@ -101,12 +107,15 @@ func part1(flips []int32, light int32) int32 {
 				continue
 			}
 
-			bmasks[nxt] = bmasks[u] + 1
+			if bmasks[nxt] = bmasks[u] + 1; nxt == light {
+				return bmasks[light]
+			}
+
 			q = append(q, nxt)
 		}
 	}
 
-	return bmasks[light]
+	panic("unreached")
 }
 
 // Part 2 solves an integer linear system M x = rhs using a row-Hermite Normal Form.
@@ -124,23 +133,23 @@ func part2(flips []int32, jolts []int32) int32 {
 	m := len(jolts) // equations (cols)
 	n := len(flips) // variables (rows)
 
-	// M is the transpose of the usual matrix becaus we perform
+	// M is the transpose of the usual matrix because we perform
 	// row-HNF. Each row corresponds to a variable (flips),
-	M := new(mat)
+	var M mat
 	for i := range n {
 		for j := range m {
 			M[x(i, j)] = (flips[i] >> j) & 1
 		}
 	}
 
-	K := new(ker3)
+	var K ker3
 
 	// row-Hermite Normal Form
-	x, kdim := hnf(K, M, jolts, m, n) // base solution + kernel dimension
+	x, kdim := hnf(&K, &M, jolts, m, n) // base solution + kernel dimension
 
 	// base sum
 	var sumX int32
-	for i := range x {
+	for i := range n {
 		sumX += x[i]
 	}
 
@@ -149,35 +158,35 @@ func part2(flips []int32, jolts []int32) int32 {
 		return sumX
 	}
 
-	v0 := ρ(K[:], 0) // kernel basis vectors
-	sum0 := Σplus(v0)
+	k0 := ρ(K[:], 0) // kernel basis vectors
+	sum0 := Σplus(k0)
 
 	if kdim == 1 {
-		return sumX + min1D(x, v0)
+		return sumX + min1D(x, k0, n)
 	}
 
-	v1 := ρ(K[:], 1) // kernel basis vectors
-	sum1 := Σplus(v1)
+	k1 := ρ(K[:], 1) // kernel basis vectors
+	sum1 := Σplus(k1)
 
 	if sum0 < sum1 {
 		sum0, sum1 = sum1, sum0
-		swap(v0, v1)
+		swap(k0, k1)
 	}
 
 	if kdim == 2 {
-		return sumX + min2D(x, sum0, v0, sum1, v1, n, math.MaxInt16)
+		return sumX + min2D(x, sum0, k0, sum1, k1, n, math.MaxInt16)
 	}
 
-	v2 := ρ(K[:], 2) // kernel basis vectors
-	sum2 := Σplus(v2)
+	k2 := ρ(K[:], 2) // kernel basis vectors
+	sum2 := Σplus(k2)
 
 	if sum0 < sum2 {
 		sum0, sum2 = sum2, sum0
-		swap(v0, v2)
+		swap(k0, k2)
 	}
 
 	// no more than 3 free variables in the input
-	return sumX + min3D(x, sum0, v0, sum1, v1, sum2, v2, n)
+	return sumX + min3D(x, sum0, k0, sum1, k1, sum2, k2, n)
 }
 
 const (
@@ -188,7 +197,6 @@ const (
 // parse input into machines
 func parse(input *bufio.Scanner) iter.Seq[mach] {
 	return func(yield func(mach) bool) {
-
 		for input.Scan() {
 			buf := input.Bytes()
 			fields := bytes.Split(buf, []byte(" "))
@@ -261,30 +269,30 @@ type v16 [16]int32
 
 // min1D finds the minimum of the objective over a 1D integer affine subspace
 // subject to non-negativity and implicit feasibility constraints.
-func min1D(x *v16, v0 *v16) int32 {
+func min1D(x *v16, v0 *v16, n int) int32 {
 	var sum int32
 
-	for i := range v0 {
+	for i := range n {
 		sum += v0[i]
 	}
 
 	if sum > 0 {
 		sum = -sum
 
-		for i := range v0 {
+		for i := range n {
 			v0[i] *= -1
 		}
 	}
 
 	var negi uint16 // negative entries in v0
-	for i := range v0 {
+	for i := range n {
 		if v0[i] < 0 {
 			negi |= 1 << i
 		}
 	}
 
 	i := bits.TrailingZeros16(negi)
-	n, d := x[i], -v0[i] // first negative entry
+	a, b := x[i], -v0[i] // first negative entry
 	negi &= negi - 1     // clear lowest set bit
 
 	for negi != 0 {
@@ -292,14 +300,14 @@ func min1D(x *v16, v0 *v16) int32 {
 
 		v0i, xi := -v0[i], x[i]
 
-		if xi*d < n*v0i {
-			n, d = xi, v0i
+		if a*v0i > b*xi {
+			a, b = xi, v0i
 		}
 
 		negi &= negi - 1
 	}
 
-	return sum * fdiv(n, d)
+	return sum * fdiv(a, b)
 }
 
 // min2D performs a bounded search in a 2D kernel space.
@@ -346,20 +354,19 @@ func min2D(x *v16, sum0 int32, v0 *v16, sum1 int32, v1 *v16, n int, best int32) 
 	sm0 := min0*sum0 + min10*sum1
 	sm1 := min01*sum0 + min1*sum1
 
+	if min(sm0, sm1) >= best {
+		return best
+	}
+
 	if sm1 < sm0 {
-		if sm1 >= best {
-			return best
-		}
 		v0, v1 = v1, v0
 		sum0, sum1 = sum1, sum0
 		min0, min1 = min1, min0
 		min01, min10 = min10, min01
-	} else if sm0 >= best {
-		return best
 	}
 
-	var xx v16 = *x
-	x = &xx // work on a copy of x
+	var xx v16 = *x // working copy
+	x = &xx
 
 	for i := range n {
 		x[i] += min0*v0[i] + min10*v1[i]
@@ -403,31 +410,31 @@ func min2D(x *v16, sum0 int32, v0 *v16, sum1 int32, v1 *v16, n int, best int32) 
 		}
 
 		if negMask != 0 {
-			if negMask&lostMask != 0 {
+			switch {
+			case negMask&lostMask != 0:
 				return best
-			}
-
-			if negMask&addMask != 0 {
+			case negMask&addMask != 0:
 				k0++
 
-				for i := range x {
+				for i := range n {
 					x[i] += v0[i]
 				}
 
 				sum += sum0
-			} else {
+			default:
 				for i := range n {
 					x[i] -= v1[i]
 				}
 
 				sum -= sum1
 			}
+
 			continue
 		}
 
 		// subtract v1 until minimal
+		hasNeg = false
 		for {
-			hasNeg = false
 			for i := range n {
 				x[i] -= v1[i]
 
@@ -436,15 +443,16 @@ func min2D(x *v16, sum0 int32, v0 *v16, sum1 int32, v1 *v16, n int, best int32) 
 				}
 			}
 
-			if hasNeg {
-				// undo subtraction
-				for i := range n {
-					x[i] += v1[i]
-				}
-
-				break
+			if !hasNeg {
+				sum -= sum1
+				continue
 			}
-			sum -= sum1
+
+			for i := range n {
+				x[i] += v1[i] // undo last subtraction
+			}
+
+			break
 		}
 
 		if sum < best {
@@ -466,7 +474,7 @@ func min2D(x *v16, sum0 int32, v0 *v16, sum1 int32, v1 *v16, n int, best int32) 
 func min3D(x *v16, sum0 int32, v0 *v16, sum1 int32, v1 *v16, sum2 int32, v2 *v16, n int) int32 {
 	min0, max0 := fmbounds3D(x, v0, v1, v2, n)
 
-	for i := range x {
+	for i := range n {
 		x[i] += min0 * v0[i]
 	}
 
@@ -476,7 +484,7 @@ func min3D(x *v16, sum0 int32, v0 *v16, sum1 int32, v1 *v16, sum2 int32, v2 *v16
 	best := sum + min2D(&xx, sum1, v1, sum2, v2, n, math.MaxInt16)
 
 	for k := min0 + 1; k <= max0; k++ {
-		for i := range x {
+		for i := range n {
 			x[i] += v0[i]
 		}
 		sum += sum0
@@ -631,6 +639,7 @@ func fmbounds2D(x, v0, v1 *v16, n int) int32 {
 			}
 		}
 	}
+
 	return min0
 }
 
