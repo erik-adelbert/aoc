@@ -26,10 +26,9 @@ func main() {
 
 	var acc1, acc2 int // parts 1 and 2 accumulators
 
-	input := bufio.NewScanner(os.Stdin)
-	input.Scan()
-
-	buf := input.Bytes() // read first line
+	// read input spans
+	input := bufio.NewReader(os.Stdin)
+	buf, _, _ := input.ReadLine()
 
 	for a, b := range allSpans(buf) { // split into aligned subranges
 		switch {
@@ -116,20 +115,20 @@ func allSpans(buf []byte) iter.Seq2[int, int] {
 
 // sm computes the sum of all multiples of x in the range [l, r]
 func sm(l, r, x int) int {
-	var α, ω int // first and last multiples of x in [l, r]
+	// first multiple of x in [l, r]: ⎡l/x⎤ * x
+	// x when no multiple in [l, r]
+	α := ((l + x - 1) / x) * x
 
-	// first multiple: ⎡l/x⎤ * x
-	if α = ((l + x - 1) / x) * x; α > r {
-		return 0 // no multiples in range
-	}
-
-	// last multiple: ⎣r/x⎦ * x
-	ω = (r / x) * x
+	// last multiple of x in [l, r]: ⎣r/x⎦ * x
+	// 0 when no multiple in [l, r]
+	ω := (r / x) * x
 
 	// count of multiples of x in [α, ω]
+	// 0 if none (ω-α == -x)
 	n := (ω-α)/x + 1
 
 	// sum all multiples using arithmetic series
+	// 0 if none (n == 0)
 	return n * (α + ω) / 2
 }
 

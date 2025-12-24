@@ -100,18 +100,32 @@ fastest of 100 runs for part1&2 in μs - mbair M1/16GB - darwin 24.6.0 - go1.25.
 
 ### Current approach
 
-It is possible to [solve](https://github.com/erik-adelbert/aoc/blob/main/2025/1/aoc1.go) this problem using pure [modular arithmetic](https://en.wikipedia.org/wiki/Modular_arithmetic). The challenge 2nd part reduces to solving
-`p + i·s ≡ 0 (mod 100)`,
-where *i* is the click that crosses zero.
+It is possible to [solve](https://github.com/erik-adelbert/aoc/blob/main/2025/1/aoc1.go) this problem using pure [modular arithmetic](https://en.wikipedia.org/wiki/Modular_arithmetic). Instead of tracking the starting and ending position of the dial we can directly compute the 0-landing click and see if it is reachable. As in the previous approach, we only have to reason on the last single wrap of a move. The challenge 2nd part reduces to solving, with *p* the dial position, *i* the click landing on 0 and *s* the wrap direction as ±1 sign (left is -1):
 
-Rewriting this as
-`i·s ≡ −p (mod 100)`
-makes the solution much simpler. The zero-crossing click is then `i₀ = (−p · s) mod 100`
+```math
+p + i \cdot s \equiv 0 \pmod{100}
+```
+
+If we rearrange:
+
+```math
+i \cdot s \equiv −p \pmod{100}
+```
+
+As *s* and *M* are coprime, the modular inverse of *s* is *s* and we can multiply both sides by it:
+
+```math
+i \equiv −p \cdot s \pmod{100}
+```
+
+It makes the solution much simpler. The first zero-landing click is then:
+
+```math
+i₀ = (−p \cdot s) \pmod{100}
+```
 
 If `i₀ == 0`, the position was already at zero and should be ignored. Otherwise, if
-`i₀ ≤ r`, where *r* is the number of remaining steps after completing the full wraps, the zero crossing occurs during the final partial move.
-
-As in the first approach, this equation is evaluated only for the last wrap of a move, and the resulting logic is branchless.
+`i₀ ≤ r`, where *r* is the number of remaining steps after completing the full wraps, the zero crossing occurs during the final partial move. The resulting logic is minimal and branchless. It is not only (slightly) faster but also imho much more elegant than before.
 
 ### First approach
 

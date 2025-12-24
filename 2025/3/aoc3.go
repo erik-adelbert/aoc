@@ -90,7 +90,7 @@ func (s *seq) push(c byte) {
 		i--
 	}
 
-	s.digits = s.digits[:i+1] // slice out trailing digits
+	s.digits = s.digits[:i+1] // slice out trailing digits or extend
 	s.digits[i] = c           // add new digit at the end
 	s.krem -= sz - i          // use up removals
 }
