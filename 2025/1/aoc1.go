@@ -17,54 +17,56 @@ import (
 	"time"
 )
 
+const M = 100
+
 func main() {
 	t0 := time.Now()
 
 	var acc1, acc2 int // passwords for parts 1 and 2
 
-	old, cur := MaxDial/2, MaxDial/2 // dial starts at 50
-
 	// process input lines
 	input := bufio.NewScanner(os.Stdin)
 
+	p := 50 // initial dial position
 	for input.Scan() {
 		buf := input.Bytes()
 		dir, n := buf[0], atoi(buf[1:]) // parse direction and number
 
-		// handle large movements
-		acc2 += n / MaxDial // count full wraps
-		n %= MaxDial        // reduce to within one wrap
+		// part 2: full wraps
+		acc2 += n / M
 
-		// move dial: default to left turn
-		if cur = old - n; dir == Right {
-			cur = old + n // adjust for right turn
+		// part2: remaining steps
+		r := n % M
+
+		s := 1
+		if dir == Left {
+			s = -1
 		}
 
-		// handle circular dial (0-99)
-		if cur %= MaxDial; cur < 0 {
-			cur += MaxDial // adjust negative remainder
-		}
+		// i₀ is the first click index at which the dial lands on 0
+		// if i₀ == 0, that corresponds to “already at 0” and must be ignored
+		i0 := mod(-p*s, M) // pos + i·s ≡ 0 (mod 100) ⇒ i ≡ -pos·s (mod 100)
 
-		switch {
-		case old == 0:
-			// cannot reach or cross zero from zero in less than a wrap
-			// count nothing
-		case cur == 0:
-			// part1: count turns landing on zero
-			acc1++
-		case (old < cur) == (dir == Left): // position increased/decreased when turning left/right
-			// part2: count turns crossing zero
+		// otherwise, the dial crosses 0 once in the remainder iff i₀ ≤ r
+		if i0 != 0 && i0 <= r {
 			acc2++
 		}
 
-		old = cur // update
+		// part 1: final position
+		if p = mod(p+s*n, M); p == 0 {
+			acc1++
+		}
 	}
-	acc2 += acc1 // part2 includes part1
 
 	fmt.Println(acc1, acc2, time.Since(t0)) // output passwords
 }
 
-const MaxDial = 100
+func mod(a, b int) int {
+	if a %= b; a < 0 {
+		a += b
+	}
+	return a
+}
 
 const (
 	Left  = 'L'

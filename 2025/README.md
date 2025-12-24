@@ -68,15 +68,15 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
 | [7](#day-7-laboratories-)          |        30 |       0.75% |
 | [5](#day-5-cafeteria-)             |        95 |       2.37% |
 | [12](#day-12-christmas-tree-farm-) |       119 |       2.97% |
-| [1](#day-1-secret-entrance-)       |       134 |       3.34% |
+| [1](#day-1-secret-entrance-)       |       129 |       3.22% |
 | [6](#day-6-trash-compactor-)       |       150 |       3.74% |
-| [11](#day-11-reactor-)             |       157 |       3.91% |
+| [11](#day-11-reactor-)             |       157 |       3.92% |
 | [3](#day-3-lobby-)                 |       199 |       4.96% |
-| [10](#day-10-factory-)             |       248 |       6.18% |
-| [4](#day-4-printing-department-)   |       695 |      17.32% |
-| [9](#day-9-movie-theater-)         |     1,037 |      25.84% |
-| [8](#day-8-playground-)            |     1,142 |      28.46% |
-| **Total**                          | **4,014** | **100.00%** |
+| [10](#day-10-factory-)             |       248 |       6.19% |
+| [4](#day-4-printing-department-)   |       695 |      17.34% |
+| [9](#day-9-movie-theater-)         |     1,037 |      25.87% |
+| [8](#day-8-playground-)            |     1,142 |      28.49% |
+| **Total**                          | **4,009** | **100.00%** |
 
 fastest of 100 runs for part1&2 in μs - mbair M1/16GB - darwin 24.6.0 - go1.25.3 darwin/arm64 with greentea GC - 2025-12
 
@@ -97,6 +97,25 @@ fastest of 100 runs for part1&2 in μs - mbair M1/16GB - darwin 24.6.0 - go1.25.
 <div align="center">
   <img src="./images/1606_Mercator_Hondius_Map_of_the_Arctic_(First_Map_of_the_North_Pole)_-_Geographicus_-_NorthPole-mercator-1606.jpg" alt="1606 Mercator Hondius Map of the Arctic (First Map of the North Pole). First day of AoC is always the start of a great journey to the North Pole! We have a map now." width="60%" />
 </div>
+
+### Current approach
+
+It is possible to [solve](https://github.com/erik-adelbert/aoc/blob/main/2025/1/aoc1.go) this problem using pure [modular arithmetic](https://en.wikipedia.org/wiki/Modular_arithmetic). The challenge 2nd part reduces to solving
+`p + i·s ≡ 0 (mod 100)`,
+where *i* is the click that crosses zero.
+
+Rewriting this as
+`i·s ≡ −p (mod 100)`
+makes the solution much simpler. The zero-crossing click is then `i₀ = (−p · s) mod 100`
+
+If `i₀ == 0`, the position was already at zero and should be ignored. Otherwise, if
+`i₀ ≤ r`, where *r* is the number of remaining steps after completing the full wraps, the zero crossing occurs during the final partial move.
+
+As in the first approach, this equation is evaluated only for the last wrap of a move, and the resulting logic is branchless.
+
+### First approach
+
+**For the following discussion please checkout commit [089a922](https://github.com/erik-adelbert/aoc/blob/089a92232b7dd79cb39a4d7d881edf8b9ecce200/2025/1/aoc1.go)**
 
 On this first day of AoC 2025, the challenge is reasonably tricky. It highlights the sign ambiguity of the [modulo](https://en.wikipedia.org/wiki/Modulo) operation when the remainder is negative.
 
