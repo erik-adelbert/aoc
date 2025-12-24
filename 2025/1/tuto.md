@@ -97,18 +97,18 @@ For any move with direction *dir*, distance *d* from starting position *s* to en
     }
 
     // problem B: handle steps
-    if s != 0 { // can't reach are cross 0 from 0
-        if e == 0 {
-            // landed on 0
-            part1++
-        }
-
+    switch {
+    case s == 0:
+        // can't reach or cross 0 from 0
+        // count nothing
+    case e == 0:
+        // landed on 0
+        part1++
+        part2++
+    case (e > s) == (dir == Left):
         // 0-crossings
-        if e > s && dir == Left {  // position increased when turning left
-            part2++
-        } else if e < s && dir == Right { // position decreased when turning right
-            part2++
-        }
+        // position increased/decreased when turning left/right
+        part2++
     }
 
-This has to be wrapped in a loop... And that's it!
+This has to be wrapped in a loop and *s* advanced to *e*... And that's it!

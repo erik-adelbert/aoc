@@ -7,49 +7,42 @@ import (
 func TestAllSpans(t *testing.T) {
 	tests := []struct {
 		name     string
-		a, b     int
+		buf      []byte
 		expected [][2]int
 	}{
 		{
 			name:     "single digit range",
-			a:        1,
-			b:        5,
+			buf:      []byte("1-5"),
 			expected: [][2]int{{1, 5}},
 		},
 		{
 			name:     "spans across 10 boundary",
-			a:        5,
-			b:        15,
+			buf:      []byte("5-15"),
 			expected: [][2]int{{5, 9}, {10, 15}},
 		},
 		{
 			name:     "spans across multiple boundaries",
-			a:        50,
-			b:        1500,
+			buf:      []byte("50-1500"),
 			expected: [][2]int{{50, 99}, {100, 999}, {1000, 1500}},
 		},
 		{
 			name:     "exact boundary start",
-			a:        100,
-			b:        200,
+			buf:      []byte("100-200"),
 			expected: [][2]int{{100, 200}},
 		},
 		{
 			name:     "exact boundary end",
-			a:        50,
-			b:        100,
+			buf:      []byte("50-100"),
 			expected: [][2]int{{50, 99}, {100, 100}},
 		},
 		{
 			name:     "single value",
-			a:        42,
-			b:        42,
+			buf:      []byte("42-42"),
 			expected: [][2]int{{42, 42}},
 		},
 		{
 			name: "large range spanning many boundaries",
-			a:    1,
-			b:    1000000000,
+			buf:  []byte("1-1000000000"),
 			expected: [][2]int{
 				{1, 9}, {10, 99}, {100, 999}, {1000, 9999}, {10000, 99999},
 				{100000, 999999}, {1000000, 9999999}, {10000000, 99999999},
@@ -58,16 +51,20 @@ func TestAllSpans(t *testing.T) {
 		},
 		{
 			name:     "no split needed - high values",
-			a:        2000000000,
-			b:        3000000000,
+			buf:      []byte("2000000000-3000000000"),
 			expected: [][2]int{{2000000000, 3000000000}},
+		},
+		{
+			name:     "multiple spans in one input",
+			buf:      []byte("5-15,95-105"),
+			expected: [][2]int{{5, 9}, {10, 15}, {95, 99}, {100, 105}},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var result [][2]int
-			for a, b := range allSpans(tt.a, tt.b) {
+			for a, b := range allSpans(tt.buf) {
 				result = append(result, [2]int{a, b})
 			}
 

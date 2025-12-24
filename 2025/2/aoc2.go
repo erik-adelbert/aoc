@@ -29,86 +29,87 @@ func main() {
 	input := bufio.NewScanner(os.Stdin)
 	input.Scan()
 
-	// iterate over all spans
-	spans := bytes.SplitSeq(input.Bytes(), []byte(","))
+	buf := input.Bytes() // read first line
 
-	for span := range spans {
-		bufA, bufB, _ := bytes.Cut(span, []byte("-")) // parse range
+	for a, b := range allSpans(buf) { // split into aligned subranges
+		switch {
+		case a >= 1e9:
+			const seed1, seed2, lcm = 100_001, 101_010_101, 1_111_111_111
 
-		a, b := atoi(bufA), atoi(bufB)
+			// sum all multiples of seed1 over [a, b]
+			acc1 += sm(a, b, seed1)
 
-		for a, b := range allSpans(a, b) { // split into aligned subranges
-			switch {
-			case a >= 1e9:
-				const seed1, seed2, lcm = 100_001, 101_010_101, 1_111_111_111
+			// sum multiples of seed2, subtracting common multiples of seed1&2 already counted in sub1
+			acc2 += sm(a, b, seed2) - sm(a, b, lcm)
+		case a >= 1e8:
+			const seed2a, seed2b = 1_001_001, 111_111_111
 
-				// sum all multiples of seed1 over [a, b]
-				acc1 += sm(a, b, seed1)
+			acc2 += sm(a, b, seed2a)
+			acc2 += sm(a, b, seed2b)
+		case a >= 1e7:
+			const seed1, seed2 = 10_001, 11_111_111
 
-				// sum multiples of seed2, subtracting common multiples of seed1&2 already counted in sub1
-				acc2 += sm(a, b, seed2) - sm(a, b, lcm)
-			case a >= 1e8:
-				const seed2a, seed2b = 1_001_001, 111_111_111
+			acc1 += sm(a, b, seed1)
+			acc2 += sm(a, b, seed2)
+		case a >= 1e6:
+			const seed2 = 1_111_111
 
-				acc2 += sm(a, b, seed2a)
-				acc2 += sm(a, b, seed2b)
-			case a >= 1e7:
-				const seed1, seed2 = 10_001, 11_111_111
+			acc2 += sm(a, b, seed2)
+		case a >= 1e5:
+			const seed1, seed2, lcm = 1_001, 10_101, 111_111
 
-				acc1 += sm(a, b, seed1)
-				acc2 += sm(a, b, seed2)
-			case a >= 1e6:
-				const seed2 = 1_111_111
+			acc1 += sm(a, b, seed1)
+			acc2 += sm(a, b, seed2) - sm(a, b, lcm)
+		case a >= 1e4:
+			const seed2 = 11_111
 
-				acc2 += sm(a, b, seed2)
-			case a >= 1e5:
-				const seed1, seed2, lcm = 1_001, 10_101, 111_111
+			acc2 += sm(a, b, seed2)
+		case a >= 1e3:
+			const seed1 = 101
 
-				acc1 += sm(a, b, seed1)
-				acc2 += sm(a, b, seed2) - sm(a, b, lcm)
-			case a >= 1e4:
-				const seed2 = 11_111
+			acc1 += sm(a, b, seed1)
+		case a >= 1e2:
+			const seed2 = 111
 
-				acc2 += sm(a, b, seed2)
-			case a >= 1e3:
-				const seed1 = 101
+			acc2 += sm(a, b, seed2)
+		case a >= 1e1:
+			const seed1 = 11
 
-				acc1 += sm(a, b, seed1)
-			case a >= 1e2:
-				const seed2 = 111
-
-				acc2 += sm(a, b, seed2)
-			case a >= 1e1:
-				const seed1 = 11
-
-				acc1 += sm(a, b, seed1)
-			}
+			acc1 += sm(a, b, seed1)
 		}
 	}
-	acc2 += acc1 // part 2 includes part 1
 
+	acc2 += acc1 // part 2 includes part 1
 	fmt.Println(acc1, acc2, time.Since(t0))
 }
 
-// allSpans iterates over subranges of [a, b] split at ten powers boundaries
+// allSpans iterates over subranges [a, b] split at ten powers boundaries
 // e.g., [95, 105] -> [95, 99], [100, 105]
-func allSpans(a, b int) iter.Seq2[int, int] {
+func allSpans(buf []byte) iter.Seq2[int, int] {
 	return func(yield func(int, int) bool) {
-		start := a
+		spans := bytes.SplitSeq(buf, []byte(","))
 
-		for x := 10; x <= 1e9; x *= 10 {
-			if x > start && x <= b {
-				if !yield(start, x-1) { // [start, x-1]
+		for span := range spans {
+			lhs, rhs, _ := bytes.Cut(span, []byte("-")) // parse range
+
+			start, end := atoi(lhs), atoi(rhs)
+
+			for x := 10; x <= 1e9; x *= 10 {
+				if x > start && x <= end {
+					if !yield(start, x-1) { // [start, x-1]
+						return
+					}
+
+					start = x
+				}
+			}
+
+			// yield the final range [last_split, b] and return anyway
+			if start <= end {
+				if !yield(start, end) {
 					return
 				}
-
-				start = x
 			}
-		}
-
-		// yield the final range [last_split, b] and return anyway
-		if start <= b {
-			yield(start, b)
 		}
 	}
 }
