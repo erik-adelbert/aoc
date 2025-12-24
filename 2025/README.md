@@ -708,7 +708,7 @@ PS. I’m trying to compete in the `Red(dit) One` part of AoC, namely for [Day 1
 PS2. I have been [awarded](https://www.reddit.com/r/adventofcode/comments/1prrvfn/introducing_your_2025_reddit_one_winners_and/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button) an **Arch-Elf** title 🥈 for this work. Many thanks to this awesome community!
 
 <div align="center">
-  <img src="./images/Elfo.jpg" alt="A picture of elfo from Disenchantment" width="20%" />
+  <img src="./images/Elfo.png" alt="A picture of elfo from Disenchantment" width="20%" />
 </div>
 
 ## More Metrics [↑](#summary)
