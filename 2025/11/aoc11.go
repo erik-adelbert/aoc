@@ -86,8 +86,6 @@ func main() {
 	// part 2 use DP to count all paths from 'svr' to 'out' that contain both 'dac' and 'fft'
 	svr, dac, fft := id("svr"), id("dac"), id("fft")
 
-	// dp := make(map[uint32]int)
-
 	var dp [MaxID * 4]int // memoization table
 	for i := range dp {
 		dp[i] = Unknown

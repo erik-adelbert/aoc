@@ -47,7 +47,7 @@ func main() {
 	queue1 := make([]int, 0, 7*sq(sz)/10) // write queue
 
 	// preallocate presence maps
-	seen := make([]uint8, sq(sz))
+	seen := make([]u8, sq(sz))
 
 	// preallocate roll delete list
 	updates := make([]int, 0, RemoveSizeHint)
@@ -60,7 +60,7 @@ func main() {
 	}
 
 	// removal loop
-	for gid := uint8(1); ; gid++ { // removal generation
+	for gid := u8(1); ; gid++ { // removal generation
 		// collect removals
 		for i := range slices.Values(queue0) {
 			if grid[i] != Roll {
@@ -154,6 +154,8 @@ const (
 	Empty byte = '.'
 	Roll  byte = '@'
 )
+
+type u8 = uint8
 
 // grid represents a 2D grid of bytes in row-major order
 type grid = [MaxGridSize * MaxGridSize]byte // flat data

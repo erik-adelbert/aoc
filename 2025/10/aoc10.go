@@ -69,7 +69,7 @@ func main() {
 
 	go closer() // launch watchdog
 
-	var acc1, acc2 int32 // part 1 & 2 accumulators
+	var acc1, acc2 i32 // part 1 & 2 accumulators
 
 	// collect results
 	for r := range out {
@@ -80,22 +80,25 @@ func main() {
 	fmt.Println(acc1, acc2, time.Since(t0))
 }
 
+type i32 = int32
+type u16 = uint16
+
 // Part 1: bitmask BFS
-func part1(flips []int32, light int32) int32 {
+func part1(flips []i32, light i32) i32 {
 	w := flips[len(flips)-1]     // width of bitmask
 	flips = flips[:len(flips)-1] // remove bounding switch
 
 	// build bitmask BFS table
 	N := 1 << w
 
-	bmasks := make([]int32, N)
+	bmasks := make([]i32, N)
 	for i := range N {
 		bmasks[i] = math.MaxInt16
 	}
 	bmasks[0] = 0
 
 	// BFS over bitmasks
-	q := make([]int32, 0, N)
+	q := make([]i32, 0, N)
 
 	q = append(q, 0)
 	for i := 0; i < len(q); i++ {
@@ -127,7 +130,7 @@ func part1(flips []int32, light int32) int32 {
 // This is exact arithmetic; no floating point or Gaussian elimination is used.
 // This approach is exact and fast for our inputs. It is not intended as a general-purpose
 // integer linear optimizer.
-func part2(flips []int32, jolts []int32) int32 {
+func part2(flips []i32, jolts []i32) i32 {
 	flips = flips[:len(flips)-1] // remove bounding switch
 
 	m := len(jolts) // equations (cols)
@@ -148,7 +151,7 @@ func part2(flips []int32, jolts []int32) int32 {
 	x, kdim := hnf(&K, &M, jolts, m, n) // base solution + kernel dimension
 
 	// base sum
-	var sumX int32
+	var sumX i32
 	for i := range n {
 		sumX += x[i]
 	}
@@ -205,7 +208,7 @@ func parse(input *bufio.Scanner) iter.Seq[mach] {
 			lfield := fields[0]
 			lfield = lfield[1 : len(lfield)-1] // trim brackets
 
-			var light int32
+			var light i32
 
 			for i, c := range lfield {
 				if c == On {
@@ -216,9 +219,9 @@ func parse(input *bufio.Scanner) iter.Seq[mach] {
 			// flips
 			sfields := fields[1 : len(fields)-1]
 
-			flips := make([]int32, len(sfields)+1)
+			flips := make([]i32, len(sfields)+1)
 
-			var w int32 // width of bitmask
+			var w i32 // width of bitmask
 
 			for i, f := range sfields {
 				f = f[1 : len(f)-1] // trim brackets
@@ -238,7 +241,7 @@ func parse(input *bufio.Scanner) iter.Seq[mach] {
 			jfield = jfield[1 : len(jfield)-1] // trim brackets
 			jsets := bytes.Split(jfield, []byte(","))
 
-			jolts := make([]int32, len(jsets))
+			jolts := make([]i32, len(jsets))
 			for i := range jolts {
 				jolts[i] = atoi(jsets[i])
 			}
@@ -251,26 +254,26 @@ func parse(input *bufio.Scanner) iter.Seq[mach] {
 }
 
 // utility functions and types
-type parts struct{ p1, p2 int32 }
+type parts struct{ p1, p2 i32 }
 type mach struct {
-	flips []int32
-	jolts []int32
-	light int32
+	flips []i32
+	jolts []i32
+	light i32
 }
 
 // ker3 type has a maximum of 3 free variables
-type ker3 = [3 * 16]int32
+type ker3 = [3 * 16]i32
 
 // flat 16x16 matrix type
-type mat = [16 * 16]int32
+type mat = [16 * 16]i32
 
 // v16 is a 16-dimensional integer vector
-type v16 [16]int32
+type v16 [16]i32
 
 // min1D finds the minimum of the objective over a 1D integer affine subspace
 // subject to non-negativity and implicit feasibility constraints.
-func min1D(x *v16, v0 *v16, n int) int32 {
-	var sum int32
+func min1D(x *v16, v0 *v16, n int) i32 {
+	var sum i32
 
 	for i := range n {
 		sum += v0[i]
@@ -284,7 +287,7 @@ func min1D(x *v16, v0 *v16, n int) int32 {
 		}
 	}
 
-	var negi uint16 // negative entries in v0
+	var negi u16 // negative entries in v0
 	for i := range n {
 		if v0[i] < 0 {
 			negi |= 1 << i
@@ -313,8 +316,8 @@ func min1D(x *v16, v0 *v16, n int) int32 {
 // min2D performs a bounded search in a 2D kernel space.
 // One dimension is chosen as primary based on the smallest feasible range.
 // This is not a general ILP solver; it relies on small kernel dimension.
-func min2D(x *v16, sum0 int32, v0 *v16, sum1 int32, v1 *v16, n int, best int32) int32 {
-	var posMask0, negMask1 uint16
+func min2D(x *v16, sum0 i32, v0 *v16, sum1 i32, v1 *v16, n int, best i32) i32 {
+	var posMask0, negMask1 u16
 
 	for i := range n {
 		if v0[i] > 0 {
@@ -332,7 +335,7 @@ func min2D(x *v16, sum0 int32, v0 *v16, sum1 int32, v1 *v16, n int, best int32) 
 	min0 := fmbounds2D(x, v0, v1, n)
 	min1 := fmbounds2D(x, v1, v0, n)
 
-	var min10, min01 int32 = math.MinInt16, math.MinInt16
+	var min10, min01 i32 = math.MinInt16, math.MinInt16
 	for i := range n {
 		v0i, v1i := v0[i], v1[i]
 
@@ -402,7 +405,7 @@ func min2D(x *v16, sum0 int32, v0 *v16, sum1 int32, v1 *v16, n int, best int32) 
 			return best
 		}
 
-		var negMask uint16
+		var negMask u16
 		for i := range n {
 			if x[i] < 0 {
 				negMask |= 1 << i
@@ -471,7 +474,7 @@ func min2D(x *v16, sum0 int32, v0 *v16, sum1 int32, v1 *v16, n int, best int32) 
 
 // min3D reduces the 3D kernel problem to nested 2D searches.
 // This is terminal and allowed to modify x in-place.
-func min3D(x *v16, sum0 int32, v0 *v16, sum1 int32, v1 *v16, sum2 int32, v2 *v16, n int) int32 {
+func min3D(x *v16, sum0 i32, v0 *v16, sum1 i32, v1 *v16, sum2 i32, v2 *v16, n int) i32 {
 	min0, max0 := fmbounds3D(x, v0, v1, v2, n)
 
 	for i := range n {
@@ -508,7 +511,7 @@ func min3D(x *v16, sum0 int32, v0 *v16, sum1 int32, v1 *v16, sum2 int32, v2 *v16
 //
 // A particular solution to M x = rhs is reconstructed by applying the same
 // transformations to rhs via U.
-func hnf(K *ker3, M *mat, rhs []int32, m, n int) (*v16, int) {
+func hnf(K *ker3, M *mat, rhs []i32, m, n int) (*v16, int) {
 	// U starts as the identity and accumulates the same row operations as M.
 	// Because U is unimodular (det = ±1), it preserves the set of integer solutions.
 	// Lower rows of U span ker(M), upper rows map pivot variables to solution space.
@@ -587,7 +590,7 @@ func hnf(K *ker3, M *mat, rhs []int32, m, n int) (*v16, int) {
 	// NOTE: No consistency check is performed, solvability is expected.
 	x0 := new(v16)
 
-	var s [16]int32 // solution for rank variables
+	var s [16]i32 // solution for rank variables
 	for r := 0; r < rank; r++ {
 		c := pivs[r] // pivot column
 
@@ -605,13 +608,13 @@ func hnf(K *ker3, M *mat, rhs []int32, m, n int) (*v16, int) {
 }
 
 // fmbouds2D computes Fourier-Motzkin bounds for 2D kernel
-func fmbounds2D(x, v0, v1 *v16, n int) int32 {
-	type k1 struct{ x, v0, v1 int32 }
+func fmbounds2D(x, v0, v1 *v16, n int) i32 {
+	type k1 struct{ x, v0, v1 i32 }
 
 	var pos1, p1 = [16]k1{}, 0
 	var neg1, n1 = [16]k1{}, 0
 
-	var min0 int32 = math.MinInt16
+	var min0 i32 = math.MinInt16
 	for i := range n {
 		xi, v0i, v1i := x[i], v0[i], v1[i]
 
@@ -644,9 +647,9 @@ func fmbounds2D(x, v0, v1 *v16, n int) int32 {
 }
 
 // Fourier-Motzkin bounds for 3D kernel
-func fmbounds3D(x, v0, v1, v2 *v16, n int) (int32, int32) {
-	type k2 struct{ x, v0, v1, v2 int32 }
-	type k1 struct{ x, v0, v1 int32 }
+func fmbounds3D(x, v0, v1, v2 *v16, n int) (i32, i32) {
+	type k2 struct{ x, v0, v1, v2 i32 }
+	type k1 struct{ x, v0, v1 i32 }
 
 	var pos2, p2 = [8]k2{}, 0
 	var neg2, n2 = [8]k2{}, 0
@@ -654,9 +657,9 @@ func fmbounds3D(x, v0, v1, v2 *v16, n int) (int32, int32) {
 	var pos1, p1 = [32]k1{}, 0
 	var neg1, n1 = [32]k1{}, 0
 
-	var min0, max0 int32 = math.MinInt16, math.MaxInt16
+	var min0, max0 i32 = math.MinInt16, math.MaxInt16
 
-	limit := func(n, d int32) {
+	limit := func(n, d i32) {
 		switch {
 		case d > 0:
 			if min0*d < n {
@@ -730,7 +733,7 @@ func fmbounds3D(x, v0, v1, v2 *v16, n int) (int32, int32) {
 }
 
 // Σplus computes the sum of entries in v, making the sum non-negative
-func Σplus(v *v16) (s int32) {
+func Σplus(v *v16) (s i32) {
 	for i := range v {
 		s += v[i]
 	}
@@ -756,14 +759,14 @@ func swap(a, b *v16) {
 }
 
 // ρ returns a row as *v16 for a flat matrix
-func ρ(s []int32, i int) *v16 {
+func ρ(s []i32, i int) *v16 {
 	return (*v16)(unsafe.Pointer(&s[i*16]))
 }
 
 // linc performs a linear combination:
 // x <- a*x + b*y
 // y <- c*x + d*y
-func linc(x, y *v16, a, b, c, d int32) {
+func linc(x, y *v16, a, b, c, d i32) {
 	for i := range x {
 		xi, yi := x[i], y[i]
 
@@ -773,7 +776,7 @@ func linc(x, y *v16, a, b, c, d int32) {
 }
 
 // axpy performs the operation y <- y + a*x
-func axpy(a int32, x, y *v16) {
+func axpy(a i32, x, y *v16) {
 	for i := range y {
 		y[i] += x[i] * a
 	}
@@ -782,7 +785,7 @@ func axpy(a int32, x, y *v16) {
 // Helper functions
 
 // cdiv: ceiling division a/b
-func cdiv(a, b int32) int32 {
+func cdiv(a, b i32) i32 {
 	if a >= 0 {
 		return (a + b - 1) / b
 	}
@@ -790,7 +793,7 @@ func cdiv(a, b int32) int32 {
 }
 
 // fdiv: floor division a/b
-func fdiv(a, b int32) int32 {
+func fdiv(a, b i32) i32 {
 	if a >= 0 {
 		return a / b
 	}
@@ -798,9 +801,9 @@ func fdiv(a, b int32) int32 {
 }
 
 // extended gcd returns gcd(a,b) and x,y such that ax+by=gcd(a,b)
-func egcd(a, b int32) (int32, int32, int32) {
-	var x0, x1 int32 = 1, 0
-	var y0, y1 int32 = 0, 1
+func egcd(a, b i32) (i32, i32, i32) {
+	var x0, x1 i32 = 1, 0
+	var y0, y1 i32 = 0, 1
 
 	for b != 0 {
 		q := a / b
@@ -815,9 +818,9 @@ func egcd(a, b int32) (int32, int32, int32) {
 }
 
 // atoi: convert byte slice to integer
-func atoi(s []byte) (n int32) {
+func atoi(s []byte) (n i32) {
 	for _, c := range s {
-		n = 10*n + int32(c-'0')
+		n = 10*n + i32(c-'0')
 	}
 	return
 }
