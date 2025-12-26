@@ -15,11 +15,10 @@ import (
 	"bytes"
 	"fmt"
 	"os"
-	"slices"
 	"time"
 )
 
-const MaxPoints = 1000         // challenge threshold
+const MaxPointHint = 1000      // maximum number of input points
 const CutoffDist = 196_000_000 // edge squared distance cutoff from prior runs
 
 func main() {
@@ -27,11 +26,11 @@ func main() {
 
 	var acc1, acc2 int // parts 1 and 2 accumulators
 
-	points := make([]point, 0, MaxPoints)
+	points := make([]point, 0, MaxPointHint)
 
 	input := bufio.NewScanner(os.Stdin)
 
-	for input.Scan() {
+	for i := 0; input.Scan(); i++ {
 		fields := bytes.SplitN(input.Bytes(), []byte(","), 3)
 
 		points = append(points, point{
@@ -48,14 +47,17 @@ func main() {
 	for i := range n - 1 {
 		for j := i + 1; j < n; j++ {
 			a, b := points[i], points[j]
+
 			if d := dist2(a, b); d < CutoffDist { // cutoff heuristic
-				edges = append(edges, edge{dist: d, i: uint32(i), j: uint32(j)})
+				edges = append(edges, edge{dist: d, i: u32(i), j: u32(j)})
 			}
 		}
 	}
-	// sort edges by distance
-	slices.SortFunc(edges, func(a, b edge) int { return a.dist - b.dist })
 
+	// sort edges by distance
+	qsort3(edges, 0, len(edges)-1)
+
+	// initialize disjoint set union structure
 	dsu := newDSU(n)
 
 	unions := 0 // count of unions performed
@@ -67,13 +69,13 @@ func main() {
 		}
 
 		switch {
-		case i == n-1: // part 1: after 1000 edges
+		case i == 999: // part 1: after 1000 edges
 			seen := make([]bool, n)
 
-			var max1, max2, max3 uint32 // sliding top 3 sizes
+			var max1, max2, max3 u32 // sliding top 3 sizes
 
 			for i := range n {
-				root := dsu.find(uint32(i))
+				root := dsu.find(u32(i))
 
 				if !seen[root] {
 					seen[root] = true
@@ -91,7 +93,7 @@ func main() {
 
 			acc1 = int(max1 * max2 * max3) // product of 3 largest components
 
-		case unions == n-1: // part 2: after 1000 unions, spanning tree is complete
+		case unions == 999: // part 2: after 1000 unions, spanning tree is complete
 			acc2 = points[e.i].X * points[e.j].X // product of X coords of last edge
 
 			fmt.Println(acc1, acc2, time.Since(t0)) // output results
@@ -101,33 +103,88 @@ func main() {
 	}
 }
 
+// qsort3 is quicksort with median-of-three pivot selection
+func qsort3(A []edge, l, r int) {
+	// For small slices, use insertion sort
+	if r-l < 32 {
+		for i := l + 1; i <= r; i++ {
+			tmp := A[i]
+
+			j := i - 1
+			for j >= l && A[j].dist > tmp.dist {
+				A[j+1] = A[j]
+				j--
+			}
+
+			A[j+1] = tmp
+		}
+
+		return
+	}
+	mid := l + (r-l)/2
+
+	// Median-of-three
+	if A[r].dist < A[l].dist {
+		A[l], A[r] = A[r], A[l]
+	}
+
+	if A[mid].dist < A[l].dist {
+		A[mid], A[l] = A[l], A[mid]
+	}
+
+	if A[r].dist < A[mid].dist {
+		A[mid], A[r] = A[r], A[mid]
+	}
+
+	pivot := A[mid].dist
+	A[mid], A[r-1] = A[r-1], A[mid] // Hide pivot
+	i, j := l, r-1
+	for {
+		for i++; i < r && A[i].dist < pivot; i++ {
+		}
+		for j--; j > l && A[j].dist > pivot; j-- {
+		}
+		if i >= j {
+			break
+		}
+		A[i], A[j] = A[j], A[i]
+	}
+	A[i], A[r-1] = A[r-1], A[i] // Restore pivot
+	qsort3(A, l, i-1)
+	qsort3(A, i+1, r)
+}
+
+type u32 = uint32
+
 // edge represents an edge between two points with a squared distance
 type edge struct {
-	dist int    // squared distance
-	i, j uint32 // point indices
+	dist int // squared distance
+	i, j u32 // point indices
 }
 
 // dsu is a disjoint set union (union-find) data structure
 type dsu struct {
-	parent []uint32
-	size   []uint32
+	parent []u32
+	size   []u32
 }
 
 // newDSU creates a new DSU with n elements
 func newDSU(n int) *dsu {
-	p := make([]uint32, n)
-	sz := make([]uint32, n)
+	p := make([]u32, n)
+	for i := range n {
+		p[i] = u32(i)
+	}
 
-	for i := range p {
-		p[i] = uint32(i)
+	sz := make([]u32, n)
+	for i := range n {
 		sz[i] = 1
 	}
 
-	return &dsu{p, sz}
+	return &dsu{parent: p, size: sz}
 }
 
 // find returns the root of the set containing x, with path compression
-func (d *dsu) find(x uint32) uint32 {
+func (d *dsu) find(x u32) u32 {
 	root := x
 
 	// Find the root
@@ -137,16 +194,16 @@ func (d *dsu) find(x uint32) uint32 {
 
 	// Path compression: make all nodes on path point directly to root
 	for d.parent[x] != x {
-		next := d.parent[x]
+		nxt := d.parent[x]
 		d.parent[x] = root
-		x = next
+		x = nxt
 	}
 
 	return root
 }
 
 // union merges the sets containing a and b
-func (d *dsu) union(a, b uint32) {
+func (d *dsu) union(a, b u32) {
 	ra, rb := d.find(a), d.find(b)
 
 	if ra == rb {
