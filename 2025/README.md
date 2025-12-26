@@ -1,6 +1,6 @@
 # Summary
 
-This repository contains optimized solutions for Advent of Code 2025, implemented in [Go](https://en.wikipedia.org/wiki/Go_(programming_language)) with a focus on performance and educational value. The whole collection runs all days and all parts in less than 4 ms. Each day is solved in a single, dependency-free [Go](https://go.dev) file.
+This repository contains optimized solutions for Advent of Code 2025, implemented in [Go](https://en.wikipedia.org/wiki/Go_(programming_language)) with a focus on performance and educational value. The whole collection runs all days and all parts in less than 3 ms. Each day is solved in a single, dependency-free [Go](https://go.dev) file.
 
 ## Quick Navigation
 
@@ -64,21 +64,21 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
 
 | Day                                | Time (μs) | % of Total  |
 | ---------------------------------- | --------: | ----------: |
-| [**2**](#day-2-gift-shop-)         |         8 |       0.20% |
-| [7](#day-7-laboratories-)          |        30 |       0.75% |
-| [5](#day-5-cafeteria-)             |        95 |       2.39% |
-| [12](#day-12-christmas-tree-farm-) |       119 |       2.99% |
-| [1](#day-1-secret-entrance-)       |       124 |       3.11% |
-| [6](#day-6-trash-compactor-)       |       150 |       3.77% |
-| [11](#day-11-reactor-)             |       157 |       3.94% |
-| [3](#day-3-lobby-)                 |       189 |       4.75% |
-| [10](#day-10-factory-)             |       248 |       6.23% |
-| [4](#day-4-printing-department-)   |       695 |      17.45% |
-| [9](#day-9-movie-theater-)         |     1,037 |      26.04% |
-| [8](#day-8-playground-)            |     1,132 |      28.43% |
-| **Total**                          | **3,984** | **100.00%** |
+| [**2**](#day-2-gift-shop-)         |         8 |       0.27% |
+| [7](#day-7-laboratories-)          |        30 |       1.02% |
+| [5](#day-5-cafeteria-)             |        95 |       3.24% |
+| [9](#day-9-movie-theater-)         |       106 |       3.61% |
+| [12](#day-12-christmas-tree-farm-) |       119 |       4.05% |
+| [1](#day-1-secret-entrance-)       |       124 |       4.22% |
+| [6](#day-6-trash-compactor-)       |       150 |       5.11% |
+| [11](#day-11-reactor-)             |       157 |       5.35% |
+| [3](#day-3-lobby-)                 |       189 |       6.44% |
+| [10](#day-10-factory-)             |       248 |       8.45% |
+| [4](#day-4-printing-department-)   |       695 |      23.67% |
+| [8](#day-8-playground-)            |     1,011 |      34.43% |
+| **Total**                          | **2,937** | **100.00%** |
 
-fastest of 100 runs for part1&2 in μs - mbair M1/16GB - darwin 24.6.0 - go1.25.3 darwin/arm64 with greentea GC - 2025-12
+fastest of 100 runs for input parsing and part1&2 in μs - mbair M1/16GB - darwin 24.6.0 - go1.25.3 darwin/arm64 with greentea GC - 2025-12
 
 ## Installation and benchmark [↑](#summary)
 
@@ -155,7 +155,7 @@ The password method <span title='CLICK'><code>0x434C49434B</code></span> actuall
 " width="60%" />
 </div>
 
-### Third Approach
+### Current Approach
 
 As AoC is a gathering, I usually keep a back channel open with my fellow programmer and friend **[hm](https://blog.izissise.net/)**. From the very beginning, he had been insisting on how fast the generation of the numbers we are tasked to find in today’s challenge could be. He was convinced from the start that, given their regular nature, they were natural candidates for efficient generation… and it turns out he was right.
 
@@ -469,7 +469,7 @@ The [solution](https://github.com/erik-adelbert/aoc/blob/main/2025/7/aoc7.go) ad
 
 The algorithm runs with `O(n)` time complexity, where *n* is the number of grid cells. Each row is processed exactly once, and for each row, we iterate through all possible path positions. The space complexity is `O(w)` for the paths array were *w* is the grid width, making it quite memory-efficient.
 
-It runs in under 1ms.
+It runs in under 1 ms.
 
 ## Day 8: [Playground](https://adventofcode.com/2025/day/8) [↑](#summary)
 
@@ -488,7 +488,9 @@ This greatly improves runtime because Kruskal’s algorithm—along with the ~~h
 
 `<EDIT>` I replaced the heap by a sort to make the code lighter and actually faster.
 
-The code runs in under `1.3ms`
+`<EDIT>` I went full AoC mode and broke the runtime barrier by embedding a canonical quicksort with [median-of-three](https://www.cs.princeton.edu/courses/archive/fall12/cos226/lectures/23Quicksort.pdf) pivot selection.
+
+The code runs in about 1 ms
 
 ## Why have I changed the timings? [↑](#summary)
 
@@ -525,6 +527,23 @@ go run ./aoc8.go < input.txt
 <div align="center">
   <img src="./images/industrial_compressor.jpg" alt="An industrial compressor in full, intricate detail. It is what it is, but this solution surely produces its fair share of gas." width="60%" />
 </div>
+
+### Current Approach
+
+[`/u/maneatingape`](https://www.reddit.com/user/maneatingape/) has came up with a beautiful [sweep line algorithm](https://en.wikipedia.org/wiki/Sweep_line_algorithm) to tackle today's problem. Given tile coordinates as input, we are tasked to find the largest axis-aligned rectangle, fully filled, and bounded by the input coordinates.
+
+The [sweep line](https://github.com/erik-adelbert/aoc/blob/main/2025/9/aoc9.go) keeps track and updates candidate rectangles as it processes the sorted points row by row:
+
+- For each row, it toggles the x-coordinates of the current row's points in a sorted edge list, then builds intervals from these edges.
+- It checks all the current candidate rectangles to see if they can be extended to the current row, updating the maximum area if so.
+- Candidate that are no longer valid (not covered by any current interval) are removed.
+- New candidates are started at each new edge in the current row.
+
+This approach ensures that all possible maximal rectangles are considered, but only those that can actually be extended are kept. It is so efficient!
+
+### First Approach
+
+**For the following discussion please checkout commit  [86d7495](https://github.com/erik-adelbert/aoc/blob/86d749573d2a292c3d1680906d7fddeb902b3863/2025/9/aoc9.go)**
 
 Today, we’re tackling the problem of finding the largest rectangle inside a rectilinear polyline. Suffice it to say, I’m not a big fan of this type of problem—these puzzles usually end up with a [solution](https://github.com/erik-adelbert/aoc/blob/main/2025/9/aoc9.go) that’s tedious, and today is no exception.
 
@@ -679,7 +698,7 @@ go clean
 rm -f aoc12
 ```
 
-My collection runs all problems for the entire edition in roughly `4ms`.
+My collection runs all problems for the entire edition in roughly `3ms`.
 
 ## How was it? [↑](#summary)
 
@@ -745,46 +764,48 @@ PS2. I have been [awarded](https://www.reddit.com/r/adventofcode/comments/1prrvf
 | 6   |       88 |
 | 11  |       94 |
 | 1   |      119 |
-| 8   |      142 |
-| 9   |      121 |
-| 2   |      255 |
+| 9   |      183 |
+| 8   |      184 |
 | 4   |      186 |
+| 2   |      255 |
 | 10  |      555 |
 
 ```bash
 ❯ cloc 1 2 3 4 5 6 7 8 9 10 11 12
       66 text files.
       56 unique files.
-      13 files ignored.
+      12 files ignored.
 
-github.com/AlDanial/cloc v 2.06  T=0.05 s (1134.5 files/s, 265457.7 lines/s)
+github.com/AlDanial/cloc v 2.06  T=0.05 s (1081.3 files/s, 256025.3 lines/s)
 -------------------------------------------------------------------------------
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
 Text                            26             14              0           9903
-Go                              16            564            416           1806
-Markdown                        10             49              0            148
+Go                              16            586            446           1908
+Markdown                        10             48              0            149
 Python                           2             29             35            139
 make                             2              0              0              2
 -------------------------------------------------------------------------------
-SUM:                            56            656            451          11998
+SUM:                            56            677            481          12101
 -------------------------------------------------------------------------------
 ```
 
 ### Cyclomatic complexity over 10
 
 ```bash
-33 main min2D 10/aoc10.go:316:1
+❯ make cyclo
+33 main min2D 10/aoc10.go:319:1
 20 main main 4/aoc4.go:21:1
 19 main main 6/aoc6.go:23:1
 18 main main 11/aoc11.go:21:1
-17 main main 9/aoc9.go:13:1
-16 main fmbounds3D 10/aoc10.go:647:1
-14 main main 8/aoc8.go:25:1
-13 main hnf 10/aoc10.go:511:1
-12 main main 2/aoc2.go:24:1
-11 main fmbounds2D 10/aoc10.go:608:1
-Average: 5.29
+16 main fmbounds3D 10/aoc10.go:650:1
+14 main qsort3 8/aoc8.go:107:1
+14 main main 8/aoc8.go:24:1
+13 main hnf 10/aoc10.go:514:1
+12 main part2 9/aoc9.go:86:1
+11 main main 2/aoc2.go:24:1
+11 main fmbounds2D 10/aoc10.go:611:1
+Average: 4.97
 ```
 
 Day 10 is a major contributor in this table, and implementing [BLAS](https://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms) algorithms is certainly quite sophisticated. For instance, they are usually as huge (LOC-wise) as they are fast; this means that the code bails out at the first opportunity, leading to a mechanical increase in cyclomatic complexity. It’s no wonder the [simplex algorithm](https://en.wikipedia.org/wiki/Simplex_algorithm) of my first approach was rated 41. Implementing one is not easy and introduces challenges ranging from structural design to numerical instability. It’s a sophisticated technique developed in the mid-20th century that reached peak prominence in the late 1990s. With recent progress in applying [linear programming](https://en.wikipedia.org/wiki/Linear_programming) to AI, it’s seeing a revival in certain hybrid AI [planning](https://arxiv.org/abs/2509.21014) pipelines.
