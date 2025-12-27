@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 
 # Data
 days = ["2", "7", "5", "9", "12", "1", "6", "11", "3", "10", "4", "8"]
-times = [8, 30, 95, 106, 119, 124, 150, 157, 189, 248, 695, 1011]
+times = [8, 30, 95, 106, 119, 124, 150, 157, 189, 248, 695, 863]
 
 # Colors and text color
 bar_color = "#808080"  # medium gray bars

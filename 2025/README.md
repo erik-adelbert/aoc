@@ -1,6 +1,6 @@
 # Summary
 
-This repository contains optimized solutions for Advent of Code 2025, implemented in [Go](https://en.wikipedia.org/wiki/Go_(programming_language)) with a focus on performance and educational value. The whole collection runs all days and all parts in less than 3 ms. Each day is solved in a single, dependency-free [Go](https://go.dev) file.
+This repository contains optimized solutions for Advent of Code 2025, implemented in [Go](https://en.wikipedia.org/wiki/Go_(programming_language)) with a focus on performance and educational value. The whole collection runs all days and all parts in about 2.8 ms. Each day is solved in a single, dependency-free [Go](https://go.dev) file.
 
 ## Quick Navigation
 
@@ -47,9 +47,9 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
 - [Day 5: Cafeteria](#day-5-cafeteria-) - Range merging
 - [Day 6: Trash Compactor](#day-6-trash-compactor-) - Matrix operations and data organization
 - [Day 7: Laboratories](#day-7-laboratories-) - Path propagation and dynamic programming
-- [Day 8: Playground](#day-8-playground-) - Modified Kruskal's with distance cutoff
+- [Day 8: Playground](#day-8-playground-) - Modified Kruskal's with quickselect
 - [Why have I changed the timings?](#why-have-i-changed-the-timings-) - Timings and evaluation
-- [Day 9: Movie Theater](#day-9-movie-theater-) - Prefix sums, 2D compress coordinates and cache optimization
+- [Day 9: Movie Theater](#day-9-movie-theater-) - Sweep Line Algorithm
 - [Day 10: Factory](#day-10-factory-) - BFS and ILP solver
 - [Day 11: Reactor](#day-11-reactor-) - Graph DFS and DP, Hashing
 - [Day 12: Christmas Tree Farm](#day-12-christmas-tree-farm-) - Parsing and Heuristic
@@ -64,19 +64,19 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
 
 | Day                                | Time (μs) | % of Total  |
 | ---------------------------------- | --------: | ----------: |
-| [**2**](#day-2-gift-shop-)         |         8 |       0.27% |
-| [7](#day-7-laboratories-)          |        30 |       1.02% |
-| [5](#day-5-cafeteria-)             |        95 |       3.24% |
-| [9](#day-9-movie-theater-)         |       106 |       3.61% |
-| [12](#day-12-christmas-tree-farm-) |       119 |       4.05% |
-| [1](#day-1-secret-entrance-)       |       124 |       4.22% |
-| [6](#day-6-trash-compactor-)       |       150 |       5.11% |
-| [11](#day-11-reactor-)             |       157 |       5.35% |
-| [3](#day-3-lobby-)                 |       189 |       6.44% |
-| [10](#day-10-factory-)             |       248 |       8.45% |
-| [4](#day-4-printing-department-)   |       695 |      23.67% |
-| [8](#day-8-playground-)            |     1,011 |      34.43% |
-| **Total**                          | **2,937** | **100.00%** |
+| [**2**](#day-2-gift-shop-)         |         8 |       0.29% |
+| [7](#day-7-laboratories-)          |        30 |       1.08% |
+| [5](#day-5-cafeteria-)             |        95 |       3.41% |
+| [9](#day-9-movie-theater-)         |       106 |       3.80% |
+| [12](#day-12-christmas-tree-farm-) |       119 |       4.27% |
+| [1](#day-1-secret-entrance-)       |       124 |       4.45% |
+| [6](#day-6-trash-compactor-)       |       150 |       5.38% |
+| [11](#day-11-reactor-)             |       157 |       5.63% |
+| [3](#day-3-lobby-)                 |       189 |       6.78% |
+| [10](#day-10-factory-)             |       248 |       8.89% |
+| [4](#day-4-printing-department-)   |       695 |      24.92% |
+| [8](#day-8-playground-)            |       863 |      30.95% |
+| **Total**                          | **2,789** | **100.00%** |
 
 fastest of 100 runs for input parsing and part1&2 in μs - mbair M1/16GB - darwin 24.6.0 - go1.25.3 darwin/arm64 with greentea GC - 2025-12
 
@@ -490,7 +490,9 @@ This greatly improves runtime because Kruskal’s algorithm—along with the ~~h
 
 `<EDIT>` I went full AoC mode and broke the runtime barrier by embedding a canonical quicksort with [median-of-three](https://www.cs.princeton.edu/courses/archive/fall12/cos226/lectures/23Quicksort.pdf) pivot selection.
 
-The code runs in about 1 ms
+`<EDIT>` I went full AoC² and broke the runtime barrier by turning quicksort into two successive [quickselect](https://en.wikipedia.org/wiki/Quickselect) passes that do just enough ordering for Kruskal to work.
+
+The code runs in about 863 μs.
 
 ## Why have I changed the timings? [↑](#summary)
 
@@ -765,7 +767,7 @@ PS2. I have been [awarded](https://www.reddit.com/r/adventofcode/comments/1prrvf
 | 11  |       94 |
 | 1   |      119 |
 | 9   |      176 |
-| 8   |      184 |
+| 8   |      181 |
 | 4   |      186 |
 | 2   |      255 |
 | 10  |      555 |
@@ -781,31 +783,30 @@ github.com/AlDanial/cloc v 2.06  T=0.05 s (1164.2 files/s, 275946.0 lines/s)
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
 Text                            26             14              0           9903
-Go                              16            593            460           1901
+Go                              16            591            462           1898
 Markdown                        10             48              0            149
 Python                           2             29             35            139
 make                             2              0              0              2
 -------------------------------------------------------------------------------
-SUM:                            56            684            495          12094
+SUM:                            56            682            497          12091
 -------------------------------------------------------------------------------
 ```
 
 ### Cyclomatic complexity over 10
 
 ```bash
-❯ make cyclo
 33 main min2D 10/aoc10.go:319:1
 20 main main 4/aoc4.go:21:1
 19 main main 6/aoc6.go:23:1
 18 main main 11/aoc11.go:21:1
 16 main fmbounds3D 10/aoc10.go:650:1
-14 main qsort3 8/aoc8.go:107:1
 14 main main 8/aoc8.go:24:1
 13 main hnf 10/aoc10.go:514:1
-12 main part2 9/aoc9.go:86:1
+11 main part2 9/aoc9.go:86:1
+11 main qselect3 8/aoc8.go:110:1
 11 main main 2/aoc2.go:24:1
 11 main fmbounds2D 10/aoc10.go:611:1
-Average: 4.97
+Average: 4.96
 ```
 
 Day 10 is a major contributor in this table, and implementing [BLAS](https://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms) algorithms is certainly quite sophisticated. For instance, they are usually as huge (LOC-wise) as they are fast; this means that the code bails out at the first opportunity, leading to a mechanical increase in cyclomatic complexity. It’s no wonder the [simplex algorithm](https://en.wikipedia.org/wiki/Simplex_algorithm) of my first approach was rated 41. Implementing one is not easy and introduces challenges ranging from structural design to numerical instability. It’s a sophisticated technique developed in the mid-20th century that reached peak prominence in the late 1990s. With recent progress in applying [linear programming](https://en.wikipedia.org/wiki/Linear_programming) to AI, it’s seeing a revival in certain hybrid AI [planning](https://arxiv.org/abs/2509.21014) pipelines.

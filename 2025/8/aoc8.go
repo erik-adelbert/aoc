@@ -54,8 +54,11 @@ func main() {
 		}
 	}
 
-	// sort edges by distance
-	qsort3(edges, 0, len(edges)-1)
+	// weak order edges by distance
+	// garantees ∀ i < n, ∀ j ≥ n : edges[i].dist ≤ edges[j].dist
+	// this is sufficient for Kruskal's algorithm
+	qselect3(edges, len(edges)-1) // partition around k=len(edges)-1
+	qselect3(edges, n)            // partition around k=n
 
 	// initialize disjoint set union structure
 	dsu := newDSU(n)
@@ -103,55 +106,50 @@ func main() {
 	}
 }
 
-// qsort3 is quicksort with median-of-three pivot selection
-func qsort3(A []edge, l, r int) {
-	// For small slices, use insertion sort
-	if r-l < 32 {
-		for i := l + 1; i <= r; i++ {
-			tmp := A[i]
+// qselect3 performs a quickselect using median-of-three partitioning
+func qselect3(A []edge, k int) {
+	l, r := 0, len(A)-1
 
-			j := i - 1
-			for j >= l && A[j].dist > tmp.dist {
-				A[j+1] = A[j]
-				j--
+	for l < r {
+		mid := l + (r-l)/2
+
+		// median-of-three
+		if A[r].dist < A[l].dist {
+			A[l], A[r] = A[r], A[l]
+		}
+		if A[mid].dist < A[l].dist {
+			A[mid], A[l] = A[l], A[mid]
+		}
+		if A[r].dist < A[mid].dist {
+			A[mid], A[r] = A[r], A[mid]
+		}
+
+		piv := A[mid].dist
+		A[mid], A[r-1] = A[r-1], A[mid]
+
+		i, j := l, r-1
+		for {
+			for i++; A[i].dist < piv; i++ {
 			}
-
-			A[j+1] = tmp
+			for j--; A[j].dist > piv; j-- {
+			}
+			if i >= j {
+				break
+			}
+			A[i], A[j] = A[j], A[i]
 		}
+		A[i], A[r-1] = A[r-1], A[i]
 
-		return
-	}
-	mid := l + (r-l)/2
-
-	// Median-of-three
-	if A[r].dist < A[l].dist {
-		A[l], A[r] = A[r], A[l]
-	}
-
-	if A[mid].dist < A[l].dist {
-		A[mid], A[l] = A[l], A[mid]
-	}
-
-	if A[r].dist < A[mid].dist {
-		A[mid], A[r] = A[r], A[mid]
-	}
-
-	pivot := A[mid].dist
-	A[mid], A[r-1] = A[r-1], A[mid] // Hide pivot
-	i, j := l, r-1
-	for {
-		for i++; i < r && A[i].dist < pivot; i++ {
+		// pivot is now at i
+		switch {
+		case i == k:
+			return
+		case i < k:
+			l = i + 1
+		default:
+			r = i - 1
 		}
-		for j--; j > l && A[j].dist > pivot; j-- {
-		}
-		if i >= j {
-			break
-		}
-		A[i], A[j] = A[j], A[i]
 	}
-	A[i], A[r-1] = A[r-1], A[i] // Restore pivot
-	qsort3(A, l, i-1)
-	qsort3(A, i+1, r)
 }
 
 type u32 = uint32
