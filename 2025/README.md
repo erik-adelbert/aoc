@@ -536,7 +536,7 @@ The [sweep line](https://github.com/erik-adelbert/aoc/blob/main/2025/9/aoc9.go) 
 
 - For each row, it toggles the x-coordinates of the current row's points in a sorted edge list, then builds intervals from these edges.
 - It checks all the current candidate rectangles to see if they can be extended to the current row, updating the maximum area if so.
-- Candidate that are no longer valid (not covered by any current interval) are removed.
+- Candidates that are no longer valid (not covered by any current interval) are removed.
 - New candidates are started at each new edge in the current row.
 
 This approach ensures that all possible maximal rectangles are considered, but only those that can actually be extended are kept. It is so efficient!
@@ -764,7 +764,7 @@ PS2. I have been [awarded](https://www.reddit.com/r/adventofcode/comments/1prrvf
 | 6   |       88 |
 | 11  |       94 |
 | 1   |      119 |
-| 9   |      183 |
+| 9   |      176 |
 | 8   |      184 |
 | 4   |      186 |
 | 2   |      255 |
@@ -776,17 +776,17 @@ PS2. I have been [awarded](https://www.reddit.com/r/adventofcode/comments/1prrvf
       56 unique files.
       12 files ignored.
 
-github.com/AlDanial/cloc v 2.06  T=0.05 s (1081.3 files/s, 256025.3 lines/s)
+github.com/AlDanial/cloc v 2.06  T=0.05 s (1164.2 files/s, 275946.0 lines/s)
 -------------------------------------------------------------------------------
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
 Text                            26             14              0           9903
-Go                              16            586            446           1908
+Go                              16            593            460           1901
 Markdown                        10             48              0            149
 Python                           2             29             35            139
 make                             2              0              0              2
 -------------------------------------------------------------------------------
-SUM:                            56            677            481          12101
+SUM:                            56            684            495          12094
 -------------------------------------------------------------------------------
 ```
 

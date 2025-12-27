@@ -1,3 +1,14 @@
+// aoc9.go --
+// advent of code 2025 day 9
+//
+// https://adventofcode.com/2025/day/9
+// https://github.com/erik-adelbert/aoc
+//
+// (ɔ) Erik Adelbert - erik_AT_adelbert_DOT_fr
+// -------------------------------------------
+// 2025-12-9: initial commit
+// 2025-12-27: /u/maneatingape sweep line algorithm
+
 package main
 
 import (
@@ -6,8 +17,137 @@ import (
 	"fmt"
 	"os"
 	"slices"
+	"sync"
 	"time"
 )
+
+const (
+	X = iota
+	Y
+)
+
+func main() {
+	t0 := time.Now()
+
+	var acc1, acc2 u64 // parts 1 and 2 accumulators
+
+	tiles := make([]tile, 0, SizeHint)
+
+	// read input points
+	input := bufio.NewScanner(os.Stdin)
+
+	for input.Scan() {
+		bufX, bufY, _ := bytes.Cut(input.Bytes(), []byte(","))
+		x, y := atoi(bufX), atoi(bufY)
+
+		tiles = append(tiles, tile{x, y})
+	}
+
+	// sort tiles by y, then x
+	slices.SortFunc(tiles, func(a, b tile) int {
+		ya, yb := int(a[Y]), int(b[Y])
+		if ya != yb {
+			return ya - yb
+		}
+
+		xa, xb := int(a[X]), int(b[X])
+		return xa - xb
+	})
+
+	// run parts in parallel
+	var wg sync.WaitGroup
+
+	wg.Go(func() { // Go 1.25+
+		acc1 = part1(tiles)
+	})
+
+	wg.Go(func() {
+		acc2 = part2(tiles)
+	})
+
+	wg.Wait()
+
+	fmt.Println(acc1, acc2, time.Since(t0))
+}
+
+// part1 computes the maximum rectangle area using left and right tops and bottoms
+func part1(tiles []tile) u64 {
+	selit := slices.Clone(tiles)
+	slices.Reverse(selit)
+
+	topLs, topRs := corners(tiles) // left and right tops
+	botLs, botRs := corners(selit) // left and right bottoms
+
+	// brute-force maximum area from combinations of corners
+	return max(area(topLs, botRs), area(topRs, botLs))
+}
+
+// part2 computes the maximum rectangle area using a sweep line algorithm
+func part2(tiles []tile) u64 {
+	var area u64 = 0
+
+	edges := make([]u32, 0, 4) // descending edges
+
+	spans := make([]span, 8) // active span buffer
+
+	cur := make([]rect, 0, 256) // current candidates
+
+	for i := 0; i < len(tiles); i += 2 {
+		// tiles are assumed to come in pairs on the same y line
+		x0, y, x1, _ := tiles[i][X], tiles[i][Y], tiles[i+1][X], tiles[i+1][Y]
+
+		// toggle x values in the descending edge list
+		edges = toggle(edges, x0)
+		edges = toggle(edges, x1)
+
+		// check rectangles with current candidates
+		for _, c := range cur {
+			if c.contains(x0) {
+				w := adiff64(c.x, x0) + 1
+				h := adiff64(c.y, y) + 1
+				area = max(area, w*h)
+			}
+
+			if c.contains(x1) {
+				w := adiff64(c.x, x1) + 1
+				h := adiff64(c.y, y) + 1
+				area = max(area, w*h)
+			}
+		}
+
+		// build spans from edges
+		spans = toSpans(spans[:0], edges) // reuse spans buffer
+
+		// shrink or remove candidates
+		nxt := cur[:0] // next candidates (reuse storage)
+	SCAN:
+		for _, c := range cur {
+			for _, s := range spans {
+				if ok := s.contains(c.x); ok {
+					c.span = c.inter(s)
+
+					nxt = append(nxt, c)
+
+					continue SCAN
+				}
+			}
+		}
+
+		// add new candidates
+		for _, x := range []u32{x0, x1} {
+			for _, s := range spans {
+				if s.contains(x) {
+					nxt = append(nxt, rect{x: x, y: y, span: s})
+					break
+				}
+			}
+		}
+
+		cur = nxt
+	}
+
+	return area
+}
 
 type (
 	// tile represents a point (x, y)
@@ -23,6 +163,9 @@ type (
 		x, y u32
 		span
 	}
+
+	u64 = uint64
+	u32 = uint32
 )
 
 // inter returns the intersection of two spans
@@ -34,124 +177,12 @@ func (a span) inter(b span) span {
 }
 
 // contains checks if the span contains the point i
-func (a span) contains(i u32) bool {
-	return a.l <= i && i <= a.r
-}
+func (a span) contains(i u32) bool { return a.l <= i && i <= a.r }
 
-func main() {
-	t0 := time.Now()
-
-	var acc1, acc2 u64 // parts 1 and 2 accumulators
-
-	tiles := make([]tile, 0, SizeHint)
-
-	// read input points
-	input := bufio.NewScanner(os.Stdin)
-
-	for input.Scan() {
-		bufX, bufY, _ := bytes.Cut(input.Bytes(), []byte(","))
-		X, Y := atoi(bufX), atoi(bufY)
-
-		tiles = append(tiles, tile{X, Y})
-	}
-
-	// sort tiles by y, then x
-	slices.SortFunc(tiles, func(a, b tile) int {
-		ya, yb := int(a[1]), int(b[1])
-		if ya != yb {
-			return ya - yb
-		}
-
-		xa, xb := int(a[0]), int(b[0])
-		return xa - xb
-	})
-
-	acc1 = part1(tiles)
-	acc2 = part2(tiles)
-
-	fmt.Println(acc1, acc2, time.Since(t0))
-}
-
-// part1 computes the maximum rectangle area using left and right tops and bottoms
-func part1(tiles []tile) u64 {
-	selit := reverse(tiles)
-
-	ltops, rtops := limits(tiles) // left and right tops
-	lbots, rbots := limits(selit) // left and right bottoms
-
-	return max(area(ltops, rbots), area(rtops, lbots))
-}
-
-// part2 computes the maximum rectangle area using a sweep line algorithm
-func part2(tiles []tile) u64 {
-	var area u64 = 0
-
-	edges := make([]u32, 0, 4)  // descending edges
-	spans := make([]span, 0, 8) // current intervals
-
-	cur := make([]rect, 0, 512) // current candidates
-
-	for i := 0; i < len(tiles); i += 2 {
-		// Tiles are assumed to come in pairs on the same y line
-		x0, y, x1 := tiles[i][0], tiles[i][1], tiles[i+1][0]
-
-		// Toggle x values in the descending edge list
-		edges = toggle(edges, x0)
-		edges = toggle(edges, x1)
-
-		// Compute intervals from descending edges
-		spans = toSpans(spans, edges)
-
-		// Check rectangles with current candidates
-		for _, c := range cur {
-			if c.contains(x0) {
-				w := adiff(c.x, x0) + 1
-				h := adiff(c.y, y) + 1
-				area = max(area, w*h)
-			}
-
-			if c.contains(x1) {
-				w := adiff(c.x, x1) + 1
-				h := adiff(c.y, y) + 1
-				area = max(area, w*h)
-			}
-		}
-
-		// Shrink or remove candidates
-		nxt := cur[:0]
-		for _, c := range cur {
-			ok := false
-			for _, s := range spans {
-				if ok = s.contains(c.x); ok {
-					c.span = c.inter(s)
-					break
-				}
-			}
-
-			if ok {
-				nxt = append(nxt, c)
-			}
-		}
-		cur = nxt
-
-		// Add new candidates
-		for _, x := range []u32{x0, x1} {
-			for _, s := range spans {
-				if s.contains(x) {
-					cur = append(cur, rect{x: x, y: y, span: s})
-					break
-				}
-			}
-		}
-	}
-
-	return area
-}
-
-// limits returns leftmost and rightmost tiles for each y level
-func limits(tiles []tile) (left, right []tile) {
-	left = make([]tile, 0, len(tiles)/2)
-	right = make([]tile, 0, len(tiles)/2)
+// corners returns leftmost and rightmost tiles for each y level
+func corners(tiles []tile) (left, right []tile) {
+	left = make([]tile, 0, len(tiles)/4)
+	right = make([]tile, 0, len(tiles)/4)
 
 	last := func(s []tile) tile {
 		return s[len(s)-1]
@@ -177,30 +208,16 @@ func limits(tiles []tile) (left, right []tile) {
 
 		i = j
 	}
+
 	return
-}
-
-// reverse returns a reversed copy of the input slice
-func reverse(tiles []tile) []tile {
-	rev := slices.Clone(tiles)
-	slices.Reverse(rev)
-
-	return rev
 }
 
 // area computes the maximum area from pairs of tiles in a and b
 func area(a, b []tile) (best u64) {
-	adiff := func(a, b u32) u64 {
-		if a > b {
-			return u64(a - b)
-		}
-		return u64(b - a)
-	}
-
 	for _, p := range a {
 		for _, q := range b {
-			w := adiff(p[0], q[0]) + 1
-			h := adiff(p[1], q[1]) + 1
+			w := adiff64(p[X], q[X]) + 1
+			h := adiff64(p[Y], q[Y]) + 1
 			best = max(best, w*h)
 		}
 	}
@@ -214,11 +231,12 @@ func toggle(A []u32, v u32) []u32 {
 
 	if ok {
 		// Remove v at index i
-		copy(A[i:], A[i+1:])
-		return A[:len(A)-1]
+		// https://go.dev/wiki/SliceTricks#delete
+		return A[:i+copy(A[i:], A[i+1:])]
 	}
 
 	// Insert v at index i
+	// https://go.dev/wiki/SliceTricks#insert
 	A = append(A, 0)
 	copy(A[i+1:], A[i:]) // shift right
 	A[i] = v
@@ -226,17 +244,18 @@ func toggle(A []u32, v u32) []u32 {
 	return A
 }
 
-// toSpans converts descending edges [l0, r0, l1, r1, ...] into intervals
+// toSpans converts a list of edges to spans
 func toSpans(buf []span, edges []u32) []span {
-	buf = buf[:0]
 	for i := 0; i < len(edges); i += 2 {
+		// edges are assumed to come in pairs
 		buf = append(buf, span{l: edges[i], r: edges[i+1]})
 	}
+
 	return buf
 }
 
-// adiff computes the absolute difference between two u32 values
-func adiff(a, b u32) u64 {
+// adiff64 computes the absolute difference between two u32 values as u64
+func adiff64(a, b u32) u64 {
 	if a > b {
 		return u64(a - b)
 	}
@@ -253,8 +272,3 @@ func atoi(s []byte) (n u32) {
 }
 
 const SizeHint = 497
-
-type (
-	u64 = uint64
-	u32 = uint32
-)

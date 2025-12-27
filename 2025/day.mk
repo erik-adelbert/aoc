@@ -20,7 +20,7 @@ binrun: input.txt
 	./$(BIN) < $(IN)
 
 build: input.txt
-	$(GOC) $(SRC)
+	GODEBUG=greenteagc=1 $(GOC) $(SRC)
 
 check:
 	$(GOV) $(SRC)
