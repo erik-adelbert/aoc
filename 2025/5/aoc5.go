@@ -28,6 +28,7 @@ func main() {
 	input := bufio.NewScanner(os.Stdin)
 
 	spans := make([]span, 0, SpanCountHint)
+	queries := make([]int, 0, QueryCountHint)
 
 	// state machine parser
 	state := Span
@@ -48,11 +49,26 @@ func main() {
 			spans = append(spans, span{atoi(start), atoi(end)})
 
 		case state == Query:
-			qp := atoi(buf) // parse query point
+			queries = append(queries, atoi(buf))
+		}
+	}
 
-			if query(spans, qp) {
-				acc1++
-			}
+	// process queries
+	slices.Sort(queries)
+
+	i, j := 0, 0
+	for i < len(queries) && j < len(spans) {
+		q := queries[i]
+		s := spans[j]
+
+		switch {
+		case q < s.start:
+			i++
+		case q > s.end:
+			j++
+		default:
+			acc1++
+			i++
 		}
 	}
 
@@ -66,7 +82,8 @@ func merge(spans []span) (int, []span) {
 		return a.start - b.start
 	})
 
-	merged := make([]span, 0, MergedSpanCountHint) // could also be len(spans)
+	// merged := make([]span, 0, MergedSpanCountHint) // could also be len(spans)
+	merged := spans[:0] // reuse input slice
 
 	// merge overlapping intervals, count cover and populate tree
 	cover, cur := 0, spans[0]
@@ -93,17 +110,6 @@ func merge(spans []span) (int, []span) {
 	return cover, merged
 }
 
-// query returns true if v is contained in any of the spans
-func query(spans []span, v int) bool {
-	// find the insertion point for a span that would start at v
-	i, _ := slices.BinarySearchFunc(spans, span{v, v}, func(a, b span) int {
-		return a.start - b.start
-	})
-
-	// check if v is contained in the span just before the insertion point
-	return i > 0 && spans[i-1].start <= v && v <= spans[i-1].end
-}
-
 // span is an interval [start, end]
 type span struct {
 	start, end int
@@ -116,6 +122,7 @@ const (
 
 const (
 	// hints for pre-allocations from prior runs
+	QueryCountHint      = 1000
 	SpanCountHint       = 187
 	MergedSpanCountHint = 78
 )
