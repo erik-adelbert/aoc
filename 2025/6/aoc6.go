@@ -58,27 +58,17 @@ func main() {
 	last, size := cols[len(cols)-1], len(lines[0])+1
 	widths[len(widths)-1] = [2]int{last, size}
 
-	// split lines into cells
-	nrows := len(lines) - 1
-	cells := make([][][]byte, nrows)
-
-	for r := range cells {
-		cells[r] = make([][]byte, len(widths))
-
-		for c, w := range widths {
-			α, ω := w[0], w[1] // start and end of column
-			cells[r][c] = lines[r][α : ω-1]
-		}
+	// get the column tokens
+	h, w := len(lines)-1, len(widths)
+	tokens := make([][][]byte, w)
+	for c := range tokens {
+		tokens[c] = make([][]byte, h)
 	}
 
-	// transpose columns for easier processing
-	tokens := make([][][]byte, len(cells[0]))
-
-	for c := range tokens {
-		tokens[c] = make([][]byte, nrows)
-
-		for r := range cells {
-			tokens[c][r] = cells[r][c]
+	for r := range h {
+		for c, w := range widths {
+			α, ω := w[0], w[1]
+			tokens[c][r] = lines[r][α : ω-1]
 		}
 	}
 
