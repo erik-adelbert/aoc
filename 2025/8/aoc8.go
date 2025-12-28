@@ -18,15 +18,17 @@ import (
 	"time"
 )
 
-const MaxPointHint = 1000      // maximum number of input points
-const CutoffDist = 196_000_000 // edge squared distance cutoff from prior runs
+const (
+	N          = 1000        // parts threshold
+	CutoffDist = 196_000_000 // edge squared distance cutoff from prior runs
+)
 
 func main() {
 	t0 := time.Now()
 
 	var acc1, acc2 int // parts 1 and 2 accumulators
 
-	points := make([]point, 0, MaxPointHint)
+	points := make([]point, 0, N)
 
 	input := bufio.NewScanner(os.Stdin)
 
@@ -54,9 +56,9 @@ func main() {
 		}
 	}
 
-	// weak order edges by distance
+	// do minimal ordering of edges by distance
 	// garantees ∀ i < n, ∀ j ≥ n : edges[i].dist ≤ edges[j].dist
-	// this is sufficient for Kruskal's algorithm
+	// this is sufficient for Kruskal's algorithm to produce correct MST
 	qselect3(edges, len(edges)-1) // partition around k=len(edges)-1
 	qselect3(edges, n)            // partition around k=n
 
@@ -72,7 +74,11 @@ func main() {
 		}
 
 		switch {
-		case i == 999: // part 1: after 1000 edges
+		case i == N-1: // part 1: after 1000 edges
+			// stop as soon as the MST completes, so:
+			// no total ordering is required
+			// no tie-breaking is required
+			// no instability among equal distances is relevant
 			seen := make([]bool, n)
 
 			var max1, max2, max3 u32 // sliding top 3 sizes
@@ -96,7 +102,7 @@ func main() {
 
 			acc1 = int(max1 * max2 * max3) // product of 3 largest components
 
-		case unions == 999: // part 2: after 1000 unions, spanning tree is complete
+		case unions == N-1: // part 2: after 1000 unions, spanning tree is complete
 			acc2 = points[e.i].X * points[e.j].X // product of X coords of last edge
 
 			fmt.Println(acc1, acc2, time.Since(t0)) // output results
@@ -185,12 +191,12 @@ func newDSU(n int) *dsu {
 func (d *dsu) find(x u32) u32 {
 	root := x
 
-	// Find the root
+	// find the root
 	for d.parent[root] != root {
 		root = d.parent[root]
 	}
 
-	// Path compression: make all nodes on path point directly to root
+	// path compression: make all nodes on path point directly to root
 	for d.parent[x] != x {
 		nxt := d.parent[x]
 		d.parent[x] = root
