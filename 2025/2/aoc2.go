@@ -91,21 +91,21 @@ func allSpans(buf []byte) iter.Seq2[int, int] {
 		for span := range spans {
 			lhs, rhs, _ := bytes.Cut(span, []byte("-")) // parse range
 
-			start, end := atoi(lhs), atoi(rhs)
+			a, b := atoi(lhs), atoi(rhs)
 
 			for x := 10; x <= 1e9; x *= 10 {
-				if x > start && x <= end {
-					if !yield(start, x-1) { // [start, x-1]
+				if x > a && x <= b {
+					if !yield(a, x-1) { // [a, x-1]
 						return
 					}
 
-					start = x
+					a = x // advance a
 				}
 			}
 
-			// yield the final range [last_split, b] and return anyway
-			if start <= end {
-				if !yield(start, end) {
+			// yield the final range [last_split, b]
+			if a <= b {
+				if !yield(a, b) {
 					return
 				}
 			}

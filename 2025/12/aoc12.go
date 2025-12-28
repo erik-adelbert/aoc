@@ -64,7 +64,7 @@ func main() {
 				flushBlock()
 				continue // proceed to next line
 
-			case buf[0] == '#' || buf[0] == '.':
+			default:
 				// polyomino block line
 				block = append(block, buf...) // accumulate block lines
 				continue                      // proceed to next line

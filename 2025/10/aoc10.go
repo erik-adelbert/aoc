@@ -23,7 +23,7 @@ import (
 	"unsafe"
 )
 
-var MaxSolver = 16 // number of parallel solvers -- sweet spot on M1 instead of 8 (why!?)
+const MaxSolver = 16 // number of parallel solvers -- sweet spot on M1 instead of 8 (why!?)
 
 // use this for dynamic max procs
 // var MaxSolver = runtime.GOMAXPROCS(0)
