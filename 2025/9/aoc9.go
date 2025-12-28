@@ -21,11 +21,6 @@ import (
 	"time"
 )
 
-const (
-	X = iota
-	Y
-)
-
 func main() {
 	t0 := time.Now()
 
@@ -148,6 +143,11 @@ func part2(tiles []tile) u64 {
 
 	return area
 }
+
+const (
+	X = iota
+	Y
+)
 
 type (
 	// tile represents a point (x, y)
