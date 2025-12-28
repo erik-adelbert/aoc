@@ -14,33 +14,76 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"slices"
+	"sync"
 	"time"
 )
+
+const MaxWorkers = 8 // maximum number of concurrent workers
+const MaxLines = 200
 
 func main() {
 	t0 := time.Now() // start timer
 
 	var acc1, acc2 int // sums for parts 1 and 2
 
-	seq1, seq2 := newSeq(), newSeq() // maximizing sequences for parts 1 and 2
+	lines := make(chan []byte, 200)
 
 	// process input lines
-	input := bufio.NewScanner(os.Stdin)
+	go func() {
+		input := bufio.NewScanner(os.Stdin)
 
-	for input.Scan() {
-		buf := input.Bytes() // current line as byte slice
-
-		// use/reuse sequences
-		seq1.reset(Part1, len(buf))
-		seq2.reset(Part2, len(buf))
-
-		for _, c := range buf {
-			seq1.push(c)
-			seq2.push(c)
+		for input.Scan() {
+			lines <- slices.Clone(input.Bytes())
 		}
 
-		acc1 += seq1.val()
-		acc2 += seq2.val()
+		close(lines)
+	}()
+
+	// solve concurrently
+	var wg sync.WaitGroup
+
+	type val struct {
+		part1 int
+		part2 int
+	}
+
+	vals := make(chan val, MaxWorkers)
+
+	// closer goroutine
+	go func() {
+		wg.Wait()
+		close(vals)
+	}()
+
+	// sequencer pool
+	for range MaxWorkers {
+		wg.Go(func() {
+			// maximizing sequences for parts 1 and 2
+			acc1, acc2 := 0, 0               // local accumulators
+			seq1, seq2 := newSeq(), newSeq() // preallocate sequences
+
+			for buf := range lines {
+				// use/reuse sequences
+				seq1.reset(Part1, len(buf))
+				seq2.reset(Part2, len(buf))
+
+				for _, c := range buf {
+					seq1.push(c)
+					seq2.push(c)
+				}
+				acc1 += seq1.val()
+				acc2 += seq2.val()
+			}
+
+			vals <- val{acc1, acc2}
+		})
+	}
+
+	// collect results
+	for v := range vals {
+		acc1 += v.part1
+		acc2 += v.part2
 	}
 
 	fmt.Println(acc1, acc2, time.Since(t0))
@@ -65,7 +108,7 @@ type seq struct {
 // Call [seq.reset] prior to using/reusing the sequence.
 func newSeq() *seq {
 	return &seq{
-		digits: make([]byte, 0, MaxDigits), // preallocate
+		digits: make([]byte, MaxDigits), // preallocate
 		size:   0,
 		krem:   0,
 	}
