@@ -1,6 +1,6 @@
 # Summary
 
-This repository contains optimized solutions for Advent of Code 2025, implemented in [Go](https://en.wikipedia.org/wiki/Go_(programming_language)) with a focus on performance and educational value. The whole collection runs all days and all parts in about 2.8 ms. Each day is solved in a single, dependency-free [Go](https://go.dev) file.
+This repository contains optimized solutions for Advent of Code 2025, implemented in [Go](https://en.wikipedia.org/wiki/Go_(programming_language)) with a focus on performance and educational value. The whole collection runs all days and all parts in about 2.7 ms. Each day is solved in a single, dependency-free [Go](https://go.dev) file.
 
 ## Quick Navigation
 

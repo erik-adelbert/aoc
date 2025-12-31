@@ -27,26 +27,18 @@ func main() {
 	// process input lines
 	input := bufio.NewScanner(os.Stdin)
 
-	p := 50 // initial dial position
+	p := 50                            // initial dial position
+	signs := [...]int{'L': -1, 'R': 1} // direction sign map
 	for input.Scan() {
 		buf := input.Bytes()
-		dir, n := buf[0], atoi(buf[1:]) // parse direction and number
+		s, n := signs[buf[0]], atoi(buf[1:]) // parse direction and number
 
 		// part 2: full wraps ⎣n/M⎦
 		acc2 += n / M
 
 		// part 2: check for crossing 0 in the remainder
 
-		//remaining steps
-		r := n % M
-
-		// step sign
-		s := 1
-		if dir == Left {
-			s = -1
-		}
-
-		// if i is a click landing on 0 from p with step s,
+		// if i is a click landing on 0 from p with dir s,
 		// let i₀ be the first of those clicks in [0, M-1]
 		// we have:
 		//     p + i·s ≡ 0 (mod M) => i·s ≡ -p (mod M)
@@ -54,12 +46,13 @@ func main() {
 		// and we can multiply both sides by it, thus:
 		//     i ≡ -p·s (mod M)
 		// and, finally:
-		//     i₀ = -p·s (mod M)
+		//     i₀ = (-p·s) mod M
 		i0 := mod(-p*s, M)
 
 		// if i₀ == 0, that corresponds to “already at 0” and must be ignored
-		// otherwise, the dial crosses 0 once in the remainder iff i₀ ≤ r
-		if i0 != 0 && i0 <= r {
+		// otherwise, the dial crosses 0 once in the remainder iff i₀ ≤ n % M
+		n = n % M // remainding steps after full wraps
+		if i0 != 0 && i0 <= n {
 			acc2++
 		}
 
@@ -72,9 +65,6 @@ func main() {
 	// output clear passwords on stdout because why not?
 	fmt.Println(acc1, acc2, time.Since(t0))
 }
-
-// sugar
-const Left = 'L'
 
 // mod computes euclidean modulo
 func mod(a, b int) int {
