@@ -18,7 +18,7 @@ import (
 	"time"
 )
 
-const BufSizeHint = 1 << 10 // 1 K buffer size
+const BufSizeHint = 1 << 10 // 1K buffer size
 
 func main() {
 	t0 := time.Now() // start timer

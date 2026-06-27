@@ -3,7 +3,7 @@ GO = go build
 TARGETS := bench binrun build check clean header run
 
 SUBDIRS := $(wildcard */.)
-SUBDIRS := $(filter-out download/. header/. runtime/. images/., $(SUBDIRS))
+SUBDIRS := $(filter-out download/. header/. runtime/. images/. aoc2025/., $(SUBDIRS))
 
 # Default recursive targets
 $(TARGETS): $(SUBDIRS)

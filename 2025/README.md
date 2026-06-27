@@ -1,6 +1,6 @@
 # Summary
 
-This repository contains optimized solutions for Advent of Code 2025, implemented in [Go](https://en.wikipedia.org/wiki/Go_(programming_language)) with a focus on performance and educational value. The whole collection runs all days and all parts in about 2.7 ms. Each day is solved in a single, dependency-free [Go](https://go.dev) file.
+This repository contains optimized solutions for Advent of Code 2025, implemented in [Go](https://en.wikipedia.org/wiki/Go_(programming_language)) with a focus on performance and educational value. The whole collection runs all days and all parts in about 1.8 ms. Each day is solved in a single, dependency-free [Go](https://go.dev) file.
 
 ## Quick Navigation
 
@@ -64,21 +64,21 @@ This repository contains optimized solutions for Advent of Code 2025, implemente
 
 | Day                                | Time (μs) | % of Total  |
 | ---------------------------------- | --------: | ----------: |
-| [**2**](#day-2-gift-shop-)         |         8 |       0.30% |
-| [7](#day-7-laboratories-)          |        30 |       1.12% |
-| [5](#day-5-cafeteria-)             |        88 |       3.29% |
-| [3](#day-3-lobby-)                 |        94 |       3.51% |
-| [9](#day-9-movie-theater-)         |       106 |       3.96% |
-| [12](#day-12-christmas-tree-farm-) |       119 |       4.45% |
-| [1](#day-1-secret-entrance-)       |       124 |       4.63% |
-| [6](#day-6-trash-compactor-)       |       140 |       5.23% |
-| [11](#day-11-reactor-)             |       157 |       5.87% |
-| [10](#day-10-factory-)             |       248 |       9.27% |
-| [4](#day-4-printing-department-)   |       695 |      25.96% |
-| [8](#day-8-playground-)            |       863 |      32.24% |
-| **Total**                          | **2,677** | **100.00%** |
+| [**2**](#day-2-gift-shop-)         |         6 |       0.33% |
+| [7](#day-7-laboratories-)          |        23 |       1.26% |
+| [5](#day-5-cafeteria-)             |        64 |       3.50% |
+| [12](#day-12-christmas-tree-farm-) |        72 |       3.93% |
+| [9](#day-9-movie-theater-)         |        81 |       4.43% |
+| [3](#day-3-lobby-)                 |        83 |       4.53% |
+| [1](#day-1-secret-entrance-)       |        87 |       4.75% |
+| [6](#day-6-trash-compactor-)       |        94 |       5.14% |
+| [11](#day-11-reactor-)             |       106 |       5.79% |
+| [10](#day-10-factory-)             |       219 |      11.97% |
+| [4](#day-4-printing-department-)   |       453 |      24.75% |
+| [8](#day-8-playground-)            |       542 |      29.62% |
+| **Total**                          | **1,830** | **100.00%** |
 
-fastest of 100 runs for input parsing and part1&2 in μs - mbair M1/16GB - darwin 24.6.0 - go1.25.3 darwin/arm64 with greentea GC - 2025-12
+fastest of 100 runs for input parsing and part1&2 in μs - mbair M4/24GB - darwin 24.6.0 - go1.26.1 darwin/arm64 with greentea GC - 2026-06
 
 ## Installation and benchmark [↑](#summary)
 

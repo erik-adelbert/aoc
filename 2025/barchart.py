@@ -1,18 +1,39 @@
+"""
+Bar chart for AOC 2025 benchmark times
+A basic horizontal bar chart with matplotlib
+"""
+
 import matplotlib.pyplot as plt
 
 # Data
-days = ["2", "7", "5", "3", "9", "12", "1", "6", "11", "10", "4", "8"]
-times = [8, 30, 88, 94, 106, 119, 124, 140, 157, 248, 695, 863]
+data = {
+    "2": 6,
+    "7": 23,
+    "5": 64,
+    "12": 72,
+    "9": 81,
+    "3": 83,
+    "1": 87,
+    "6": 94,
+    "11": 106,
+    "10": 219,
+    "4": 453,
+    "8": 542,
+}
+
+days, times = zip(
+    *sorted(data.items(), key=lambda item: item[1])
+)  # sort by time then split
 
 # Colors and text color
-bar_color = "#808080"  # medium gray bars
-text_color = "#808080"  # medium gray text
+BAR_COLOR = "#808080"  # medium gray bars
+TEXT_COLOR = "#808080"  # medium gray text
 
 # Create figure
 fig, ax = plt.subplots(figsize=(10, 6))
 
 # Horizontal bar chart
-bars = ax.barh(days, times, color=bar_color)
+bars = ax.barh(days, times, color=BAR_COLOR)
 
 # Add labels on bars
 for bar in bars:
@@ -23,23 +44,22 @@ for bar in bars:
         f"{width}",
         va="center",
         ha="left",
-        color=text_color,
+        color=TEXT_COLOR,
     )
 
 # Style axes
-ax.set_xlabel("Time (μs)", color=text_color)
-ax.set_ylabel("Day", color=text_color)
-ax.tick_params(colors=text_color)  # axis tick labels
+ax.set_xlabel("Time (μs)", color=TEXT_COLOR)
+ax.set_ylabel("Day", color=TEXT_COLOR)
+ax.tick_params(colors=TEXT_COLOR)  # axis tick labels
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
-ax.spines["left"].set_color(text_color)
-ax.spines["bottom"].set_color(text_color)
+ax.spines["left"].set_color(TEXT_COLOR)
+ax.spines["bottom"].set_color(TEXT_COLOR)
 
-# Transparent background
-fig.patch.set_alpha(0.0)
-ax.patch.set_alpha(0.0)
+fig.set_alpha(0.0)  # Transparent figure background
+ax.set_alpha(0.0)  # Transparent axes background
 
-# Invert y-axis for descending order like a typical bar chart
+# Invert y-axis for descending order
 ax.invert_yaxis()
 
 plt.tight_layout()

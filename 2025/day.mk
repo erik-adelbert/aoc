@@ -47,6 +47,9 @@ cpuprof: build
 memprof: build
 	./$(BIN) -memprofile=$(BIN).mem.prof < $(IN)
 
+escape: input.txt
+	go build -gcflags="all=-m" $(SRC) 2>&1 | tee $(BIN).escape.log
+
 run: input.txt
 	GODEBUG=greenteagc=1 go run ./$(SRC) < $(IN)
 

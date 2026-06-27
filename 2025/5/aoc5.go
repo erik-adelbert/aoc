@@ -35,20 +35,21 @@ func main() {
 	for input.Scan() {
 		buf := input.Bytes()
 
-		switch {
-		case len(buf) == 0:
-			// blank line separates spans and queries
-
+		// blank line separates spans and queries
+		if len(buf) == 0 {
 			acc2, spans = merge(spans) // merge intervals and calculate total coverage
-
 			state = Query
 
-		case state == Span:
-			start, end, _ := bytes.Cut(buf, []byte("-")) // parse range
+			continue
+		}
 
+		// parsing state machine
+		switch state {
+		case Span:
+			start, end, _ := bytes.Cut(buf, []byte("-"))
 			spans = append(spans, span{atoi(start), atoi(end)})
 
-		case state == Query:
+		case Query:
 			queries = append(queries, atoi(buf))
 		}
 	}
@@ -56,17 +57,17 @@ func main() {
 	// process queries
 	slices.Sort(queries)
 
-	i, j := 0, 0
+	i, j := 0, 0 // query and span indices
 	for i < len(queries) && j < len(spans) {
 		q := queries[i]
 		s := spans[j]
 
 		switch {
-		case q < s.start:
+		case q < s.start: // query is before current span
 			i++
-		case q > s.end:
+		case q > s.end: // query is after current span
 			j++
-		default:
+		default: // query is within current span
 			acc1++
 			i++
 		}
@@ -82,7 +83,6 @@ func merge(spans []span) (int, []span) {
 		return a.start - b.start
 	})
 
-	// merged := make([]span, 0, MergedSpanCountHint) // could also be len(spans)
 	merged := spans[:0] // reuse input slice
 
 	// merge overlapping intervals, count cover and populate tree
@@ -116,7 +116,7 @@ type span struct {
 }
 
 const (
-	Span = iota
+	Span = iota // span is a convenient synonym for range
 	Query
 )
 

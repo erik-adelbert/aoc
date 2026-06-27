@@ -17,7 +17,10 @@ import (
 	"time"
 )
 
-const M = 100
+const (
+	M  = 100 // dial modulus
+	P0 = 50  // initial dial position
+)
 
 func main() {
 	t0 := time.Now()
@@ -27,7 +30,7 @@ func main() {
 	// process input lines
 	input := bufio.NewScanner(os.Stdin)
 
-	p := 50                            // initial dial position
+	p := P0                            // initial dial position
 	signs := [...]int{'L': -1, 'R': 1} // direction sign map
 	for input.Scan() {
 		buf := input.Bytes()
@@ -41,10 +44,10 @@ func main() {
 		// if i is a click landing on 0 from p with dir s,
 		// let i₀ be the first of those clicks in [0, M-1]
 		// we have:
-		//     p + i·s ≡ 0 (mod M) => i·s ≡ -p (mod M)
+		//     p + i·s ≡ 0 [M] => i·s ≡ -p [M]
 		// s = ±1 and M are coprime, so the modular inverse of s is s itself
 		// and we can multiply both sides by it, thus:
-		//     i ≡ -p·s (mod M)
+		//     i ≡ -p·s [M]
 		// and, finally:
 		//     i₀ = (-p·s) mod M
 		i0 := mod(-p*s, M)
@@ -57,7 +60,8 @@ func main() {
 		}
 
 		// part 1: advance p, final position is checked for 0
-		if p = mod(p+s*n, M); p == 0 {
+		p = mod(p+s*n, M)
+		if p == 0 {
 			acc1++
 		}
 	}
